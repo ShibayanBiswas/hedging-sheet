@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# env
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# testing
+test-results/
+playwright-report/
+coverage/
+
+# workbook and scratch
+*.xlsm
+.scratch/
+
+# misc
+.DS_Store
+*.log
