@@ -29,3 +29,7 @@ hedging_sheet_walkthrough.md
 # misc
 .DS_Store
 *.log
+
+.vercel
+.env*
+!.env.example

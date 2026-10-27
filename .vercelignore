@@ -1,0 +1,7 @@
+.scratch
+*.xlsm
+.env*
+test-results
+playwright-report
+hedging_sheet_cursor_prompt.md
+hedging_sheet_walkthrough.md
