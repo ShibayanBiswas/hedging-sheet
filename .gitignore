@@ -20,9 +20,11 @@ test-results/
 playwright-report/
 coverage/
 
-# workbook and scratch
+# workbook, scratch and the local build brief
 *.xlsm
 .scratch/
+hedging_sheet_cursor_prompt.md
+hedging_sheet_walkthrough.md
 
 # misc
 .DS_Store

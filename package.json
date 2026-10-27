@@ -1,0 +1,55 @@
+{
+  "name": "hedging-sheet",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "next dev --port 3005",
+    "build": "next build",
+    "start": "next start --port 3005",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "extract:workbook": "npx tsx scripts/extract-workbook-seed.ts",
+    "build:samples": "npx tsx scripts/build-sample-inputs.ts",
+    "sync:seed": "npx tsx scripts/sync-seed.ts",
+    "verify:mongo": "npx tsx scripts/verify-mongo.ts"
+  },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "date-fns": "4.1.0",
+    "exceljs": "4.4.0",
+    "framer-motion": "12.43.0",
+    "lucide-react": "0.539.0",
+    "mongodb": "7.4.0",
+    "next": "16.4.2",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "recharts": "3.1.2",
+    "tailwind-merge": "3.3.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zod": "4.0.17"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "autoprefixer": "10.4.21",
+    "eslint": "9.33.0",
+    "eslint-config-next": "16.4.2",
+    "postcss": "8.5.31",
+    "tailwindcss": "3.4.17",
+    "tsx": "4.20.4",
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "motion-dom": "12.43.0",
+    "motion-utils": "12.39.0"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "underlying": "Sensex",
+  "valuationDate": "2026-08-04",
+  "spot": 76799,
+  "derivedSpot": 76799,
+  "startLevelUplift": 0.006,
+  "startLevelRounding": 100,
+  "nbfcRate": 0.08,
+  "premiumRate": 0.065,
+  "marginGrowthRate": 0.06579,
+  "target": 0.37,
+  "coupon": 1.025,
+  "spreads": [
+    {
+      "buy": 0.25,
+      "sell": 0.27,
+      "participation": 1
+    },
+    {
+      "buy": 0.27,
+      "sell": 0.37,
+      "participation": 10.05
+    }
+  ],
+  "protection": 0.15,
+  "decay": 1.6,
+  "tenorDays": 1940,
+  "expiryDates": [
+    "2030-01-31",
+    "2030-04-25",
+    "2030-07-25",
+    "2030-10-31",
+    "2031-01-30",
+    "2031-04-24"
+  ],
+  "expiryMonths": [
+    41,
+    44,
+    47,
+    50,
+    53,
+    56
+  ],
+  "hedgeExpiry": "2030-07-25",
+  "strikePercents": [
+    137,
+    127,
+    125,
+    85,
+    84,
+    70
+  ],
+  "outflowWidth": 0.01,
+  "floorLevel": 0.7,
+  "floorUnits": 1,
+  "notionalCr": 100,
+  "transactionCost": 0.0225,
+  "issuanceCost": 0.0013,
+  "marginCost": 0,
+  "hedgeStrike": 76800,
+  "hedgeOptionType": "P",
+  "dailyVol": 0.00895071,
+  "annualVol": 0.17100307,
+  "exposureMargin": 0.05,
+  "futuresMargin": 0.2,
+  "exchangeForwardRate": 0.0348,
+  "exchangeDiscountRate": 0.0348,
+  "stressedForwardRate": 0.0348,
+  "stressedDiscountRate": 0.0348,
+  "stressSigmas": 6,
+  "stressDays": 2,
+  "stressVolMultiplier": 1.25,
+  "scenarioMoves": [
+    -0.5,
+    -0.45,
+    -0.4,
+    -0.35,
+    -0.3,
+    -0.25,
+    -0.2,
+    -0.15,
+    -0.1,
+    -0.05,
+    0,
+    0.05,
+    0.1,
+    0.15,
+    0.2
+  ]
+}
