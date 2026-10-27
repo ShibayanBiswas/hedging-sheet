@@ -4,7 +4,8 @@ This guide is for someone who has never deployed a website. Follow the numbered 
 
 The Hedging Sheet is a **Next.js** app. Vercel hosts it and rebuilds it every time `main` is pushed to GitHub.
 
-- Production: PRODUCTION_URL
+- Production: [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app)
+- Vercel project: `shibayan-biswas-projects/hedging-sheet`, the same team as the other desk apps
 - Repository: [ShibayanBiswas/hedging-sheet](https://github.com/ShibayanBiswas/hedging-sheet), private
 
 ## What you need before you start
@@ -93,7 +94,7 @@ Open PowerShell in the project folder and run these one at a time.
 5. Run the browser tests against production:
 
    ```powershell
-   $env:BASE_URL = "PRODUCTION_URL"; npx playwright test; Remove-Item Env:BASE_URL
+   $env:BASE_URL = "https://hedging-sheet.vercel.app"; npx playwright test; Remove-Item Env:BASE_URL
    ```
 
    The upload test skips itself against production so the live surface is not replaced.
