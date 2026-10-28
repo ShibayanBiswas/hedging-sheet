@@ -12,6 +12,7 @@
 | Default parity suite | `e2e/default` | D1 to D7: prefilled fields, regression numbers at the mock spot, the table checks, Excel, the run gate, the footer and the surface parameter editor; plus the market data flows |
 | Copy and capitalisation | `e2e/copy-rules.spec.ts`, `e2e/capitalisation.spec.ts` | Spelled out words, no brackets, no "/", the % sign, "-" for not applicable, full-width tables and capitals on every word, on every page in both modes |
 | Accessibility | `e2e/a11y.spec.ts`, B21 and B22 | axe on every page, in both modes and themes, before and after a run and with a popup open; no serious or critical violations |
+| Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 on 12 viewports from 320 by 568 to 2560 by 1440: no page-level sideways scroll, no overflow or overlap, font sizes on the type scale and none below 12 px, icon sizes, 44 px touch targets, short wording and headings within two lines at 360 px, screenshots per page, viewport and theme, the sticky run bar, footer and pinned first column, 200% zoom and reduced motion, and Excel column widths, row heights and fonts. The unit test keeps raw font sizes, off-scale spacing, raw icon sizes and `vh` out of the source |
 | Visual | `e2e/visual`, B21 | `toHaveScreenshot` per page and per theme with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
 | Performance | `e2e/perf.spec.ts`, `lighthouserc.json` | LCP under 2.5 s, CLS under 0.1, TBT under 300 ms on Inputs and Pricer; a run under 3 s with mocks |
 | Production | `e2e/prod-smoke.spec.ts` | Read only against `BASE_URL`; nothing is uploaded or saved |
@@ -31,6 +32,7 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run e2e:a11y` | The axe checks |
 | `npm run e2e:visual`, `e2e:visual:update` | Visual baselines on Chromium, and rewriting them |
 | `npm run e2e:perf` | Web vitals and the run time on Chromium |
+| `npm run e2e:responsive`, `e2e:responsive:update` | The responsive audit on Chromium, and rewriting its screenshot baselines |
 | `npm run e2e:prod` | The read-only production project; needs `BASE_URL` |
 | `npm run lhci` | Lighthouse budgets against the mock server |
 | `npm run test:all` | Typecheck, lint, coverage and every Playwright project: everything except production |
@@ -69,7 +71,7 @@ Run one test by name with `npx playwright test -g "B13.2"`, or one project with 
 
 ## Updating snapshots
 
-Baselines live under `e2e/visual/__screenshots__/<project>/<platform>`. After an intended visual change, run `npm run e2e:visual:update` on Windows and commit the new files. CI on Linux compares against the `linux` set; when it has fewer files than the `win32` set, the visual job writes the missing Linux baselines and uploads them as the `visual-baselines-linux` artifact instead of failing. Download that artifact, copy the images into `e2e/visual/__screenshots__/chromium/linux` and commit them.
+Baselines live under `e2e/visual/__screenshots__/<project>/<platform>`. After an intended visual change, run `npm run e2e:visual:update` and `npm run e2e:responsive:update` on Windows and commit the new files. CI on Linux compares against the `linux` set; when it has fewer files than the `win32` set, the visual job writes the missing Linux baselines and uploads them as the `visual-baselines-linux` artifact instead of failing. Download that artifact, copy the images into `e2e/visual/__screenshots__/chromium/linux` and commit them.
 
 ## Reading traces
 
@@ -85,8 +87,8 @@ A failed test keeps its trace, video and screenshot in `test-results/playwright/
 `.github/workflows/ci.yml` runs on every push and pull request:
 
 1. Typecheck, lint, Vitest with coverage, and the build.
-2. Playwright in mock mode against the production build, across 4 shards and all four projects.
-3. Visual baselines.
+2. Playwright in mock mode against the production build, across 4 shards and all four projects. The responsive audit runs in the Chromium project of these shards.
+3. Visual baselines, including the responsive screenshots.
 4. Lighthouse budgets.
 5. Artifact upload for each job.
 

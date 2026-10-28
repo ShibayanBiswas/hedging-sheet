@@ -1,5 +1,36 @@
 # 08 · Changelog
 
+## Round 6
+
+### Sizes and layout
+
+- **Design tokens.** One type, icon and spacing scale in `app/globals.css` and `tailwind.config.ts`. Font sizes use `clamp()` between 320 px and 2560 px. Tailwind's own font sizes and off-scale spacing are removed from the theme, so a stray class produces no CSS, and `tests/unit/design-tokens.test.ts` keeps them out of the source.
+- **Inputs.** Fields sit in a grid of one to four columns, with the label above the box. Input and button rows wrap on narrow screens.
+- **Tables.** Wrapped, balanced headers; numbers that never wrap; scroll shadows; a pinned first column. Item and value tables split into two or three column pairs on wide screens.
+- **Shell.** The tab bar scrolls below 1024 px. Popups become bottom sheets on phones, the footer keeps two lines on phones, and the Run Simulation bar respects the phone safe area. Every `vh` is now `dvh`.
+- **Sticky fix.** The page wrapper used `overflow-x: hidden`, which turned it into a scroll container, so neither the header nor the Run Simulation bar ever stuck. It now uses `overflow-x: clip`.
+- **Short labels.** The margin tab reads Mark To Market, the popup action reads Go To Field, and the blank-mode volatility button reads Compute Volatility.
+- **Excel.** Long text cells wrap, and the row height grows to fit them.
+- **Accessibility.** The Search button's name now includes its visible text.
+
+### Rendering
+
+Every page now renders per request through `connection()` in `app/layout.tsx`. Inputs opens on today's date in India, so a page prerendered at build time carried the deploy date. On every later day, React reported a hydration mismatch, error 418, and rebuilt the page in the browser.
+
+### Removed
+
+About 320 CSS rules that no page used, which halved `app/globals.css`.
+
+### Tests
+
+`e2e/responsive` holds R1 to R11 on 12 viewports, with `npm run e2e:responsive` and `npm run e2e:responsive:update`. R1 to R7, R9, R10 and R11 run in the Chromium shards, and the R8 screenshots run in the visual job.
+
+### Decisions
+
+- **Tab bar below 1024 px.** It scrolls sideways with faded edges rather than opening a sheet menu, which keeps the sliding active pill on every screen.
+- **Footer.** It sits at the end of the page rather than staying pinned, so it never covers content. R9 checks that it is fully visible and uncovered there.
+- **Buttons.** Compact header buttons use the Caption size and every other button uses Body; both are on the scale.
+
 ## Round 5
 
 ### Test suites

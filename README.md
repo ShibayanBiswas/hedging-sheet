@@ -42,6 +42,7 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run e2e:a11y` | axe accessibility checks |
 | `npm run e2e:visual` and `e2e:visual:update` | Screenshot baselines, and rewriting them |
 | `npm run e2e:perf` and `npm run lhci` | Web vitals and Lighthouse budgets |
+| `npm run e2e:responsive` and `e2e:responsive:update` | The responsive audit on 12 viewports, and rewriting its screenshots |
 | `npm run e2e:prod` | Read-only Playwright checks against `BASE_URL` |
 | `npm run e2e:server` | The mock-mode server the Playwright suite starts |
 | `npm run test:all` | Typecheck, lint, coverage and every Playwright project, except production |

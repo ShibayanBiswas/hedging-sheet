@@ -4,8 +4,19 @@
 
 - **Header.** Logo, title, the underlying badge, Search with Ctrl K, the theme toggle, Upload Volatility Surface, and Download Excel. Download Excel is enabled after the first run and downloads the last run.
 - **Strip.** The valuation date, the active surface month and the simulation status: Not Run, Running, Up To Date or Inputs Changed.
-- **Tabs.** One full-width pill bar. Each tab takes an equal share of the width, with an icon, and the active pill slides between tabs on a spring.
-- **Footer.** Nifty and Sensex closes, Fetched At in IST, the market status (Open, Pre Open, Closed, Holiday or Weekend), the data source, the Mongo status and the desk clock.
+- **Tabs.** One full-width pill bar. Each tab takes an equal share of the width, with an icon, and the active pill slides between tabs on a spring. Below 1024 px the bar scrolls sideways with faded edges and keeps the active tab in view.
+- **Footer.** Nifty and Sensex closes, Fetched At in IST, the market status (Open, Pre Open, Closed, Holiday or Weekend), the data source, the Mongo status and the desk clock. On phones and short screens it keeps two lines: the closes, then Fetched At and the market status.
+- **Rendering.** Every page renders per request, because Inputs opens on today's date in India; a page built ahead of time would carry the build date.
+
+### Sizes on every screen
+
+- **Type and spacing.** One scale in `app/globals.css` and `tailwind.config.ts`. Font sizes grow smoothly from 320 px to 2560 px: Display 28 to 44 px, H1 24 to 34, H2 20 to 26, H3 17 to 21, Body 14 to 16, Table 13 to 15, Table Head 12 to 14 and Caption 12 to 13. Spacing uses 4, 8, 12, 16, 24, 32, 48 and 64 px; sections pad 16 px on phones, 24 on tablets and 32 on desktops. Icons are 14, 16, 20, 24 or 32 px with a 1.75 stroke; tab icons are 16 px on phones and 20 px from 768 px.
+- **Header.** Sticks to the top from 640 px wide and 500 px tall; on smaller screens it scrolls away so the form keeps its room.
+- **Inputs.** Fields sit in one column on phones, two from 640 px, three from 1280 px and four from 1920 px, with the label above the box and the hint below it. The Run Simulation bar stays pinned to the bottom edge and clears the phone home indicator.
+- **Tables.** Numbers are right aligned with tabular figures and never wrap; headers wrap to two balanced lines at most. A table wider than the screen scrolls inside its card with shadows at the edges, and the first column stays pinned.
+- **Popups.** Full-height sheets from the bottom on phones, centred dialogs from 640 px; the content scrolls inside.
+- **Charts.** Fewer axis ticks and tighter margins on phones.
+- **Touch.** On touch screens every button, tab, select and checkbox is at least 44 by 44 px.
 
 ## Tabs
 
@@ -16,7 +27,7 @@
 | `/pricer` | Pricer | Yes |
 | `/product` | Product Description | Yes |
 | `/vega-hedge` | Day 1 Vega Hedge | Yes |
-| `/margin` | Mark to Market and Margin | Yes |
+| `/margin` | Mark To Market | Yes |
 | `/market-data` | Market Data | No |
 | `/logic-atlas` | Logic Atlas | No |
 
@@ -27,9 +38,9 @@ Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, 
 A pill at the top switches between two modes, after a confirm popup that also clears the results:
 
 - **Default Values.** The live spot, today's date in India, the calculated volatility and the desk terms. Reset To Defaults restores them.
-- **Blank Inputs.** Every field is empty with an "Eg …" placeholder and the selects read "Select …". Choose the number of expiry dates first, then that many month rows appear. Computed dates show "-" until they can be worked out, and derived fields fill as the inputs arrive and stay editable. Fetch Live Spot and Compute Volatility From History fill only their own fields. Clear All Inputs empties every field again.
+- **Blank Inputs.** Every field is empty with an "Eg …" placeholder and the selects read "Select …". Choose the number of expiry dates first, then that many month rows appear. Computed dates show "-" until they can be worked out, and derived fields fill as the inputs arrive and stay editable. Fetch Live Spot and Compute Volatility fill only their own fields. Clear All Inputs empties every field again.
 
-Run Simulation validates first. Missing or invalid fields open "Missing Or Invalid Inputs", grouped by section, with Go To First Field; closing the popup focuses the first invalid field, and each invalid field has a red ring and inline text. A typed value that breaks a rule across fields opens "Please Fix This Input" straight away, or "Coupon Not Reachable" when the spreads cannot pay the Coupon.
+Run Simulation validates first. Missing or invalid fields open "Missing Or Invalid Inputs", grouped by section, with Go To Field; closing the popup focuses the first invalid field, and each invalid field has a red ring and inline text. A typed value that breaks a rule across fields opens "Please Fix This Input" straight away, or "Coupon Not Reachable" when the spreads cannot pay the Coupon.
 
 Every popup takes keyboard focus and Escape closes it. Focus then returns to where it was, or to the field the popup is about. Arrow keys, Home and End move between the mode tabs and between the section tabs, and Enter opens the focused one.
 
