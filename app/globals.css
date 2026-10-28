@@ -3699,3 +3699,31 @@ html.dark .kpi-card-live::after {
     scrollbar-width: thin;
   }
 }
+
+/* ------------------------------------------------------------------ Round 3 additions */
+@layer components {
+  .hs-input {
+    @apply rounded-2xl border px-4 py-3 font-ui text-sm tabular-nums outline-none transition;
+    border-color: var(--ar-border);
+    background: var(--ar-input-bg);
+  }
+
+  .hs-input:focus {
+    border-color: rgba(212, 178, 76, 0.9);
+  }
+
+  .hs-output {
+    @apply rounded-2xl border px-4 py-3 font-ui text-sm font-bold tabular-nums;
+    border-color: rgba(212, 178, 76, 0.35);
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.1), rgba(122, 30, 44, 0.04));
+    color: var(--ar-ink, #111);
+  }
+
+  .hs-strike-band {
+    @apply whitespace-nowrap text-center font-ui text-xs font-bold tracking-wide;
+  }
+
+  .hs-status-dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+}

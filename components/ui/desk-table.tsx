@@ -59,32 +59,11 @@ function Cell({ value, kind, digits, pinned }: { value: CellValue; kind: CellKin
   );
 }
 
-function groupRuns(groups: Array<string | undefined>): Array<{ label: string; span: number }> {
-  const runs: Array<{ label: string; span: number }> = [];
-  for (const g of groups) {
-    const label = g ?? "";
-    const last = runs[runs.length - 1];
-    if (last && last.label === label) last.span += 1;
-    else runs.push({ label, span: 1 });
-  }
-  return runs;
-}
-
 export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; pinFirst?: boolean; testId?: string }) {
-  const hasGroups = spec.columns.some((c) => c.group);
   return (
     <TableFrame testId={testId ?? `table-${spec.id}`} note={spec.note}>
-      <table className={cn("data-table-premium data-table-fill", hasGroups && "hs-has-groups")}>
+      <table className="data-table-premium data-table-fill">
         <thead>
-          {hasGroups ? (
-            <tr className="hs-group-row">
-              {groupRuns(spec.columns.map((c) => c.group)).map((g, i) => (
-                <th key={i} colSpan={g.span} className={cn(i === 0 && pinFirst && !g.label && "col-pinned")}>
-                  {g.label}
-                </th>
-              ))}
-            </tr>
-          ) : null}
           <tr className="hs-head-row">
             {spec.columns.map((c, i) => (
               <th key={c.key} className={cn(c.kind !== "text" && "text-right", i === 0 && pinFirst && "col-pinned")}>
@@ -151,15 +130,15 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
       <table className="data-table-premium hs-has-groups">
         <thead>
           <tr className="hs-group-row">
-            <th className="col-pinned">Strike Block</th>
+            <th className="col-pinned">{spec.corner[0]}</th>
             {spec.groups.map((g) => (
-              <th key={g.label} colSpan={g.span}>
+              <th key={g.label} colSpan={g.span} className="hs-strike-band">
                 {g.label}
               </th>
             ))}
           </tr>
           <tr className="hs-head-row">
-            <th className="col-pinned">Field</th>
+            <th className="col-pinned">{spec.corner[1]}</th>
             {spec.columnLabels.map((label, i) => (
               <th key={i} className="text-right">
                 {label}
@@ -190,7 +169,7 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                         <input
                           className="w-20 rounded-lg border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-xs tabular-nums outline-none focus:border-gold"
                           inputMode="decimal"
-                          aria-label={`${row.label} for ${spec.columnLabels[i]} column ${i + 1}`}
+                          aria-label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`}
                           defaultValue={typeof v === "number" ? (v * 100).toFixed(2) : ""}
                           data-testid={`grid-edit-${key}`}
                           onBlur={(e) => {

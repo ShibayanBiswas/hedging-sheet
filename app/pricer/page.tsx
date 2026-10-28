@@ -6,7 +6,7 @@ import { GridCard, KeyValueCard, TableCard } from "@/components/ui/desk-table";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { ResultGate } from "@/components/ui/result-gate";
 import { useDesk } from "@/lib/context/desk-provider";
-import { headlineTable, pricerGrid, pricerHeaderTable, pricerPayoutTable } from "@/lib/tables";
+import { pricerGrid, pricerHeadline, pricerPayoutTable, pricerPotTable } from "@/lib/tables";
 
 export default function PricerPage() {
   const { inputs, setInputs } = useDesk();
@@ -19,26 +19,17 @@ export default function PricerPage() {
       />
       <ResultGate>
         {(r) => {
-          const h = r.pricer.header;
           return (
             <>
               <Panel>
                 <SectionTitle icon={Gauge}>Headline</SectionTitle>
-                <TableCard
-                  spec={headlineTable("pricer-headline", "Headline", [
-                    { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
-                    { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
-                    { label: "Premium in Crore", value: h.premium / 1e7, kind: "crore" },
-                    { label: "Maturity Payout in Crore", value: h.payout / 1e7, kind: "crore" },
-                    { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
-                    { label: "Delta in Contracts", value: h.delta, kind: "number", digits: 0 },
-                    { label: "Internal Rate of Return", value: h.irr, kind: "percent" },
-                  ])}
-                />
+                <TableCard spec={pricerHeadline(r)} />
               </Panel>
               <Panel index={1}>
-                <SectionTitle icon={Calculator}>Pot Computation</SectionTitle>
-                <TableCard spec={pricerHeaderTable(r)} />
+                <SectionTitle icon={Calculator} subtitle="The top block of the Pricer sheet, row by row in sheet order.">
+                  Pot Computation
+                </SectionTitle>
+                <KeyValueCard spec={pricerPotTable(r)} />
               </Panel>
               <Panel index={2}>
                 <SectionTitle icon={Sigma}>Payout Construction</SectionTitle>
@@ -47,7 +38,7 @@ export default function PricerPage() {
               <Panel index={3}>
                 <SectionTitle
                   icon={Grid3X3}
-                  subtitle="One column per live leg, grouped by strike. Volatility defaults to the surface; type over any cell to override that leg, then run the simulation again."
+                  subtitle="One column per live leg: the strike on top, the expiry date beneath. Volatility defaults to the surface; type over any cell to override that leg, then run the simulation again."
                   aside={
                     overrideCount ? (
                       <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" onClick={() => setInputs({ legVolOverrides: {} })} data-testid="reset-leg-vols">

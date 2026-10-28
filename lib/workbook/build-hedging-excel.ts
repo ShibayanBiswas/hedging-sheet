@@ -1,16 +1,20 @@
 import type ExcelJS from "exceljs";
 
 import { formatDate } from "@/lib/engine/dates";
-import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
-import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
+import { fmtNumber } from "@/lib/format";
 import {
+  marginHeadline,
   marginTable,
   pricerGrid,
-  pricerHeaderTable,
+  pricerHeadline,
   pricerPayoutTable,
+  pricerPotTable,
+  productHeadline,
   productTables,
+  summaryHeadline,
   summaryTables,
+  vegaHeadline,
   vegaHedgeInputs,
   vegaHedgeMarginTable,
   vegaHedgePriceTable,
@@ -21,7 +25,6 @@ import {
 import { writeTypedCell } from "@/lib/workbook/excel-cells";
 import { embedBrandLogo } from "@/lib/workbook/export-branding";
 import {
-  addExcelKpiTiles,
   addExcelMasthead,
   addExcelSection,
   autofitExcelColumns,
@@ -67,15 +70,6 @@ function writeTable(sheet: ExcelJS.Worksheet, row: number, spec: TableSpec, from
     const cell = sheet.getCell(r, fromCol);
     cell.value = spec.note;
     cell.font = { italic: true, size: 9, color: { argb: EXCEL_THEME.muted }, name: EXCEL_FONT };
-    r += 1;
-  }
-  if (spec.columns.some((c) => c.group)) {
-    spec.columns.forEach((c, k) => {
-      const cell = sheet.getCell(r, fromCol + k);
-      cell.value = c.group ?? "";
-      styleHeader(cell);
-      cell.fill = excelFill(EXCEL_THEME.goldPale);
-    });
     r += 1;
   }
   spec.columns.forEach((c, k) => {
@@ -133,7 +127,7 @@ function writeGrid(sheet: ExcelJS.Worksheet, row: number, spec: GridSpec): { nex
     r += 1;
   }
   const groupCell = sheet.getCell(r, 1);
-  groupCell.value = "Strike Block";
+  groupCell.value = spec.corner[0];
   styleHeader(groupCell);
   let col = 2;
   for (const g of spec.groups) {
@@ -147,7 +141,7 @@ function writeGrid(sheet: ExcelJS.Worksheet, row: number, spec: GridSpec): { nex
   r += 1;
   const headerRow = r;
   const labelHead = sheet.getCell(r, 1);
-  labelHead.value = "Field";
+  labelHead.value = spec.corner[1];
   styleHeader(labelHead);
   spec.columnLabels.forEach((label, k) => {
     const cell = sheet.getCell(r, 2 + k);
@@ -199,31 +193,15 @@ function startSheet(
   return { sheet, row };
 }
 
-/** The five workbook sheets, in order, styled with the desk export theme. */
+/** The five output sheets, in order, styled with the desk export theme. No pivots, inputs or helper columns. */
 export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult, logo: string | null): ExcelJS.Workbook {
-  const u = result.underlyingLabel;
-  const s = result.summary;
-
   // Summary Sheet
   {
-    const summary = summaryTables(result);
-    const width = 12;
+    const width = 8;
     const { sheet, row } = startSheet(wb, SHEET_NAMES[0], "Summary Sheet", result, logo, width);
-    let r = addExcelKpiTiles(
-      sheet,
-      row,
-      [
-        ["Actual Inbuilt", fmtPercent(s.actualInbuilt)],
-        ["Option Premium", `${fmtCrore(s.totalPremiumCr)} Crore`],
-        ["Maturity Payout", `${fmtCrore(result.productDescription.maturityCr)} Crore`],
-        ["Margin Requirement", fmtPercent(s.margin)],
-        ["Hedge Quantity", fmtNumber(result.dayOneVegaHedge.quantity, 2)],
-        ["Internal Rate of Return", fmtPercent(s.irr)],
-      ],
-      width,
-    );
+    let r = writeTable(sheet, row, summaryHeadline(result));
     const top = r;
-    for (const block of summary.blocks) r = "items" in block ? writeKeyValue(sheet, r, block) : writeTable(sheet, r, block);
+    for (const block of summaryTables(result)) r = "items" in block ? writeKeyValue(sheet, r, block) : writeTable(sheet, r, block);
     finishSheet(sheet, top - 1);
   }
 
@@ -232,7 +210,8 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
     const grid = pricerGrid(result);
     const width = Math.min(grid.columnLabels.length + 1, 22);
     const { sheet, row } = startSheet(wb, SHEET_NAMES[1], "Pricer", result, logo, width);
-    let r = writeTable(sheet, row, pricerHeaderTable(result));
+    let r = writeTable(sheet, row, pricerHeadline(result));
+    r = writeKeyValue(sheet, r, pricerPotTable(result));
     r = writeKeyValue(sheet, r, pricerPayoutTable(result));
     const out = writeGrid(sheet, r, grid);
     finishSheet(sheet, out.headerRow, 1);
@@ -243,19 +222,9 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
     const pd = productTables(result);
     const width = 6;
     const { sheet, row } = startSheet(wb, SHEET_NAMES[2], result.productDescription.title, result, logo, width);
-    let r = addExcelKpiTiles(
-      sheet,
-      row,
-      [
-        ["Maturity Value", `${fmtCrore(result.productDescription.maturityCr)} Crore`],
-        ["Internal Rate of Return", fmtPercent(result.productDescription.irr)],
-        ["Maximum Coupon", fmtPercent(result.inputs.coupon)],
-        ["Protection", fmtPercent(deriveTerms(result.inputs).protection, 0)],
-      ],
-      width,
-    );
+    let r = writeTable(sheet, row, productHeadline(result));
     const top = r;
-    for (const block of [pd.details, pd.maturity, pd.greeks, pd.rates]) r = writeKeyValue(sheet, r, block);
+    for (const block of [pd.termSheet, pd.details, pd.maturity, pd.greeks, pd.rates]) r = writeKeyValue(sheet, r, block);
     writeTable(sheet, r, pd.payoff);
     finishSheet(sheet, top - 1);
   }
@@ -264,8 +233,9 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
   {
     const width = 14;
     const { sheet, row } = startSheet(wb, SHEET_NAMES[3], "Day 1 Vega Hedge", result, logo, width);
-    let r = writeKeyValue(sheet, row, vegaHedgeInputs(result));
+    let r = writeTable(sheet, row, vegaHeadline(result));
     const top = r;
+    r = writeKeyValue(sheet, r, vegaHedgeInputs(result));
     r = writeTable(sheet, r, vegaHedgeMarginTable(result));
     r = writeTable(sheet, r, vegaHedgePriceTable(result, "fair"));
     r = writeTable(sheet, r, vegaHedgePriceTable(result, "exchange"));
@@ -278,20 +248,8 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
     const spec = marginTable(result);
     const width = spec.columns.length;
     const { sheet, row } = startSheet(wb, SHEET_NAMES[4], "Mark to Market and Margin Requirement", result, logo, width);
-    const zero = result.markToMarket.zeroRow;
-    const worst = result.markToMarket.worstCase;
-    const r = addExcelKpiTiles(
-      sheet,
-      row,
-      [
-        ["Requirement At 0 Percent Move", `${fmtCrore(zero.totalRequirementCr)} Crore`],
-        ["Worst Case Requirement", `${fmtCrore(worst.totalRequirementCr)} Crore At ${fmtPercent(worst.move, 0)}`],
-        [`${u} Level At 0 Percent`, fmtNumber(zero.level, 0)],
-        ["Margin As Percent Of Notional", fmtPercent(s.margin)],
-      ],
-      width,
-    );
-    const headerRow = r + 3;
+    const r = writeTable(sheet, row, marginHeadline(result));
+    const headerRow = r + 2;
     writeTable(sheet, r, spec);
     finishSheet(sheet, headerRow, 1);
   }

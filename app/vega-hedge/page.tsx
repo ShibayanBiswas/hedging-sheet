@@ -7,7 +7,7 @@ import { FieldRow, NumberInput } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { ResultGate } from "@/components/ui/result-gate";
 import { useDesk } from "@/lib/context/desk-provider";
-import { headlineTable, vegaHedgeInputs, vegaHedgeMarginTable, vegaHedgePriceTable } from "@/lib/tables";
+import { vegaHeadline, vegaHedgeInputs, vegaHedgeMarginTable, vegaHedgePriceTable } from "@/lib/tables";
 
 export default function VegaHedgePage() {
   const { inputs, setInputs } = useDesk();
@@ -20,23 +20,12 @@ export default function VegaHedgePage() {
       <ResultGate>
         {(r) => {
           const zero = r.dayOneVegaHedge.fair.find((h) => h.move === 0)!;
-          const zeroMargin = r.dayOneVegaHedge.margin.find((m) => m.move === 0)!;
           const overridden = inputs.hedgeVolOverride != null;
           return (
             <>
               <Panel>
                 <SectionTitle icon={Gauge}>Headline</SectionTitle>
-                <TableCard
-                  spec={headlineTable("vega-headline", "Headline", [
-                    { label: "Hedge Quantity", value: r.dayOneVegaHedge.quantity, kind: "number" },
-                    { label: "Day 1 Fair Price", value: zero.price, kind: "number" },
-                    { label: "Hedge Delta", value: zero.delta, kind: "number", digits: 5 },
-                    { label: "Hedge Vega", value: zero.vega, kind: "number", digits: 4 },
-                    { label: "Fair Volatility", value: zero.volatility, kind: "percent" },
-                    { label: "Premium Received in Crore", value: r.summary.hedgePremiumCr, kind: "crore" },
-                    { label: "Total Margin At 0 Percent in Crore", value: zeroMargin.totalMarginCr, kind: "crore" },
-                  ])}
-                />
+                <TableCard spec={vegaHeadline(r)} />
               </Panel>
               <Panel index={1}>
                 <SectionTitle icon={SlidersHorizontal} subtitle="The fair volatility defaults to the surface at the hedge strike and expiry. Override it here, then run the simulation again.">
@@ -50,6 +39,7 @@ export default function VegaHedgePage() {
                     <div className="flex-1">
                       <NumberInput
                         kind="percent"
+                        digits={2}
                         suffix="%"
                         value={inputs.hedgeVolOverride ?? zero.volatility}
                         onChange={(v) => setInputs({ hedgeVolOverride: v })}

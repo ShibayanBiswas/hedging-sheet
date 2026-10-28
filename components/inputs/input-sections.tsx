@@ -207,7 +207,7 @@ export function RatesSection({ index }: { index: number }) {
   const errorFor = useFieldError();
   return (
     <Panel index={index} id="rates">
-      <SectionTitle icon={Percent}>Rates in Percent</SectionTitle>
+      <SectionTitle icon={Percent}>Rates</SectionTitle>
       <div className="flex flex-col gap-4">
         <FieldRow label="NBFC Rate" error={errorFor("nbfcRate")}>
           <NumberInput kind="percent" value={inputs.nbfcRate} onChange={(v) => setInputs({ nbfcRate: v })} suffix="%" testId="nbfc-rate" />
@@ -266,7 +266,7 @@ export function ProductTermsSection({ index }: { index: number }) {
         <FieldRow label="Decay" error={errorFor("decay")} hint="Downside participation below the protection level.">
           <NumberInput value={inputs.decay} onChange={(v) => setInputs({ decay: v })} digits={2} suffix="Times" testId="decay" />
         </FieldRow>
-        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")} hint={`Strike ${n + 4}, as percent of the start level. Below it the slope is Decay less the Floor Units.`}>
+        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")} hint={`Strike ${n + 4}, as a % of the start level. Below it the slope is Decay less the Floor Units.`}>
           <NumberInput kind="percent" digits={0} value={terms.floorLevel} onChange={(v) => setInputs((prev) => withStrike(prev, n + 3, 100 * v))} suffix="%" testId="floor-level" />
         </FieldRow>
         <FieldRow label="Floor Units" error={errorFor("floorUnits")} hint={`Units bought at the floor. Slope below the floor: ${fmtNumber(inputs.decay - inputs.floorUnits, 2)}.`}>
@@ -417,7 +417,7 @@ export function StrikesSection({ index }: { index: number }) {
     <Panel index={index} id="strikes">
       <SectionTitle
         icon={Layers}
-        subtitle="Strikes as percent of the start level, highest first. Units are the change in slope of the payoff across each strike."
+        subtitle="Strikes as a % of the start level, highest first. Units are the change in slope of the payoff across each strike."
         aside={<span className="hs-chip">{inputs.strikePercents.length} Strikes</span>}
       >
         Strikes
