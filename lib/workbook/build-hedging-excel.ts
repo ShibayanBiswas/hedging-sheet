@@ -1,6 +1,7 @@
 import type ExcelJS from "exceljs";
 
 import { formatDate } from "@/lib/engine/dates";
+import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
 import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
 import {
@@ -191,7 +192,7 @@ function startSheet(
   const row = addExcelMasthead(sheet, {
     title,
     subtitle: `${result.underlyingLabel} · Valuation Date ${formatDate(i.valuationDate)} · Spot ${fmtNumber(i.spot, 2)}`,
-    eyebrow: `Anand Rathi Wealth · Hedging Sheet · ${i.mode === "workbook" ? "Workbook Defaults" : "Live Market"} · Generated ${formatDate(new Date().toISOString())}`,
+    eyebrow: `Anand Rathi Wealth · Hedging Sheet · ${i.optionType === "C" ? "Call" : "Put"} Book · Generated ${formatDate(new Date().toISOString())}`,
     toCol: width,
     rowOffset: offset,
   });
@@ -249,7 +250,7 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
         ["Maturity Value", `${fmtCrore(result.productDescription.maturityCr)} Crore`],
         ["Internal Rate of Return", fmtPercent(result.productDescription.irr)],
         ["Maximum Coupon", fmtPercent(result.inputs.coupon)],
-        ["Protection", fmtPercent(result.inputs.protection, 0)],
+        ["Protection", fmtPercent(deriveTerms(result.inputs).protection, 0)],
       ],
       width,
     );

@@ -1,0 +1,221 @@
+# 02 · Calculation Logic
+
+Every number in the app comes from the pure TypeScript engine in `lib/engine`. This page maps each sheet formula to the function that implements it. The same cell reference sits as a comment above the code, for example `// Pricer!B21`. Cell references are for developers only and never appear in the UI.
+
+Run `npm run verify:calculations` to price the default product and check the invariants listed at the end.
+
+## Units and day count
+
+- Days are whole calendar days between two dates; time in years is days ÷ 365.
+- Crore is 1e7 rupees and lakh is 1e5.
+- Percent inputs are stored as fractions: 102.5 percent is `1.025`. Strikes are stored as percent points: `137` means 137 percent of the start level.
+
+## Live defaults
+
+Nothing is pinned to a saved day. On load the app fills:
+
+| Input | Source | Code |
+|---|---|---|
+| Spot | Last completed session close for the underlying | `lib/market-data.ts` `fetchLiveMarketLevels`, `/api/market/levels` |
+| Valuation Date | Today on the India calendar | `istTodayYmd` in `lib/engine/dates.ts` |
+| Daily Volatility | Standard deviation of daily log returns over the History Window, 365 days by default | `/api/market/daily-vol` |
+| Vol surface and surface parameters | Latest month in the desk database, else the built in seed | `lib/data/load.ts` |
+| Product terms | `DEFAULT_TERMS` | `lib/engine/defaults.ts` |
+
+The default terms are a target of 37 percent, a coupon of 102.5 percent, strikes of 137, 127, 125, 85, 84 and 70, decay 1.6, floor units 1, tenor 1,940 days and expiry months 41, 44, 47, 50, 53 and 56.
+
+## Strikes and derived terms
+
+The strikes are the primary inputs. With `n` spreads there are `n + 4` strikes, highest first.
+
+| Strike position | Role | Code |
+|---|---|---|
+| 1 | Target: the top of the top spread | `deriveTerms` target = strike 1 ÷ 100 − 1 |
+| 1 to n + 1 | Spread levels. Spread `j` (bottom first) runs from strike `n + 1 − j` to strike `n − j` | `deriveTerms` spreads |
+| n + 2 | Protection strike. Protection = 1 − strike ÷ 100 | `deriveTerms` protection |
+| n + 3 | Outflow strike, one step below protection | `deriveTerms` outflowWidth |
+| n + 4 | Decay floor | `deriveTerms` floorLevel |
+
+With the defaults, Spread 1 runs from Strike 3 at 125 to Strike 2 at 127 and Spread 2 from Strike 2 at 127 to Strike 1 at 137.
+
+- **Participation.** Every spread but the top takes its typed participation, 1 by default. The top spread is derived from the coupon: `Summary L10 = (D10 − (H10 − G10) × K10) ÷ (J10 − I10)`, that is the coupon left over after the lower spreads, divided by the top spread width. With the defaults that is (1.025 − 0.02) ÷ 0.10 = 10.05. Any participation can be overridden; Reset To Derived returns it to null, which means derived.
+- **Spread edits write back to strikes.** Typing a Buy Level or Sell Level on a spread card writes the strike it is read from, so the strikes and spreads never disagree.
+- **Start level.** `Pricer!B5 = ROUNDUP(spot × (1 + uplift), −2)`. The uplift defaults to 0.6 percent. `startLevel` in `structure.ts`.
+- **Rupee strike.** `Pricer!B19 = ROUND(B5 × B17 ÷ 100, 0)`. `rupeeStrike`.
+
+## Expiry schedule
+
+`lib/engine/schedule.ts`.
+
+- The weekday is fixed by the underlying: Sensex Thursday and Nifty Tuesday (NSE circular FAOP 68747 and BSE notice 20250623-59). `EXPIRY_WEEKDAY`.
+- Raw date = valuation date + ROUND(month × 30.5) days. `rawExpiryDate`.
+- Expiry = the nearest chosen weekday to the raw date: up to three days forward, otherwise back. `nearestWeekday`, `expiryForMonth`.
+- Month numbers must rise strictly, and no expiry may fall after maturity. The count runs from 1 to 8.
+- The hedge Option Expiry defaults to the middle expiry, the lower one for an even count. `medianExpiryIndex`.
+- Maturity = valuation date + tenor days. `maturityDate`.
+
+## Leg replication
+
+`buildStrikes` in `structure.ts`.
+
+The client receives the coupon plus a book of options `V(s) = Σ uᵢ · (kᵢ − s)⁺` for puts, where `s` is the level as a fraction of the start level. Units at each strike are the change in slope of the payoff across that strike, slope above minus slope below, built from the rounded rupee strikes:
+
+| Segment | Slope of V |
+|---|---|
+| Above Strike 1 | 0 |
+| Inside spread j | `Pricer C13, C14`: payout of the spread × start level ÷ rupee width |
+| Between the protection strike and the lowest spread | 0 |
+| Between the outflow and protection strikes | `Pricer Z47 = −E14 × B5 ÷ (Z19 − AH19) − E12`, with E14 = protection × decay |
+| Between the floor and the outflow strike | decay |
+| Below the floor | decay − floor units |
+
+With the defaults the units are −10.05, +9.05, +1, −25.6, +24 and +1.
+
+**Option Type.** One Option Type input, Put by default, feeds every Option Type column on the Summary Sheet, Pricer, Day 1 Vega Hedge and in the Excel file. A Call book keeps the same units. By put-call parity the difference is linear in the level and is carried by the futures position. With these strikes a Call book is deep in the money and the Inbuilt goes strongly negative, which is what the sheet gives too.
+
+**Payoff and book agree.** `payoffBookGap` evaluates the book and the payoff at every strike, half a point either side, and every 1 percent from −89 percent to 20 points past the target, skipping only the one point outflow band where the book spreads the protection drop. The largest gap is about 5e-15 for one, two and three spreads.
+
+## Contracts
+
+- `Pricer B55 = B47 × E5 ÷ B5 ÷ (2 × COUNTIF(B25:I25, "P"))`: units × notional ÷ start level ÷ (2 × live expiries). The sheet keeps two identical halves of the leg grid, `HALVES = 2`.
+- `Pricer B48 = IF(B55 < 0, "Sell", "Buy")`.
+- Rows 56 to 62: option value, delta, gamma, theta, vega and rho in rupees and contracts are contracts times the per-option figure.
+
+## Pricing one option
+
+`priceOption` in `hedging-sheet.ts` and `lib/engine/black-scholes.ts`.
+
+| Pricer row | Field | Formula | Code |
+|---|---|---|---|
+| 17 | Strike Percent | from the strike list | `buildStrikes` |
+| 19 | Strike | ROUND(B5 × B17 ÷ 100, 0) | `rupeeStrike` |
+| 20 | Maturity | the expiry date | `expiryDates` |
+| 21 | Upper Maturity | last curve date on or before maturity | `readRateCurve` |
+| 22 | Lower Maturity | next curve date | `readRateCurve` |
+| 23, 24 | Upper and Lower Forward | curve rates at rows 21 and 22 | `readRateCurve` |
+| 25 | Option Type | the Option Type input | `inputs.optionType` |
+| 26 | Valuation Date | the valuation date | `inputs.valuationDate` |
+| 27 | Spot Price | spot, plus the stress bump in the Mark to Market loop | `priceBook(spotBump)` |
+| 28 | Forward Growth | `'Pricing Params'!H69`: the Forward Sell Rate of the valuation month | `forwardSellRateForMonth` |
+| 29 | Discount Yield | MIN(cap, FORECAST(maturity, B23:B24, B21:B22)) | `pricerDiscountYield` |
+| 30 | Dividends | SUMIF(dividends dated before maturity) ÷ spot × 365 ÷ days × `'Pricing Params'!M2` factor | `dividendYield`, `dividendMultiplier` |
+| 31 | Forward | EXP(B28 × days ÷ 365) × B27 | `priceOption` |
+| 32 | Volatility | bilinear lookup on the surface, or the per leg override | `interpolateVolPercent` |
+| 33 | Volatility Bump | `'Pricing Params'` row on or before the expiry | `lookupVolBump` |
+| 34 | Bid or Offer | surface parameter, Bid by default | `params.bidOffer` |
+| 35 | Price in Rupees | Black on the forward, discounted | `bsGreeks` |
+| 36 | Price as Percent | B35 ÷ B27 | `priceOption` |
+| 38 to 41 | Incremental Margin, Cost, Cost in Rupees, Adjusted Price | B38 = IF(B34 = "B", 0, VLOOKUP(Inc. Margin)); B40 = B38 × B27 × B39 × T; B41 = B35 + B40 | `hedging-sheet.ts` |
+| 43 to 46 | Full Margin, Cost, Cost in Rupees, Adjusted Price | B45 = B43 × B27 × B44 × T; B46 = B35 + B45 | `hedging-sheet.ts` |
+| 47 | Spread Units | slope change | `buildStrikes` |
+| 49 to 53 | Delta, Gamma, Theta, Vega, Rho | bump and reprice | `bsGreeks` |
+
+### Black price
+
+For forward growth g, discount r, vol σ, time T, spot S and strike K: F = S·e^{gT}, d1 = (ln(F/K) + σ²T/2) ÷ (σ√T), d2 = d1 − σ√T. Put = (K·N(−d2) − F·N(−d1))·e^{−rT}; Call = (F·N(d1) − K·N(d2))·e^{−rT}. N matches Excel `NORMDIST` to 1e-15.
+
+### Greeks by bump and reprice
+
+| Greek | Definition |
+|---|---|
+| Delta | price at S + 0.5 minus price at S − 0.5 |
+| Gamma | price at S + 1 plus price at S − 1 minus twice the price at S |
+| Theta | price with one day less minus price today |
+| Vega | price at σ + 1 percent minus price at σ |
+| Rho | price with g and r both up 1 percent minus price today |
+
+### Volatility
+
+`lib/engine/vol-surface.ts`. The strike axis is Deep ₹500, then each Strike Change column times the reference price of the underlying. The lookup is FORECAST across the two bracketing strike columns of the bracketing expiry row, then linear in days to the next row: bilinear within the grid. Beyond the last row the last row is held flat, and the run shows the "Expiries Beyond The Surface" warning. The volatility bump is added after dividing by 100.
+
+Any leg's volatility can be overridden on the Pricer by typing over the Volatility cell. The override is keyed by half and expiry (`legKey`), badged Overridden, and cleared by Reset.
+
+### Rate curve
+
+`lib/engine/rates.ts`. The curve is a list of tenors in years, set in the surface parameters. `anchoredCurve` dates each tenor from the valuation date and adds the last rate again one year after the longest maturity, so Lower Maturity always resolves. Points marked Linked To Premium Growth Rate follow the Premium Growth Rate input. The default is tenors 0, 1, 2, 3, 5, 7 and 10 years, all linked.
+
+### Discount yield cap
+
+`Pricer B29 = MIN(cap, FORECAST(...))`. The cap depends on the option type and the side:
+
+| Option Type | Bid | Offer |
+|---|---|---|
+| Put | selling forward cap, `'Pricing Params'!O2` = the last curve rate | buying forward cap, `'Pricing Params'!N2` |
+| Call | buying forward cap, N2 | selling forward cap, O2 |
+
+### Dividend factor
+
+`Pricer B30` multiplies the dividend yield by `'Pricing Params'!M2` for a Put on Offer and a Call on Bid, and by 1 otherwise.
+
+## Pots, payout and the Inbuilt
+
+| Cell | Meaning | Formula |
+|---|---|---|
+| Pricer E5 | Mobilisation | notional × 1e7 |
+| Pricer G5, I5 | Transaction cost rate and amount | SUM(transaction, issuance, margin cost); I5 = G5 × E5 |
+| Pricer V5 | Margin | E5 × Summary Q10 |
+| Pricer J5 | Amount with the NBFC | E5 − H5 − I5 − V5 |
+| Pricer K5 | Premium | − sum of option values |
+| Pricer O5 | Maturity payout | J5(1 + L5)^(N5/365) + K5(1 + M5)^(N5/365) + V5(1 + margin growth)^(N5/365) |
+| Pricer P5 | Achieved coupon | O5 ÷ E5 − 1 |
+| Pricer U5 | Internal rate of return | (1 + P5)^(365/N5) − 1 |
+| Pricer F5 | Actual Inbuilt | H5 ÷ E5 |
+
+**Macro2, goal seek.** The sheet's macro sets P5 to the coupon C5 by changing H5. The engine solves the same equation with Brent's method and a bisection fallback to 1e-10, on every Run Simulation.
+
+**Margin loop.** Summary Q10 = MTM K16 ÷ −notional: the 0 percent row of the stress grid. The engine iterates margin and Inbuilt until the margin moves less than 1e-9, at most 50 passes. The margin does not depend on the Inbuilt in this product, so it settles on the first pass.
+
+## Day 1 Vega Hedge
+
+| Cell | Meaning | Code |
+|---|---|---|
+| K26 | Quantity = Summary H15 × 1e7 ÷ J36: book vega over the vega of one hedge option at 0 percent | `hedging-sheet.ts` |
+| D26 | Level = spot × (1 + move) | |
+| D62 | Stressed level = spot × (1 + move) × (1 − sigmas × daily vol × √days) | |
+| N26 | Fair volatility from the surface at the hedge strike and expiry, or the override | `hedgeVolOverride` |
+| O26 | Fair growth: on Bid, a Put takes MAX(P26 − R26, forward sell) and a Call MIN(forward sell − 0.5%, P26 − R26) | `hedgeGrowth` |
+| P26 | Discount: FORECAST on the curve, no cap | `readRateCurve` |
+| R26 | Dividends at the shocked spot | `dividendYield` |
+| N44, O44, P44 | Exchange block: annual vol, exchange forward and discount rates | |
+| N62, O62, P62 | Stressed block: annual vol × multiplier, stressed forward and discount rates | |
+| L8, M8, N8 | Initial margin = (stressed − exchange) × qty ÷ 1e7 + (fair − day 1 fair) × qty ÷ 1e7; exposure = rate × level × qty ÷ 1e7; total = L8 + M8 | |
+
+Annual volatility = daily × √365 (`Summary I26`). Both are editable and stay in sync.
+
+## Mark to Market and Margin Requirement
+
+**Macro MTM.** For each move from −50 to +20 percent the macro sets the Pricer spot bump `J7`, reads the book delta `K7 = SUM(row 58) ÷ 1e5`, and moves on. The engine does the same in `computeHedgingSheet`: it sets `spotBump`, reprices the book, reads the delta, and resets `spotBump` to 0 in a `finally` block. The diagnostic `spotBumpAfterStress` is 0 after every run.
+
+| Cell | Meaning |
+|---|---|
+| C6 | Level = start × (1 + move) |
+| E6 | Product requirement in lakh = book delta at the bumped spot |
+| F6, G6 | Hedge option delta in lakh; residual futures = E6 + F6 |
+| H6 | Futures margin = −G6 × futures margin rate × level × 1e5 ÷ 1e7 |
+| P6, I6 | Step mark to market = G7 × (C6 − C7) × 1e5 ÷ 1e7, cumulated outward from 0 at row 16 |
+| J6 | Option margin = Day 1 N8 |
+| K6 | Total requirement = SUM(H6:J6) |
+
+## Product Description
+
+For performance p, coupon C, protection P, decay D, floor performance f and floor units u (`clientReturn`):
+
+- p ≥ −P: MIN(C, Σ participation × MIN(MAX(p − buy, 0), sell − buy)).
+- −90 percent ≤ p < −P: MAX(−100%, MAX(f·D, p·D) + MIN(0, (p − f)·(D − u))).
+- p < −90 percent: p.
+- Pre-tax internal rate of return `L32 = RATE(D41 ÷ 365, 0, −1, 1 + K32)`.
+
+Payoff levels are every strike, the point just below protection, zero, and every 5 percent between.
+
+## Invariants checked on every build
+
+`tests/engine.test.ts` and `npm run verify:calculations`:
+
+| Invariant | Value with the defaults |
+|---|---|
+| Achieved coupon equals the coupon | gap 0 |
+| Option book equals the payoff at every kink | about 5e-15 |
+| Spot bump after the stress grid | 0 |
+| Upper and Lower Maturity resolve for every leg and hedge row | all 36 legs |
+| Every input edge case blocks with a code and a fix | 10 cases |
+| Sensex expiries on Thursday, Nifty on Tuesday, within 3 days of the raw date | all |

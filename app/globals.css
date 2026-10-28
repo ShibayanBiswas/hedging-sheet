@@ -3672,3 +3672,30 @@ html.dark .kpi-card-live::after {
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------ Round 2 additions */
+@layer components {
+  .hs-run-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    width: 100%;
+    padding: 0.75rem 0 1rem;
+    background: linear-gradient(180deg, transparent 0%, var(--ar-bg) 38%);
+  }
+
+  .hs-overridden-cell {
+    box-shadow: inset 0 0 0 2px rgba(212, 178, 76, 0.65);
+  }
+
+  .hs-overridden-badge {
+    @apply rounded-full border px-1.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-wider;
+    border-color: rgba(212, 178, 76, 0.55);
+    background: rgba(212, 178, 76, 0.14);
+    color: var(--ar-gold-dark);
+  }
+
+  .nav-pill-shell {
+    scrollbar-width: thin;
+  }
+}

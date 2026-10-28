@@ -1,5 +1,10 @@
 import { formatDate } from "@/lib/engine/dates";
-import type { HedgeRow, HedgingResult, MarginRow, PricerLeg } from "@/lib/engine/types";
+import { deriveTerms } from "@/lib/engine/structure";
+import type { HedgeRow, HedgingResult, MarginRow, OptionType, PricerLeg } from "@/lib/engine/types";
+
+export function optionTypeLabel(type: OptionType): string {
+  return type === "C" ? "Call" : "Put";
+}
 
 /** How a value is shown on screen and written to Excel. */
 export type CellKind = "crore" | "rupee" | "percent" | "number" | "integer" | "date" | "text" | "greek";
@@ -41,8 +46,24 @@ export type GridSpec = {
   note?: string;
   groups: Array<{ label: string; span: number }>;
   columnLabels: string[];
-  rows: Array<{ label: string; kind: CellKind; digits?: number; values: CellValue[] }>;
+  rows: Array<{ label: string; kind: CellKind; digits?: number; values: CellValue[]; overridden?: boolean[] }>;
+  /** Leg keys, one per column, for per-leg edits. */
+  columnKeys?: string[];
 };
+
+/** A one-row headline table that replaces a card rail. */
+export function headlineTable(
+  id: string,
+  title: string,
+  items: Array<{ label: string; value: CellValue; kind: CellKind; digits?: number }>,
+): TableSpec {
+  return {
+    id,
+    title,
+    columns: items.map((item, i) => ({ key: `c${i}`, label: item.label, kind: item.kind, digits: item.digits })),
+    rows: [Object.fromEntries(items.map((item, i) => [`c${i}`, item.value]))],
+  };
+}
 
 const pct = (key: string, label: string, digits = 2, group?: string): Column => ({ key, label, kind: "percent", digits, group });
 const cr = (key: string, label: string, digits = 2, group?: string): Column => ({ key, label, kind: "crore", digits, group });
@@ -59,24 +80,23 @@ export function summaryTables(r: HedgingResult): { blocks: Array<TableSpec | Key
   const u = r.underlyingLabel;
   const i = r.inputs;
   const s = r.summary;
-  const parts = r.structure.spreadParticipations;
+  const terms = deriveTerms(i);
 
   const specColumns: Column[] = [pct("target", `Target ${u} Rise`, 2), pct("coupon", "Coupon"), pct("inbuilt", "Actual Inbuilt"), pct("irr", "Internal Rate of Return")];
   const specRow: Record<string, CellValue> = {
-    target: i.target,
+    target: terms.target,
     coupon: i.coupon,
     inbuilt: s.actualInbuilt,
     irr: s.irr,
   };
-  i.spreads.forEach((sp, j) => {
-    const sell = j === i.spreads.length - 1 ? i.target : sp.sell;
+  terms.spreads.forEach((sp, j) => {
     specColumns.push(pct(`buy${j}`, `Spread ${j + 1} Buy Level`), pct(`sell${j}`, `Spread ${j + 1} Sell Level`), num(`part${j}`, `Spread ${j + 1} Participation Rate`, 2));
     specRow[`buy${j}`] = sp.buy;
-    specRow[`sell${j}`] = sell;
-    specRow[`part${j}`] = parts[j] ?? null;
+    specRow[`sell${j}`] = sp.sell;
+    specRow[`part${j}`] = sp.participation;
   });
   specColumns.push(pct("protection", "Protection"), num("decay", "Decay", 2), int("tenor", "Tenor in Days"), pct("margin", "Margin"));
-  Object.assign(specRow, { protection: i.protection, decay: i.decay, tenor: i.tenorDays, margin: s.margin });
+  Object.assign(specRow, { protection: terms.protection, decay: i.decay, tenor: i.tenorDays, margin: s.margin });
 
   const expiryColumns: Column[] = r.schedule.expiries.map((_, k) => date(`e${k}`, `Expiry ${k + 1}`));
   const expiryRow = Object.fromEntries(r.schedule.expiries.map((d, k) => [`e${k}`, d]));
@@ -84,7 +104,7 @@ export function summaryTables(r: HedgingResult): { blocks: Array<TableSpec | Key
   const legRows: Array<Record<string, CellValue>> = s.legs.map((l) => ({
     strike: l.strike,
     strikePercent: l.strikePercent / 100,
-    option: l.optionType === "P" ? "Put" : "Call",
+    option: optionTypeLabel(l.optionType),
     units: l.units,
     quantity: l.quantityLakh,
     price: l.averagePrice,
@@ -151,7 +171,7 @@ export function summaryTables(r: HedgingResult): { blocks: Array<TableSpec | Key
         columns: [
           num("strike", "Strike", 0),
           pct("strikePercent", "Strike Percent", 0),
-          text("option", "Option"),
+          text("option", "Option Type"),
           num("units", "Units", 2),
           num("quantity", "Quantity in Lakh", 2),
           num("price", "Average Price", 0),
@@ -166,7 +186,7 @@ export function summaryTables(r: HedgingResult): { blocks: Array<TableSpec | Key
         columns: [
           num("strike", "Strike", 0),
           date("expiry", "Expiry"),
-          text("option", "Option"),
+          text("option", "Option Type"),
           num("quantity", "Quantity in Lakh", 2),
           num("price", "Price", 2),
           cr("premium", "Premium in Crore"),
@@ -176,7 +196,7 @@ export function summaryTables(r: HedgingResult): { blocks: Array<TableSpec | Key
           {
             strike: s.hedgeStrike,
             expiry: s.hedgeExpiry,
-            option: "Put",
+            option: optionTypeLabel(i.optionType),
             quantity: s.hedgeQuantityLakh,
             price: s.hedgePrice,
             premium: s.hedgePremiumCr,
@@ -265,7 +285,7 @@ export function pricerPayoutTable(r: HedgingResult): KeyValueSpec {
       { label: "Total Coupon", value: h.coupon, kind: "percent", digits: 1 },
       ...h.spreadPayouts.map((p, j) => ({ label: `Payout From Spread ${j + 1}`, value: p, kind: "percent" as const, digits: 3 })),
       { label: "Decay", value: r.inputs.decay, kind: "number" as const, digits: 2 },
-      { label: "Protection Till", value: r.inputs.protection, kind: "percent" as const, digits: 0 },
+      { label: "Protection Till", value: deriveTerms(r.inputs).protection, kind: "percent" as const, digits: 0 },
       { label: "Loss At The Protection Point", value: h.protectionLoss, kind: "percent" as const, digits: 1 },
     ],
   };
@@ -282,7 +302,7 @@ export const PRICER_FIELDS: LegField[] = [
   { label: "Lower Maturity", kind: "date", pick: (l) => l.lowerMaturity },
   { label: "Upper Forward", kind: "percent", pick: (l) => l.upperForward },
   { label: "Lower Forward", kind: "percent", pick: (l) => l.lowerForward },
-  { label: "Call or Put", kind: "text", pick: (l) => (l.optionType === "P" ? "Put" : "Call") },
+  { label: "Option Type", kind: "text", pick: (l) => optionTypeLabel(l.optionType) },
   { label: "Valuation Date", kind: "date", pick: (l) => l.valuationDate },
   { label: "Spot Price", kind: "number", digits: 0, pick: (l) => l.spot },
   { label: "Forward Growth", kind: "percent", digits: 4, pick: (l) => l.forwardGrowth },
@@ -331,7 +351,14 @@ export function pricerGrid(r: HedgingResult): GridSpec {
     note: `The workbook keeps two identical halves of this grid. Each column shows one half; book totals include both halves.`,
     groups,
     columnLabels: legs.map((l) => `Expiry ${l.expiryIndex + 1}`),
-    rows: PRICER_FIELDS.map((f) => ({ label: f.label, kind: f.kind, digits: f.digits, values: legs.map((l) => f.pick(l, r)) })),
+    columnKeys: legs.map((l) => `${l.blockIndex}-${l.expiryIndex}`),
+    rows: PRICER_FIELDS.map((f) => ({
+      label: f.label,
+      kind: f.kind,
+      digits: f.digits,
+      values: legs.map((l) => f.pick(l, r)),
+      overridden: f.label === "Volatility" ? legs.map((l) => l.volOverridden) : undefined,
+    })),
   };
 }
 
@@ -431,6 +458,12 @@ export function vegaHedgeInputs(r: HedgingResult): KeyValueSpec {
       { label: `${u} Spot`, value: i.spot, kind: "number", digits: 2 },
       { label: "Strike", value: i.hedgeStrike, kind: "number", digits: 0 },
       { label: "Expiry", value: r.summary.hedgeExpiry, kind: "date" },
+      { label: "Option Type", value: optionTypeLabel(i.optionType), kind: "text" },
+      {
+        label: r.dayOneVegaHedge.fair[0]?.volOverridden ? "Fair Volatility · Overridden" : "Fair Volatility · Surface",
+        value: r.dayOneVegaHedge.fair[0]?.volatility ?? null,
+        kind: "percent",
+      },
       { label: `${u} Daily Volatility`, value: i.dailyVol, kind: "percent", digits: 3 },
       { label: `${u} Annual Volatility`, value: r.summary.annualVol, kind: "percent" },
       { label: "Exchange Price Forward Rate", value: i.exchangeForwardRate, kind: "percent" },
@@ -503,7 +536,7 @@ export function vegaHedgePriceTable(r: HedgingResult, block: "fair" | "exchange"
       num("spot", "Spot Price", 2),
       num("strike", "Strike", 0),
       date("maturity", "Maturity"),
-      text("callPut", "Call or Put"),
+      text("callPut", "Option Type"),
       num("price", "Price in Rupees", 2),
       num("delta", "Delta", 5),
       num("vega", "Vega", 4),
@@ -538,7 +571,7 @@ export function vegaHedgePriceTable(r: HedgingResult, block: "fair" | "exchange"
       spot: h.spot,
       strike: h.strike,
       maturity: h.maturity,
-      callPut: h.optionType === "P" ? "Put" : "Call",
+      callPut: optionTypeLabel(h.optionType),
       price: h.price,
       delta: h.delta,
       vega: h.vega,

@@ -38,7 +38,8 @@ export async function buildVolSurfaceSample(outDir = path.join(process.cwd(), "p
   const wb = new ExcelJS.Workbook();
   wb.creator = "Anand Rathi Wealth";
   const surface = volSeed;
-  const [year, month] = surface.monthKey.split("-").map(Number);
+  // The desk carries the latest surface into the current month, so the sample is labelled with it.
+  const [year, month] = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date()).split("-").map(Number);
   const monthName = new Date(Date.UTC(year!, month! - 1, 1)).toLocaleString("en-IN", { month: "long", timeZone: "UTC" });
   const firstParam = surface.pricingParams.find((p) => utcDate(p.date) >= utcDate(`${surface.monthKey}-01`)) ?? surface.pricingParams[0]!;
 
@@ -107,6 +108,7 @@ export async function buildVolSurfaceSample(outDir = path.join(process.cwd(), "p
     ["Forward Sell Rate", pricingSeed.forwardSellRate, "0.00%"],
     ["Rate Cap While Buying Forward", pricingSeed.rateCapBuyingForward, "0.00%"],
     ["Dividend Bid Offer Multiplier", pricingSeed.dividendBidOfferMultiplier, "0.00"],
+    ["Bid or Offer", pricingSeed.bidOffer === "O" ? "Offer" : "Bid", "@"],
   ];
   params.getCell(tableRow, 1).value = "Parameter";
   params.getCell(tableRow, 2).value = "Value";
@@ -161,20 +163,25 @@ export async function buildVolSurfaceSample(outDir = path.join(process.cwd(), "p
 
   // Sheet 3: Rate Curve
   const curve = wb.addWorksheet("Rate Curve", { views: [{ showGridLines: false }] });
-  const curveRow = applySampleDeskBrand(wb, curve, "Rate Curve", "Discount curve points in percent per annum. Leave the last points at the Premium Growth Rate to match the workbook.", 3);
-  ["Date", "Rate In Percent"].forEach((h, c) => {
+  const curveRow = applySampleDeskBrand(
+    wb,
+    curve,
+    "Rate Curve",
+    "Tenors in years from the valuation date, with rates in percent per annum. Linked points follow the Premium Growth Rate.",
+    3,
+  );
+  ["Tenor In Years", "Rate In Percent", "Linked To Premium Growth Rate"].forEach((h, c) => {
     curve.getCell(curveRow, 1 + c).value = h;
     styleSampleHeaderCell(curve.getCell(curveRow, 1 + c));
   });
-  const premiumRate = pricingSeed.forwardSellRate + pricingSeed.premiumRateSpread;
   pricingSeed.rateCurve.forEach((p, i) => {
     const r = curveRow + 1 + i;
-    curve.getCell(r, 1).value = utcDate(p.date);
-    curve.getCell(r, 1).numFmt = "dd-mmm-yyyy";
-    curve.getCell(r, 2).value = p.linkedToPremiumRate ? premiumRate * 100 : p.ratePercent;
+    curve.getCell(r, 1).value = p.years;
+    curve.getCell(r, 1).numFmt = "0.00";
+    curve.getCell(r, 2).value = p.ratePercent;
     curve.getCell(r, 2).numFmt = "0.00";
-    styleSampleDataCell(curve.getCell(r, 1));
-    styleSampleDataCell(curve.getCell(r, 2));
+    curve.getCell(r, 3).value = p.linkedToPremiumRate ? "Yes" : "No";
+    for (let c = 1; c <= 3; c++) styleSampleDataCell(curve.getCell(r, c));
   });
 
   // Sheet 4: Dividends
@@ -196,7 +203,7 @@ export async function buildVolSurfaceSample(outDir = path.join(process.cwd(), "p
 
   fit(ws, Object.fromEntries([[1, 18], ...Array.from({ length: gridCols - 1 }, (_, i) => [i + 2, 11])]));
   fit(params, { 1: 32, 2: 16, 3: 14, 4: 14, 5: 14, 6: 14 });
-  fit(curve, { 1: 16, 2: 18 });
+  fit(curve, { 1: 16, 2: 18, 3: 30 });
   fit(divs, { 1: 16, 2: 18 });
 
   const out = path.join(outDir, SAMPLE_FILE);

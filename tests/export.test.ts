@@ -1,16 +1,14 @@
 import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 
-import { seedMarketData, workbookDefaultInputs } from "@/lib/engine/defaults";
-import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
 import type { HedgingResult } from "@/lib/engine/types";
 import { buildHedgingWorkbook, SHEET_NAMES } from "@/lib/workbook/build-hedging-excel";
 import { hedgingExportFilename } from "@/lib/workbook/excel-runtime";
 
+import { priced } from "./fixture";
+
 function result(): HedgingResult {
-  const r = computeHedgingSheet(workbookDefaultInputs(), seedMarketData());
-  if (!r.ok) throw new Error("engine failed");
-  return r;
+  return priced();
 }
 
 /** Find the cell to the right of a label, or the value under a header in the next row. */
@@ -70,12 +68,14 @@ describe("Excel download", () => {
 
     const hedge = reopened.getWorksheet("Day 1 Vega Hedge")!;
     const lower = columnValues(hedge, "Lower Maturity");
-    expect(lower.every((v) => v === "-")).toBe(true);
+    expect(lower.length).toBe(15);
+    expect(lower.every((v) => v instanceof Date)).toBe(true);
+    expect(valueRightOf(hedge, "Option Type")).toBe("Put");
     const upperForward = columnValues(hedge, "Upper Forward");
     expect(upperForward.every((v) => typeof v === "number")).toBe(true);
   });
 
   it("names the file by underlying and valuation date", () => {
-    expect(hedgingExportFilename(result())).toBe("SP-Hedging-Sheet-Sensex-04-Aug-2026.xlsx");
+    expect(hedgingExportFilename(result())).toBe("SP-Hedging-Sheet-Sensex-27-Oct-2026.xlsx");
   });
 });

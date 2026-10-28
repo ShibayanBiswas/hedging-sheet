@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Bug, CheckCircle2, ChevronDown, LayoutDashboard, Lightbulb, Network, Sparkles } from "lucide-react";
+import { Brain, Bug, CheckCircle2, ChevronDown, LayoutDashboard, LineChart, Network, Sparkles, Workflow } from "lucide-react";
 
-import { LogicFlowDiagram } from "@/components/atlas/logic-flow";
+import { LogicFlowDiagram, type FlowNodeSpec } from "@/components/atlas/logic-flow";
 import { HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
+import { TableCard } from "@/components/ui/desk-table";
 import { Panel, SectionTitle } from "@/components/ui/panel";
 import { useDesk } from "@/lib/context/desk-provider";
 import { cn } from "@/lib/cn";
+import { EXPIRY_WEEKDAY, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { logicModules } from "@/lib/logic-atlas";
 import { deskEase } from "@/lib/motion";
+import { headlineTable } from "@/lib/tables";
 
 const SHELL_TONES = {
   amber: "intel-pipeline-shell--amber",
@@ -21,14 +24,19 @@ const SHELL_TONES = {
   gold: "intel-pipeline-shell--gold",
 } as const;
 
+const CHIP_TONES = { amber: "amber", cyan: "cyan", purple: "purple", green: "green", rose: "rose", gold: "amber" } as const;
+
 export default function LogicAtlasPage() {
-  const { inputs, result } = useDesk();
+  const { inputs, lastRun } = useDesk();
   const reduce = useReducedMotion();
-  const modules = logicModules(inputs.underlying);
+  const weekday = WEEKDAY_NAMES[EXPIRY_WEEKDAY[inputs.underlying]]!;
+  const modules = logicModules(inputs.underlying, weekday);
   const [selectedId, setSelectedId] = useState(modules[0]!.id);
+  const [activeNode, setActiveNode] = useState<FlowNodeSpec | null>(null);
   const [debugOpen, setDebugOpen] = useState(false);
   const selected = modules.find((m) => m.id === selectedId) ?? modules[0]!;
   const totalStages = modules.reduce((s, m) => s + m.stageCount, 0);
+  const r = lastRun?.result;
 
   return (
     <div className="intel-page flex w-full flex-col gap-4">
@@ -50,7 +58,7 @@ export default function LogicAtlasPage() {
           </span>
           <span className="intel-hero-badge">
             <Network className="h-3.5 w-3.5" />
-            {result.ok ? `${result.pricer.legs.length * result.pricer.halves} Leg Columns` : "Pricing Blocked"}
+            {r ? `${r.pricer.legs.length * r.pricer.halves} Leg Columns In The Last Run` : "No Simulation Run Yet"}
           </span>
         </div>
       </motion.header>
@@ -74,7 +82,10 @@ export default function LogicAtlasPage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: index * 0.06, duration: 0.45, ease: deskEase }}
                 whileHover={reduce ? undefined : { y: -6, scale: 1.018 }}
-                onClick={() => setSelectedId(module.id)}
+                onClick={() => {
+                  setSelectedId(module.id);
+                  setActiveNode(null);
+                }}
               >
                 <span className="logic-module-card__sheen" aria-hidden />
                 <span className="logic-module-card__orb logic-module-card__orb--primary" aria-hidden />
@@ -119,42 +130,71 @@ export default function LogicAtlasPage() {
             </AnimatePresence>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-stone-500 dark:text-stone-400">{selected.purpose}</p>
           </div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Pipeline Complete
+          </span>
         </div>
         <div className={cn("intel-pipeline-shell mt-4", SHELL_TONES[selected.accent])}>
-          <LogicFlowDiagram nodes={selected.nodes} />
+          <LogicFlowDiagram nodes={selected.nodes} activeNodeId={activeNode?.label} onNodeSelect={setActiveNode} />
         </div>
-        <div className="mt-4 flex flex-col gap-4">
-          <div>
-            <p className="label-chip mb-2">Flows</p>
-            <div className="flex flex-wrap gap-2">
-              {selected.flows.map((f) => (
-                <span key={f} className="hs-chip">
-                  {f}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="label-chip mb-2">Insights</p>
-            <ul className="flex flex-col gap-1.5">
-              {selected.insights.map((s) => (
-                <li key={s} className="flex items-start gap-2 font-ui text-sm text-stone-600 dark:text-stone-300">
-                  <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="label-chip mb-2">Outputs</p>
-            <div className="flex flex-wrap gap-2">
-              {selected.outputs.map((o) => (
-                <span key={o} className="rounded-full border border-gold/25 bg-gold/5 px-2.5 py-1 font-ui text-[11px] font-semibold text-gold-dark dark:text-gold">
-                  {o}
-                </span>
-              ))}
-            </div>
-          </div>
+      </Panel>
+
+      <div className="grid w-full gap-4 lg:grid-cols-2">
+        <Panel>
+          <SectionTitle icon={Brain}>{activeNode ? activeNode.label : "Module Intelligence"}</SectionTitle>
+          <AnimatePresence mode="wait">
+            {activeNode ? (
+              <motion.div
+                key={activeNode.label}
+                className="mt-3 space-y-3"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                data-testid="atlas-node-detail"
+              >
+                <span className="hs-chip capitalize">{activeNode.kind}</span>
+                <p className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{activeNode.description}</p>
+              </motion.div>
+            ) : (
+              <motion.ul key={`insights-${selected.id}`} className="intel-insight-list mt-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                {selected.insights.map((insight, i) => (
+                  <motion.li key={insight} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.25 }}>
+                    {insight}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
+        </Panel>
+        <Panel>
+          <SectionTitle icon={LineChart}>Module Outputs</SectionTitle>
+          <ul className="mt-3 space-y-2">
+            {selected.outputs.map((output, i) => (
+              <motion.li
+                key={`${selected.id}-${output}`}
+                className={cn("intel-output-chip", `intel-output-chip--${CHIP_TONES[selected.accent]}`)}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04, duration: 0.25 }}
+                whileHover={{ x: 4, scale: 1.01 }}
+              >
+                {output}
+              </motion.li>
+            ))}
+          </ul>
+        </Panel>
+      </div>
+
+      <Panel>
+        <SectionTitle icon={Workflow}>Flows</SectionTitle>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {selected.flows.map((f) => (
+            <span key={f} className="hs-chip">
+              {f}
+            </span>
+          ))}
         </div>
       </Panel>
 
@@ -178,15 +218,21 @@ export default function LogicAtlasPage() {
               transition={{ duration: 0.3, ease: deskEase }}
               className="overflow-hidden"
             >
-              {result.ok ? (
-                <div className="flex flex-wrap gap-2 font-ui text-xs" data-testid="debug-values">
-                  <span className="hs-chip">Margin Loop Passes {result.diagnostics.loopPasses}</span>
-                  <span className="hs-chip">Loop Residual {result.diagnostics.loopResidual.toExponential(2)}</span>
-                  <span className="hs-chip">Solver Iterations {result.diagnostics.solverIterations}</span>
-                  <span className="hs-chip">Achieved Coupon Gap {(result.pricer.header.achievedCoupon - result.inputs.coupon).toExponential(2)}</span>
+              {r ? (
+                <div className="mt-3" data-testid="debug-values">
+                  <TableCard
+                    spec={headlineTable("atlas-debug", "Last Run Diagnostics", [
+                      { label: "Margin Loop Passes", value: r.diagnostics.loopPasses, kind: "integer" },
+                      { label: "Loop Residual", value: r.diagnostics.loopResidual.toExponential(2), kind: "text" },
+                      { label: "Solver Iterations", value: r.diagnostics.solverIterations, kind: "integer" },
+                      { label: "Achieved Coupon Gap", value: (r.pricer.header.achievedCoupon - r.inputs.coupon).toExponential(2), kind: "text" },
+                      { label: "Spot Bump After Stress", value: r.diagnostics.spotBumpAfterStress, kind: "number", digits: 0 },
+                      { label: "Largest Payoff And Book Gap", value: r.diagnostics.payoffBookGap.toExponential(2), kind: "text" },
+                    ])}
+                  />
                 </div>
               ) : (
-                <p className="hs-warning">The book is not priced, so there is nothing to show.</p>
+                <p className="hs-warning mt-3">Run the simulation to see the diagnostics.</p>
               )}
             </motion.div>
           ) : null}

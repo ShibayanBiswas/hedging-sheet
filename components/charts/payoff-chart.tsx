@@ -4,22 +4,20 @@ import { useMemo } from "react";
 import { useReducedMotion } from "framer-motion";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { clientReturn, effectiveSpreads, resolveParticipations } from "@/lib/engine/structure";
+import { clientReturn, deriveTerms } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
 import { fmtPercent } from "@/lib/format";
 
 export function PayoffChart({ inputs }: { inputs: HedgeInputs }) {
   const reduce = useReducedMotion();
   const data = useMemo(() => {
-    const parts = resolveParticipations({ ...inputs, spreads: effectiveSpreads(inputs) });
-    const top = Math.max(inputs.target + 0.15, 0.2);
+    const terms = deriveTerms(inputs);
+    const top = Math.max(terms.target + 0.15, 0.2);
     const points = new Set<number>();
     for (let x = -0.6; x <= top + 1e-9; x += 0.005) points.add(Math.round(x * 10000) / 10000);
-    points.add(-inputs.protection);
-    points.add(Math.round((-inputs.protection - 0.0001) * 10000) / 10000);
-    return [...points]
-      .sort((a, b) => a - b)
-      .map((p) => ({ performance: p, value: clientReturn(inputs, parts, p) }));
+    points.add(-terms.protection);
+    points.add(Math.round((-terms.protection - 0.0001) * 10000) / 10000);
+    return [...points].sort((a, b) => a - b).map((p) => ({ performance: p, value: clientReturn(inputs, p) }));
   }, [inputs]);
 
   return (
@@ -50,15 +48,7 @@ export function PayoffChart({ inputs }: { inputs: HedgeInputs }) {
             labelFormatter={(v) => `${inputs.underlying} Performance ${fmtPercent(Number(v))}`}
             formatter={(v) => [fmtPercent(Number(v)), "Client Return"]}
           />
-          <Line
-            type="linear"
-            dataKey="value"
-            stroke="#b8860b"
-            strokeWidth={2.5}
-            dot={false}
-            isAnimationActive={!reduce}
-            animationDuration={900}
-          />
+          <Line type="linear" dataKey="value" stroke="#b8860b" strokeWidth={2.5} dot={false} isAnimationActive={!reduce} animationDuration={900} />
         </LineChart>
       </ResponsiveContainer>
     </div>

@@ -1,4 +1,4 @@
-/** Seeds the workbook vol surface and pricing parameters into the desk database. */
+/** Seeds the built in vol surface and surface parameters into the desk database. */
 import { loadEnv } from "./load-env";
 
 loadEnv();
@@ -12,10 +12,10 @@ async function main() {
       import("../lib/db/mongo"),
     ]);
   const surface = normalizeVolSurface(SEED_SURFACE);
-  const surfaceOk = await persistActiveSurface(surface, "workbook-seed");
-  const paramsOk = await persistActiveParams(seedPricingParams(), "workbook-seed");
+  const surfaceOk = await persistActiveSurface(surface, "built-in-seed");
+  const paramsOk = await persistActiveParams(seedPricingParams(), "built-in-seed");
   console.log(`Vol surface ${surface.monthKey}: ${surfaceOk ? "saved" : "not saved, database unavailable"}`);
-  console.log(`Pricing params: ${paramsOk ? "saved" : "not saved, database unavailable"}`);
+  console.log(`Surface parameters: ${paramsOk ? "saved" : "not saved, database unavailable"}`);
   await closeDb();
   if (!surfaceOk || !paramsOk) process.exit(1);
 }

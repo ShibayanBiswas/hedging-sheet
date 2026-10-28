@@ -1,5 +1,12 @@
-import { daysBetween, excelSerial, parseYmd } from "@/lib/engine/dates";
+import { addDays, daysBetween, excelSerial } from "@/lib/engine/dates";
 import type { BidOffer, DividendPoint, OptionType, PricingParams, RatePoint } from "@/lib/engine/types";
+
+/** Default tenors of the dynamic curve, in years from the valuation date. */
+export const DEFAULT_CURVE_TENORS = [0, 1, 2, 3, 5, 7, 10];
+
+export function defaultRateCurve(): RatePoint[] {
+  return DEFAULT_CURVE_TENORS.map((years) => ({ years, ratePercent: 6.5, linkedToPremiumRate: true }));
+}
 
 export type CurveRead = {
   upperMaturity: string | null;
@@ -9,40 +16,51 @@ export type CurveRead = {
   rate: number;
 };
 
-/** Curve rate as a fraction. Points linked to the Premium Growth Rate follow it. */
+/** Curve rate as a fraction. Points linked to the Premium Growth Rate follow it, as MarketData D32:D34 do. */
 export function resolvedRate(point: RatePoint, premiumRate: number): number {
   return point.linkedToPremiumRate ? premiumRate : point.ratePercent / 100;
 }
 
-function sortedCurve(curve: RatePoint[]): RatePoint[] {
-  return [...curve].sort((a, b) => parseYmd(a.date).getTime() - parseYmd(b.date).getTime());
+export type DatedRate = { date: string; rate: number };
+
+/**
+ * The curve anchored at the valuation date (MarketData B26:D64). The last point is
+ * repeated one year past the longest maturity so a Lower Maturity always exists.
+ */
+export function anchoredCurve(curve: RatePoint[], valuationDate: string, premiumRate: number, longestMaturity?: string): DatedRate[] {
+  const points = [...curve]
+    .filter((p) => Number.isFinite(p.years) && p.years >= 0)
+    .sort((a, b) => a.years - b.years)
+    .map((p) => ({ date: addDays(valuationDate, Math.round(p.years * 365)), rate: resolvedRate(p, premiumRate) }));
+  if (!points.length) points.push({ date: valuationDate, rate: premiumRate });
+  if (longestMaturity) {
+    const last = points[points.length - 1]!;
+    if (excelSerial(last.date) <= excelSerial(longestMaturity)) {
+      points.push({ date: addDays(longestMaturity, 365), rate: last.rate });
+    }
+  }
+  return points;
 }
 
 /**
- * Upper Maturity is the last curve date on or before the maturity, Lower Maturity the next one.
- * The rate is a straight line through those two points, or the upper rate when there is no lower one.
+ * Pricer rows 21 to 24 and 29.
+ * B21 Upper Maturity = INDEX(dates, MATCH(maturity, dates)): the last curve date on or before maturity.
+ * B22 Lower Maturity = the next curve date.
+ * B23, B24 = VLOOKUP of each date on the curve.
+ * The rate is FORECAST(maturity, B23:B24, B21:B22), or the upper rate when the two forwards are equal.
  */
-export function readRateCurve(curve: RatePoint[], maturity: string, premiumRate: number): CurveRead {
-  const points = sortedCurve(curve);
-  if (!points.length) {
-    return { upperMaturity: null, lowerMaturity: null, upperForward: null, lowerForward: null, rate: premiumRate };
-  }
+export function readRateCurve(points: DatedRate[], maturity: string): CurveRead {
+  if (!points.length) return { upperMaturity: null, lowerMaturity: null, upperForward: null, lowerForward: null, rate: NaN };
   const m = excelSerial(maturity);
-  const first = points[0]!;
   let upperIdx = 0;
-  if (m > excelSerial(first.date)) {
-    for (let i = 0; i < points.length; i++) {
-      if (excelSerial(points[i]!.date) <= m) upperIdx = i;
-      else break;
-    }
+  for (let i = 0; i < points.length; i++) {
+    if (excelSerial(points[i]!.date) <= m) upperIdx = i;
+    else break;
   }
   const upper = points[upperIdx]!;
-  let lower: RatePoint | null;
-  if (excelSerial(upper.date) > excelSerial(first.date)) lower = points[upperIdx + 1] ?? null;
-  else lower = first;
-
-  const upperForward = resolvedRate(upper, premiumRate);
-  const lowerForward = lower ? resolvedRate(lower, premiumRate) : upperForward;
+  const lower = points[upperIdx + 1] ?? null;
+  const upperForward = upper.rate;
+  const lowerForward = lower ? lower.rate : upperForward;
   let rate = upperForward;
   if (lower && upperForward !== lowerForward) {
     const x0 = excelSerial(upper.date);
@@ -52,29 +70,26 @@ export function readRateCurve(curve: RatePoint[], maturity: string, premiumRate:
     rate = intercept + slope * m;
   }
   return {
-    upperMaturity: upper.date.slice(0, 10),
-    lowerMaturity: lower ? lower.date.slice(0, 10) : null,
+    upperMaturity: upper.date,
+    lowerMaturity: lower ? lower.date : null,
     upperForward,
-    lowerForward: lower ? lowerForward : upperForward,
+    lowerForward,
     rate,
   };
 }
 
-/** Rate cap while selling forward: the last curve point, as Pricing Params O2 reads it. */
+/** 'Pricing Params'!O2 = MarketData!D34 ÷ 100: the rate cap while selling forward is the last curve rate. */
 export function rateCapSellingForward(params: PricingParams, premiumRate: number): number {
-  const points = sortedCurve(params.rateCurve);
+  const points = [...params.rateCurve].sort((a, b) => a.years - b.years);
   const last = points[points.length - 1];
   return last ? resolvedRate(last, premiumRate) : premiumRate;
 }
 
-/** Pricer discount yield: the curve rate capped by the Pricing Params rate caps. */
-export function pricerDiscountYield(
-  curveRate: number,
-  type: OptionType,
-  bidOffer: BidOffer,
-  params: PricingParams,
-  premiumRate: number,
-): number {
+/**
+ * Pricer B29: MIN(cap, FORECAST(...)). A put bought on Bid and a call on Offer take the
+ * selling-forward cap 'Pricing Params'!O2; the other two take the buying-forward cap N2.
+ */
+export function pricerDiscountYield(curveRate: number, type: OptionType, bidOffer: BidOffer, params: PricingParams, premiumRate: number): number {
   const buyingCap = params.rateCapBuyingForward;
   const sellingCap = rateCapSellingForward(params, premiumRate);
   if (type === "P") return Math.min(bidOffer === "O" ? buyingCap : sellingCap, curveRate);
@@ -82,8 +97,8 @@ export function pricerDiscountYield(
 }
 
 /**
- * Dividend yield: every implied dividend dated before maturity, over the spot,
- * annualised over the days to maturity. The workbook sums from the start of the list.
+ * Pricer B30 = SUMIF(MarketData!I:I, "<" & maturity, J:J) ÷ spot × 365 ÷ days × the
+ * 'Pricing Params'!M2 bid or offer factor. The sum runs from the start of the dividend list.
  */
 export function dividendYield(
   dividends: DividendPoint[],

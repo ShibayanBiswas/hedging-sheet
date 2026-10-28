@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 
 import { istTodayYmd } from "@/lib/engine/dates";
-import type { DividendPoint, PricingParamPoint, PricingParams, RatePoint, VolSurface } from "@/lib/engine/types";
+import type { BidOffer, DividendPoint, PricingParamPoint, PricingParams, RatePoint, VolSurface } from "@/lib/engine/types";
 import { DEEP_STRIKE, DEFAULT_FWD_SELL_RATE, surfaceMonthLabel } from "@/lib/engine/vol-surface";
 
 type Grid = (string | number | Date | null)[][];
@@ -98,6 +98,7 @@ function parseParameters(grid: Grid) {
   let referenceSensexPrice: number | undefined;
   let rateCapBuyingForward: number | undefined;
   let dividendBidOfferMultiplier: number | undefined;
+  let bidOffer: BidOffer | undefined;
   const pricingParams: PricingParamPoint[] = [];
 
   let tableHeader = -1;
@@ -118,6 +119,7 @@ function parseParameters(grid: Grid) {
     else if (a.includes("reference") && (a.includes("nifty") || a.includes("underlying"))) referenceUnderlyingPrice = positivePrice(b);
     if (a.includes("rate cap") && a.includes("buying")) rateCapBuyingForward = asFraction(b, 0.068);
     if (a.includes("dividend") && a.includes("multiplier")) dividendBidOfferMultiplier = Number(b) || 1;
+    if (a === "bid or offer") bidOffer = /^o/i.test(String(b ?? "")) ? "O" : "B";
 
     if (tableHeader < 0) {
       const fwd = findCol(row, "fwd sell", "forward sell rate");
@@ -163,6 +165,7 @@ function parseParameters(grid: Grid) {
     referenceSensexPrice,
     rateCapBuyingForward,
     dividendBidOfferMultiplier,
+    bidOffer,
   };
 }
 
@@ -177,17 +180,19 @@ function parseCurveAndDividends(wb: XLSX.WorkBook): { rateCurve?: RatePoint[]; d
       const rateCol = findCol(row, "rate in percent", "rate (%pa)", "rate (% pa)", "rate %");
       const divCol = findCol(row, "implied dividend", "implied dividends");
       if (!rateCurve && rateCol > 0) {
-        const dateCol = row.findIndex((c, idx) => idx < rateCol && text(c) === "date");
-        if (dateCol >= 0) {
+        const tenorCol = row.findIndex((c, idx) => idx < rateCol && text(c).startsWith("tenor"));
+        const linkCol = findCol(row, "linked");
+        if (tenorCol >= 0) {
           const points: RatePoint[] = [];
           for (let r = i + 1; r < grid.length; r++) {
-            const iso = excelDateToIso(grid[r]?.[dateCol]);
+            const years = Number(grid[r]?.[tenorCol]);
             const rate = Number(grid[r]?.[rateCol]);
-            if (!iso || !Number.isFinite(rate)) {
+            if (!Number.isFinite(years) || !Number.isFinite(rate)) {
               if (points.length) break;
               continue;
             }
-            points.push({ date: iso, ratePercent: rate <= 1 ? rate * 100 : rate });
+            const linked = linkCol >= 0 ? /^y/i.test(String(grid[r]?.[linkCol] ?? "")) : false;
+            points.push({ years, ratePercent: rate <= 1 ? rate * 100 : rate, linkedToPremiumRate: linked });
           }
           if (points.length) rateCurve = points;
         }
@@ -320,6 +325,7 @@ export function parseVolSurfaceWorkbook(buffer: ArrayBuffer, monthKey: string = 
   if (parsed?.fwdSellRate != null) params.forwardSellRate = parsed.fwdSellRate;
   if (parsed?.rateCapBuyingForward != null) params.rateCapBuyingForward = parsed.rateCapBuyingForward;
   if (parsed?.dividendBidOfferMultiplier != null) params.dividendBidOfferMultiplier = parsed.dividendBidOfferMultiplier;
+  if (parsed?.bidOffer) params.bidOffer = parsed.bidOffer;
   if (extras.rateCurve) params.rateCurve = extras.rateCurve;
   if (extras.dividends) params.dividends = extras.dividends;
 

@@ -19,7 +19,7 @@ export function monthKey(ymd: string = istTodayYmd()): string {
   return ymd.slice(0, 7);
 }
 
-/** "August 2026 Volatility Surface" for a YYYY-MM key. */
+/** "October 2026 Volatility Surface" for a YYYY-MM key. */
 export function surfaceMonthLabel(key: string): string {
   const [year, month] = key.split("-").map(Number);
   const name = new Date(Date.UTC(year || 2026, (month || 1) - 1, 1)).toLocaleString("en-IN", {
@@ -193,4 +193,18 @@ export function lookupVolBump(params: PricingParamPoint[], date: string): number
 
 export function lookupFwdSellRate(params: PricingParamPoint[], date: string): number {
   return pricingParamOnOrBefore(params, date)?.fwdSellRate ?? DEFAULT_FWD_SELL_RATE;
+}
+
+/**
+ * Pricer B28 = 'Pricing Params'!H69: the Forward Sell Rate of the valuation month.
+ * The latest row dated in that month; failing that, the first row after it; failing that, the last row before.
+ */
+export function forwardSellRateForMonth(params: PricingParamPoint[], valuationDate: string): number {
+  if (!params.length) return DEFAULT_FWD_SELL_RATE;
+  const month = valuationDate.slice(0, 7);
+  const inMonth = params.filter((p) => p.date.slice(0, 7) === month);
+  if (inMonth.length) return inMonth[inMonth.length - 1]!.fwdSellRate;
+  const t = parseYmd(valuationDate).getTime();
+  const after = params.find((p) => parseYmd(p.date).getTime() > t);
+  return (after ?? params[params.length - 1]!).fwdSellRate;
 }

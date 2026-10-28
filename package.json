@@ -14,10 +14,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "extract:workbook": "npx tsx scripts/extract-workbook-seed.ts",
     "build:samples": "npx tsx scripts/build-sample-inputs.ts",
-    "sync:seed": "npx tsx scripts/sync-seed.ts",
-    "verify:mongo": "npx tsx scripts/verify-mongo.ts"
+    "bake:vol": "npx tsx scripts/bake-vol-surface.ts",
+    "seed:mongo": "npx tsx scripts/seed-mongo.ts",
+    "test:mongo": "npx tsx scripts/test-mongo.ts",
+    "test:edge-cases": "npx tsx scripts/test-edge-cases.ts",
+    "test:upload-schema": "npx tsx scripts/test-upload-schema.ts",
+    "verify:calculations": "npx tsx scripts/verify-calculations.ts",
+    "verify:exports": "npx tsx scripts/verify-exports.ts"
   },
   "dependencies": {
     "clsx": "2.1.1",

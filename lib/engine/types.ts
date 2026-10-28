@@ -1,7 +1,7 @@
 export type Underlying = "Nifty" | "Sensex";
-export type InputMode = "workbook" | "live";
 export type OptionType = "P" | "C";
 export type BidOffer = "B" | "O";
+export type DailyVolSource = "calculated" | "overridden" | "fallback";
 
 export type SpreadInput = {
   /** Buy level as a fraction above the start level, 0.25 for 125 percent. */
@@ -13,11 +13,10 @@ export type SpreadInput = {
 };
 
 export type HedgeInputs = {
-  mode: InputMode;
   underlying: Underlying;
-  /** YYYY-MM-DD */
+  /** YYYY-MM-DD, today in IST by default. */
   valuationDate: string;
-  /** Fetched spot. The derived spot always equals it. */
+  /** Fetched spot. The derived spot always equals it. NaN until the close arrives. */
   spot: number;
   startLevelUplift: number;
   startLevelRounding: number;
@@ -26,33 +25,27 @@ export type HedgeInputs = {
   premiumRate: number;
   marginGrowthRate: number;
 
-  /** Top spread sell level as a fraction, 0.37. */
-  target: number;
   /** Maximum coupon, 1.025 for 102.5 percent. */
   coupon: number;
-  protection: number;
   decay: number;
   tenorDays: number;
 
-  expiryCount: number;
-  /** Month numbers counted from the valuation month. NaN marks a blank field. */
-  expiryMonths: number[];
-  /** Manual YYYY-MM-DD override per expiry, or null. */
-  expiryOverrides: Array<string | null>;
-  /** 0 Sunday … 6 Saturday. */
-  expiryWeekday: number;
-  /** Index into the expiry list, or null for the median. */
-  hedgeExpiryIndex: number | null;
-
-  spreads: SpreadInput[];
-  /** Last spread participation is derived so the spreads tie to the coupon. */
-  autoParticipation: boolean;
-  /** Width of the protection outflow step, 0.01 for one percent. */
-  outflowWidth: number;
-  /** Decay floor strike as a fraction of start, 0.70. */
-  floorLevel: number;
+  /**
+   * Strikes as percent of start, highest first. The first nSpreads + 1 are the spread levels,
+   * then the protection strike, the protection outflow step and the decay floor.
+   */
+  strikePercents: number[];
+  /** One per spread, bottom spread first. Null is derived: 1 below the top, coupon-derived at the top. */
+  participations: Array<number | null>;
   /** Units bought at the floor strike. Slope below the floor is decay minus this. */
   floorUnits: number;
+  optionType: OptionType;
+
+  expiryCount: number;
+  /** Month numbers. NaN marks a blank field. */
+  expiryMonths: number[];
+  /** Index into the expiry list, or null for the median. */
+  hedgeExpiryIndex: number | null;
 
   notionalCr: number;
   transactionCost: number;
@@ -60,6 +53,8 @@ export type HedgeInputs = {
   marginCost: number;
 
   dailyVol: number;
+  dailyVolSource: DailyVolSource;
+  historyWindowDays: number;
   exposureMargin: number;
   futuresMargin: number;
   hedgeStrike: number;
@@ -75,7 +70,10 @@ export type HedgeInputs = {
 
   /** Pricer vol bump input, added to every leg. */
   volBump: number;
-  bidOffer: BidOffer;
+  /** Per-leg volatility overrides keyed "block-expiry", as a decimal. */
+  legVolOverrides: Record<string, number>;
+  /** Day 1 hedge fair volatility override, as a decimal. */
+  hedgeVolOverride: number | null;
 };
 
 export type PricingParamPoint = {
@@ -104,7 +102,8 @@ export type VolSurface = {
   niftyAnchorAsOf?: string;
 };
 
-export type RatePoint = { date: string; ratePercent: number; linkedToPremiumRate?: boolean };
+/** A rate curve point, anchored at the valuation date: its date is the valuation date plus this tenor. */
+export type RatePoint = { years: number; ratePercent: number; linkedToPremiumRate?: boolean };
 export type DividendPoint = { date: string; amount: number };
 
 export type PricingParams = {
@@ -112,6 +111,8 @@ export type PricingParams = {
   premiumRateSpread: number;
   rateCapBuyingForward: number;
   dividendBidOfferMultiplier: number;
+  /** Pricer Bid or Offer row. */
+  bidOffer: BidOffer;
   rateCurve: RatePoint[];
   dividends: DividendPoint[];
 };
@@ -138,6 +139,8 @@ export type OptionPricing = {
   dividends: number;
   forward: number;
   volatility: number;
+  /** True when the volatility is a user override instead of the surface lookup. */
+  volOverridden: boolean;
   volBump: number;
   bidOffer: BidOffer;
   price: number;
@@ -245,7 +248,14 @@ export type SummaryLeg = {
   premiumCr: number;
 };
 
-export type ValidationIssue = { field: string; message: string };
+export type ValidationIssue = {
+  field: string;
+  message: string;
+  /** Stable code for the edge-case popups. */
+  code?: string;
+  /** A suggested fix shown in the popup. */
+  fix?: string;
+};
 
 export type HedgingResult = {
   ok: true;
@@ -291,7 +301,7 @@ export type HedgingResult = {
     optionExpiry: string;
     deltaContracts: number;
     deltaPercent: number;
-    /** The workbook's signed vega weighting, kept for parity. */
+    /** Signed vega weighting, as Summary G15 computes it. */
     vegaWeightedVol: number;
     /** Weighted by the size of each leg's vega, so long and short legs do not cancel. */
     absVegaWeightedVol: number;
@@ -353,7 +363,15 @@ export type HedgingResult = {
     stressed: HedgeRow[];
   };
   markToMarket: { rows: MarginRow[]; zeroRow: MarginRow; worstCase: MarginRow };
-  diagnostics: { solverIterations: number; loopPasses: number; loopResidual: number };
+  diagnostics: {
+    solverIterations: number;
+    loopPasses: number;
+    loopResidual: number;
+    /** The Pricer spot bump after the stress loop. Always 0: the loop resets it. */
+    spotBumpAfterStress: number;
+    /** Largest gap between the client payoff and the option book across every kink. */
+    payoffBookGap: number;
+  };
 };
 
 export type HedgingFailure = {

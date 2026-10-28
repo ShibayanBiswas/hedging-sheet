@@ -1,6 +1,6 @@
 {
   "monthKey": "2026-08",
-  "label": "August 2026 Volatility Surface",
+  "label": "Built In Volatility Surface",
   "deepStrike": 500,
   "moneyness": [
     0.55,
@@ -1470,6 +1470,5 @@
     }
   ],
   "referenceUnderlyingPrice": 23995.95,
-  "referenceSensexPrice": 76835.78,
-  "niftyAnchorAsOf": "2026-07-27"
+  "referenceSensexPrice": 76835.78
 }

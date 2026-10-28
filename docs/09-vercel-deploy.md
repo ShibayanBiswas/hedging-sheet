@@ -80,16 +80,16 @@ Open PowerShell in the project folder and run these one at a time.
 1. Seed the database once from your laptop, if it is not already seeded:
 
    ```powershell
-   npm run sync:seed
-   npm run verify:mongo
+   npm run seed:mongo
+   npm run test:mongo
    ```
 
-   `verify:mongo` prints only the database name, collection counts and sizes.
+   `test:mongo` prints only the database name, collection counts and sizes.
 
 2. Open these addresses on the production site:
    - `/api/dataset` should show `"surfaceSource":"database"`.
    - `/api/market/levels` should show today's Nifty and Sensex closes with `"source":"yahoo"`.
-3. Open the app, keep **Workbook Defaults**, and check the Summary Sheet cards: Actual Inbuilt 7.95%, Option Premium ₹ 50.67 Cr, Maturity Payout ₹ 202.50 Cr, Margin Requirement 32.31%, Hedge Quantity 12,809.67.
+3. Open the app, wait for the spot to load, press **Run Simulation**, and check that the Summary Sheet Headline table shows an Actual Inbuilt and the market strip reads Up To Date.
 4. Click **Download Excel** and check the five sheets: Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge, Mark to Market and Margin.
 5. Run the browser tests against production:
 
@@ -103,4 +103,4 @@ Open PowerShell in the project folder and run these one at a time.
 
 - **The build fails.** Run `npm run build` on your laptop; the same error shows there.
 - **`/api/dataset` shows `"seed"`.** The variables are missing or misspelt, or the Atlas network access list does not allow Vercel. In Atlas, open Network Access and allow `0.0.0.0/0`, as the other desk apps do.
-- **Live spot shows a dash.** Yahoo did not answer. Click Refresh From Yahoo on the Inputs page; the Workbook Defaults mode never needs Yahoo.
+- **Spot stays blank.** Yahoo did not answer. Click Refresh From Yahoo on the Inputs page, or type the spot; Run Simulation is blocked until the spot is above zero.

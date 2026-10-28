@@ -1,6 +1,6 @@
 import { COLLECTIONS, getDb, writeWithRetry } from "@/lib/db/mongo";
 import { istTodayYmd } from "@/lib/engine/dates";
-import { seedPricingParams } from "@/lib/engine/defaults";
+import { normalizePricingParams, seedPricingParams } from "@/lib/engine/defaults";
 import type { PricingParams, VolSurface } from "@/lib/engine/types";
 import { labelSurfaceForDeskMonth, normalizeVolSurface, SEED_SURFACE } from "@/lib/engine/vol-surface";
 import { fetchIndexAtDate } from "@/lib/market-data";
@@ -83,7 +83,9 @@ export async function loadActiveParams(): Promise<{ params: PricingParams; sourc
   if (db) {
     try {
       const doc = await db.collection(COLLECTIONS.pricingParams).findOne({ isActive: true });
-      if (doc && looksLikeParams(doc)) return { params: stripMeta(doc as unknown as PricingParams), source: "database" };
+      if (doc && looksLikeParams(doc)) {
+        return { params: normalizePricingParams(stripMeta(doc as unknown as PricingParams)), source: "database" };
+      }
     } catch (err) {
       console.error("[load] pricing params", err instanceof Error ? err.message : err);
     }
@@ -114,7 +116,8 @@ export async function persistActiveSurface(surface: VolSurface, source: string):
   return true;
 }
 
-export async function persistActiveParams(params: PricingParams, source: string): Promise<boolean> {
+export async function persistActiveParams(raw: PricingParams, source: string): Promise<boolean> {
+  const params = normalizePricingParams(raw);
   runtimeParams = params;
   const db = await getDb();
   if (!db) return false;

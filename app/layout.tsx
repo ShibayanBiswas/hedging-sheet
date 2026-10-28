@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
 import { ThemeProvider } from "@/lib/context/theme-provider";
 
@@ -31,9 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-background font-serif text-ink antialiased">
         <ThemeProvider>
-          <DeskProvider>
-            <AppShell>{children}</AppShell>
-          </DeskProvider>
+          <DeskDialogProvider>
+            <DeskProvider>
+              <AppShell>{children}</AppShell>
+            </DeskProvider>
+          </DeskDialogProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,13 +1,11 @@
 "use client";
 
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Gauge } from "lucide-react";
 
 import { TableCard } from "@/components/ui/desk-table";
-import { KpiRail } from "@/components/ui/kpi-rail";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { ResultGate } from "@/components/ui/result-gate";
-import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
-import { marginTable } from "@/lib/tables";
+import { headlineTable, marginTable } from "@/lib/tables";
 
 export default function MarginPage() {
   return (
@@ -17,30 +15,28 @@ export default function MarginPage() {
         subtitle="The cash the desk must post as the underlying moves from minus 50 to plus 20 percent: futures margin, cumulative mark to market and option margin."
       />
       <ResultGate>
-        {(r, recalculating) => {
+        {(r) => {
           const zero = r.markToMarket.zeroRow;
           const worst = r.markToMarket.worstCase;
           return (
             <>
-              <KpiRail
-                recalculating={recalculating}
-                items={[
-                  { label: "Requirement At 0 Percent", value: zero.totalRequirementCr, format: (v) => `${fmtCrore(v)} Cr`, accent: "maroon" },
-                  {
-                    label: "Worst Case Requirement",
-                    value: worst.totalRequirementCr,
-                    format: (v) => `${fmtCrore(v)} Cr`,
-                    hint: `At a ${fmtPercent(worst.move, 0)} move`,
-                  },
-                  { label: "Margin Funded In The Pricer", value: r.summary.margin, format: (v) => fmtPercent(v) },
-                  { label: "Product Requirement At 0 Percent", value: zero.productRequirementLakh, format: (v) => `${fmtNumber(v, 4)} Lakh` },
-                  { label: "Residual Futures At 0 Percent", value: zero.residualFuturesLakh, format: (v) => `${fmtNumber(v, 4)} Lakh` },
-                ]}
-              />
-              <Panel index={0} recalculating={recalculating}>
+              <Panel>
+                <SectionTitle icon={Gauge}>Headline</SectionTitle>
+                <TableCard
+                  spec={headlineTable("margin-headline", "Headline", [
+                    { label: "Requirement At 0 Percent in Crore", value: zero.totalRequirementCr, kind: "crore" },
+                    { label: "Worst Case Requirement in Crore", value: worst.totalRequirementCr, kind: "crore" },
+                    { label: "Worst Case Move", value: worst.move, kind: "percent", digits: 0 },
+                    { label: "Margin Funded In The Pricer", value: r.summary.margin, kind: "percent" },
+                    { label: "Product Requirement At 0 Percent in Lakh", value: zero.productRequirementLakh, kind: "number", digits: 4 },
+                    { label: "Residual Futures At 0 Percent in Lakh", value: zero.residualFuturesLakh, kind: "number", digits: 4 },
+                  ])}
+                />
+              </Panel>
+              <Panel index={1}>
                 <SectionTitle
                   icon={BarChart3}
-                  subtitle="The highlighted 0 percent row feeds the Summary margin. The worst case row is shown for reference; the workbook margin uses the 0 percent row."
+                  subtitle="The highlighted 0 percent row feeds the Summary margin. Each move reprices the book with the spot bumped, then the bump is reset to zero."
                 >
                   Stress Grid
                 </SectionTitle>
