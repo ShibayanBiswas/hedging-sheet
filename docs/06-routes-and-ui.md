@@ -29,7 +29,9 @@ A pill at the top switches between two modes, after a confirm popup that also cl
 - **Default Values.** The live spot, today's date in India, the calculated volatility and the desk terms. Reset To Defaults restores them.
 - **Blank Inputs.** Every field is empty with an "Eg …" placeholder and the selects read "Select …". Choose the number of expiry dates first, then that many month rows appear. Computed dates show "-" until they can be worked out, and derived fields fill as the inputs arrive and stay editable. Fetch Live Spot and Compute Volatility From History fill only their own fields. Clear All Inputs empties every field again.
 
-Run Simulation validates first. Missing or invalid fields open "Missing Or Invalid Inputs", grouped by section, with Go To First Field; closing the popup focuses the first invalid field, and each invalid field has a red ring and inline text. A typed value that breaks a rule across fields opens "Please Fix This Input" straight away.
+Run Simulation validates first. Missing or invalid fields open "Missing Or Invalid Inputs", grouped by section, with Go To First Field; closing the popup focuses the first invalid field, and each invalid field has a red ring and inline text. A typed value that breaks a rule across fields opens "Please Fix This Input" straight away, or "Coupon Not Reachable" when the spreads cannot pay the Coupon.
+
+Every popup takes keyboard focus and Escape closes it. Focus then returns to where it was, or to the field the popup is about. Arrow keys, Home and End move between the mode tabs and between the section tabs, and Enter opens the focused one.
 
 ## Output tabs
 

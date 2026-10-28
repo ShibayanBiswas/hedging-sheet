@@ -1,6 +1,11 @@
 name: Production Smoke
 
 on:
+  # Vercel deploys main within a minute or two; CI takes longer, so production is live when CI finishes.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   deployment_status:
   schedule:
     - cron: "30 3 * * *"
@@ -9,7 +14,9 @@ on:
 jobs:
   smoke:
     name: Read-Only Smoke Against The Deployment
-    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    if: >-
+      (github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success') &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -26,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: prod-smoke
+          name: prod-smoke-report
           path: |
             playwright-report
             test-results/junit-e2e.xml

@@ -1,5 +1,67 @@
 # 08 · Changelog
 
+## Round 5
+
+### Test suites
+
+- **Blank Inputs suite, `e2e/blank`.** B1 to B22, one named test per case and table-driven where the list is long.
+  - The required-field and invalid-value cases are generated from `requiredFields` and `numberFieldRules` in `lib/inputs/validate.ts`, so no field is skipped.
+  - The engine-level parts sit in `tests/unit/validate.test.ts`.
+- **Default parity suite, `e2e/default`.** D1 to D7, plus the market data flows. Market status for pre-open, open, closed and holiday is unit-tested in `tests/unit/market-status.test.ts`.
+- **Copy rules.** `lib/format/copy-rules.ts` holds the rules. They are checked by a unit test on every label constant and by `e2e/copy-rules.spec.ts` on every page in both modes.
+- **Fixtures.** Two are generated from the engine exactly as the app computes it in mock mode:
+  - `table-schema.json`;
+  - the `mock` section of `regression-expected.json`, whose workbook tie-out part is unchanged.
+
+### App
+
+- **Cell keys.** Every table cell carries `data-cell` and its raw `data-value`, so tests compare numbers exactly, not as rounded text.
+- **Coupon Not Reachable.** An unreachable coupon is reported on the Coupon field, with its own popup title and a suggestion.
+- **Focus.** Popups take focus and give it back when they close. Arrow keys move through the mode switch and the section tabs. Keyboard focus is always visible.
+- **Volatility Bump fix.** Pricer legs now read the Volatility Bump of their expiry from Pricing Params, as Pricer row 33 does. Before, the Surface Parameters edit never reached the prices. The unused `volBump` input is removed.
+- **Overridden badge.** A typed daily volatility shows Overridden in both modes.
+- **Copy.** Shortforms are spelled out: FORECAST, MTM, MB and ROUNDUP.
+
+### Cleanup
+
+`knip`, `ts-prune` and `depcheck` now report nothing unused.
+
+| Removed | What |
+|---|---|
+| `e2e/blank-mode.spec.ts` | Replaced by the B1 to B22 suite. `e2e/default-mode.spec.ts` moved to `e2e/default/`. |
+| `components/ui/page-motion.tsx` | `MotionBand`, `Stagger`, `StaggerItem`, `MotionPanelShell`, unused |
+| `lib/motion.ts` | `bandEnter`, `staggerContainer`, `staggerItem`, `panelHover`, `softPulse`, `fadeScale`, `valuePop`, unused |
+| `lib/workbook/export-theme.ts` | `PDF_THEME`, `excelBox`, `excelGoldBox`, `addExcelKpiTiles`, from the card rails the tables replaced |
+| `lib/workbook/excel-cells.ts` | `writeExcelCell` and `ExcelCell`, only used by the KPI tiles |
+| `components/ui/fields.tsx` | `IssueList`, unused |
+| `lib/engine/dates.ts` | `lastWeekdayOfMonthAfter`, `monthsBetween`, from the old expiry rule |
+| `lib/format.ts` | `rupeeText` and the `formatDate` re-export |
+| `lib/db/mongo-config.ts` | `isMongoConfigured`, unused |
+| `lib/engine` | The `volBump` input field |
+| npm packages | `clsx`, `tailwind-merge`, `date-fns`, `@testing-library/user-event` |
+| `postcss.config.mjs` | The create-next-app type comment that referenced an unlisted package |
+
+52 exports that were only used inside their own file are now private.
+
+These items from the cleanup list were already gone before this round:
+- the workbook parity and default JSON files;
+- `scripts/extract-workbook-seed.ts`;
+- `/api/products` and the saved input sets;
+- `kpi-rail.tsx`;
+- `tests/parity.test.ts`;
+- the create-next-app SVGs.
+
+The local workbook and prompt files are git-ignored and were left in place.
+
+### Decisions
+
+- **Sheet name.** The fifth Excel sheet stays "Mark To Market And Margin", following the capitalisation rule, rather than the "Mark to Market and Margin" written in B17.2.
+- **Number Of Spreads.** The stepper keeps its count of 2 in Blank Inputs so the six strike boxes can render. It is a control, not a value, so B1.1 leaves it out.
+- **Invalid dates.** The date control cannot hold one, so B3.8 checks a future date in the browser and malformed dates such as 2026-02-30 in the unit tests.
+- **Floor level.** A floor at or above protection less the step sits at or above Strike 5, so the strike order rule reports it, naming both strikes.
+- **Cross-browser runs.** Rule and number checks run once, on desktop Chromium. The other three projects run the flows, the keyboard, layout and accessibility checks.
+- **Production smoke trigger.** Vercel does not post GitHub deployment events for this repository, so the production smoke also runs after CI succeeds on `main`.
+
 ## Round 4
 
 ### Two input modes
