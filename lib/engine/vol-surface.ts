@@ -1,5 +1,5 @@
 import { istTodayYmd, parseYmd } from "@/lib/engine/dates";
-import type { PricingParamPoint, Underlying, VolSurface } from "@/lib/engine/types";
+import type { MarketData, PricingParamPoint, Underlying, VolSurface } from "@/lib/engine/types";
 
 import volSeed from "@/lib/data/vol-surface-seed.json";
 
@@ -200,11 +200,32 @@ export function lookupFwdSellRate(params: PricingParamPoint[], date: string): nu
  * The latest row dated in that month; failing that, the first row after it; failing that, the last row before.
  */
 export function forwardSellRateForMonth(params: PricingParamPoint[], valuationDate: string): number {
-  if (!params.length) return DEFAULT_FWD_SELL_RATE;
+  return pricingRowForMonth(params, valuationDate)?.fwdSellRate ?? DEFAULT_FWD_SELL_RATE;
+}
+
+/** The Pricing Params row of the valuation month, the row H69 points at in a sheet saved that month. */
+export function pricingRowForMonth(params: PricingParamPoint[], valuationDate: string): PricingParamPoint | null {
+  if (!params.length) return null;
   const month = valuationDate.slice(0, 7);
   const inMonth = params.filter((p) => p.date.slice(0, 7) === month);
-  if (inMonth.length) return inMonth[inMonth.length - 1]!.fwdSellRate;
+  if (inMonth.length) return inMonth[inMonth.length - 1]!;
   const t = parseYmd(valuationDate).getTime();
   const after = params.find((p) => parseYmd(p.date).getTime() > t);
-  return (after ?? params[params.length - 1]!).fwdSellRate;
+  return after ?? params[params.length - 1]!;
+}
+
+/**
+ * The market a live run reads: Pricing Params from the valuation month row onward (the forward grid)
+ * and implied dividends on or after the valuation date. Older rows are never looked up by a live expiry.
+ */
+export function forwardMarket(market: MarketData, valuationDate: string): MarketData {
+  const row = pricingRowForMonth(market.surface.pricingParams, valuationDate);
+  const from = row ? parseYmd(row.date).getTime() : -Infinity;
+  const pricingParams = market.surface.pricingParams.filter((p) => parseYmd(p.date).getTime() >= from);
+  const valuation = parseYmd(valuationDate).getTime();
+  const dividends = market.params.dividends.filter((d) => parseYmd(d.date).getTime() >= valuation);
+  return {
+    surface: { ...market.surface, pricingParams: pricingParams.length ? pricingParams : market.surface.pricingParams },
+    params: { ...market.params, dividends },
+  };
 }

@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { seedMarketData } from "@/lib/engine/defaults";
 import { daysBetween } from "@/lib/engine/dates";
@@ -23,7 +23,7 @@ describe("terms derived from strikes", () => {
     expect(t.spreads[0]!.participation).toBe(1);
     expect(t.spreads[1]!.buy).toBeCloseTo(0.27, 12);
     expect(t.spreads[1]!.sell).toBeCloseTo(0.37, 12);
-    // Summary L10: (coupon âˆ’ 2 percent from Spread 1) Ã· 10 percent width
+    // Summary L10: (coupon − 2 percent from Spread 1) ÷ 10 percent width
     expect(t.spreads[1]!.participation).toBeCloseTo(10.05, 10);
     expect(t.participationDerived).toEqual([false, true]);
     expect(t.protection).toBeCloseTo(0.15, 12);

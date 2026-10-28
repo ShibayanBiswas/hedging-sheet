@@ -9,7 +9,6 @@ import {
   clientReturn,
   deriveTerms,
   payoffBookGap,
-  payoffDescription,
   payoffLevels,
   preTaxIrr,
   startLevel,
@@ -152,7 +151,7 @@ export function validateInputs(
   const positive: Array<[keyof HedgeInputs, string, string]> = [
     ["spot", "Spot", "Click Refresh From Yahoo or type the spot."],
     ["notionalCr", "Notional in Crore", "Enter the notional, such as 100."],
-    ["coupon", "Coupon", "Enter the maximum coupon, such as 102.5 percent."],
+    ["coupon", "Coupon", "Enter the maximum coupon, such as 102.5%."],
     ["dailyVol", "Daily Volatility", "Compute it from history or type it."],
     ["hedgeStrike", "Hedge Strike", "Turn on Auto From Spot or type the strike."],
     ["decay", "Decay", "Enter the downside participation, such as 1.6."],
@@ -185,15 +184,24 @@ export function validateInputs(
     warnings.push({
       field: "spreads",
       code: "coupon-capped",
-      message: `The spreads pay up to ${(reach * 100).toFixed(2)} percent; the payoff is capped at the Coupon of ${(inputs.coupon * 100).toFixed(2)} percent.`,
+      message: `The spreads pay up to ${(reach * 100).toFixed(2)}%; the payoff is capped at the Coupon of ${(inputs.coupon * 100).toFixed(2)}%.`,
     });
   }
   return { errors, warnings, dates: schedule.dates };
 }
 
-export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData): HedgingResult | HedgingFailure {
-  const { errors, warnings, dates } = validateInputs(inputs, market);
+/**
+ * Regression fixtures can pin the observation expiries and the Pricer forward growth, as a saved
+ * sheet does with typed dates and a fixed 'Pricing Params'!H69. The app always uses the expiry rule
+ * and the valuation month row.
+ */
+export type ComputeOptions = { expiryDates?: string[]; forwardGrowth?: number };
+
+export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, options?: ComputeOptions): HedgingResult | HedgingFailure {
+  const validated = validateInputs(inputs, market);
+  const { errors, warnings } = validated;
   if (errors.length) return { ok: false, errors, warnings };
+  const dates = options?.expiryDates?.length === validated.dates.length ? options.expiryDates : validated.dates;
 
   const { surface, params } = market;
   const bidOffer: BidOffer = params.bidOffer ?? "B";
@@ -215,7 +223,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData): He
   const longest = dates[dates.length - 1]!;
   const curvePoints = anchoredCurve(params.rateCurve, inputs.valuationDate, premiumRate, longest);
   // Pricer B28 = 'Pricing Params'!H69: the Forward Sell Rate of the valuation month, one value for every leg.
-  const pricerGrowth = forwardSellRateForMonth(surface.pricingParams, inputs.valuationDate);
+  const pricerGrowth = options?.forwardGrowth ?? forwardSellRateForMonth(surface.pricingParams, inputs.valuationDate);
 
   // ------------------------------------------------------------ Pricer legs
   type LegSetup = { slotIndex: number; expiryIndex: number; maturity: string; vol: number; overridden: boolean };
@@ -516,14 +524,26 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData): He
   let inbuilt = 0;
   let marginFraction = marginFractionFor(inbuilt);
   let solverIterations = 0;
+  let solverTrace: Array<{ inbuilt: number; residual: number }> = [];
   let loopPasses = 0;
   let loopResidual = Infinity;
   for (let pass = 0; pass < 50; pass++) {
     loopPasses = pass + 1;
     // Pricer V5 = E5 × Summary Q10
     const marginInr = notional * marginFraction;
+    const trace: Array<{ inbuilt: number; residual: number }> = [];
     // Macro2: GoalSeek P5 = C5 by changing H5.
-    const solved = brentSolve((h) => payoutFor(h, marginInr) / notional - 1 - inputs.coupon, -notional, notional, 1e-10);
+    const solved = brentSolve(
+      (h) => {
+        const residual = payoutFor(h, marginInr) / notional - 1 - inputs.coupon;
+        trace.push({ inbuilt: h / notional, residual });
+        return residual;
+      },
+      -notional,
+      notional,
+      1e-10,
+    );
+    solverTrace = trace;
     solverIterations += solved.iterations;
     inbuilt = solved.root;
     const next = marginFractionFor(inbuilt);
@@ -587,7 +607,6 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData): He
       clientReturn: value,
       maturityValueCr: inputs.notionalCr * (1 + value),
       preTaxIrr: preTaxIrr(value, tenor),
-      description: payoffDescription(inputs, performance, value),
     };
   });
 
@@ -708,6 +727,9 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData): He
     markToMarket: { rows: marginRows, zeroRow, worstCase },
     diagnostics: {
       solverIterations,
+      solverTrace,
+      goalSeekResidual: achievedCoupon - inputs.coupon,
+      curvePoints,
       loopPasses,
       loopResidual,
       spotBumpAfterStress: spotBump,

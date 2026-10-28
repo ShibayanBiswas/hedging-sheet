@@ -151,12 +151,8 @@ export function pickDeskClose(
     };
   }
 
-  const phase: SessionPhase =
-    isWeekend || last.dateYmd !== today
-      ? "holiday_or_weekend"
-      : beforeOpen
-        ? "pre_open"
-        : "open";
+  // No bar for today yet: before the open that is an ordinary weekday, not a holiday.
+  const phase: SessionPhase = isWeekend ? "holiday_or_weekend" : beforeOpen ? "pre_open" : "holiday_or_weekend";
 
   return {
     close: roundLevel(last.close),

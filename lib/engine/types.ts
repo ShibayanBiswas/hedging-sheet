@@ -235,7 +235,6 @@ export type PayoffRow = {
   clientReturn: number;
   maturityValueCr: number;
   preTaxIrr: number;
-  description: string;
 };
 
 export type SummaryLeg = {
@@ -365,6 +364,12 @@ export type HedgingResult = {
   markToMarket: { rows: MarginRow[]; zeroRow: MarginRow; worstCase: MarginRow };
   diagnostics: {
     solverIterations: number;
+    /** Every goal seek evaluation of the last margin loop pass: the Inbuilt tried and the coupon residual. */
+    solverTrace: Array<{ inbuilt: number; residual: number }>;
+    /** Achieved coupon less the target coupon after the goal seek. */
+    goalSeekResidual: number;
+    /** The rate curve as dated points from the valuation date, as every leg reads it. */
+    curvePoints: Array<{ date: string; rate: number }>;
     loopPasses: number;
     loopResidual: number;
     /** The Pricer spot bump after the stress loop. Always 0: the loop resets it. */

@@ -140,7 +140,7 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
         field: `strikes.${i}`,
         code: "strike-positive",
         message: `Strike ${i + 1} is ${Number.isFinite(v) ? v : "blank"}. Every strike must be above zero.`,
-        fix: `Enter Strike ${i + 1} as a percent of the start level, such as 85.`,
+        fix: `Enter Strike ${i + 1} as a % of the start level, such as 85.`,
       });
     }
   });
@@ -149,7 +149,7 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       errors.push({
         field: `strikes.${i}`,
         code: "strike-order",
-        message: `Strike ${i + 1} at ${k[i]} percent is not below Strike ${i} at ${k[i - 1]} percent. Strikes must be strictly descending.`,
+        message: `Strike ${i + 1} at ${k[i]}% is not below Strike ${i} at ${k[i - 1]}%. Strikes must be strictly descending.`,
         fix: `Lower Strike ${i + 1} or raise Strike ${i} so each strike sits below the one before it.`,
       });
     }
@@ -191,7 +191,7 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
     errors.push({
       field: "coupon",
       code: "coupon-unreachable",
-      message: `The spreads pay at most ${(reach * 100).toFixed(2)} percent, so the Coupon of ${(inputs.coupon * 100).toFixed(2)} percent cannot be reached.`,
+      message: `The spreads pay at most ${(reach * 100).toFixed(2)}%, so the Coupon of ${(inputs.coupon * 100).toFixed(2)}% cannot be reached.`,
       fix: "Reset the top spread participation to derived, raise a participation, or lower the Coupon.",
     });
   }
@@ -199,8 +199,8 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
     errors.push({
       field: "protection",
       code: "protection",
-      message: `The protection strike at ${k[n + 1]} percent must sit below 100 percent of the start level.`,
-      fix: "Set Protection between 0 and 100 percent, such as 15 percent.",
+      message: `The protection strike at ${k[n + 1]}% must sit below 100% of the start level.`,
+      fix: "Set Protection between 0% and 100%, such as 15%.",
     });
   }
   if (!(terms.floorLevel < 1 - terms.protection - terms.outflowWidth)) {
@@ -208,7 +208,7 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       field: "floorLevel",
       code: "floor-level",
       message: "The Decay Floor Level must sit below the protection strike less the outflow step.",
-      fix: `Lower the Decay Floor Level below ${(100 * (1 - terms.protection - terms.outflowWidth)).toFixed(2)} percent.`,
+      fix: `Lower the Decay Floor Level below ${(100 * (1 - terms.protection - terms.outflowWidth)).toFixed(2)}%.`,
     });
   }
   if (inputs.floorUnits > inputs.decay) {
@@ -291,13 +291,4 @@ export function payoffLevels(inputs: HedgeInputs, strikes: StrikeSlot[]): number
   const top = Math.max(...strikes.map((s) => s.percent / 100 - 1)) + 0.1;
   for (let x = -0.5; x <= top + 1e-9; x += 0.05) set.add(key(x));
   return [...set].sort((a, b) => b - a);
-}
-
-export function payoffDescription(inputs: HedgeInputs, performance: number, value: number): string {
-  const terms = deriveTerms(inputs);
-  if (value >= inputs.coupon - 1e-12) return "Maximum Coupon";
-  if (value > 1e-12) return "Accelerated Upside";
-  if (performance >= -terms.protection) return "Capital Protected";
-  if (performance < terms.floorLevel - 1) return "Loss Beyond Decay Floor";
-  return "Loss With Decay";
 }

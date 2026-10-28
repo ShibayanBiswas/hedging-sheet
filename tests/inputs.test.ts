@@ -5,7 +5,10 @@ import { describe, expect, it } from "vitest";
 
 import pricingSeed from "@/lib/data/pricing-params-seed.json";
 import volSeed from "@/lib/data/vol-surface-seed.json";
+import { istTodayYmd } from "@/lib/engine/dates";
+import { seedMarketData } from "@/lib/engine/defaults";
 import { normCdf } from "@/lib/engine/normal";
+import { forwardMarket } from "@/lib/engine/vol-surface";
 import { resizeList } from "@/lib/engine/schedule";
 import { checkInputShape } from "@/lib/engine/input-schema";
 import { parseVolSurfaceWorkbook } from "@/lib/workbook/parse-vol-surface";
@@ -46,11 +49,14 @@ describe("vol surface upload", () => {
     parsed.surface.volsPercent.forEach((row, r) =>
       row.forEach((v, c) => expect(v).toBeCloseTo(Math.round(volSeed.volsPercent[r]![c]! * 100) / 100, 6)),
     );
-    expect(parsed.surface.pricingParams.length).toBe(volSeed.pricingParams.length);
+    // The file carries the forward Pricing Params grid and future dividends only.
+    const live = forwardMarket(seedMarketData(), istTodayYmd());
+    expect(parsed.surface.pricingParams).toEqual(live.surface.pricingParams.map((p) => ({ ...p, date: p.date.slice(0, 10) + "T00:00:00.000Z" })));
     expect(parsed.params.rateCapBuyingForward).toBeCloseTo(pricingSeed.rateCapBuyingForward, 9);
+    expect(parsed.params.dividendBidOfferMultiplier).toBe(pricingSeed.dividendBidOfferMultiplier);
     expect(parsed.params.bidOffer).toBe("B");
     expect(parsed.params.rateCurve?.length).toBe(pricingSeed.rateCurve.length);
     expect(parsed.params.rateCurve?.every((p) => typeof p.years === "number")).toBe(true);
-    expect(parsed.params.dividends?.length).toBe(pricingSeed.dividends.length);
+    expect(parsed.params.dividends?.length).toBe(live.params.dividends.length);
   });
 });

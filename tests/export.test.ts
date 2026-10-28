@@ -55,7 +55,8 @@ describe("Excel download", () => {
 
     const product = reopened.getWorksheet("Product Description")!;
     expect(valueRightOf(product, "Maturity Amount in Crore")).toBeCloseTo(r.productDescription.maturityCr, 9);
-    expect(valueRightOf(product, "Internal Rate of Return")).toBeCloseTo(r.productDescription.irr, 12);
+    expect(valueRightOf(product, "Client Internal Rate of Return")).toBeCloseTo(r.productDescription.irr, 12);
+    expect(valueRightOf(product, "Residual Futures To Be Done")).toBeCloseTo(r.productDescription.greeks.residualFutures, 6);
 
     const margin = reopened.getWorksheet("Mark to Market and Margin")!;
     const totals = columnValues(margin, "Total of Futures Margin, Mark to Market and Options Margin");
@@ -73,6 +74,23 @@ describe("Excel download", () => {
     expect(valueRightOf(hedge, "Option Type")).toBe("Put");
     const upperForward = columnValues(hedge, "Upper Forward");
     expect(upperForward.every((v) => typeof v === "number")).toBe(true);
+  });
+
+  it("has no pivots and the Pricer header shows % strikes over real expiry dates", async () => {
+    const wb = new ExcelJS.Workbook();
+    buildHedgingWorkbook(wb, result(), null);
+    const buffer = await wb.xlsx.writeBuffer();
+    expect(Buffer.from(buffer as ArrayBuffer).toString("latin1").includes("pivotTable")).toBe(false);
+    const reopened = new ExcelJS.Workbook();
+    await reopened.xlsx.load(buffer as ArrayBuffer);
+    const texts: string[] = [];
+    reopened.getWorksheet("Pricer")!.eachRow((row) => row.eachCell((cell) => texts.push(String(cell.value))));
+    expect(texts.includes("137% · 1,13,025")).toBe(true);
+    expect(texts.some((t) => /^\d{2}-[A-Z][a-z]{2}-\d{4}$/.test(t))).toBe(true);
+    expect(texts.some((t) => /Strike Block|^Field$|^Expiry \d+$/.test(t))).toBe(false);
+    const all: string[] = [];
+    reopened.eachSheet((sheet) => sheet.eachRow((row) => row.eachCell((cell) => all.push(String(cell.value)))));
+    expect(all.some((t) => /\bpercent\b|Helper Columns|Workbook Defaults|00-Jan-00/i.test(t) || /\bNaN\b|Infinity/.test(t))).toBe(false);
   });
 
   it("names the file by underlying and valuation date", () => {
