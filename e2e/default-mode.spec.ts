@@ -84,12 +84,13 @@ test.describe("Default Values mode", () => {
   for (const c of invalidCases.cases.filter((c) => c.fill.length)) {
     test(`invalid input blocks the run: ${c.name}`, async ({ inputs, page }) => {
       await inputs.goto();
+      const target = c.field.startsWith("coupon") ? "input-coupon" : `input-${c.field.replace(".", "-")}`;
       for (const [id, value] of c.fill) await inputs.fill(id!, value!);
-      await inputs.dialog.dismissAll();
+      await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
+      await inputs.dialog.dismissAll(3_000);
       await inputs.expectValidationDialog({ contains: [c.label, c.message] });
       await inputs.dialog.ok.click();
       await expect(inputs.dialog.root).toHaveCount(0);
-      const target = c.field.startsWith("coupon") ? "input-coupon" : `input-${c.field.replace(".", "-")}`;
       await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
       await inputs.resetButton.click();
       await expect(page.getByTestId(target)).not.toHaveAttribute("aria-invalid", "true");

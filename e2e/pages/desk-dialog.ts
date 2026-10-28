@@ -19,11 +19,14 @@ export class DeskDialog {
     await expect(this.title).toHaveText(title);
   }
 
-  /** Close every queued popup, each waited out of the DOM so an exiting popup is never clicked. */
-  async dismissAll() {
+  /**
+   * Close every queued popup, each waited out of the DOM so an exiting popup is never clicked.
+   * `appearWithinMs` is how long to wait for the next one; edge-case popups are debounced by 900 ms.
+   */
+  async dismissAll(appearWithinMs = 1_500) {
     for (let i = 0; i < 6; i++) {
       try {
-        await this.root.first().waitFor({ state: "visible", timeout: 1_500 });
+        await this.root.first().waitFor({ state: "visible", timeout: appearWithinMs });
       } catch {
         return;
       }
