@@ -16,14 +16,14 @@ function core(token: string): string {
   return token.replace(/^[\s·•:;,.!?"'“”‘’(\[{]+|[\s·•:;,.!?"'“”‘’)\]}]+$/gu, "");
 }
 
-export function isAllowedToken(token: string): boolean {
+function isAllowedToken(token: string): boolean {
   const word = core(token);
   if (!word || PUNCTUATION_ONLY.test(token)) return true;
   return ALLOWED_TOKENS.has(word) || NUMERIC.test(word);
 }
 
 /** True when the word starts with a capital, a digit, ₹, % or a minus, or is allowlisted. */
-export function isTitleCaseWord(token: string): boolean {
+function isTitleCaseWord(token: string): boolean {
   if (isAllowedToken(token)) return true;
   return /^[A-Z0-9₹%\-−+]/u.test(core(token));
 }

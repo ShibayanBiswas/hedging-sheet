@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/engine/dates";
 
 /** Strip characters that break download filenames on Windows, macOS and browsers. */
-export function sanitizeExportToken(value: string | undefined | null, fallback = "export"): string {
+function sanitizeExportToken(value: string | undefined | null, fallback = "export"): string {
   const cleaned = String(value ?? "")
     .trim()
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "")

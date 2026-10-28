@@ -18,7 +18,7 @@ import surface from "../fixtures/surface.json";
 const roundTrip = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 /** /api/dataset reads the seeded documents, normalises them and sends JSON; the client normalises the surface again. */
-export function fixtureMarket(): MarketData {
+function fixtureMarket(): MarketData {
   const { monthKey, ...params } = pricingParams as PricingParams & { monthKey: string };
   void monthKey;
   const sent = roundTrip({ surface: normalizeVolSurface(surface as unknown as VolSurface), params: normalizePricingParams(params) });

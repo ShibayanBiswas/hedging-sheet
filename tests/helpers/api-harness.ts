@@ -8,10 +8,10 @@ import { mockChartResponse } from "@/lib/test/mocks/yahoo";
 import pricingParams from "../fixtures/pricing-params.json";
 import surface from "../fixtures/surface.json";
 
-export const TEST_DB = "hedging_sheet_test";
+const TEST_DB = "hedging_sheet_test";
 
 /** Yahoo answered by MSW with the deterministic chart, so the real market data code path runs. */
-export const yahooHandlers = ["query1", "query2"].map((host) =>
+const yahooHandlers = ["query1", "query2"].map((host) =>
   http.get(`https://${host}.finance.yahoo.com/v8/finance/chart/:symbol`, ({ request }) => HttpResponse.json(mockChartResponse(request.url))),
 );
 

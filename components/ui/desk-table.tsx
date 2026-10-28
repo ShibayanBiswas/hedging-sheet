@@ -7,8 +7,6 @@ import { cn } from "@/lib/cn";
 import { deskEase } from "@/lib/motion";
 import { cellKey, displayCell, gridColumnLabel, tableRowLabel, type CellKind, type CellValue, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
-export { displayCell };
-
 /** Raw number behind a cell, for tests that compare values beyond the shown digits. */
 function rawValue(value: CellValue): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;

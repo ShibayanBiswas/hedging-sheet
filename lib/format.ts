@@ -1,8 +1,6 @@
 import { formatDate } from "@/lib/engine/dates";
 
-export { formatDate };
-
-export const BLANK = "-";
+const BLANK = "-";
 
 export type Display = { text: string; title?: string };
 
@@ -34,10 +32,6 @@ export function percentText(v: unknown, digits = 2): Display {
 export function croreText(v: unknown, digits = 2): Display {
   if (!finite(v)) return blank(v == null ? "Not applicable" : "The value could not be computed");
   return { text: `₹ ${clean(v).toLocaleString("en-IN", { minimumFractionDigits: digits, maximumFractionDigits: digits })}` };
-}
-
-export function rupeeText(v: unknown, digits = 0): Display {
-  return croreText(v, digits);
 }
 
 export function dateText(v: string | null | undefined): Display {

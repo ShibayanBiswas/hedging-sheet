@@ -5,10 +5,10 @@ import type { DividendPoint, HedgeInputs, MarketData, PricingParams, RatePoint }
 import { normalizeVolSurface, SEED_SURFACE } from "@/lib/engine/vol-surface";
 
 /** Used only when the Yahoo history cannot be read. */
-export const FALLBACK_DAILY_VOL = 0.009;
+const FALLBACK_DAILY_VOL = 0.009;
 
 /** The product terms. Spot, valuation date and daily volatility come from live data. */
-export const DEFAULT_TERMS = {
+const DEFAULT_TERMS = {
   startLevelUplift: 0.006,
   startLevelRounding: 100,
   nbfcRate: 0.08,

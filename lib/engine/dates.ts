@@ -35,23 +35,6 @@ export function addDays(ymd: string, days: number): string {
   return toYmd(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + days)));
 }
 
-/** Last given weekday (0 Sunday … 6 Saturday) of the month `months` after the month of `from`. */
-export function lastWeekdayOfMonthAfter(from: string, months: number, weekday: number): string {
-  const d = parseYmd(from);
-  const year = d.getUTCFullYear();
-  const month = d.getUTCMonth() + months;
-  const lastDay = new Date(Date.UTC(year, month + 1, 0));
-  const back = (lastDay.getUTCDay() - weekday + 7) % 7;
-  return toYmd(new Date(Date.UTC(lastDay.getUTCFullYear(), lastDay.getUTCMonth(), lastDay.getUTCDate() - back)));
-}
-
-/** Calendar months from the month of a to the month of b. */
-export function monthsBetween(a: string, b: string): number {
-  const da = parseYmd(a);
-  const db = parseYmd(b);
-  return (db.getUTCFullYear() - da.getUTCFullYear()) * 12 + (db.getUTCMonth() - da.getUTCMonth());
-}
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** DD-MMM-YYYY, or "-" for a blank date. */

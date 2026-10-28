@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 type Theme = "light" | "dark";
 
-export const THEME_STORAGE_KEY = "hs-theme";
+const THEME_STORAGE_KEY = "hs-theme";
 
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({ theme: "light", toggle: () => undefined });
 

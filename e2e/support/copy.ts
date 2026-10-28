@@ -35,7 +35,7 @@ export async function visibleLabels(page: Page): Promise<string[]> {
 }
 
 /** Visible sentences: paragraphs and list items. Read as written, so CSS upper-casing of kickers is not mistaken for a shortform. */
-export async function visibleProse(page: Page): Promise<string[]> {
+async function visibleProse(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll<HTMLElement>("main p, main li, [role=dialog] p, [role=dialog] li, footer p"))
       .filter((el) => el.offsetParent || getComputedStyle(el).position === "fixed")

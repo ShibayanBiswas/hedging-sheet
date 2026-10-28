@@ -22,7 +22,7 @@ function useNow(): Date | null {
 }
 
 /** Open, Pre Open, Closed, Holiday or Weekend for the NSE cash session. */
-export function marketStatusLabel(phase: SessionPhase | null | undefined, now: Date | null): string {
+function marketStatusLabel(phase: SessionPhase | null | undefined, now: Date | null): string {
   if (!phase) return "Unknown";
   if (phase === "open") return "Open";
   if (phase === "pre_open") return "Pre Open";

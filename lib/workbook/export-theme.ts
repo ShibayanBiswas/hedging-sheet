@@ -1,11 +1,8 @@
 /**
- * Shared Anand Rathi desk export theme — Excel + PDF.
+ * Shared Anand Rathi desk export theme for Excel.
  * Same maroon / gold language as the Primary SP Dashboard.
  */
 import type ExcelJS from "exceljs";
-
-import type { ExcelCell } from "@/lib/workbook/excel-cells";
-import { writeExcelCell } from "@/lib/workbook/excel-cells";
 
 /** ARGB hex for ExcelJS fills / fonts / borders. */
 export const EXCEL_THEME = {
@@ -28,25 +25,6 @@ export const EXCEL_THEME = {
   rule: "FFC9B88A",
 } as const;
 
-/** RGB tuples for jsPDF. */
-export const PDF_THEME = {
-  maroon: [122, 30, 44] as [number, number, number],
-  maroonDeep: [92, 22, 34] as [number, number, number],
-  maroonSoft: [247, 237, 239] as [number, number, number],
-  gold: [212, 178, 76] as [number, number, number],
-  goldRich: [196, 160, 62] as [number, number, number],
-  goldSoft: [246, 237, 207] as [number, number, number],
-  goldPale: [252, 248, 238] as [number, number, number],
-  ivory: [250, 247, 239] as [number, number, number],
-  parchment: [248, 244, 234] as [number, number, number],
-  white: [255, 255, 255] as [number, number, number],
-  ink: [28, 25, 23] as [number, number, number],
-  inkSoft: [68, 64, 60] as [number, number, number],
-  muted: [120, 113, 108] as [number, number, number],
-  label: [243, 239, 230] as [number, number, number],
-  border: [231, 225, 207] as [number, number, number],
-};
-
 export const EXCEL_FONT = "Calibri";
 
 export function excelFill(argb: string): ExcelJS.Fill {
@@ -61,29 +39,15 @@ export function excelHairline(argb: string = EXCEL_THEME.rule): Partial<ExcelJS.
   return { style: "hair", color: { argb } };
 }
 
-export function excelMedium(argb: string = EXCEL_THEME.gold): Partial<ExcelJS.Border> {
+function excelMedium(argb: string = EXCEL_THEME.gold): Partial<ExcelJS.Border> {
   return { style: "medium", color: { argb } };
 }
-
-export const excelBox: Partial<ExcelJS.Borders> = {
-  top: excelThin(),
-  left: excelThin(),
-  bottom: excelThin(),
-  right: excelThin(),
-};
-
-export const excelGoldBox: Partial<ExcelJS.Borders> = {
-  top: excelThin(EXCEL_THEME.gold),
-  left: excelThin(EXCEL_THEME.gold),
-  bottom: excelThin(EXCEL_THEME.gold),
-  right: excelThin(EXCEL_THEME.gold),
-};
 
 const DESK_DATE_TEXT_RE = /^\d{1,2}-[A-Za-z]{3}-\d{2,4}$/;
 const DESK_DATE_HEADER_RE = /\bdate\b/i;
 
 /** True when the cell renders as a desk date (native Date, date numFmt, or dd-mmm-yy text). */
-export function excelCellLooksLikeDate(cell: ExcelJS.Cell): boolean {
+function excelCellLooksLikeDate(cell: ExcelJS.Cell): boolean {
   const v = cell.value;
   if (v instanceof Date) return true;
   const fmt = String(cell.numFmt ?? "");
@@ -93,7 +57,7 @@ export function excelCellLooksLikeDate(cell: ExcelJS.Cell): boolean {
 }
 
 /** Display length of a cell value for autofit. */
-export function excelCellDisplayLength(cell: ExcelJS.Cell): number {
+function excelCellDisplayLength(cell: ExcelJS.Cell): number {
   const v = cell.value;
   if (v == null || v === "") return 0;
   if (typeof v === "number") {
@@ -278,106 +242,4 @@ export function addExcelSection(
   };
   sheet.getRow(row).height = 24;
   return row + 1;
-}
-
-/** Classy KPI tiles — 2-up pale-gold cards; lone last metric spans full width. */
-export function addExcelKpiTiles(
-  sheet: ExcelJS.Worksheet,
-  startRow: number,
-  rows: Array<[string, ExcelCell]>,
-  toCol = 6,
-): number {
-  let r = startRow;
-  const pairs: Array<Array<[string, ExcelCell]>> = [];
-  for (let i = 0; i < rows.length; i += 2) {
-    pairs.push(rows.slice(i, i + 2));
-  }
-  const mid = Math.floor(toCol / 2);
-
-  const paintTile = (
-    row: number,
-    startCol: number,
-    endCol: number,
-    label: string,
-    value: ExcelCell,
-  ) => {
-    for (let rr = row; rr <= row + 1; rr++) {
-      for (let c = startCol; c <= endCol; c++) {
-        const cell = sheet.getCell(rr, c);
-        cell.fill = excelFill(EXCEL_THEME.goldPale);
-        cell.border = {
-          top: rr === row ? excelThin(EXCEL_THEME.gold) : excelHairline(EXCEL_THEME.goldPale),
-          bottom: rr === row + 1 ? excelThin(EXCEL_THEME.gold) : excelHairline(EXCEL_THEME.goldPale),
-          left: c === startCol ? excelThin(EXCEL_THEME.gold) : excelHairline(EXCEL_THEME.goldPale),
-          right: c === endCol ? excelThin(EXCEL_THEME.gold) : excelHairline(EXCEL_THEME.goldPale),
-        };
-      }
-    }
-
-    sheet.mergeCells(row, startCol, row, endCol);
-    const labelCell = sheet.getCell(row, startCol);
-    labelCell.value = label.toUpperCase();
-    labelCell.font = {
-      size: 8,
-      color: { argb: EXCEL_THEME.muted },
-      name: EXCEL_FONT,
-      bold: true,
-    };
-    labelCell.fill = excelFill(EXCEL_THEME.goldPale);
-    labelCell.alignment = { vertical: "bottom", horizontal: "left", wrapText: true };
-    labelCell.border = {
-      top: excelThin(EXCEL_THEME.gold),
-      left: excelMedium(EXCEL_THEME.maroon),
-      bottom: excelHairline(EXCEL_THEME.rule),
-      right: excelThin(EXCEL_THEME.gold),
-    };
-
-    sheet.mergeCells(row + 1, startCol, row + 1, endCol);
-    const valueCell = sheet.getCell(row + 1, startCol);
-    writeExcelCell(valueCell, value, label);
-    valueCell.font = {
-      bold: true,
-      size: 14,
-      color: { argb: EXCEL_THEME.maroonDeep },
-      name: EXCEL_FONT,
-    };
-    valueCell.fill = excelFill(EXCEL_THEME.goldPale);
-    valueCell.alignment = { vertical: "top", horizontal: "left", wrapText: false };
-    valueCell.border = {
-      top: excelHairline(EXCEL_THEME.rule),
-      left: excelMedium(EXCEL_THEME.maroon),
-      bottom: excelThin(EXCEL_THEME.gold),
-      right: excelThin(EXCEL_THEME.gold),
-    };
-  };
-
-  for (const pair of pairs) {
-    const solo = pair.length === 1;
-    if (solo) {
-      const [label, value] = pair[0]!;
-      paintTile(r, 1, toCol, label, value);
-    } else {
-      pair.forEach(([label, value], colIdx) => {
-        const startCol = colIdx === 0 ? 1 : mid + 1;
-        const endCol = colIdx === 0 ? mid : toCol;
-        paintTile(r, startCol, endCol, label, value);
-      });
-    }
-
-    sheet.getRow(r).height = 16;
-    sheet.getRow(r + 1).height = 24;
-    const spacer = r + 2;
-    for (let c = 1; c <= toCol; c++) {
-      sheet.getCell(spacer, c).fill = excelFill(EXCEL_THEME.parchment);
-      sheet.getCell(spacer, c).border = {
-        top: excelHairline(EXCEL_THEME.parchment),
-        bottom: excelHairline(EXCEL_THEME.parchment),
-        left: excelHairline(EXCEL_THEME.parchment),
-        right: excelHairline(EXCEL_THEME.parchment),
-      };
-    }
-    sheet.getRow(spacer).height = 6;
-    r += 3;
-  }
-  return r;
 }

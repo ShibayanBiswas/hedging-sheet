@@ -12,7 +12,7 @@ let connectEpoch = 0;
 const ACKNOWLEDGED: WriteConcern = { w: "majority" };
 
 /** Repair truncated Atlas write-concern names such as w=majorit. */
-export function sanitizeMongoUri(uri: string): string {
+function sanitizeMongoUri(uri: string): string {
   return uri.replace(/([?&]w=)([^&]*)/gi, (_full, prefix: string, value: string) => {
     let decoded = value;
     try {
@@ -27,7 +27,7 @@ export function sanitizeMongoUri(uri: string): string {
   });
 }
 
-export function isWriteConcernError(err: unknown): boolean {
+function isWriteConcernError(err: unknown): boolean {
   const message = err instanceof Error ? err.message : String(err);
   return /write concern mode named/i.test(message) || /wtimeout/i.test(message);
 }

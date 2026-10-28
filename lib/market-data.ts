@@ -51,13 +51,13 @@ function roundLevel(n: number): number {
 }
 
 /** YYYY-MM-DD in Asia/Kolkata for a Date or unix seconds. */
-export function istYmd(input: Date | number): string {
+function istYmd(input: Date | number): string {
   const d = typeof input === "number" ? new Date(input * 1000) : input;
   return deskTodayISO(d);
 }
 
 /** Minutes since midnight in Asia/Kolkata. */
-export function istMinutesSinceMidnight(now: Date): number {
+function istMinutesSinceMidnight(now: Date): number {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: IST,
     hour: "2-digit",
@@ -69,7 +69,7 @@ export function istMinutesSinceMidnight(now: Date): number {
   return hour * 60 + minute;
 }
 
-export function istWeekday(now: Date): number {
+function istWeekday(now: Date): number {
   // 0 = Sunday … 6 = Saturday in IST
   const w = new Intl.DateTimeFormat("en-US", { timeZone: IST, weekday: "short" }).format(now);
   switch (w) {
@@ -295,7 +295,7 @@ async function fetchYahooCloseOnOrBefore(symbol: string, isoDate: string): Promi
  * One Yahoo chart for every expiry in the book. The bar is chosen by its India
  * calendar date, so the next session cannot be used as this expiry's close.
  */
-export async function fetchYahooClosesOnOrBefore(
+async function fetchYahooClosesOnOrBefore(
   symbol: string,
   isoDates: string[],
   now: Date = deskNow(),

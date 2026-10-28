@@ -3,15 +3,12 @@ import type ExcelJS from "exceljs";
 import { parseYmd } from "@/lib/engine/dates";
 import type { CellKind, CellValue } from "@/lib/tables";
 
-/** A download cell. Numbers and dates stay native Excel types. */
-export type ExcelCell = string | number | Date | null;
-
 function decimals(digits: number): string {
   return digits > 0 ? `.${"0".repeat(digits)}` : "";
 }
 
 /** Real Excel number formats per kind: percent 0.00%, crore #,##,##0.00, dates dd-mmm-yyyy. */
-export function numFmtFor(kind: CellKind, digits?: number): string | undefined {
+function numFmtFor(kind: CellKind, digits?: number): string | undefined {
   switch (kind) {
     case "percent":
       return `0${decimals(digits ?? 2)}%`;
@@ -63,14 +60,4 @@ export function writeTypedCell(cell: ExcelJS.Cell, value: CellValue, kind: CellK
   const fmt = numFmtFor(kind, digits);
   if (fmt) cell.numFmt = fmt;
   cell.alignment = { horizontal: "right" };
-}
-
-/** Theme KPI tiles call this with untyped values; they pass preformatted text. */
-export function writeExcelCell(cell: ExcelJS.Cell, value: ExcelCell, header?: string): void {
-  void header;
-  if (value == null || value === "" || value === "-") {
-    cell.value = "-";
-    return;
-  }
-  cell.value = value instanceof Date || typeof value === "number" ? value : String(value);
 }

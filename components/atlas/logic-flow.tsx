@@ -13,7 +13,7 @@ import {
 
 import { cn } from "@/lib/cn";
 
-export type FlowNodeKind = "input" | "process" | "engine" | "lookup" | "output";
+type FlowNodeKind = "input" | "process" | "engine" | "lookup" | "output";
 
 export type FlowNodeSpec = {
   id?: string;

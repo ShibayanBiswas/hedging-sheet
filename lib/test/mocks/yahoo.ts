@@ -97,7 +97,7 @@ export function mockChartResponse(url: string, now = new Date(MOCK_NOW_ISO)) {
   };
 }
 
-export function isMockMode(): boolean {
+function isMockMode(): boolean {
   return typeof process !== "undefined" && process.env.TEST_MODE === "mock";
 }
 

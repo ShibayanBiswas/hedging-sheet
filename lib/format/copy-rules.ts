@@ -4,7 +4,7 @@
  */
 
 /** The only shortforms the desk keeps. Every other word in capitals is written out in full. */
-export const ALLOWED_SHORTFORMS = new Set(["NBFC", "BSE", "NSE", "IST", "OK", "UTC"]);
+const ALLOWED_SHORTFORMS = new Set(["NBFC", "BSE", "NSE", "IST", "OK", "UTC"]);
 
 /** Ways a missing value must not be shown; the desk shows "-". */
 const NOT_APPLICABLE_WORDS = /^(n\/?a|na|none|null|nil|—|–|--)$/i;

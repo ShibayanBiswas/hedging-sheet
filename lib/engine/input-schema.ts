@@ -6,7 +6,7 @@ const finite = (label: string) => z.number({ error: `${label} must be a number.`
 const rate = (label: string) => finite(label).min(-0.5, `${label} looks too low.`).max(1, `${label} looks too high.`);
 
 /** Types and ranges only. Business rules, with popup codes, live in the schedule and structure checks. */
-export const hedgeInputSchema = z.object({
+const hedgeInputSchema = z.object({
   underlying: z.enum(["Nifty", "Sensex"]),
   valuationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the Valuation Date as a calendar date."),
   // NaN until the live close arrives; the positive check names it.

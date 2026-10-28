@@ -28,7 +28,7 @@ function expTail(y: number, result: number): number {
   return Math.exp(-ysq * ysq) * Math.exp(-del) * result;
 }
 
-export function erfc(x: number): number {
+function erfc(x: number): number {
   const y = Math.abs(x);
   let result: number;
   if (y <= THRESH) {

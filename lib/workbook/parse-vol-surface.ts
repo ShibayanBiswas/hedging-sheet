@@ -30,14 +30,14 @@ function excelDateToIso(v: unknown): string | null {
 }
 
 /** Percents: 5.5 or 0.055 both mean 5.5 percent. */
-export function asFraction(v: unknown, fallback: number): number {
+function asFraction(v: unknown, fallback: number): number {
   const n = Number(v);
   if (!Number.isFinite(n)) return fallback;
   return Math.abs(n) > 1 ? n / 100 : n;
 }
 
 /** Strike Change percents: 0.55, 55 and 150 all name a column. */
-export function asMoneyness(v: unknown): number | null {
+function asMoneyness(v: unknown): number | null {
   const n = Number(v);
   if (!Number.isFinite(n) || n <= 0) return null;
   if (n > 0.2 && n <= 2) return n;

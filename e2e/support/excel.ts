@@ -19,7 +19,7 @@ const SHEET_FOR_TAB: Record<TabId, string> = {
 };
 
 /** Download Excel from the header and return the saved path. */
-export async function downloadExcel(page: Page): Promise<{ file: string; name: string }> {
+async function downloadExcel(page: Page): Promise<{ file: string; name: string }> {
   fs.mkdirSync(OUT, { recursive: true });
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-excel").click()]);
   const file = path.join(OUT, `${Date.now()}-${download.suggestedFilename()}`);
@@ -48,7 +48,7 @@ function findRow(sheet: ExcelJS.Worksheet, labels: string[]): number | null {
  * B17.2 to B17.6 on a downloaded workbook: sheet names and order, no pivots in the zip, every web table's header row
  * present, one-row headline values equal to the page, no "Workbook" text, and title case on names and headers.
  */
-export async function excelProblems(file: string, ui: Record<string, Record<string, CellRead>>): Promise<string[]> {
+async function excelProblems(file: string, ui: Record<string, Record<string, CellRead>>): Promise<string[]> {
   const problems: string[] = [];
   const zip = fs.readFileSync(file).toString("latin1");
   for (const part of ["xl/pivotCache", "xl/pivotTables"]) if (zip.includes(part)) problems.push(`the zip contains ${part}`);

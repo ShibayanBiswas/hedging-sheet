@@ -330,21 +330,3 @@ export function Toggle({ checked, onChange, label, testId }: { checked: boolean;
     </label>
   );
 }
-
-export function IssueList({ errors, warnings }: { errors: Array<{ message: string }>; warnings?: Array<{ message: string }> }) {
-  if (!errors.length && !warnings?.length) return null;
-  return (
-    <div className="flex w-full flex-col gap-2" data-testid="issue-list">
-      {errors.map((e, i) => (
-        <p key={`e${i}`} className="hs-error" role="alert">
-          {e.message}
-        </p>
-      ))}
-      {warnings?.map((w, i) => (
-        <p key={`w${i}`} className="hs-warning">
-          {w.message}
-        </p>
-      ))}
-    </div>
-  );
-}

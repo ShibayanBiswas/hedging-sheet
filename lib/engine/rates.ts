@@ -2,7 +2,7 @@ import { addDays, daysBetween, excelSerial } from "@/lib/engine/dates";
 import type { BidOffer, DividendPoint, OptionType, PricingParams, RatePoint } from "@/lib/engine/types";
 
 /** Default tenors of the dynamic curve, in years from the valuation date. */
-export const DEFAULT_CURVE_TENORS = [0, 1, 2, 3, 5, 7, 10];
+const DEFAULT_CURVE_TENORS = [0, 1, 2, 3, 5, 7, 10];
 
 export function defaultRateCurve(): RatePoint[] {
   return DEFAULT_CURVE_TENORS.map((years) => ({ years, ratePercent: 6.5, linkedToPremiumRate: true }));

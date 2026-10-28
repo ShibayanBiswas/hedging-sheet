@@ -1,7 +1,7 @@
 export type Underlying = "Nifty" | "Sensex";
 export type OptionType = "P" | "C";
 export type BidOffer = "B" | "O";
-export type DailyVolSource = "calculated" | "overridden" | "fallback";
+type DailyVolSource = "calculated" | "overridden" | "fallback";
 
 export type SpreadInput = {
   /** Buy level as a fraction above the start level, 0.25 for 125 percent. */
@@ -228,7 +228,7 @@ export type MarginRow = {
   totalRequirementPercent: number;
 };
 
-export type PayoffRow = {
+type PayoffRow = {
   performance: number;
   clientReturn: number;
   maturityValueCr: number;

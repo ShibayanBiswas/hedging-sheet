@@ -33,7 +33,7 @@ export async function readShape(page: Page, tableId: string): Promise<{ headers:
 }
 
 /** Test ids of the tables on the page, in order. */
-export async function tableIdsOnPage(page: Page): Promise<string[]> {
+async function tableIdsOnPage(page: Page): Promise<string[]> {
   return page.locator('main [data-testid^="table-"]').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.testid!.replace(/^table-/, "")));
 }
 

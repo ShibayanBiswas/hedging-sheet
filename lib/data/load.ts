@@ -49,7 +49,7 @@ async function monthAnchors(monthKey: string): Promise<{ nifty: number | null; s
 }
 
 /** Show the current month; carry the previous grid with this month's anchors when there is no upload. */
-export async function presentSurfaceForDeskMonth(surface: VolSurface): Promise<VolSurface> {
+async function presentSurfaceForDeskMonth(surface: VolSurface): Promise<VolSurface> {
   const todayMonth = deskMonthKey();
   if (surface.monthKey >= todayMonth) return surface;
   return labelSurfaceForDeskMonth(surface, todayMonth, await monthAnchors(todayMonth));

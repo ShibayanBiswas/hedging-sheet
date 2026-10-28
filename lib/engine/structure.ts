@@ -4,7 +4,7 @@ export const MIN_SPREADS = 1;
 export const MAX_SPREADS = 4;
 
 /** Excel ROUNDUP(x, -2) for a positive step such as 100. */
-export function roundUpTo(x: number, step: number): number {
+function roundUpTo(x: number, step: number): number {
   if (!(step > 0)) return x;
   const q = x / step;
   const r = Math.round(q);
@@ -66,7 +66,7 @@ export function deriveTerms(inputs: Pick<HedgeInputs, "strikePercents" | "partic
   };
 }
 
-export function strikeRoles(nSpreads: number, index: number): StrikeRole[] {
+function strikeRoles(nSpreads: number, index: number): StrikeRole[] {
   if (index <= nSpreads) return ["spread"];
   if (index === nSpreads + 1) return ["protection"];
   if (index === nSpreads + 2) return ["outflow"];
@@ -74,7 +74,7 @@ export function strikeRoles(nSpreads: number, index: number): StrikeRole[] {
 }
 
 // Pricer!B19 = ROUND($B$5 × B17%, 0)
-export function rupeeStrike(start: number, percent: number): number {
+function rupeeStrike(start: number, percent: number): number {
   return Math.round((start * percent) / 100);
 }
 

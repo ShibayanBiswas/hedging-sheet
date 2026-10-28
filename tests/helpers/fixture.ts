@@ -4,7 +4,7 @@ import type { HedgeInputs, HedgingResult, MarketData } from "@/lib/engine/types"
 
 /** A fixed day and close so tests do not depend on today's market. */
 export const FIXTURE_DATE = "2026-10-27";
-export const FIXTURE_SPOT = 82000;
+const FIXTURE_SPOT = 82000;
 
 export function fixtureInputs(overrides: Partial<HedgeInputs> = {}): HedgeInputs {
   return { ...defaultInputs({ valuationDate: FIXTURE_DATE, spot: FIXTURE_SPOT, dailyVol: 0.009 }), ...overrides };

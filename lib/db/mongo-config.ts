@@ -7,7 +7,7 @@ export type MongoConfig = {
   dbName: string;
 };
 
-export const DEFAULT_DB_NAME = "hedging_sheet";
+const DEFAULT_DB_NAME = "hedging_sheet";
 
 export function resolveMongoConfig(): MongoConfig | null {
   const dbName = process.env.MONGODB_DB?.trim() || DEFAULT_DB_NAME;
@@ -32,8 +32,4 @@ export function resolveMongoConfig(): MongoConfig | null {
   const scheme = useSrv ? "mongodb+srv" : "mongodb";
   const port = !useSrv && process.env.MONGODB_PORT?.trim() ? `:${process.env.MONGODB_PORT.trim()}` : "";
   return { uri: `${scheme}://${credentials}${host}${port}/${dbName}?${params.toString()}`, dbName };
-}
-
-export function isMongoConfigured(): boolean {
-  return resolveMongoConfig() != null;
 }

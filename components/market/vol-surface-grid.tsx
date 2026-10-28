@@ -9,7 +9,7 @@ import { referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fmtNumber } from "@/lib/format";
 
 /** Volatility cells are % points; anything outside this range is a typing error. */
-export const MAX_VOL_POINTS = 200;
+const MAX_VOL_POINTS = 200;
 
 function heat(value: number, min: number, max: number): string {
   if (!Number.isFinite(value) || max <= min) return "transparent";

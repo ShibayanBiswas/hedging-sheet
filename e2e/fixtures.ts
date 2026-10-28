@@ -3,7 +3,7 @@ import { test as base, expect } from "@playwright/test";
 import { DeskDialog, Footer, InputsPage, LogicAtlasPage, MarketDataPage, NavBar, outputPages } from "./pages";
 
 /** 28-Oct-2026 10:00 IST, the same instant the mock server uses for TEST_NOW. */
-export const FROZEN_NOW = "2026-10-28T04:30:00.000Z";
+const FROZEN_NOW = "2026-10-28T04:30:00.000Z";
 
 type DeskFixtures = {
   consoleErrors: string[];

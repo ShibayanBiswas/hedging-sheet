@@ -1,6 +1,6 @@
 import type { FlowNodeSpec } from "@/components/atlas/logic-flow";
 
-export type LogicFormula = { name: string; words: string; source: string };
+type LogicFormula = { name: string; words: string; source: string };
 
 export type LogicModule = {
   id: string;

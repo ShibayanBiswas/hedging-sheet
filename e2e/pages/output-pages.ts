@@ -3,7 +3,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { NavBar, type TabId } from "./nav-bar";
 
 /** A results tab behind the run gate. */
-export class OutputPage {
+class OutputPage {
   readonly heading: Locator;
   readonly gate: Locator;
   readonly staleBanner: Locator;
@@ -39,13 +39,13 @@ export class OutputPage {
   }
 }
 
-export class SummaryPage extends OutputPage {
+class SummaryPage extends OutputPage {
   constructor(page: Page) {
     super(page, "summary", "Summary Sheet");
   }
 }
 
-export class PricerPage extends OutputPage {
+class PricerPage extends OutputPage {
   readonly resetLegVols: Locator;
   constructor(page: Page) {
     super(page, "pricer", "Pricer");
@@ -56,7 +56,7 @@ export class PricerPage extends OutputPage {
   }
 }
 
-export class ProductPage extends OutputPage {
+class ProductPage extends OutputPage {
   readonly payoffMove: Locator;
   readonly payoffReturn: Locator;
   constructor(page: Page) {
@@ -66,7 +66,7 @@ export class ProductPage extends OutputPage {
   }
 }
 
-export class VegaHedgePage extends OutputPage {
+class VegaHedgePage extends OutputPage {
   readonly hedgeVolOverride: Locator;
   constructor(page: Page) {
     super(page, "vega-hedge", "Day 1 Vega Hedge");
@@ -74,7 +74,7 @@ export class VegaHedgePage extends OutputPage {
   }
 }
 
-export class MarginPage extends OutputPage {
+class MarginPage extends OutputPage {
   constructor(page: Page) {
     super(page, "margin", "Mark To Market And Margin Requirement");
   }

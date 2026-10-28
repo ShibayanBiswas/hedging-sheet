@@ -3,7 +3,7 @@ import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg } from "@/lib/engine/types";
 import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, numberText, percentText, type Display } from "@/lib/format";
 
-export function optionTypeLabel(type: OptionType): string {
+function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
 }
 
@@ -12,7 +12,7 @@ export type CellKind = "crore" | "rupee" | "percent" | "number" | "integer" | "d
 
 export type CellValue = number | string | null;
 
-export type Column = {
+type Column = {
   key: string;
   label: string;
   kind: CellKind;
@@ -469,7 +469,7 @@ const BOOK_FIELDS: Array<Field<BookRow>> = [
   { label: "Rho In Rupees", kind: "rupee", digits: 0, pick: (l) => l.rhoInr },
 ];
 
-export const PRICER_FIELDS: Array<Field<PricerLeg>> = [...OPTION_FIELDS, ...MARGIN_FIELDS, ...GREEK_FIELDS, ...BOOK_FIELDS];
+const PRICER_FIELDS: Array<Field<PricerLeg>> = [...OPTION_FIELDS, ...MARGIN_FIELDS, ...GREEK_FIELDS, ...BOOK_FIELDS];
 
 export function pricerGrid(r: HedgingResult): GridSpec {
   const legs = r.pricer.legs;
@@ -497,7 +497,7 @@ export function pricerGrid(r: HedgingResult): GridSpec {
 
 // ------------------------------------------------------------------ Product Description
 
-export function termSheet(r: HedgingResult): KeyValueSpec {
+function termSheet(r: HedgingResult): KeyValueSpec {
   const i = r.inputs;
   const u = r.underlyingLabel;
   const terms = deriveTerms(i);
@@ -749,8 +749,7 @@ export function marginTable(r: HedgingResult): TableSpec {
 
 // ------------------------------------------------------------------ Output tabs, in page order
 
-export const OUTPUT_TABS = ["summary", "pricer", "product", "vega-hedge", "margin"] as const;
-export type OutputTab = (typeof OUTPUT_TABS)[number];
+export type OutputTab = "summary" | "pricer" | "product" | "vega-hedge" | "margin";
 
 /** Every table each output tab shows, in page order. The table schema fixture and the table tests read it. */
 export function outputTables(r: HedgingResult): Record<OutputTab, AnySpec[]> {

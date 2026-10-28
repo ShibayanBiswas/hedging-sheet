@@ -39,12 +39,12 @@ import {
   referenceUnderlyingPrice,
 } from "@/lib/engine/vol-surface";
 
-export const CRORE = 1e7;
-export const LAKH = 1e5;
+const CRORE = 1e7;
+const LAKH = 1e5;
 /** The Pricer keeps two identical halves of the leg grid, B:AW and AX:CS. */
-export const HALVES = 2;
+const HALVES = 2;
 /** MTM & Margin req D6:D20 and the Day 1 Vega Hedge moves: −50 to +20 percent in 5 percent steps. */
-export const SCENARIO_MOVES = [-0.5, -0.45, -0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2];
+const SCENARIO_MOVES = [-0.5, -0.45, -0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2];
 
 // Summary I26 = I25 × √365
 export function annualVolFromDaily(daily: number): number {

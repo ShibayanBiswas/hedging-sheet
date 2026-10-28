@@ -15,7 +15,7 @@ function isPositive(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
-export function monthKey(ymd: string = istTodayYmd()): string {
+function monthKey(ymd: string = istTodayYmd()): string {
   return ymd.slice(0, 7);
 }
 
@@ -67,7 +67,7 @@ export function labelSurfaceForDeskMonth(
 }
 
 /** Linear interpolation of y at x on sorted xs, flat beyond both ends. */
-export function interp1(xs: number[], ys: number[], x: number): number {
+function interp1(xs: number[], ys: number[], x: number): number {
   const n = Math.min(xs.length, ys.length);
   if (n <= 0) return 0;
   if (n === 1 || x <= xs[0]!) return Number(ys[0]) || 0;
@@ -137,7 +137,7 @@ export function normalizeVolSurface(surface: VolSurface): VolSurface {
 }
 
 /** Rupee strike axis: Deep 500, then moneyness times the named index anchor. */
-export function moneynessStrikes(surface: VolSurface, underlying: Underlying, spot?: number): number[] {
+function moneynessStrikes(surface: VolSurface, underlying: Underlying, spot?: number): number[] {
   const anchor = referencePriceForUnderlying(surface, underlying, spot);
   return [DEEP_STRIKE, ...surface.moneyness.map((m) => m * anchor)];
 }
