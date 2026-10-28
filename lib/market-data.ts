@@ -1,4 +1,5 @@
-import { istTodayYmd as deskTodayISO } from "@/lib/engine/dates";
+import { deskNow, istTodayYmd as deskTodayISO } from "@/lib/engine/dates";
+import { yahooFetch } from "@/lib/test/mocks/yahoo";
 
 export type SpotKind = "today_close" | "prior_close" | "last_close";
 
@@ -99,7 +100,7 @@ export function istWeekday(now: Date): number {
  */
 export function pickDeskClose(
   bars: DailyBar[],
-  now: Date = new Date(),
+  now: Date = deskNow(),
 ): {
   close: number;
   priceAsOfDate: string;
@@ -186,7 +187,7 @@ function readMetaFallback(json: YahooChart): number | null {
 async function fetchYahooChart(symbol: string, range: string): Promise<YahooChart | null> {
   for (const host of YAHOO_HOSTS) {
     try {
-      const res = await fetch(
+      const res = await yahooFetch(
         `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=${range}`,
         {
           headers: { "User-Agent": "Mozilla/5.0 Hedging-Sheet/1.0" },
@@ -255,7 +256,7 @@ async function fetchYahooBars(
   if (cached) return cached;
   for (const host of YAHOO_HOSTS) {
     try {
-      const res = await fetch(
+      const res = await yahooFetch(
         `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&period1=${period1}&period2=${period2}`,
         {
           headers: { "User-Agent": "Mozilla/5.0 Hedging-Sheet/1.0" },
@@ -297,7 +298,7 @@ async function fetchYahooCloseOnOrBefore(symbol: string, isoDate: string): Promi
 export async function fetchYahooClosesOnOrBefore(
   symbol: string,
   isoDates: string[],
-  now: Date = new Date(),
+  now: Date = deskNow(),
 ): Promise<Map<string, number>> {
   const dates = [...new Set(isoDates.map((day) => day.slice(0, 10)))].filter(Boolean).sort();
   const out = new Map<string, number>();
@@ -325,7 +326,7 @@ export async function fetchYahooClosesOnOrBefore(
  * Desk Nifty 50 (^NSEI) and BSE Sensex (^BSESN) spots.
  * Uses completed session closes only — never an intra-day print while NSE is open.
  */
-export async function fetchLiveMarketLevels(now: Date = new Date()): Promise<MarketLevels> {
+export async function fetchLiveMarketLevels(now: Date = deskNow()): Promise<MarketLevels> {
   const [niftyPick, sensexPick] = await Promise.all([
     fetchYahooDeskClose("^NSEI", now),
     fetchYahooDeskClose("^BSESN", now),
@@ -354,7 +355,7 @@ export async function fetchLiveMarketLevels(now: Date = new Date()): Promise<Mar
 export async function fetchDailyVolatility(
   underlying: "Nifty" | "Sensex",
   windowDays: number,
-  now: Date = new Date(),
+  now: Date = deskNow(),
 ): Promise<{ dailyVol: number | null; observations: number; from: string | null; to: string | null }> {
   const symbol = underlying === "Sensex" ? "^BSESN" : "^NSEI";
   const period2 = Math.floor(now.getTime() / 1000) + 86_400;

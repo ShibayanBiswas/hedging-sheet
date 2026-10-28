@@ -5,7 +5,7 @@ import { normCdf } from "@/lib/engine/normal";
 import { EXPIRY_WEEKDAY, expiryForMonth, nearestWeekday, rawExpiryDate } from "@/lib/engine/schedule";
 import { pickDeskClose } from "@/lib/market-data";
 
-import { priced } from "./fixture";
+import { priced } from "../helpers/fixture";
 
 const phi = (x: number) => Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
 

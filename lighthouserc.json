@@ -1,0 +1,20 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "npx tsx scripts/e2e-server.ts",
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 240000,
+      "url": ["http://localhost:3006/", "http://localhost:3006/pricer"],
+      "numberOfRuns": 3,
+      "settings": { "preset": "desktop" }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500, "aggregationMethod": "median" }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1, "aggregationMethod": "median" }],
+        "total-blocking-time": ["error", { "maxNumericValue": 300, "aggregationMethod": "median" }]
+      }
+    },
+    "upload": { "target": "filesystem", "outputDir": "test-results/lighthouse" }
+  }
+}

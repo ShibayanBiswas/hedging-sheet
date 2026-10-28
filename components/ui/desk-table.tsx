@@ -30,7 +30,7 @@ export function displayCell(value: CellValue, kind: CellKind, digits?: number): 
 }
 
 /** Primary dynamic-table frame: maroon band, horizontal scroll, animated reveal, full width. */
-function TableFrame({ children, testId, note, book }: { children: ReactNode; testId: string; note?: string; book?: boolean }) {
+function TableFrame({ children, testId, title, note, book }: { children: ReactNode; testId: string; title: string; note?: string; book?: boolean }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -43,7 +43,9 @@ function TableFrame({ children, testId, note, book }: { children: ReactNode; tes
     >
       <div className="overflow-hidden rounded-2xl">
         <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className={cn("desk-table-scroll horizontal-rail !rounded-t-none", book && "desk-table-scroll--book")}>{children}</div>
+        <div className={cn("desk-table-scroll horizontal-rail !rounded-t-none", book && "desk-table-scroll--book")} tabIndex={0} role="region" aria-label={title}>
+          {children}
+        </div>
       </div>
       {note ? <p className="mt-2 font-ui text-xs italic text-muted">{note}</p> : null}
     </motion.div>
@@ -61,7 +63,7 @@ function Cell({ value, kind, digits, pinned }: { value: CellValue; kind: CellKin
 
 export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; pinFirst?: boolean; testId?: string }) {
   return (
-    <TableFrame testId={testId ?? `table-${spec.id}`} note={spec.note}>
+    <TableFrame testId={testId ?? `table-${spec.id}`} title={spec.title} note={spec.note}>
       <table className="data-table-premium data-table-fill">
         <thead>
           <tr className="hs-head-row">
@@ -91,7 +93,7 @@ export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; 
 
 export function KeyValueCard({ spec }: { spec: KeyValueSpec }) {
   return (
-    <TableFrame testId={`table-${spec.id}`} note={spec.note}>
+    <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note}>
       <table className="data-table-premium data-table-fill">
         <thead>
           <tr>
@@ -126,7 +128,7 @@ export type GridEdit = {
 
 export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
   return (
-    <TableFrame testId={`table-${spec.id}`} note={spec.note} book>
+    <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note} book>
       <table className="data-table-premium hs-has-groups">
         <thead>
           <tr className="hs-group-row">
@@ -179,7 +181,7 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                           }}
                         />
                         {overridden ? (
-                          <button type="button" className="hs-overridden-badge" onClick={() => edit.onChange(key, null)} title="Reset to the surface">
+                          <button type="button" className="hs-overridden-badge" onClick={() => edit.onChange(key, null)} title="Reset To The Surface">
                             Overridden ×
                           </button>
                         ) : null}

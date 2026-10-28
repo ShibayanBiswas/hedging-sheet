@@ -47,7 +47,7 @@ export function VolSurfaceGrid({
   const hidden = surface.expiries.length - rows.length;
 
   return (
-    <div className="desk-table-scroll desk-table-scroll--book w-full" data-testid="vol-grid">
+    <div className="desk-table-scroll desk-table-scroll--book w-full" data-testid="vol-grid" tabIndex={0} role="region" aria-label="Volatility Surface">
       <table className="data-table-premium data-table-fill vol-grid">
         <thead>
           <tr>

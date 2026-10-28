@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  checks:
+    name: Typecheck, Lint, Vitest And Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test:coverage
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vitest-coverage
+          path: |
+            test-results/coverage
+            test-results/vitest-junit.xml
+          if-no-files-found: ignore
+
+  e2e:
+    name: Playwright Shard ${{ matrix.shard }} Of 4
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      E2E_PROD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run build
+      # Visual baselines are per platform and run in their own job below.
+      - run: npx playwright test --shard=${{ matrix.shard }}/4 --grep-invert "visual baselines"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-shard-${{ matrix.shard }}
+          path: |
+            playwright-report
+            test-results/junit-e2e.xml
+            test-results/playwright
+          if-no-files-found: ignore
+
+  visual:
+    name: Visual Baselines
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_PROD: "1"
+    # Until Linux baselines are committed, this job writes them and uploads them instead of failing.
+    continue-on-error: ${{ hashFiles('e2e/visual/__screenshots__/chromium/linux/*.png') == '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npx playwright test e2e/visual --project=chromium --grep "visual baselines"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-baselines-linux
+          path: |
+            e2e/visual/__screenshots__/chromium/linux
+            test-results/playwright
+          if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse Budgets
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      E2E_PROD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx lhci autorun
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: test-results/lighthouse
+          if-no-files-found: ignore

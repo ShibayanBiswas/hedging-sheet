@@ -11,14 +11,15 @@ import type { HedgingResult } from "@/lib/engine/types";
 import { deskEase } from "@/lib/motion";
 
 /**
- * Output tabs show results only after Run Simulation. Before the first run a centred popup asks
- * for one; after an input change the last results stay with an Inputs Changed banner.
+ * Output tabs show results only after a successful Run Simulation. Before the first run, and again after any
+ * input change, a centred popup asks for a run. Overrides made on the output tabs and market data changes
+ * keep the results on screen with an Inputs Changed banner.
  */
 export function ResultGate({ children }: { children: (result: HedgingResult) => ReactNode }) {
-  const { lastRun, stale } = useDesk();
+  const { lastRun, stale, staleInputs } = useDesk();
   const reduce = useReducedMotion();
 
-  if (!lastRun) {
+  if (!lastRun || staleInputs) {
     return (
       <div className="flex min-h-[52vh] w-full items-center justify-center py-8" data-testid="run-gate">
         <motion.div
@@ -29,6 +30,15 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
         >
           <div className="h-1 bg-gradient-to-r from-maroon via-gold to-maroon/70" />
           <div className="px-6 py-8">
+            {staleInputs ? (
+              <p
+                className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-ui text-xs font-bold text-amber-900 dark:text-amber-200"
+                data-testid="stale-banner"
+              >
+                <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
+                Inputs Changed
+              </p>
+            ) : null}
             <motion.span
               className="mx-auto inline-flex rounded-2xl border border-gold/30 bg-gold/10 p-3 text-gold-dark"
               animate={reduce ? undefined : { rotate: [0, 10, -10, 0] }}
@@ -38,7 +48,9 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
             </motion.span>
             <h2 className="mt-4 text-2xl font-bold tracking-tight text-ink">Run The Simulation To See Results</h2>
             <p className="mx-auto mt-2 max-w-md font-ui text-sm text-muted">
-              Set the inputs, then run the simulation. It fetches the market data, prices every leg, solves the Inbuilt and builds the stress grid.
+              {staleInputs
+                ? "The inputs changed after the last run, so its results are hidden. Run the simulation again to see results for the new inputs."
+                : "Set the inputs, then run the simulation. It fetches the market data, prices every leg, solves the Inbuilt and builds the stress grid."}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <div className="flex-1">
@@ -72,7 +84,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
           >
             <p className="flex items-center gap-2 font-ui text-sm font-semibold text-amber-900 dark:text-amber-200">
               <AlertTriangle className="h-4 w-4" aria-hidden />
-              Inputs Changed · These results are from the last run. Run the simulation again to refresh them.
+              Inputs Changed · These results use the last run. Run the simulation again to apply the overrides.
             </p>
             <div className="w-full sm:w-64">
               <RunSimulationButton compact />

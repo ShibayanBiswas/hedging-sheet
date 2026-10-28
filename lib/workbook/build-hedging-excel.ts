@@ -41,7 +41,7 @@ export const SHEET_NAMES = [
   "Pricer",
   "Product Description",
   "Day 1 Vega Hedge",
-  "Mark to Market and Margin",
+  "Mark To Market And Margin",
 ] as const;
 
 const box: Partial<ExcelJS.Borders> = {
@@ -247,7 +247,7 @@ export function buildHedgingWorkbook(wb: ExcelJS.Workbook, result: HedgingResult
   {
     const spec = marginTable(result);
     const width = spec.columns.length;
-    const { sheet, row } = startSheet(wb, SHEET_NAMES[4], "Mark to Market and Margin Requirement", result, logo, width);
+    const { sheet, row } = startSheet(wb, SHEET_NAMES[4], "Mark To Market And Margin Requirement", result, logo, width);
     const r = writeTable(sheet, row, marginHeadline(result));
     const headerRow = r + 2;
     writeTable(sheet, r, spec);

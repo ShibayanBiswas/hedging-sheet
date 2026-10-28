@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -14,6 +14,9 @@ export type DeskDialogState = {
   variant: DeskAlertVariant;
   fix?: string;
   actions?: DeskAlertOptions["actions"];
+  groups?: DeskAlertOptions["groups"];
+  okLabel?: string;
+  onClose?: () => void;
 };
 
 const VARIANT_META: Record<DeskAlertVariant, { icon: typeof Info; glow: "cyan" | "purple"; accent: string; label: string }> = {
@@ -24,6 +27,7 @@ const VARIANT_META: Record<DeskAlertVariant, { icon: typeof Info; glow: "cyan" |
 
 /** Blocking desk popup in the Primary SP Dashboard style. */
 export function DeskDialog({ open, state, onClose }: { open: boolean; state: DeskDialogState | null; onClose: () => void }) {
+  const reduce = useReducedMotion();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -44,7 +48,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-[200] flex items-center justify-center p-4"
           exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
+          initial={reduce ? false : { opacity: 0 }}
           role="presentation"
         >
           <button aria-label="Close dialog" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" type="button" onClick={onClose} />
@@ -58,8 +62,8 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
               "glass relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-gold/30 shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)]",
               meta.glow === "cyan" ? "glass-glow-cyan" : "glass-glow-purple",
             )}
-            exit={{ opacity: 0, scale: 0.96, y: 8 }}
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
+            initial={reduce ? false : { opacity: 0, scale: 0.96, y: 12 }}
             role="alertdialog"
           >
             <div className="h-1 bg-gradient-to-r from-maroon via-gold to-maroon/70" />
@@ -88,12 +92,30 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                   </span>
                 </p>
               ) : null}
+              {state.groups?.length ? (
+                <div className="max-h-[45vh] space-y-3 overflow-y-auto pr-1" data-testid="desk-dialog-groups" tabIndex={0} role="region" aria-label="Fields To Fix">
+                  {state.groups.map((g) => (
+                    <div key={g.title}>
+                      <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">{g.title}</p>
+                      <ul className="mt-1 space-y-1">
+                        {g.items.map((item) => (
+                          <li key={item} className="flex items-start gap-2 font-ui text-xs leading-5 text-stone-700 dark:text-stone-300">
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" aria-hidden />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-wrap justify-end gap-2 border-t border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] px-5 py-3">
               {state.actions?.map((a) => (
                 <button
                   key={a.label}
                   type="button"
+                  data-testid={a.testId}
                   className="btn-animated btn-motion btn-accent"
                   onClick={() => {
                     onClose();
@@ -105,7 +127,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
               ))}
               <button type="button" className="btn-animated btn-motion btn-primary" onClick={onClose} data-testid="desk-dialog-ok">
                 <span className="btn-shine" aria-hidden />
-                <span className="relative z-10">OK</span>
+                <span className="relative z-10">{state.okLabel ?? "OK"}</span>
               </button>
             </div>
           </motion.div>

@@ -13,8 +13,11 @@ export function toYmd(d: Date): string {
   return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
+/** A real calendar date: 2026-13-45 is rejected rather than rolled into 2027. */
 export function isValidYmd(value: string | null | undefined): value is string {
-  return typeof value === "string" && !Number.isNaN(parseYmd(value).getTime());
+  if (typeof value !== "string") return false;
+  const d = parseYmd(value);
+  return !Number.isNaN(d.getTime()) && toYmd(d) === value.slice(0, 10);
 }
 
 /** Excel 1900 serial for a date, matching worksheet day arithmetic. */
@@ -59,8 +62,16 @@ export function formatDate(value: string | null | undefined): string {
   return `${pad2(d.getUTCDate())}-${MONTHS[d.getUTCMonth()]}-${d.getUTCFullYear()}`;
 }
 
+/** The desk clock. In TEST_MODE=mock the server runs at TEST_NOW so every run is reproducible. */
+export function deskNow(): Date {
+  if (typeof window === "undefined" && typeof process !== "undefined" && process.env.TEST_MODE === "mock") {
+    return new Date(process.env.TEST_NOW ?? "2026-10-28T04:30:00.000Z");
+  }
+  return new Date();
+}
+
 /** Asia/Kolkata calendar date. */
-export function istTodayYmd(now: Date = new Date()): string {
+export function istTodayYmd(now: Date = deskNow()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",
     year: "numeric",

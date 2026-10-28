@@ -1,0 +1,62 @@
+{
+  "note": "Default Values mode at the mock clock, 28-Oct-2026 10:00 IST, with the mock Sensex close and mock volatility.",
+  "inputs": {
+    "underlying": "Sensex",
+    "valuationDate": "2026-10-28",
+    "spot": 76835.78,
+    "startLevelUplift": 0.006,
+    "startLevelRounding": 100,
+    "nbfcRate": 0.08,
+    "premiumRate": 0.065,
+    "marginGrowthRate": 0.06579,
+    "coupon": 1.025,
+    "decay": 1.6,
+    "tenorDays": 1940,
+    "strikePercents": [
+      137,
+      127,
+      125,
+      85,
+      84,
+      70
+    ],
+    "participations": [
+      1,
+      null
+    ],
+    "floorUnits": 1,
+    "optionType": "P",
+    "expiryCount": 6,
+    "expiryMonths": [
+      41,
+      44,
+      47,
+      50,
+      53,
+      56
+    ],
+    "hedgeExpiryIndex": null,
+    "notionalCr": 100,
+    "transactionCost": 0.0225,
+    "issuanceCost": 0.0013,
+    "marginCost": 0,
+    "dailyVol": 0.008737487838572993,
+    "dailyVolSource": "calculated",
+    "historyWindowDays": 365,
+    "exposureMargin": 0.05,
+    "futuresMargin": 0.2,
+    "hedgeStrike": 76800,
+    "hedgeStrikeAuto": true,
+    "exchangeForwardRate": 0.0348,
+    "exchangeDiscountRate": 0.0348,
+    "stressedForwardRate": 0.0348,
+    "stressedDiscountRate": 0.0348,
+    "stressSigmas": 6,
+    "stressDays": 2,
+    "stressVolMultiplier": 1.25,
+    "volBump": 0,
+    "legVolOverrides": {},
+    "hedgeVolOverride": null
+  },
+  "dailyVolObservations": 260
+}

@@ -1,5 +1,27 @@
 # 08 · Changelog
 
+## Round 4
+
+### Two input modes
+
+- **Mode switch.** A full-width pill at the top of Inputs: Default Values, with the live spot, today's date and the calculated volatility, and Blank Inputs, where every field starts empty with an "Eg …" placeholder and the selects ask to choose. Switching asks to confirm, then resets the inputs and clears the results. Nothing is persisted.
+- **Blank Inputs.** The expiry count comes first and that many empty month rows appear; computed dates show "-" until they can be worked out. Fetch Live Spot and Compute Volatility From History fill only their own fields. Surface parameters still come from the desk database.
+- **Validation.** `lib/inputs/validate.ts` returns every missing or invalid field with its section, label, message and fix. Run Simulation with errors opens "Missing Or Invalid Inputs", grouped by section, with Go To First Field; closing it focuses the first invalid field. Invalid fields get `aria-invalid`, a red ring and inline text. Expiries past the surface stay a warning, so the desk product still runs.
+- **Run gate.** Results appear only after a successful run. Changing any input brings the gate back with Inputs Changed; Pricer and hedge volatility overrides and market data changes keep the results and show the banner.
+- **Test ids.** Every field is `input-<key>`, and every button, table, dialog and tab has a `data-testid`.
+
+### Capitalisation
+
+- Every word of headings, tabs, buttons, table headers, popup titles, field labels, Excel sheet names and header rows, and Logic Atlas titles and cards is capitalised, small words included. `lib/format/title-case.ts` holds the rule and the allowlist (%, ₹, Cr, L, numbers, dates, BSE, NSE). The Excel sheet is now "Mark To Market And Margin".
+
+### Accessibility
+
+- Gold label text on light panels is a deeper shade for 4.5:1 contrast, the dark ghost buttons are lighter, and every scrolling table is a labelled, keyboard-focusable region.
+
+### Test framework
+
+- Vitest split into unit, component, API and export layers with v8 coverage thresholds; Playwright across Chromium, Firefox, WebKit and Pixel 7 in mock mode with page objects; axe, visual, performance and read-only production specs; Lighthouse budgets; CI with 4 shards and a production smoke after each deployment. See [07 · Testing and Debug](07-testing-debug.md).
+
 ## Round 3
 
 ### Tables and copy

@@ -6,7 +6,13 @@ export type DeskAlertOptions = {
   /** A suggested fix shown under the message. */
   fix?: string;
   /** Extra buttons beside OK. */
-  actions?: Array<{ label: string; onClick: () => void }>;
+  actions?: Array<{ label: string; onClick: () => void; testId?: string }>;
+  /** Grouped lines under the message, such as invalid fields by section. */
+  groups?: Array<{ title: string; items: string[] }>;
+  /** Label of the closing button, OK by default. */
+  okLabel?: string;
+  /** Runs whenever the dialog closes, by any button or Escape. */
+  onClose?: () => void;
 };
 
 type DeskAlertHandler = (message: string, options?: DeskAlertOptions) => void;

@@ -6,28 +6,36 @@ import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { autoHedgeStrike, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { computeHedgingSheet, validateInputs } from "@/lib/engine/hedging-sheet";
-import type { HedgeInputs, HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
+import type { HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
+import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
+import { fieldTestId, groupBySection, validateDeskInputs, type FieldError } from "@/lib/inputs/validate";
 import type { MarketLevels } from "@/lib/market-data";
 
-type InputsPatch = Partial<HedgeInputs> | ((prev: HedgeInputs) => Partial<HedgeInputs>);
+type InputsPatch = Partial<DeskInputs> | ((prev: DeskInputs) => Partial<DeskInputs>);
 
 export const SIMULATION_STEPS = ["Fetching Market Data", "Pricing Legs", "Solving Inbuilt", "Building Stress Grid"] as const;
 
 export type SimulationState = { running: boolean; step: number };
 
-export type LastRun = { result: HedgingResult; key: string; at: string };
+export type LastRun = { result: HedgingResult; inputsKey: string; overridesKey: string; marketVersion: number; at: string };
 
 export type DailyVolStatus = { loading: boolean; error: string | null; observations: number | null; from: string | null; to: string | null };
 
 export type DeskContextValue = {
-  inputs: HedgeInputs;
+  mode: InputMode;
+  /** Asks to confirm, then clears the inputs and the last run. */
+  requestMode: (next: InputMode) => void;
+  inputs: DeskInputs;
   setInputs: (patch: InputsPatch) => void;
-  resetToDefaults: () => void;
+  /** Back to the start state of the current mode. */
+  resetInputs: () => void;
   setUnderlying: (underlying: Underlying) => void;
   levels: MarketLevels | null;
   levelsLoading: boolean;
   refreshLevels: () => Promise<MarketLevels | null>;
+  /** Fills only the spot of the chosen underlying. */
+  fetchLiveSpot: () => Promise<number | null>;
   dailyVolStatus: DailyVolStatus;
   computeDailyVol: (override?: { underlying?: Underlying; windowDays?: number }) => Promise<number | null>;
   market: MarketData;
@@ -35,12 +43,18 @@ export type DeskContextValue = {
   datasetLoading: boolean;
   refreshDataset: () => Promise<MarketData | null>;
   applyMarket: (next: { surface?: VolSurface; params?: PricingParams | null }) => void;
-  /** Live validation of the current inputs, before any run. */
+  /** Field errors from lib/inputs/validate. Inline display shows invalid values at once and empty fields after a run attempt. */
+  fieldErrors: FieldError[];
+  /** The field errors to show inline right now. */
+  visibleErrors: FieldError[];
+  /** Engine issues of priceable inputs: structure warnings such as expiries beyond the surface. */
   issues: { errors: ValidationIssue[]; warnings: ValidationIssue[] };
   simulation: SimulationState;
   runSimulation: () => Promise<boolean>;
   lastRun: LastRun | null;
-  /** Inputs or market data changed since the last run. */
+  /** Inputs changed since the last run: the output tabs show the run gate again. */
+  staleInputs: boolean;
+  /** Only output tab overrides or market data changed: results stay with a banner. */
   stale: boolean;
 };
 
@@ -48,13 +62,30 @@ const DeskContext = createContext<DeskContextValue | null>(null);
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-function runKey(inputs: HedgeInputs, marketVersion: number): string {
-  return JSON.stringify({ inputs, marketVersion });
+/** Overrides are made on the output tabs, so they are keyed apart from the inputs. */
+function splitKeys(inputs: DeskInputs): { inputsKey: string; overridesKey: string } {
+  const { legVolOverrides, hedgeVolOverride, ...rest } = inputs;
+  return { inputsKey: JSON.stringify(rest), overridesKey: JSON.stringify({ legVolOverrides, hedgeVolOverride }) };
+}
+
+function startInputs(mode: InputMode, levels: MarketLevels | null): DeskInputs {
+  if (mode === "blank") return blankInputs();
+  const spot = levels?.sensexLevel != null && levels.sensexLevel > 0 ? levels.sensexLevel : undefined;
+  return defaultInputs({ valuationDate: levels?.valuationDate ?? istTodayYmd(), spot });
+}
+
+/** Scroll to and focus the input of a field. */
+export function focusField(field: string) {
+  const el = document.querySelector<HTMLElement>(`[data-testid="${fieldTestId(field)}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.focus({ preventScroll: true });
 }
 
 export function DeskProvider({ children }: { children: ReactNode }) {
   const { alert, toast } = useDeskDialog();
-  const [inputs, setInputsState] = useState<HedgeInputs>(() => defaultInputs({ valuationDate: istTodayYmd() }));
+  const [mode, setModeState] = useState<InputMode>("default");
+  const [inputs, setInputsState] = useState<DeskInputs>(() => defaultInputs({ valuationDate: istTodayYmd() }));
   const [levels, setLevels] = useState<MarketLevels | null>(null);
   const [levelsLoading, setLevelsLoading] = useState(true);
   const [market, setMarket] = useState<MarketData>(() => seedMarketData());
@@ -64,8 +95,10 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const [dailyVolStatus, setDailyVolStatus] = useState<DailyVolStatus>({ loading: true, error: null, observations: null, from: null, to: null });
   const [simulation, setSimulation] = useState<SimulationState>({ running: false, step: -1 });
   const [lastRun, setLastRun] = useState<LastRun | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const levelsRef = useRef<MarketLevels | null>(null);
   const inputsRef = useRef(inputs);
+  const modeRef = useRef<InputMode>("default");
   const marketVersionRef = useRef(0);
 
   useEffect(() => {
@@ -86,28 +119,31 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const spotFor = (u: Underlying, lv: MarketLevels | null): number | null => {
+  const spotFor = (u: Underlying | "", lv: MarketLevels | null): number | null => {
+    if (!u) return null;
     const level = u === "Sensex" ? lv?.sensexLevel : lv?.niftyLevel;
     return level != null && level > 0 ? level : null;
   };
 
-  /** State is only set after the fetch settles, so this is safe to start from an effect. */
+  /** State is only set after the fetch settles, so this is safe to start from an effect. Blank mode never fills from it. */
   const loadLevels = useCallback(async (): Promise<MarketLevels | null> => {
     try {
       const res = await fetch("/api/market/levels", { cache: "no-store" });
       const data = (await res.json()) as MarketLevels;
       levelsRef.current = data;
       setLevels(data);
-      setInputsState((prev) => {
-        const spot = spotFor(prev.underlying, data);
-        if (spot == null) return prev;
-        return {
-          ...prev,
-          spot,
-          valuationDate: data.valuationDate ?? prev.valuationDate,
-          hedgeStrike: prev.hedgeStrikeAuto ? autoHedgeStrike(spot) : prev.hedgeStrike,
-        };
-      });
+      if (modeRef.current === "default") {
+        setInputsState((prev) => {
+          const spot = spotFor(prev.underlying, data);
+          if (spot == null) return prev;
+          return {
+            ...prev,
+            spot,
+            valuationDate: data.valuationDate ?? prev.valuationDate,
+            hedgeStrike: prev.hedgeStrikeAuto ? autoHedgeStrike(spot) : prev.hedgeStrike,
+          };
+        });
+      }
       return data;
     } catch {
       return null;
@@ -120,6 +156,30 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     setLevelsLoading(true);
     return loadLevels();
   }, [loadLevels]);
+
+  const fetchLiveSpot = useCallback(async (): Promise<number | null> => {
+    const u = inputsRef.current.underlying;
+    if (!u) {
+      alert("Select Nifty or Sensex first, so the right close is fetched.", { variant: "warning", title: "Select The Underlying" });
+      return null;
+    }
+    setLevelsLoading(true);
+    try {
+      const res = await fetch("/api/market/levels", { cache: "no-store" });
+      const data = (await res.json()) as MarketLevels;
+      levelsRef.current = data;
+      setLevels(data);
+      const spot = spotFor(u, data);
+      if (spot == null) throw new Error("No close was returned.");
+      setInputsState((prev) => ({ ...prev, spot, hedgeStrike: prev.hedgeStrikeAuto ? autoHedgeStrike(spot) : prev.hedgeStrike }));
+      return spot;
+    } catch {
+      alert("The live close could not be fetched. Type the spot instead.", { variant: "error", title: "Fetch Failed" });
+      return null;
+    } finally {
+      setLevelsLoading(false);
+    }
+  }, [alert]);
 
   const fetchDailyVol = useCallback(async (underlying: Underlying, windowDays: number) => {
     try {
@@ -137,13 +197,17 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const computeDailyVol = useCallback(
     async (override?: { underlying?: Underlying; windowDays?: number }) => {
       const u = override?.underlying ?? inputsRef.current.underlying;
+      if (!u) {
+        alert("Select Nifty or Sensex first, so the right history is used.", { variant: "warning", title: "Select The Underlying" });
+        return null;
+      }
       const w = override?.windowDays ?? inputsRef.current.historyWindowDays;
       setDailyVolStatus((s) => ({ ...s, loading: true, error: null }));
       const vol = await fetchDailyVol(u, w);
       if (vol != null) setInputs({ dailyVol: vol, dailyVolSource: "calculated", historyWindowDays: w });
       return vol;
     },
-    [fetchDailyVol, setInputs],
+    [alert, fetchDailyVol, setInputs],
   );
 
   const loadDataset = useCallback(async (): Promise<MarketData | null> => {
@@ -167,16 +231,23 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     return loadDataset();
   }, [loadDataset]);
 
-  const applyMarket = useCallback((next: { surface?: VolSurface; params?: PricingParams | null }) => {
-    setMarket((prev) => ({
-      surface: next.surface ? normalizeVolSurface(next.surface) : prev.surface,
-      params: next.params ?? prev.params,
-    }));
-    bumpMarketVersion();
-  }, [bumpMarketVersion]);
+  const applyMarket = useCallback(
+    (next: { surface?: VolSurface; params?: PricingParams | null }) => {
+      setMarket((prev) => ({
+        surface: next.surface ? normalizeVolSurface(next.surface) : prev.surface,
+        params: next.params ?? prev.params,
+      }));
+      bumpMarketVersion();
+    },
+    [bumpMarketVersion],
+  );
 
   const setUnderlying = useCallback(
     (underlying: Underlying) => {
+      if (modeRef.current === "blank") {
+        setInputs({ underlying, legVolOverrides: {}, hedgeVolOverride: null });
+        return;
+      }
       const spot = spotFor(underlying, levelsRef.current);
       setInputs((prev) => ({ underlying, spot: spot ?? prev.spot, legVolOverrides: {}, hedgeVolOverride: null }));
       if (inputsRef.current.dailyVolSource !== "overridden") void computeDailyVol({ underlying });
@@ -184,14 +255,44 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     [computeDailyVol, setInputs],
   );
 
-  const resetToDefaults = useCallback(() => {
+  const applyMode = useCallback(
+    (next: InputMode) => {
+      modeRef.current = next;
+      setModeState(next);
+      setLastRun(null);
+      setSubmitted(false);
+      const start = startInputs(next, levelsRef.current);
+      inputsRef.current = start;
+      setInputsState(start);
+      if (next === "default") void computeDailyVol({ underlying: "Sensex", windowDays: 365 });
+    },
+    [computeDailyVol],
+  );
+
+  const requestMode = useCallback(
+    (next: InputMode) => {
+      if (next === modeRef.current) return;
+      alert("Switching mode resets every input to the new mode's start state and clears the last results.", {
+        variant: "warning",
+        title: "Switch Mode And Clear Results",
+        okLabel: "Cancel",
+        actions: [{ label: "Switch Mode", onClick: () => applyMode(next), testId: "confirm-switch-mode" }],
+      });
+    },
+    [alert, applyMode],
+  );
+
+  const resetInputs = useCallback(() => {
     const prev = inputsRef.current;
-    const spot = spotFor(prev.underlying, levelsRef.current) ?? prev.spot;
-    setInputsState({
-      ...defaultInputs({ valuationDate: levelsRef.current?.valuationDate ?? istTodayYmd(), spot }),
-      underlying: prev.underlying,
-    });
-    void computeDailyVol({ windowDays: 365 });
+    setSubmitted(false);
+    if (modeRef.current === "blank") {
+      setInputsState(blankInputs());
+      return;
+    }
+    const u: Underlying = prev.underlying || "Sensex";
+    const spot = spotFor(u, levelsRef.current) ?? (Number.isFinite(prev.spot) ? prev.spot : undefined);
+    setInputsState({ ...defaultInputs({ valuationDate: levelsRef.current?.valuationDate ?? istTodayYmd(), spot }), underlying: u });
+    void computeDailyVol({ underlying: u, windowDays: 365 });
   }, [computeDailyVol]);
 
   useEffect(() => {
@@ -199,22 +300,34 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     void loadLevels();
     void loadDataset();
     void fetchDailyVol("Sensex", 365).then((vol) => {
-      if (vol != null) setInputsState((prev) => (prev.dailyVolSource === "overridden" ? prev : { ...prev, dailyVol: vol, dailyVolSource: "calculated" }));
+      if (vol == null || modeRef.current !== "default") return;
+      setInputsState((prev) => (prev.dailyVolSource === "overridden" ? prev : { ...prev, dailyVol: vol, dailyVolSource: "calculated" }));
     });
   }, [fetchDailyVol, loadDataset, loadLevels]);
 
+  const fieldErrors = useMemo(() => validateDeskInputs(inputs, { today: istTodayYmd() }), [inputs]);
+  const visibleErrors = useMemo(() => (submitted ? fieldErrors : fieldErrors.filter((e) => e.kind === "invalid")), [fieldErrors, submitted]);
+
   const issues = useMemo(() => {
+    if (!isPriceable(inputs)) return { errors: [], warnings: [] };
     const v = validateInputs(inputs, market);
     return { errors: v.errors, warnings: v.warnings };
   }, [inputs, market]);
 
   const runSimulation = useCallback(async (): Promise<boolean> => {
     const current = inputsRef.current;
-    const check = validateInputs(current, market);
-    if (check.errors.length) {
-      const first = check.errors[0]!;
-      const more = check.errors.length > 1 ? `\n\n${check.errors.length - 1} more ${check.errors.length === 2 ? "issue needs" : "issues need"} fixing:\n${check.errors.slice(1, 5).map((e) => `• ${e.message}`).join("\n")}` : "";
-      alert(`${first.message}${more}`, { variant: "error", title: "Cannot Run The Simulation", fix: first.fix });
+    const errors = validateDeskInputs(current, { today: istTodayYmd() });
+    if (errors.length || !isPriceable(current)) {
+      setSubmitted(true);
+      const first = errors[0];
+      const goFirst = () => first && focusField(first.field);
+      alert(`${errors.length} ${errors.length === 1 ? "field needs" : "fields need"} attention before the simulation can run.`, {
+        variant: "error",
+        title: "Missing Or Invalid Inputs",
+        groups: groupBySection(errors).map((g) => ({ title: g.title, items: g.items.map((e) => `${e.label}: ${e.message}`) })),
+        actions: [{ label: "Go To First Field", onClick: goFirst, testId: "go-to-first-field" }],
+        onClose: goFirst,
+      });
       return false;
     }
     setSimulation({ running: true, step: 0 });
@@ -223,15 +336,16 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       await wait(220);
       setSimulation({ running: true, step });
     }
-    const result = computeHedgingSheet(inputsRef.current, forwardMarket(fresh, inputsRef.current.valuationDate));
+    const priced = inputsRef.current;
+    const result = isPriceable(priced) ? computeHedgingSheet(priced, forwardMarket(fresh, priced.valuationDate)) : null;
     await wait(220);
     setSimulation({ running: false, step: SIMULATION_STEPS.length });
-    if (!result.ok) {
-      const first = result.errors[0]!;
-      alert(first.message, { variant: "error", title: "Cannot Run The Simulation", fix: first.fix });
+    if (!result || !result.ok) {
+      const first = result && !result.ok ? result.errors[0] : undefined;
+      alert(first?.message ?? "The inputs changed during the run. Run it again.", { variant: "error", title: "Cannot Run The Simulation", fix: first?.fix });
       return false;
     }
-    setLastRun({ result, key: runKey(inputsRef.current, marketVersionRef.current), at: new Date().toISOString() });
+    setLastRun({ result, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
     for (const w of result.warnings.filter((w) => w.code === "expiry-surface")) {
       alert(w.message, { variant: "warning", title: "Expiries Beyond The Surface", fix: w.fix });
     }
@@ -239,17 +353,22 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     return true;
   }, [alert, market, refreshDataset, toast]);
 
-  const stale = lastRun != null && lastRun.key !== runKey(inputs, marketVersion);
+  const keys = useMemo(() => splitKeys(inputs), [inputs]);
+  const staleInputs = lastRun != null && lastRun.inputsKey !== keys.inputsKey;
+  const stale = lastRun != null && (staleInputs || lastRun.overridesKey !== keys.overridesKey || lastRun.marketVersion !== marketVersion);
 
   const value = useMemo<DeskContextValue>(
     () => ({
+      mode,
+      requestMode,
       inputs,
       setInputs,
-      resetToDefaults,
+      resetInputs,
       setUnderlying,
       levels,
       levelsLoading,
       refreshLevels,
+      fetchLiveSpot,
       dailyVolStatus,
       computeDailyVol,
       market,
@@ -257,20 +376,26 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       datasetLoading,
       refreshDataset,
       applyMarket,
+      fieldErrors,
+      visibleErrors,
       issues,
       simulation,
       runSimulation,
       lastRun,
+      staleInputs,
       stale,
     }),
     [
+      mode,
+      requestMode,
       inputs,
       setInputs,
-      resetToDefaults,
+      resetInputs,
       setUnderlying,
       levels,
       levelsLoading,
       refreshLevels,
+      fetchLiveSpot,
       dailyVolStatus,
       computeDailyVol,
       market,
@@ -278,10 +403,13 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       datasetLoading,
       refreshDataset,
       applyMarket,
+      fieldErrors,
+      visibleErrors,
       issues,
       simulation,
       runSimulation,
       lastRun,
+      staleInputs,
       stale,
     ],
   );

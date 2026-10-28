@@ -5,6 +5,8 @@ import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
 import type { HedgingResult } from "@/lib/engine/types";
 import { forwardMarket } from "@/lib/engine/vol-surface";
 
+import frozen from "../fixtures/regression-expected.json";
+
 function run(...args: Parameters<typeof computeHedgingSheet>): HedgingResult {
   const r = computeHedgingSheet(...args);
   if (!r.ok) throw new Error(r.errors.map((e) => e.message).join("; "));
@@ -45,6 +47,36 @@ describe("frozen regression at spot 76,799 and the 76,835.78 surface anchor", ()
     expect(g.rhoCr).toBeCloseTo(-7.09, 2);
     expect(g.leverage).toBe(1.6);
     expect(g.targetLevel).toBeCloseTo(0.37, 12);
+  });
+});
+
+describe("frozen regression fixture file", () => {
+  const { inputs, options, expected } = frozen;
+  const r = run({ ...defaultInputs({ valuationDate: inputs.valuationDate, spot: inputs.spot, dailyVol: inputs.dailyVol }), hedgeStrike: inputs.hedgeStrike }, seedMarketData(), options);
+  const g = r.productDescription.greeks;
+
+  it("reproduces every frozen value to its stored precision", () => {
+    expect(r.structure.startLevel).toBe(expected.startLevel);
+    expect(r.summary.hedgeExpiry).toBe(expected.hedgeExpiry);
+    expect(r.summary.actualInbuilt).toBeCloseTo(expected.actualInbuilt, 9);
+    expect(r.summary.totalPremiumCr).toBeCloseTo(expected.totalPremiumCr, 7);
+    expect(r.productDescription.maturityCr).toBeCloseTo(expected.maturityCr, 7);
+    expect(r.summary.margin).toBeCloseTo(expected.margin, 9);
+    expect(g.hedgeQuantity).toBeCloseTo(expected.hedgeQuantity, 5);
+    expect(g.totalDelta).toBeCloseTo(expected.totalDelta, 5);
+    expect(g.hedgePremiumCr).toBeCloseTo(expected.hedgePremiumCr, 7);
+    expect(g.optionsDelta).toBeCloseTo(expected.optionsDelta, 5);
+    expect(g.residualFutures).toBeCloseTo(expected.residualFutures, 5);
+    expect(g.vegaWeightedVol).toBeCloseTo(expected.weightedAverageVolatility, 9);
+    expect(g.vegaCr).toBeCloseTo(expected.vegaCr, 7);
+    expect(g.rhoWeightedForward).toBeCloseTo(expected.weightedAverageForward, 9);
+    expect(g.rhoCr).toBeCloseTo(expected.rhoCr, 7);
+    expect(r.markToMarket.zeroRow.totalRequirementCr).toBeCloseTo(expected.zeroRowRequirementCr, 7);
+    const prices = r.pricer.legs.filter((l) => l.expiryIndex === 0).map((l) => ({ strike: l.strike, price: l.price }));
+    prices.forEach((p, i) => {
+      expect(p.strike).toBe(expected.legPrices[i]!.strike);
+      expect(p.price).toBeCloseTo(expected.legPrices[i]!.price, 5);
+    });
   });
 });
 

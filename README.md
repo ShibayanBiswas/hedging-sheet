@@ -33,8 +33,11 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run dev` | Dev server on port 3005 |
 | `npm run build` | Production build |
 | `npm run lint` and `npm run typecheck` | Static checks |
-| `npm test` | Acceptance, regression, engine, input, upload and Excel tests |
-| `npm run test:e2e` | Playwright on a scratch database |
+| `npm test` | Every Vitest layer: unit, component, API and export |
+| `npm run test:coverage` | Vitest with coverage thresholds |
+| `npm run e2e` | Playwright on Chromium, Firefox, WebKit and Pixel 7 in mock mode, against an in-memory database |
+| `npm run test:all` | Typecheck, lint, coverage and every Playwright project; see [docs/07](docs/07-testing-debug.md) for the rest |
+| `npm run e2e:prod` | Read-only Playwright checks against `BASE_URL` |
 | `npm run e2e:local` | Every page and API on a running server; set `BASE_URL` for production |
 | `npm run verify` | All verify scripts below |
 | `npm run verify:calculations` | Engine invariants on the defaults |

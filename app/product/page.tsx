@@ -46,7 +46,7 @@ export default function ProductPage() {
               </Panel>
               <Panel index={6}>
                 <SectionTitle icon={ChartLine} subtitle="Type a move to read the level and the client return at that point.">
-                  Payoff and {r.underlyingLabel}
+                  Payoff And {r.underlyingLabel}
                 </SectionTitle>
                 <PayoffUnderlyingChart result={r} />
               </Panel>

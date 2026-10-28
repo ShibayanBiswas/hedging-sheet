@@ -81,13 +81,13 @@ export function summaryHeadline(r: HedgingResult): TableSpec {
   const s = r.summary;
   return headlineTable("summary-headline", "Headline", [
     { label: "Actual Inbuilt", value: s.actualInbuilt, kind: "percent" },
-    { label: "Option Premium in Crore", value: s.totalPremiumCr, kind: "crore" },
-    { label: "Maturity Payout in Crore", value: r.productDescription.maturityCr, kind: "crore" },
+    { label: "Option Premium In Crore", value: s.totalPremiumCr, kind: "crore" },
+    { label: "Maturity Payout In Crore", value: r.productDescription.maturityCr, kind: "crore" },
     { label: "Margin Requirement", value: s.margin, kind: "percent" },
     { label: "Hedge Quantity", value: r.dayOneVegaHedge.quantity, kind: "number" },
-    { label: "Vega in Crore", value: s.vegaCr, kind: "crore" },
-    { label: "Delta in Contracts", value: s.deltaContracts, kind: "number", digits: 0 },
-    { label: "Internal Rate of Return", value: s.irr, kind: "percent" },
+    { label: "Vega In Crore", value: s.vegaCr, kind: "crore" },
+    { label: "Delta In Contracts", value: s.deltaContracts, kind: "number", digits: 0 },
+    { label: "Internal Rate Of Return", value: s.irr, kind: "percent" },
   ]);
 }
 
@@ -96,22 +96,22 @@ export function pricerHeadline(r: HedgingResult): TableSpec {
   return headlineTable("pricer-headline", "Headline", [
     { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
     { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
-    { label: "Premium in Crore", value: h.premium / 1e7, kind: "crore" },
-    { label: "Maturity Payout in Crore", value: h.payout / 1e7, kind: "crore" },
+    { label: "Premium In Crore", value: h.premium / 1e7, kind: "crore" },
+    { label: "Maturity Payout In Crore", value: h.payout / 1e7, kind: "crore" },
     { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
-    { label: "Delta in Contracts", value: h.delta, kind: "number", digits: 0 },
-    { label: "Internal Rate of Return", value: h.irr, kind: "percent" },
+    { label: "Delta In Contracts", value: h.delta, kind: "number", digits: 0 },
+    { label: "Internal Rate Of Return", value: h.irr, kind: "percent" },
   ]);
 }
 
 export function productHeadline(r: HedgingResult): TableSpec {
   const d = r.productDescription;
   return headlineTable("product-headline", "Headline", [
-    { label: "Maturity Value in Crore", value: d.maturityCr, kind: "crore" },
-    { label: "Internal Rate of Return", value: d.irr, kind: "percent" },
-    { label: "Amount With NBFC in Crore", value: d.nbfcCr, kind: "crore" },
-    { label: "Premium in Crore", value: d.premiumCr, kind: "crore" },
-    { label: "Margin in Crore", value: d.marginCr, kind: "crore" },
+    { label: "Maturity Value In Crore", value: d.maturityCr, kind: "crore" },
+    { label: "Internal Rate Of Return", value: d.irr, kind: "percent" },
+    { label: "Amount With NBFC In Crore", value: d.nbfcCr, kind: "crore" },
+    { label: "Premium In Crore", value: d.premiumCr, kind: "crore" },
+    { label: "Margin In Crore", value: d.marginCr, kind: "crore" },
   ]);
 }
 
@@ -126,8 +126,8 @@ export function vegaHeadline(r: HedgingResult): TableSpec {
     { label: "Hedge Delta", value: zero.delta, kind: "number", digits: 5 },
     { label: "Hedge Vega", value: zero.vega, kind: "number", digits: 4 },
     { label: "Fair Volatility", value: zero.volatility, kind: "percent" },
-    { label: "Premium Received in Crore", value: r.summary.hedgePremiumCr, kind: "crore" },
-    { label: "Total Margin At 0% in Crore", value: zeroMargin.totalMarginCr, kind: "crore" },
+    { label: "Premium Received In Crore", value: r.summary.hedgePremiumCr, kind: "crore" },
+    { label: "Total Margin At 0% In Crore", value: zeroMargin.totalMarginCr, kind: "crore" },
   ]);
 }
 
@@ -135,12 +135,12 @@ export function marginHeadline(r: HedgingResult): TableSpec {
   const zero = r.markToMarket.zeroRow;
   const worst = r.markToMarket.worstCase;
   return headlineTable("margin-headline", "Headline", [
-    { label: "Worst Case Requirement in Crore", value: worst.totalRequirementCr, kind: "crore" },
+    { label: "Worst Case Requirement In Crore", value: worst.totalRequirementCr, kind: "crore" },
     { label: "Worst Case Move", value: worst.move, kind: "percent", digits: 0 },
-    { label: "Requirement At 0% in Crore", value: zero.totalRequirementCr, kind: "crore" },
+    { label: "Requirement At 0% In Crore", value: zero.totalRequirementCr, kind: "crore" },
     { label: "Margin Funded In The Pricer", value: r.summary.margin, kind: "percent" },
-    { label: "Product Requirement At 0% in Lakh", value: zero.productRequirementLakh, kind: "number", digits: 4 },
-    { label: "Residual Futures At 0% in Lakh", value: zero.residualFuturesLakh, kind: "number", digits: 4 },
+    { label: "Product Requirement At 0% In Lakh", value: zero.productRequirementLakh, kind: "number", digits: 4 },
+    { label: "Residual Futures At 0% In Lakh", value: zero.residualFuturesLakh, kind: "number", digits: 4 },
   ]);
 }
 
@@ -156,7 +156,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
     { label: `Target ${u} Rise`, value: terms.target, kind: "percent" },
     { label: "Coupon", value: i.coupon, kind: "percent" },
     { label: "Actual Inbuilt", value: s.actualInbuilt, kind: "percent" },
-    { label: "Internal Rate of Return", value: s.irr, kind: "percent" },
+    { label: "Internal Rate Of Return", value: s.irr, kind: "percent" },
   ];
   terms.spreads.forEach((sp, j) => {
     specItems.push(
@@ -168,7 +168,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
   specItems.push(
     { label: "Protection", value: terms.protection, kind: "percent" },
     { label: "Decay", value: i.decay, kind: "number" },
-    { label: "Tenor in Days", value: i.tenorDays, kind: "integer" },
+    { label: "Tenor In Days", value: i.tenorDays, kind: "integer" },
     { label: "Margin", value: s.margin, kind: "percent" },
   );
 
@@ -186,7 +186,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
   return [
     {
       id: "summary-market",
-      title: "Market and Rates",
+      title: "Market And Rates",
       items: [
         { label: "Valuation Date", value: i.valuationDate, kind: "date" },
         { label: `${u} Spot`, value: i.spot, kind: "number" },
@@ -211,15 +211,15 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
       id: "summary-greeks",
       title: "Product Greeks",
       items: [
-        { label: "Notional in Crore", value: i.notionalCr, kind: "crore" },
+        { label: "Notional In Crore", value: i.notionalCr, kind: "crore" },
         { label: "Option Expiry", value: s.optionExpiry, kind: "date" },
-        { label: "Delta in Contracts", value: s.deltaContracts, kind: "number", digits: 0 },
+        { label: "Delta In Contracts", value: s.deltaContracts, kind: "number", digits: 0 },
         { label: "Delta %", value: s.deltaPercent, kind: "percent", digits: 1 },
         { label: "Weighted Average Volatility", value: s.vegaWeightedVol, kind: "percent" },
         { label: "Absolute Weighted Average Volatility", value: s.absVegaWeightedVol, kind: "percent" },
-        { label: "Vega in Crore", value: s.vegaCr, kind: "crore" },
+        { label: "Vega In Crore", value: s.vegaCr, kind: "crore" },
         { label: "Weighted Average Forward", value: s.rhoWeightedForward, kind: "percent" },
-        { label: "Rho in Crore", value: s.rhoCr, kind: "crore" },
+        { label: "Rho In Crore", value: s.rhoCr, kind: "crore" },
       ],
       note: "Weighted Average Volatility weights each leg by its signed vega, as the sheet does, so long and short legs offset. Absolute Weighted Average Volatility weights by the size of each leg's vega.",
     },
@@ -241,9 +241,9 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         pct("strikePercent", "Strike %", 0),
         text("option", "Option Type"),
         num("units", "Units"),
-        num("quantity", "Quantity in Lakh"),
+        num("quantity", "Quantity In Lakh"),
         num("price", "Average Price", 0),
-        cr("premium", "Premium in Crore"),
+        cr("premium", "Premium In Crore"),
       ],
       rows: legRows,
       totalRow: legRows.length - 1,
@@ -255,9 +255,9 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         num("strike", "Strike", 0),
         date("expiry", "Expiry"),
         text("option", "Option Type"),
-        num("quantity", "Quantity in Lakh", 4),
+        num("quantity", "Quantity In Lakh", 4),
         num("price", "Price"),
-        cr("premium", "Premium in Crore"),
+        cr("premium", "Premium In Crore"),
         num("delta", "Delta", 4),
       ],
       rows: [
@@ -274,7 +274,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
     },
     {
       id: "summary-vol",
-      title: "Volatility and Margin",
+      title: "Volatility And Margin",
       items: [
         { label: `${u} Daily Volatility`, value: i.dailyVol, kind: "percent", digits: 3 },
         { label: `${u} Annual Volatility`, value: s.annualVol, kind: "percent" },
@@ -297,24 +297,24 @@ export function pricerPotTable(r: HedgingResult): KeyValueSpec {
       { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
       { label: "Coupon", value: h.coupon, kind: "percent" },
       { label: "Option Expiry", value: h.expiry, kind: "date" },
-      { label: "Mobilisation in Rupees", value: h.mobilisation, kind: "rupee", digits: 0 },
+      { label: "Mobilisation In Rupees", value: h.mobilisation, kind: "rupee", digits: 0 },
       { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
       { label: "Product Cost", value: h.productCost, kind: "percent" },
-      { label: "Inbuilt in Rupees", value: h.inbuiltInr, kind: "rupee" },
-      { label: "Transaction Cost in Rupees", value: h.transactionCostInr, kind: "rupee", digits: 0 },
-      { label: "Net Mobilisation With NBFC in Rupees", value: h.nbfcAmount, kind: "rupee", digits: 0 },
-      { label: "Premium in Rupees", value: h.premium, kind: "rupee", digits: 0 },
+      { label: "Inbuilt In Rupees", value: h.inbuiltInr, kind: "rupee" },
+      { label: "Transaction Cost In Rupees", value: h.transactionCostInr, kind: "rupee", digits: 0 },
+      { label: "Net Mobilisation With NBFC In Rupees", value: h.nbfcAmount, kind: "rupee", digits: 0 },
+      { label: "Premium In Rupees", value: h.premium, kind: "rupee", digits: 0 },
       { label: "NBFC Rate", value: h.nbfcRate, kind: "percent" },
       { label: "Premium Growth Rate", value: h.premiumRate, kind: "percent" },
-      { label: "Tenor in Days", value: h.tenorDays, kind: "integer" },
-      { label: "Maturity Payout in Rupees", value: h.payout, kind: "rupee", digits: 0 },
+      { label: "Tenor In Days", value: h.tenorDays, kind: "integer" },
+      { label: "Maturity Payout In Rupees", value: h.payout, kind: "rupee", digits: 0 },
       { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
-      { label: "Delta in Contracts", value: h.delta, kind: "number", digits: 0 },
-      { label: "Vega in Rupees", value: h.vega, kind: "rupee", digits: 0 },
-      { label: "Rho in Rupees", value: h.rho, kind: "rupee", digits: 0 },
-      { label: "Gamma in Contracts", value: h.gamma, kind: "number", digits: 4 },
-      { label: "Internal Rate of Return", value: h.irr, kind: "percent" },
-      { label: "Margin in Rupees", value: h.margin, kind: "rupee", digits: 0 },
+      { label: "Delta In Contracts", value: h.delta, kind: "number", digits: 0 },
+      { label: "Vega In Rupees", value: h.vega, kind: "rupee", digits: 0 },
+      { label: "Rho In Rupees", value: h.rho, kind: "rupee", digits: 0 },
+      { label: "Gamma In Contracts", value: h.gamma, kind: "number", digits: 4 },
+      { label: "Internal Rate Of Return", value: h.irr, kind: "percent" },
+      { label: "Margin In Rupees", value: h.margin, kind: "rupee", digits: 0 },
     ],
   };
 }
@@ -354,19 +354,19 @@ const OPTION_FIELDS: Array<Field<OptionPricing>> = [
   { label: "Forward", kind: "number", pick: (l) => l.forward },
   { label: "Volatility", kind: "percent", pick: (l) => l.volatility },
   { label: "Volatility Bump", kind: "percent", digits: 1, pick: (l) => l.volBump },
-  { label: "Bid or Offer", kind: "text", pick: (l) => (l.bidOffer === "B" ? "Bid" : "Offer") },
-  { label: "Price in Rupees", kind: "number", pick: (l) => l.price },
-  { label: "Price as %", kind: "percent", pick: (l) => l.pricePercent },
+  { label: "Bid Or Offer", kind: "text", pick: (l) => (l.bidOffer === "B" ? "Bid" : "Offer") },
+  { label: "Price In Rupees", kind: "number", pick: (l) => l.price },
+  { label: "Price As %", kind: "percent", pick: (l) => l.pricePercent },
 ];
 
 const MARGIN_FIELDS: Array<Field<PricerLeg>> = [
   { label: "Incremental Margin", kind: "percent", digits: 1, pick: (l) => l.incrementalMargin },
   { label: "Incremental Margin Cost", kind: "percent", digits: 1, pick: (l) => l.incrementalMarginCost },
-  { label: "Incremental Cost in Rupees", kind: "number", pick: (l) => l.incrementalCostInr },
+  { label: "Incremental Cost In Rupees", kind: "number", pick: (l) => l.incrementalCostInr },
   { label: "Incremental Margin Adjusted Price", kind: "number", pick: (l) => l.incrementalAdjustedPrice },
   { label: "Full Margin", kind: "percent", digits: 1, pick: (l) => l.fullMargin },
   { label: "Full Margin Cost", kind: "percent", digits: 1, pick: (l) => l.fullMarginCost },
-  { label: "Full Cost in Rupees", kind: "number", pick: (l) => l.fullCostInr },
+  { label: "Full Cost In Rupees", kind: "number", pick: (l) => l.fullCostInr },
   { label: "Full Margin Adjusted Price", kind: "number", pick: (l) => l.fullAdjustedPrice },
   { label: "Spread", kind: "number", pick: (l) => l.units },
   { label: "Action", kind: "text", pick: (l) => l.action },
@@ -383,13 +383,13 @@ const GREEK_FIELDS: Array<Field<OptionPricing>> = [
 type BookRow = PricerLeg | HedgeRow;
 const BOOK_FIELDS: Array<Field<BookRow>> = [
   { label: "Contracts", kind: "number", pick: (l) => l.contracts },
-  { label: "Option Value in Rupees", kind: "rupee", digits: 0, pick: (l) => l.optionValue },
-  { label: "Delta in Rupees", kind: "rupee", digits: 0, pick: (l) => l.deltaInr },
-  { label: "Delta in Contracts", kind: "number", pick: (l) => l.deltaContracts },
-  { label: "Gamma in Contracts", kind: "number", digits: 4, pick: (l) => l.gammaContracts },
-  { label: "Theta in Rupees", kind: "rupee", digits: 0, pick: (l) => l.thetaInr },
-  { label: "Vega in Rupees", kind: "rupee", digits: 0, pick: (l) => l.vegaInr },
-  { label: "Rho in Rupees", kind: "rupee", digits: 0, pick: (l) => l.rhoInr },
+  { label: "Option Value In Rupees", kind: "rupee", digits: 0, pick: (l) => l.optionValue },
+  { label: "Delta In Rupees", kind: "rupee", digits: 0, pick: (l) => l.deltaInr },
+  { label: "Delta In Contracts", kind: "number", pick: (l) => l.deltaContracts },
+  { label: "Gamma In Contracts", kind: "number", digits: 4, pick: (l) => l.gammaContracts },
+  { label: "Theta In Rupees", kind: "rupee", digits: 0, pick: (l) => l.thetaInr },
+  { label: "Vega In Rupees", kind: "rupee", digits: 0, pick: (l) => l.vegaInr },
+  { label: "Rho In Rupees", kind: "rupee", digits: 0, pick: (l) => l.rhoInr },
 ];
 
 export const PRICER_FIELDS: Array<Field<PricerLeg>> = [...OPTION_FIELDS, ...MARGIN_FIELDS, ...GREEK_FIELDS, ...BOOK_FIELDS];
@@ -447,7 +447,7 @@ export function termSheet(r: HedgingResult): KeyValueSpec {
     { label: "Decay Floor", value: `${fmtPercent(terms.floorLevel, 0)} Of Start Level`, kind: "text" },
     { label: "Option Type", value: optionTypeLabel(i.optionType), kind: "text" },
     { label: "Observation Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
-    { label: "Client Internal Rate of Return", value: r.productDescription.irr, kind: "percent" },
+    { label: "Client Internal Rate Of Return", value: r.productDescription.irr, kind: "percent" },
   );
   return { id: "pd-term-sheet", title: "Term Sheet", items };
 }
@@ -469,28 +469,28 @@ export function productTables(r: HedgingResult): {
       id: "pd-details",
       title: "Product Details",
       items: [
-        { label: "Initial Investment in Crore", value: d.initialInvestment, kind: "crore" },
-        { label: "Inbuilt in Crore", value: d.inbuiltCr, kind: "crore" },
-        { label: "Issuance Cost in Crore", value: d.issuanceCostCr, kind: "crore" },
-        { label: "Transaction Cost in Crore", value: d.transactionCostCr, kind: "crore" },
-        { label: "Margin in Crore", value: d.marginCr, kind: "crore" },
-        { label: "Amount With NBFC in Crore", value: d.nbfcCr, kind: "crore" },
-        { label: "Premium in Crore", value: d.premiumCr, kind: "crore" },
+        { label: "Initial Investment In Crore", value: d.initialInvestment, kind: "crore" },
+        { label: "Inbuilt In Crore", value: d.inbuiltCr, kind: "crore" },
+        { label: "Issuance Cost In Crore", value: d.issuanceCostCr, kind: "crore" },
+        { label: "Transaction Cost In Crore", value: d.transactionCostCr, kind: "crore" },
+        { label: "Margin In Crore", value: d.marginCr, kind: "crore" },
+        { label: "Amount With NBFC In Crore", value: d.nbfcCr, kind: "crore" },
+        { label: "Premium In Crore", value: d.premiumCr, kind: "crore" },
       ],
     },
     maturity: {
       id: "pd-maturity",
       title: "Maturity Details",
       items: [
-        { label: "Tenor in Days", value: d.tenorDays, kind: "integer" },
+        { label: "Tenor In Days", value: d.tenorDays, kind: "integer" },
         { label: "NBFC Growth Rate", value: d.nbfcRate, kind: "percent" },
-        { label: "Final Amount With NBFC in Crore", value: d.finalNbfcCr, kind: "crore" },
+        { label: "Final Amount With NBFC In Crore", value: d.finalNbfcCr, kind: "crore" },
         { label: "Premium Growth Rate", value: d.premiumRate, kind: "percent" },
-        { label: "Final Premium in Crore", value: d.finalPremiumCr, kind: "crore" },
+        { label: "Final Premium In Crore", value: d.finalPremiumCr, kind: "crore" },
         { label: "Margin Growth Rate", value: d.marginRate, kind: "percent" },
-        { label: "Final Margin in Crore", value: d.finalMarginCr, kind: "crore" },
-        { label: "Maturity Amount in Crore", value: d.maturityCr, kind: "crore" },
-        { label: "Internal Rate of Return", value: d.irr, kind: "percent" },
+        { label: "Final Margin In Crore", value: d.finalMarginCr, kind: "crore" },
+        { label: "Maturity Amount In Crore", value: d.maturityCr, kind: "crore" },
+        { label: "Internal Rate Of Return", value: d.irr, kind: "percent" },
       ],
     },
     // Product Description H31:H40, then Leverage in H44 and the target level
@@ -501,13 +501,13 @@ export function productTables(r: HedgingResult): {
         { label: "Delta", value: g.deltaPercent, kind: "number" },
         { label: "Total Delta Required", value: g.totalDelta, kind: "number", digits: 0 },
         { label: "Options Quantity Required For Vega Hedge", value: g.hedgeQuantity, kind: "number" },
-        { label: "Options Premium Received in Crore", value: g.hedgePremiumCr, kind: "crore" },
+        { label: "Options Premium Received In Crore", value: g.hedgePremiumCr, kind: "crore" },
         { label: "Options Delta", value: g.optionsDelta, kind: "number", digits: 0 },
         { label: "Residual Futures To Be Done", value: g.residualFutures, kind: "number", digits: 0 },
         { label: "Weighted Average Volatility", value: g.vegaWeightedVol, kind: "percent" },
-        { label: "Vega in Crore", value: g.vegaCr, kind: "crore" },
+        { label: "Vega In Crore", value: g.vegaCr, kind: "crore" },
         { label: "Weighted Average Forward", value: g.rhoWeightedForward, kind: "percent" },
-        { label: "Rho in Crore", value: g.rhoCr, kind: "crore" },
+        { label: "Rho In Crore", value: g.rhoCr, kind: "crore" },
         { label: "Leverage", value: g.leverage, kind: "number" },
         { label: "Target Level", value: g.targetLevel, kind: "percent", digits: 0 },
       ],
@@ -529,8 +529,8 @@ export function productTables(r: HedgingResult): {
       columns: [
         pct("performance", `${u} Performance`),
         pct("clientReturn", "Client Return"),
-        cr("maturityValue", "Maturity Value in Crore"),
-        pct("irr", "Pre Tax Internal Rate of Return"),
+        cr("maturityValue", "Maturity Value In Crore"),
+        pct("irr", "Pre Tax Internal Rate Of Return"),
       ],
       rows: d.payoff.map((p) => ({
         performance: p.performance,
@@ -585,13 +585,13 @@ export function vegaHedgeMarginTable(r: HedgingResult): TableSpec {
       date("expiry", "Expiry"),
       num("quantity", "Quantity"),
       num("dayOne", "Day 1 Fair Price"),
-      cr("premium", "Premium in Crore"),
+      cr("premium", "Premium In Crore"),
       num("exchange", "Exchange Price"),
       num("stressed", "Stressed Price"),
       num("fair", "Fair Price"),
-      cr("initial", "Initial Margin in Crore"),
-      cr("exposure", "Exposure Margin in Crore"),
-      cr("total", "Total Margin in Crore"),
+      cr("initial", "Initial Margin In Crore"),
+      cr("exposure", "Exposure Margin In Crore"),
+      cr("total", "Total Margin In Crore"),
     ],
     rows: rows.map((m) => ({
       level: m.level,
@@ -642,18 +642,18 @@ export function marginTable(r: HedgingResult): TableSpec {
   const rows: MarginRow[] = r.markToMarket.rows;
   return {
     id: "mtm",
-    title: "Mark to Market and Margin Requirement",
+    title: "Mark To Market And Margin Requirement",
     note: `Futures Margin is ${fmtPercent(r.inputs.futuresMargin, 1)} of the notional value of the residual futures. The 0% row is the margin funded in the Pricer.`,
     columns: [
       num("level", r.underlyingLabel, 0),
       pct("move", "Move", 0),
-      num("product", "Product Requirement in Lakh", 4),
-      num("option", "Option Delta in Lakh", 4),
-      num("residual", "Residual Futures in Lakh", 4),
-      cr("futures", "Futures Margin in Crore"),
-      cr("mtm", "Mark to Market in Crore"),
-      cr("options", "Options Margin in Crore"),
-      cr("total", "Total of Futures Margin, Mark to Market and Options Margin"),
+      num("product", "Product Requirement In Lakh", 4),
+      num("option", "Option Delta In Lakh", 4),
+      num("residual", "Residual Futures In Lakh", 4),
+      cr("futures", "Futures Margin In Crore"),
+      cr("mtm", "Mark To Market In Crore"),
+      cr("options", "Options Margin In Crore"),
+      cr("total", "Total Of Futures Margin, Mark To Market And Options Margin"),
     ],
     rows: rows.map((m) => ({
       level: m.level,

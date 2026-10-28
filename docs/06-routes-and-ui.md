@@ -22,11 +22,18 @@
 
 ## Inputs
 
-Inputs holds inputs only, in full-width sections: Underlying and Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads and Option Type, Notional and Costs, and Volatility and Margin. Volatility and Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
+Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads And Option Type, Notional And Costs, and Volatility And Margin. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
+
+A pill at the top switches between two modes, after a confirm popup that also clears the results:
+
+- **Default Values.** The live spot, today's date in India, the calculated volatility and the desk terms. Reset To Defaults restores them.
+- **Blank Inputs.** Every field is empty with an "Eg …" placeholder and the selects read "Select …". Choose the number of expiry dates first, then that many month rows appear. Computed dates show "-" until they can be worked out, and derived fields fill as the inputs arrive and stay editable. Fetch Live Spot and Compute Volatility From History fill only their own fields. Clear All Inputs empties every field again.
+
+Run Simulation validates first. Missing or invalid fields open "Missing Or Invalid Inputs", grouped by section, with Go To First Field; closing the popup focuses the first invalid field, and each invalid field has a red ring and inline text. A typed value that breaks a rule across fields opens "Please Fix This Input" straight away.
 
 ## Output tabs
 
-Before the first run each output tab shows a centred popup, Run The Simulation To See Results, with Run Simulation and Go To Inputs. After a run, changed inputs show an Inputs Changed banner. Every tab starts with a Headline table; every block is a full-width table with a sticky header, a maroon and gold band, zebra rows, right-aligned numbers, a pinned first column, sideways scrolling and a reveal animation.
+Before the first run each output tab shows a centred popup, Run The Simulation To See Results, with Run Simulation and Go To Inputs. Changing any input brings that popup back with an Inputs Changed badge, so stale results are never shown. Pricer and hedge volatility overrides and market data changes keep the results and show an Inputs Changed banner instead. Every tab starts with a Headline table; every block is a full-width table with a sticky header, a maroon and gold band, zebra rows, right-aligned numbers, a pinned first column, sideways scrolling and a reveal animation.
 
 | Tab | Tables |
 |---|---|

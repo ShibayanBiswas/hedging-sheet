@@ -1,0 +1,77 @@
+{
+  "note": "Each case breaks one rule from Default Values. patch is applied to the default inputs in unit tests; fill is typed into the field in the browser tests, and is empty when the field cannot hold the value (whole-number fields round what is typed). field is the validation key and label the text the dialog shows.",
+  "cases": [
+    {
+      "name": "strikes not strictly descending",
+      "patch": { "strikePercents": [137, 127, 128, 85, 84, 70] },
+      "fill": [["input-strikePercents-2", "128"]],
+      "field": "strikePercents.2",
+      "label": "Strike 3",
+      "message": "strictly descending"
+    },
+    {
+      "name": "protection not below 100%",
+      "patch": { "strikePercents": [137, 127, 125, 101, 100, 70] },
+      "fill": [["input-protection", "-1"]],
+      "field": "protection",
+      "label": "Protection",
+      "message": "below 100%"
+    },
+    {
+      "name": "floor units above the decay",
+      "patch": { "floorUnits": 2 },
+      "fill": [["input-floorUnits", "2"]],
+      "field": "floorUnits",
+      "label": "Floor Units",
+      "message": "Decay"
+    },
+    {
+      "name": "months not strictly increasing",
+      "patch": { "expiryMonths": [41, 44, 44, 50, 53, 56] },
+      "fill": [["input-expiryMonths-2", "44"]],
+      "field": "expiryMonths.2",
+      "label": "Expiry Month 3",
+      "message": "strictly increase"
+    },
+    {
+      "name": "valuation date in the future",
+      "patch": { "valuationDate": "2027-01-04" },
+      "fill": [["input-valuationDate", "2027-01-04"]],
+      "field": "valuationDate",
+      "label": "Valuation Date",
+      "message": "future"
+    },
+    {
+      "name": "coupon out of range",
+      "patch": { "coupon": 20 },
+      "fill": [["input-coupon", "2000"]],
+      "field": "coupon",
+      "label": "Coupon",
+      "message": "at most"
+    },
+    {
+      "name": "participation at zero",
+      "patch": { "participations": [0, null] },
+      "fill": [["input-participations-0", "0"]],
+      "field": "participations.0",
+      "label": "Spread 1 Participation Rate",
+      "message": "above 0"
+    },
+    {
+      "name": "coupon unreachable",
+      "patch": { "participations": [1, 2] },
+      "fill": [["input-participations-1", "2"]],
+      "field": "coupon",
+      "label": "Coupon",
+      "message": "cannot be reached"
+    },
+    {
+      "name": "shock days not whole",
+      "patch": { "stressDays": 2.5 },
+      "fill": [],
+      "field": "stressDays",
+      "label": "Shock Days",
+      "message": "whole number"
+    }
+  ]
+}

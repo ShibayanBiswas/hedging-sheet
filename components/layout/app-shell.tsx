@@ -10,6 +10,7 @@ import { DeskFooter } from "@/components/layout/desk-footer";
 import { SiteNav } from "@/components/layout/site-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useDesk } from "@/lib/context/desk-provider";
+import { underlyingName } from "@/lib/inputs/draft";
 import { useSurfaceUpload } from "@/lib/hooks/use-surface-upload";
 import { cn } from "@/lib/cn";
 
@@ -126,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <h1 className="brand-title">Hedging Sheet</h1>
             </div>
             <span className="hs-chip hs-chip-maroon" data-testid="underlying-badge">
-              {inputs.underlying}
+              {underlyingName(inputs)}
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">

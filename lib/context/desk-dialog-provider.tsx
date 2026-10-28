@@ -19,12 +19,27 @@ export function DeskDialogProvider({ children }: { children: ReactNode }) {
   const [toastText, setToastText] = useState<string | null>(null);
   const state = queue[0] ?? null;
 
-  const close = useCallback(() => setQueue((current) => current.slice(1)), []);
+  const close = useCallback(() => {
+    setQueue((current) => {
+      const closing = current[0];
+      if (closing?.onClose) window.setTimeout(closing.onClose, 0);
+      return current.slice(1);
+    });
+  }, []);
 
   const alert = useCallback((message: string, options?: DeskAlertOptions) => {
     const variant = options?.variant ?? "info";
     const title = options?.title ?? (variant === "error" ? "Cannot Continue" : variant === "warning" ? "Data Notice" : "Hedging Sheet");
-    const next: DeskDialogState = { title, message, variant, fix: options?.fix, actions: options?.actions };
+    const next: DeskDialogState = {
+      title,
+      message,
+      variant,
+      fix: options?.fix,
+      actions: options?.actions,
+      groups: options?.groups,
+      okLabel: options?.okLabel,
+      onClose: options?.onClose,
+    };
     setQueue((current) => (current.some((row) => row.title === next.title && row.message === next.message) ? current : [...current, next]));
   }, []);
 

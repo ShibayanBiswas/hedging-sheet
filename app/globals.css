@@ -244,7 +244,13 @@ textarea {
   }
 
   .label-chip {
-    @apply text-[10px] font-bold uppercase tracking-[0.25em] text-gold-dark;
+    @apply text-[10px] font-bold uppercase tracking-[0.25em];
+    color: #7a5a06;
+  }
+
+  /* Gold text on light panels needs a deeper shade to keep 4.5:1 contrast at small sizes. */
+  html:not(.dark) .text-gold-dark {
+    color: #7a5a06;
   }
 
   .chart-tooltip {
@@ -3006,14 +3012,14 @@ textarea {
   html.dark .btn-chip {
     background: rgba(10, 8, 9, 0.85);
     border-color: rgba(120, 110, 95, 0.2);
-    color: #78716c;
+    color: #a8a29e;
   }
 
   html.dark .btn-secondary:hover,
   html.dark .btn-ghost:hover,
   html.dark .btn-chip:hover {
     border-color: rgba(212, 178, 76, 0.14);
-    color: #a8a29e;
+    color: #d6d3d1;
     background: rgba(212, 178, 76, 0.03);
   }
 

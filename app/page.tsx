@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { RotateCcw } from "lucide-react";
+import { Eraser, RotateCcw } from "lucide-react";
 
 import {
   CostsSection,
@@ -14,36 +14,20 @@ import {
   UnderlyingSection,
   VolatilitySection,
 } from "@/components/inputs/input-sections";
+import { InputModeSwitch } from "@/components/inputs/input-mode-switch";
 import { PageIntro } from "@/components/ui/panel";
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
-import { useDesk } from "@/lib/context/desk-provider";
+import { focusField, useDesk } from "@/lib/context/desk-provider";
 
-/** Edge cases that open a blocking popup the moment they appear. Missing live data waits for the run. */
-const POPUP_CODES = new Set([
-  "strike-order",
-  "strike-positive",
-  "spread-order",
-  "spread-overlap",
-  "spread-gap",
-  "participation",
-  "coupon-unreachable",
-  "protection",
-  "floor-level",
-  "floor-units",
-  "spread-count",
-  "expiry-order",
-  "expiry-maturity",
-  "tenor",
-]);
-
+/** Rules across fields open a popup the moment a typed value breaks them. Empty fields wait for Run Simulation. */
 function useEdgeCasePopups() {
-  const { issues } = useDesk();
+  const { fieldErrors } = useDesk();
   const { alert } = useDeskDialog();
   const shown = useRef(new Set<string>());
 
   useEffect(() => {
-    const current = issues.errors.filter((e) => e.code && POPUP_CODES.has(e.code));
+    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code);
     const keys = new Set(current.map((e) => `${e.code}:${e.field}`));
     // Forget fixed issues so they can pop again if they come back.
     for (const k of [...shown.current]) if (!keys.has(k)) shown.current.delete(k);
@@ -52,14 +36,14 @@ function useEdgeCasePopups() {
     const id = window.setTimeout(() => {
       const first = fresh[0]!;
       for (const e of fresh) shown.current.add(`${e.code}:${e.field}`);
-      alert(first.message, { variant: "error", title: "Please Fix This Input", fix: first.fix });
+      alert(first.message, { variant: "error", title: "Please Fix This Input", fix: first.fix, onClose: () => focusField(first.field) });
     }, 900);
     return () => window.clearTimeout(id);
-  }, [alert, issues.errors]);
+  }, [alert, fieldErrors]);
 }
 
 export default function InputsPage() {
-  const { resetToDefaults } = useDesk();
+  const { mode, resetInputs } = useDesk();
   const router = useRouter();
   useEdgeCasePopups();
 
@@ -67,17 +51,22 @@ export default function InputsPage() {
     <div className="flex w-full flex-col gap-4 pb-28">
       <PageIntro
         title="Inputs"
-        subtitle="Set the product and market inputs, then run the simulation. Spot, valuation date and daily volatility load from live data."
+        subtitle={
+          mode === "default"
+            ? "Set the product and market inputs, then run the simulation. Spot, valuation date and daily volatility load from live data."
+            : "Every field starts empty. Fill each one, or fetch the live spot and volatility, then run the simulation."
+        }
         aside={
-          <button type="button" className="btn-animated btn-motion btn-accent" onClick={resetToDefaults} data-testid="reset-defaults">
+          <button type="button" className="btn-animated btn-motion btn-accent" onClick={resetInputs} data-testid="reset-inputs">
             <span className="btn-shine" aria-hidden />
             <span className="relative z-10 inline-flex items-center gap-2">
-              <RotateCcw className="h-4 w-4" />
-              Reset To Defaults
+              {mode === "default" ? <RotateCcw className="h-4 w-4" /> : <Eraser className="h-4 w-4" />}
+              {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
             </span>
           </button>
         }
       />
+      <InputModeSwitch />
       <UnderlyingSection index={0} />
       <RatesSection index={1} />
       <ProductTermsSection index={2} />

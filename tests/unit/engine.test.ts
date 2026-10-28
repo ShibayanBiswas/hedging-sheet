@@ -7,7 +7,7 @@ import { EXPIRY_WEEKDAY, expiryDates, medianExpiryIndex, nearestWeekday, rawExpi
 import { bookReturn, clientReturn, deriveTerms, startLevel } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
 
-import { FIXTURE_DATE, fixtureInputs, priced } from "./fixture";
+import { FIXTURE_DATE, fixtureInputs, priced } from "../helpers/fixture";
 
 function weekdayOf(ymd: string): number {
   return new Date(`${ymd}T00:00:00Z`).getUTCDay();

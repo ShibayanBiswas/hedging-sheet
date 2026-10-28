@@ -37,14 +37,14 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
     >
       <div className="overflow-hidden rounded-2xl">
         <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className="desk-table-scroll horizontal-rail max-h-[min(56vh,560px)] overflow-auto !rounded-t-none">
+        <div className="desk-table-scroll horizontal-rail max-h-[min(56vh,560px)] overflow-auto !rounded-t-none" tabIndex={0} role="region" aria-label="Payoff Scenarios">
           <table className="data-table-premium data-table-fill payoff-scenarios-table">
             <thead>
               <tr className="hs-head-row">
                 <th className="col-pinned">{u} Performance</th>
                 <th className="text-right">Client Return</th>
-                <th className="text-right">Maturity Value in Crore</th>
-                <th className="text-right">Pre Tax Internal Rate of Return</th>
+                <th className="text-right">Maturity Value In Crore</th>
+                <th className="text-right">Pre Tax Internal Rate Of Return</th>
               </tr>
             </thead>
             <tbody>

@@ -10,7 +10,7 @@ import { marginHeadline, marginTable } from "@/lib/tables";
 export default function MarginPage() {
   return (
     <div className="flex w-full flex-col gap-4">
-      <PageIntro title="Mark to Market and Margin Requirement" subtitle="Cash the desk posts as the underlying moves from −50% to +20%." />
+      <PageIntro title="Mark To Market And Margin Requirement" subtitle="Cash the desk posts as the underlying moves from −50% to +20%." />
       <ResultGate>
         {(r) => (
           <>

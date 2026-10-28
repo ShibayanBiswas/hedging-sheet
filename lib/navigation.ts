@@ -16,7 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "pricer", href: "/pricer", label: "Pricer", icon: Calculator, needsRun: true },
   { id: "product", href: "/product", label: "Product Description", icon: BookOpenText, needsRun: true },
   { id: "vega-hedge", href: "/vega-hedge", label: "Day 1 Vega Hedge", icon: ShieldCheck, needsRun: true },
-  { id: "margin", href: "/margin", label: "Mark to Market and Margin", icon: BarChart3, needsRun: true },
+  { id: "margin", href: "/margin", label: "Mark To Market And Margin", icon: BarChart3, needsRun: true },
   { id: "market-data", href: "/market-data", label: "Market Data", icon: Database, needsRun: false },
   { id: "logic-atlas", href: "/logic-atlas", label: "Logic Atlas", icon: Network, needsRun: false },
 ];

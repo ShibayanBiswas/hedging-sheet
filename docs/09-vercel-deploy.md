@@ -90,7 +90,7 @@ Open PowerShell in the project folder and run these one at a time.
    - `/api/dataset` should show `"surfaceSource":"database"`.
    - `/api/market/levels` should show today's Nifty and Sensex closes with `"source":"yahoo"`.
 3. Open the app, wait for the spot to load, press **Run Simulation**, and check that the Summary Sheet Headline table shows an Actual Inbuilt and the market strip reads Up To Date.
-4. Click **Download Excel** and check the five sheets: Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge, Mark to Market and Margin.
+4. Click **Download Excel** and check the five sheets: Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge, Mark To Market And Margin.
 5. Run the browser tests against production:
 
    ```powershell

@@ -12,6 +12,7 @@ import { useDesk } from "@/lib/context/desk-provider";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
 import { EXPIRY_WEEKDAY, WEEKDAY_NAMES } from "@/lib/engine/schedule";
+import { underlyingName } from "@/lib/inputs/draft";
 import { COMPUTATION_PRIMITIVES, logicModules } from "@/lib/logic-atlas";
 import { deskEase } from "@/lib/motion";
 import { headlineTable, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
@@ -30,8 +31,8 @@ const CHIP_TONES = { amber: "amber", cyan: "cyan", purple: "purple", green: "gre
 export default function LogicAtlasPage() {
   const { inputs, lastRun } = useDesk();
   const reduce = useReducedMotion();
-  const weekday = WEEKDAY_NAMES[EXPIRY_WEEKDAY[inputs.underlying]]!;
-  const modules = logicModules(inputs.underlying, weekday);
+  const weekday = inputs.underlying ? WEEKDAY_NAMES[EXPIRY_WEEKDAY[inputs.underlying]]! : "Expiry Weekday";
+  const modules = logicModules(underlyingName(inputs), weekday);
   const [selectedId, setSelectedId] = useState(modules[0]!.id);
   const [activeNode, setActiveNode] = useState<FlowNodeSpec | null>(null);
   const [debugOpen, setDebugOpen] = useState(false);
@@ -71,7 +72,7 @@ export default function LogicAtlasPage() {
         <p className="intel-hero-kicker relative z-10">Anand Rathi Wealth · Desk Intelligence</p>
         <h2 className="intel-hero-title relative z-10">Logic Atlas</h2>
         <p className="intel-hero-sub relative z-10">
-          How the {inputs.underlying} accelerator flows from the inputs through the Pricer, the goal seek, the vega hedge and the stress grid to the Excel file.
+          How the {underlyingName(inputs)} accelerator flows from the inputs through the Pricer, the goal seek, the vega hedge and the stress grid to the Excel file.
         </p>
         <div className="intel-hero-meta relative z-10">
           <motion.span
@@ -192,9 +193,9 @@ export default function LogicAtlasPage() {
                 <p className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{activeNode.description}</p>
               </motion.div>
             ) : (
-              <motion.ul key={`insights-${selected.id}`} className="intel-insight-list mt-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.ul key={`insights-${selected.id}`} className="intel-insight-list mt-3" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 {selected.insights.map((insight, i) => (
-                  <motion.li key={insight} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.25 }}>
+                  <motion.li key={insight} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.25 }}>
                     {insight}
                   </motion.li>
                 ))}
@@ -209,7 +210,7 @@ export default function LogicAtlasPage() {
               <motion.li
                 key={`${selected.id}-${output}`}
                 className={cn("intel-output-chip", `intel-output-chip--${CHIP_TONES[selected.accent]}`)}
-                initial={{ opacity: 0, y: 6 }}
+                initial={reduce ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04, duration: 0.25 }}
                 whileHover={{ x: 4, scale: 1.01 }}

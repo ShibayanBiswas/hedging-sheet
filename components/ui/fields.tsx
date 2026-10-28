@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
+
+/** FieldRow shares its id with the input inside, so the label names the input. */
+const FieldIdContext = createContext<string | undefined>(undefined);
+
+const PLACEHOLDER = "placeholder:text-stone-400 placeholder:font-normal dark:placeholder:text-stone-500";
 
 export function FieldRow({
   label,
@@ -20,15 +25,17 @@ export function FieldRow({
   htmlFor?: string;
 }) {
   const labelId = useId();
+  const inputId = useId();
+  const forId = htmlFor ?? inputId;
   return (
     <div className="grid w-full gap-2 md:grid-cols-[240px_1fr]">
       <div className="flex items-start pt-3">
-        <label className="label-chip" htmlFor={htmlFor} id={labelId}>
+        <label className="label-chip" htmlFor={forId} id={labelId}>
           {label}
         </label>
       </div>
       <div className="min-w-0" role="group" aria-labelledby={labelId}>
-        {children}
+        <FieldIdContext.Provider value={forId}>{children}</FieldIdContext.Provider>
         {hint ? <p className="mt-1 font-ui text-[11px] text-muted">{hint}</p> : null}
         <AnimatePresence initial={false}>
           {error ? (
@@ -80,6 +87,7 @@ export function NumberInput({
   placeholder,
   invalid,
   onBlankChange,
+  ariaLabel,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -92,7 +100,9 @@ export function NumberInput({
   placeholder?: string;
   invalid?: boolean;
   onBlankChange?: () => void;
+  ariaLabel?: string;
 }) {
+  const contextId = useContext(FieldIdContext);
   const [draft, setDraft] = useState(() => toDraft(value, kind, digits));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
@@ -105,7 +115,8 @@ export function NumberInput({
   return (
     <div className="relative w-full">
       <input
-        id={id}
+        id={id ?? (ariaLabel ? undefined : contextId)}
+        aria-label={ariaLabel}
         data-testid={testId}
         inputMode="decimal"
         disabled={disabled}
@@ -131,8 +142,9 @@ export function NumberInput({
         }}
         className={cn(
           "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm tabular-nums outline-none transition focus:border-gold",
+          PLACEHOLDER,
           suffix && "pr-16",
-          (bad || invalid) && "border-rose-400 focus:border-rose-500",
+          (bad || invalid) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
           disabled && "cursor-not-allowed opacity-60",
         )}
       />
@@ -150,17 +162,67 @@ export function NumberInput({
   );
 }
 
-export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { testId?: string }) {
-  const { testId, className, ...rest } = props;
+export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { testId?: string; invalid?: boolean }) {
+  const { testId, className, invalid, id, ...rest } = props;
+  const contextId = useContext(FieldIdContext);
   return (
     <input
       {...rest}
+      id={id ?? contextId}
       data-testid={testId}
+      aria-invalid={invalid || undefined}
       className={cn(
         "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none transition focus:border-gold",
+        PLACEHOLDER,
+        invalid && "border-rose-500 ring-2 ring-rose-400/60",
         className,
       )}
     />
+  );
+}
+
+/** A select that starts on an empty "Select …" option until a choice is made. */
+export function ChoiceSelect<T extends string | number>({
+  value,
+  options,
+  onChange,
+  testId,
+  invalid,
+  placeholder = "Select …",
+}: {
+  value: T | "";
+  options: Array<{ value: T; label: string }>;
+  onChange: (v: T) => void;
+  testId?: string;
+  invalid?: boolean;
+  placeholder?: string;
+}) {
+  const contextId = useContext(FieldIdContext);
+  return (
+    <select
+      id={contextId}
+      data-testid={testId}
+      aria-invalid={invalid || undefined}
+      value={value === "" || (typeof value === "number" && Number.isNaN(value)) ? "" : String(value)}
+      onChange={(e) => {
+        const picked = options.find((o) => String(o.value) === e.target.value);
+        if (picked) onChange(picked.value);
+      }}
+      className={cn(
+        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none transition focus:border-gold",
+        value === "" && "text-stone-500",
+        invalid && "border-rose-500 ring-2 ring-rose-400/60",
+      )}
+    >
+      <option value="" disabled>
+        {placeholder}
+      </option>
+      {options.map((o) => (
+        <option key={String(o.value)} value={String(o.value)}>
+          {o.label}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -237,7 +299,7 @@ export function Stepper({
         <Minus className="h-4 w-4" />
       </button>
       <div className="w-28">
-        <NumberInput value={value} kind="integer" onChange={(v) => onChange(clamp(v))} testId={testId ? `${testId}-input` : undefined} />
+        <NumberInput value={value} kind="integer" ariaLabel={label} onChange={(v) => onChange(clamp(v))} testId={testId ? `${testId}-input` : undefined} />
       </div>
       <button
         type="button"

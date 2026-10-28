@@ -14,7 +14,7 @@ import { checkInputShape } from "@/lib/engine/input-schema";
 import { parseVolSurfaceWorkbook } from "@/lib/workbook/parse-vol-surface";
 import { buildVolSurfaceSample } from "@/scripts/build-sample-inputs";
 
-import { fixtureInputs } from "./fixture";
+import { fixtureInputs } from "../helpers/fixture";
 
 describe("normal distribution", () => {
   it("matches reference values", () => {

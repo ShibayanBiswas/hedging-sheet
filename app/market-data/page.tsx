@@ -101,10 +101,10 @@ function SurfaceParamsEditor() {
   const rows: Array<{ label: string; value: ReactNode; note?: string }> = [
     { label: "Month", value: market.surface.label.replace(" Volatility Surface", "") },
     {
-      label: "Bid or Offer",
+      label: "Bid Or Offer",
       value: editing ? (
         <Segmented<BidOffer>
-          label="Bid or Offer"
+          label="Bid Or Offer"
           testId="bid-offer"
           value={params.bidOffer}
           onChange={(v) => edit({ bidOffer: v })}
@@ -126,7 +126,7 @@ function SurfaceParamsEditor() {
     { label: "Margin Cost", value: pctCell(g.marginCost, (v) => editGrid({ marginCost: v }), "param-margin-cost"), note: "Pricer rows 39 and 44." },
     { label: "Forward Sell Rate", value: pctCell(g.fwdSellRate, (v) => editGrid({ fwdSellRate: v }), "param-fwd-sell"), note: "Pricer row 28, the valuation month row." },
     {
-      label: "Dividend Bid or Offer Factor",
+      label: "Dividend Bid Or Offer Factor",
       value: editing ? (
         <NumberInput value={params.dividendBidOfferMultiplier} onChange={(v) => edit({ dividendBidOfferMultiplier: v })} testId="param-dividend-factor" />
       ) : (
@@ -196,7 +196,7 @@ function SurfaceParamsEditor() {
       </SectionTitle>
       <div className="overflow-hidden rounded-2xl">
         <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className="desk-table-scroll horizontal-rail !rounded-t-none">
+        <div className="desk-table-scroll horizontal-rail !rounded-t-none" tabIndex={0} role="region" aria-label="Surface Parameters">
           <table className="data-table-premium data-table-fill" data-testid="surface-params-table">
             <thead>
               <tr>
@@ -220,7 +220,7 @@ function SurfaceParamsEditor() {
       <p className="label-chip mb-2 mt-4">Rate Curve Points</p>
       <div className="overflow-hidden rounded-2xl">
         <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className="desk-table-scroll horizontal-rail !rounded-t-none">
+        <div className="desk-table-scroll horizontal-rail !rounded-t-none" tabIndex={0} role="region" aria-label="Rate Curve Points">
           <table className="data-table-premium data-table-fill" data-testid="rate-curve-editor">
             <thead>
               <tr>
@@ -302,7 +302,8 @@ export default function MarketDataPage() {
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const u = inputs.underlying;
+  // Market data shows Sensex terms until an underlying is chosen.
+  const u = inputs.underlying || "Sensex";
   const surface = market.surface;
   const live = useMemo(() => forwardMarket(market, inputs.valuationDate), [market, inputs.valuationDate]);
   const lastExpiry = surface.expiries[surface.expiries.length - 1];
@@ -382,7 +383,7 @@ export default function MarketDataPage() {
             { label: "Strike Change Columns", value: surface.moneyness.length, kind: "integer" },
             { label: "Reference Underlying Price", value: referencePriceForUnderlying(surface, u) || null, kind: "number" },
             { label: "Forward Sell Rate This Month", value: pricingRowForMonth(surface.pricingParams, inputs.valuationDate)?.fwdSellRate ?? null, kind: "percent" },
-            { label: "Bid or Offer", value: market.params.bidOffer === "O" ? "Offer" : "Bid", kind: "text" },
+            { label: "Bid Or Offer", value: market.params.bidOffer === "O" ? "Offer" : "Bid", kind: "text" },
           ])}
         />
       </Panel>
