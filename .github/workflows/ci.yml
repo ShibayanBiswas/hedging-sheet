@@ -76,8 +76,6 @@ jobs:
     timeout-minutes: 30
     env:
       E2E_PROD: "1"
-    # Until Linux baselines are committed, this job writes them and uploads them instead of failing.
-    continue-on-error: ${{ hashFiles('e2e/visual/__screenshots__/chromium/linux/*.png') == '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -87,7 +85,9 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
+      # Until Linux baselines are committed, this step writes them for the artifact instead of failing.
       - run: npx playwright test e2e/visual --project=chromium --grep "visual baselines"
+        continue-on-error: ${{ hashFiles('e2e/visual/__screenshots__/chromium/linux/*.png') == '' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
