@@ -3108,11 +3108,12 @@ textarea {
   animation: desk-orb-drift 14s ease-in-out infinite;
 }
 
+/* Anchored in vw from the left so a scrollbar appearing does not move the orb and count as layout shift. */
 .desk-ambient-orb--gold {
   width: min(42vw, 420px);
   height: min(42vw, 420px);
   top: -8%;
-  right: -6%;
+  left: calc(106vw - min(42vw, 420px));
   background: rgba(212, 178, 76, 0.22);
 }
 
@@ -3120,7 +3121,7 @@ textarea {
   width: min(36vw, 360px);
   height: min(36vw, 360px);
   bottom: 8%;
-  left: -8%;
+  left: -8vw;
   background: rgba(122, 30, 44, 0.1);
   animation-delay: -5s;
 }
