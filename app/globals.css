@@ -3770,3 +3770,12 @@ html.dark input.input-glow:focus-visible,
 html.dark select.input-glow:focus-visible {
   outline-color: #e5cf94;
 }
+
+/* The section tabs scroll sideways on narrow screens; a scrollbar appearing would change the bar's height and shift the page. */
+.nav-rail-no-scrollbar {
+  scrollbar-width: none;
+}
+
+.nav-rail-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

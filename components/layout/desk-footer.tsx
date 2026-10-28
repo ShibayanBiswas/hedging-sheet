@@ -62,19 +62,19 @@ export function DeskFooter() {
           </span>
           <span className="inline-flex items-center gap-1.5" data-testid="footer-nifty">
             <Zap className="h-3.5 w-3.5 text-gold" />
-            Nifty <strong className="tabular-nums text-ink">{levels?.niftyLevel != null ? fmtNumber(levels.niftyLevel, 2) : "-"}</strong>
+            Nifty <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.niftyLevel != null ? fmtNumber(levels.niftyLevel, 2) : "-"}</strong>
           </span>
           <span className="inline-flex items-center gap-1.5" data-testid="footer-sensex">
             <TrendingUp className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
-            Sensex <strong className="tabular-nums text-ink">{levels?.sensexLevel != null ? fmtNumber(levels.sensexLevel, 2) : "-"}</strong>
+            Sensex <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.sensexLevel != null ? fmtNumber(levels.sensexLevel, 2) : "-"}</strong>
           </span>
           <span className="inline-flex items-center gap-1.5" data-testid="footer-fetched">
             <Clock className="h-3.5 w-3.5 text-violet-700 dark:text-violet-300" />
-            Fetched At {fetched ? `${fetched} IST` : "-"}
+            Fetched At <span className="inline-block min-w-[12ch]">{fetched ? `${fetched} IST` : "-"}</span>
           </span>
           <span className="inline-flex items-center gap-1.5" data-testid="footer-market-status">
             <span className={cn("hs-status-dot", STATUS_TONE[status])} aria-hidden />
-            Market {status}
+            Market <span className="inline-block min-w-[8ch]">{status}</span>
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -88,7 +88,9 @@ export function DeskFooter() {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Activity className="h-3.5 w-3.5 text-emerald-800 dark:text-emerald-400" />
-            <span suppressHydrationWarning>Desk Clock {now ? now.toLocaleString("en-IN", { timeZone: IST }) : "-"}</span>
+            <span suppressHydrationWarning>
+              Desk Clock <span className="inline-block min-w-[22ch] tabular-nums">{now ? now.toLocaleString("en-IN", { timeZone: IST }) : "-"}</span>
+            </span>
           </span>
         </div>
       </div>
