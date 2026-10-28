@@ -51,7 +51,7 @@ export default function VegaHedgePage() {
                       {overridden ? "Overridden" : "Surface"}
                     </span>
                     {overridden ? (
-                      <button type="button" className="btn-ghost btn-animated text-xs" onClick={() => setInputs({ hedgeVolOverride: null })}>
+                      <button type="button" className="btn-ghost btn-animated" onClick={() => setInputs({ hedgeVolOverride: null })}>
                         Reset To Surface
                       </button>
                     ) : null}

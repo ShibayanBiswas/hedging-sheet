@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
@@ -18,13 +19,16 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#faf7f0" },
     { media: "(prefers-color-scheme: dark)", color: "#12100c" },
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Pages open on today's IST date, so they render per request rather than at build time.
+  await connection();
   return (
     <html lang="en-IN" suppressHydrationWarning>
       <head>

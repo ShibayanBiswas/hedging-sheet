@@ -70,7 +70,7 @@ export default function LogicAtlasPage() {
         <span className="intel-hero-orb intel-hero-orb--gold" aria-hidden />
         <span className="intel-hero-orb intel-hero-orb--maroon" aria-hidden />
         <p className="intel-hero-kicker relative z-10">Anand Rathi Wealth · Desk Intelligence</p>
-        <h2 className="intel-hero-title relative z-10">Logic Atlas</h2>
+        <h2 className="intel-hero-title relative z-10 text-h2">Logic Atlas</h2>
         <p className="intel-hero-sub relative z-10">
           How the {underlyingName(inputs)} accelerator flows from the inputs through the Pricer, the goal seek, the vega hedge and the stress grid to the Excel file.
         </p>
@@ -80,11 +80,11 @@ export default function LogicAtlasPage() {
             animate={reduce ? undefined : { boxShadow: ["0 0 0 rgba(212,178,76,0)", "0 0 18px rgba(212,178,76,0.35)", "0 0 0 rgba(212,178,76,0)"] }}
             transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="icon-xs" />
             {modules.length} Sections · {totalStages} Pipeline Stages
           </motion.span>
           <span className="intel-hero-badge">
-            <Network className="h-3.5 w-3.5" />
+            <Network className="icon-xs" />
             {r ? `${r.pricer.legs.length} Live Option Legs In The Last Run` : "No Simulation Run Yet"}
           </span>
         </div>
@@ -128,12 +128,12 @@ export default function LogicAtlasPage() {
                 <span className="logic-module-card__orb logic-module-card__orb--secondary" aria-hidden />
                 <div className="relative z-10">
                   <p className="logic-module-card__kicker">{module.subtitle}</p>
-                  <h3 className="logic-module-card__title mt-1.5 font-serif text-lg font-bold md:text-xl">{module.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-stone-600 dark:text-stone-400 md:text-[13px]">{module.description}</p>
+                  <h3 className="logic-module-card__title mt-2 font-serif font-bold text-h3">{module.title}</h3>
+                  <p className="mt-2 text-caption leading-relaxed text-stone-600 dark:text-stone-400 ">{module.description}</p>
                 </div>
-                <div className="logic-module-card__footer relative z-10 mt-3 flex flex-wrap items-center gap-1.5">
-                  <span className="logic-module-card__connected inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-emerald-800 dark:text-emerald-300">
-                    <CheckCircle2 className="h-3 w-3" />
+                <div className="logic-module-card__footer relative z-10 mt-3 flex flex-wrap items-center gap-2">
+                  <span className="logic-module-card__connected inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1 text-caption font-bold tracking-wide text-emerald-800 dark:text-emerald-300">
+                    <CheckCircle2 className="icon-xs" />
                     {module.stageCount} Stages · {module.formulas.length} Formulas
                   </span>
                   {module.metrics.map((m) => (
@@ -155,7 +155,7 @@ export default function LogicAtlasPage() {
             <AnimatePresence mode="wait">
               <motion.h3
                 key={selected.id}
-                className="mt-1 font-serif text-xl font-bold tracking-tight text-ink md:text-2xl"
+                className="mt-1 font-serif font-bold tracking-tight text-ink text-h3"
                 initial={reduce ? false : { opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -12 }}
@@ -164,10 +164,10 @@ export default function LogicAtlasPage() {
                 {selected.title}
               </motion.h3>
             </AnimatePresence>
-            <p className="mt-2 max-w-4xl text-sm leading-relaxed text-stone-500 dark:text-stone-400">{selected.description}</p>
+            <p className="measure mt-2 text-body leading-relaxed text-stone-500 dark:text-stone-400">{selected.description}</p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
-            <CheckCircle2 className="h-3.5 w-3.5" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-caption font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
+            <CheckCircle2 className="icon-xs" />
             Pipeline Complete
           </span>
         </div>
@@ -190,10 +190,10 @@ export default function LogicAtlasPage() {
             {activeNode ? (
               <motion.div key={activeNode.label} className="mt-3 space-y-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} data-testid="atlas-node-detail">
                 <span className="hs-chip capitalize">{activeNode.kind}</span>
-                <p className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{activeNode.description}</p>
+                <p className="measure text-body leading-relaxed text-stone-700 dark:text-stone-300">{activeNode.description}</p>
               </motion.div>
             ) : (
-              <motion.ul key={`insights-${selected.id}`} className="intel-insight-list mt-3" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.ul key={`insights-${selected.id}`} className="intel-insight-list measure mt-3" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 {selected.insights.map((insight, i) => (
                   <motion.li key={insight} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.25 }}>
                     {insight}
@@ -224,7 +224,7 @@ export default function LogicAtlasPage() {
 
       <Panel>
         <SectionTitle icon={AlertTriangle}>Edge Cases</SectionTitle>
-        <ul className="intel-insight-list mt-3" data-testid="atlas-edge-cases">
+        <ul className="intel-insight-list measure mt-3" data-testid="atlas-edge-cases">
           {selected.edgeCases.map((e) => (
             <li key={e}>{e}</li>
           ))}
@@ -243,7 +243,7 @@ export default function LogicAtlasPage() {
           <SectionTitle icon={Bug} subtitle="Live intermediate values from the last run.">
             Debug Drawer
           </SectionTitle>
-          <ChevronDown className={cn("h-5 w-5 text-gold transition-transform", debugOpen && "rotate-180")} />
+          <ChevronDown className={cn("icon-md text-gold transition-transform", debugOpen && "rotate-180")} />
         </button>
         <AnimatePresence initial={false}>
           {debugOpen ? (

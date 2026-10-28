@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
@@ -14,12 +15,25 @@ export function SiteNav() {
   const pathname = usePathname();
   const section = activeNav(pathname);
   const reduce = useReducedMotion();
+  const rail = useRef<HTMLDivElement>(null);
+
+  // On narrow screens the tabs scroll sideways; keep the current one in view.
+  useEffect(() => {
+    const el = rail.current;
+    const current = el?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!el || !current) return;
+    const left = current.offsetLeft - el.offsetLeft;
+    if (left < el.scrollLeft || left + current.offsetWidth > el.scrollLeft + el.clientWidth) {
+      el.scrollLeft = Math.max(0, left - (el.clientWidth - current.offsetWidth) / 2);
+    }
+  }, [pathname]);
 
   return (
     <div className="border-t border-[color:var(--ar-border)]">
       <MarketStrip />
-      <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-2 lg:px-6">
+      <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-2 md:px-6 xl:px-8">
         <div
+          ref={rail}
           className="nav-pill-shell nav-rail-no-scrollbar flex w-full items-stretch gap-1 overflow-x-auto rounded-2xl border p-1 shadow-sm"
           onKeyDown={(e) => moveFocusWithArrows(e, "a[data-testid^='nav-']")}
         >
@@ -33,7 +47,7 @@ export function SiteNav() {
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
                   className={cn(
-                    "relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-sm font-semibold transition-all",
+                    "relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body",
                     active ? "btn-nav-active text-ink" : "text-muted hover:bg-[color:var(--ar-panel)] hover:text-ink",
                   )}
                 >
@@ -49,7 +63,7 @@ export function SiteNav() {
                     whileHover={reduce ? undefined : { scale: 1.12, rotate: -4 }}
                     transition={{ type: "spring", stiffness: 400, damping: 18 }}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="icon-nav" aria-hidden />
                   </motion.span>
                   <span className="relative">{item.label}</span>
                 </Link>

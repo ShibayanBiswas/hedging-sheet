@@ -29,7 +29,7 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
       transition={{ type: "spring", stiffness: 420, damping: 28 }}
       className={cn(
         "btn-animated btn-motion btn-primary relative w-full overflow-hidden",
-        compact ? "!py-2.5" : "!py-4 text-base",
+        compact ? "!py-3" : "!py-4 text-body",
         running && "cursor-wait",
         className,
       )}
@@ -44,7 +44,7 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
           transition={{ duration: 0.3, ease: deskEase }}
         />
       ) : null}
-      <span className="relative z-10 inline-flex items-center justify-center gap-2.5 font-bold">
+      <span className="relative z-10 inline-flex items-center justify-center gap-3 font-bold">
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={running ? "running" : "idle"}
@@ -53,12 +53,12 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.6 }}
           >
-            {running ? <Loader2 className="h-5 w-5 animate-spin" /> : lastRun && !stale ? <CheckCircle2 className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current" />}
+            {running ? <Loader2 className="icon-md animate-spin" /> : lastRun && !stale ? <CheckCircle2 className="icon-md" /> : <Play className="icon-md fill-current" />}
           </motion.span>
         </AnimatePresence>
         <span>{label}</span>
         {running ? (
-          <span className="font-ui text-xs font-semibold opacity-80">
+          <span className="font-ui text-caption font-semibold opacity-80">
             Step {simulation.step + 1} Of {SIMULATION_STEPS.length}
           </span>
         ) : null}

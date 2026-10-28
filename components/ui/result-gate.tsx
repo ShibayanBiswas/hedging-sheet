@@ -21,7 +21,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
 
   if (!lastRun || staleInputs) {
     return (
-      <div className="flex min-h-[52vh] w-full items-center justify-center py-8" data-testid="run-gate">
+      <div className="flex min-h-[52dvh] w-full items-center justify-center py-8" data-testid="run-gate">
         <motion.div
           className="glass glass-glow-purple relative w-full max-w-xl overflow-hidden rounded-2xl border border-gold/30 text-center shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)]"
           initial={reduce ? false : { opacity: 0, scale: 0.96, y: 12 }}
@@ -32,10 +32,10 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
           <div className="px-6 py-8">
             {staleInputs ? (
               <p
-                className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-ui text-xs font-bold text-amber-900 dark:text-amber-200"
+                className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-ui text-caption font-bold text-amber-900 dark:text-amber-200"
                 data-testid="stale-banner"
               >
-                <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
+                <AlertTriangle className="icon-xs" aria-hidden />
                 Inputs Changed
               </p>
             ) : null}
@@ -44,10 +44,10 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
               animate={reduce ? undefined : { rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Sparkles className="h-6 w-6" aria-hidden />
+              <Sparkles className="icon-lg" aria-hidden />
             </motion.span>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-ink">Run The Simulation To See Results</h2>
-            <p className="mx-auto mt-2 max-w-md font-ui text-sm text-muted">
+            <h2 className="mt-4 font-bold tracking-tight text-ink text-h2">Run The Simulation To See Results</h2>
+            <p className="mx-auto mt-2 max-w-md font-ui text-body text-muted">
               {staleInputs
                 ? "The inputs changed after the last run, so its results are hidden. Run the simulation again to see results for the new inputs."
                 : "Set the inputs, then run the simulation. It fetches the market data, prices every leg, solves the Inbuilt and builds the stress grid."}
@@ -56,10 +56,10 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
               <div className="flex-1">
                 <RunSimulationButton compact />
               </div>
-              <Link href="/" className="btn-animated btn-motion btn-accent inline-flex flex-1 items-center justify-center gap-2 !py-2.5" data-testid="go-to-inputs">
+              <Link href="/" className="btn-animated btn-motion btn-accent inline-flex flex-1 items-center justify-center gap-2 !py-3" data-testid="go-to-inputs">
                 <span className="btn-shine" aria-hidden />
                 <span className="relative z-10 inline-flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="icon-sm" />
                   Go To Inputs
                 </span>
               </Link>
@@ -82,8 +82,8 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
           >
-            <p className="flex items-center gap-2 font-ui text-sm font-semibold text-amber-900 dark:text-amber-200">
-              <AlertTriangle className="h-4 w-4" aria-hidden />
+            <p className="flex items-center gap-2 font-ui text-body font-semibold text-amber-900 dark:text-amber-200">
+              <AlertTriangle className="icon-sm" aria-hidden />
               Inputs Changed · These results use the last run. Run the simulation again to apply the overrides.
             </p>
             <div className="w-full sm:w-64">

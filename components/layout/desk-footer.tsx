@@ -54,40 +54,41 @@ export function DeskFooter() {
       className="relative z-10 mt-8 border-t border-stone-200 bg-white/90 font-ui backdrop-blur-xl dark:border-[var(--ar-border)] dark:bg-[color-mix(in_srgb,var(--ar-surface)_92%,transparent)]"
       data-testid="desk-footer"
     >
-      <div className="mx-auto flex max-w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-[11px] text-stone-500 dark:text-stone-400 lg:px-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="inline-flex items-center gap-1.5">
-            <Server className="h-3.5 w-3.5 text-gold" />
+      <div className="mx-auto flex max-w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-caption text-stone-500 dark:text-stone-400 md:px-6 xl:px-8">
+        {/* Phones: the live closes on one line, Fetched At and the market status on the next. */}
+        <div className="grid w-full grid-cols-2 items-center gap-x-4 gap-y-1 sm:flex sm:w-auto sm:flex-wrap sm:gap-4">
+          <span className="footer-extra inline-flex items-center gap-2">
+            <Server className="icon-xs text-gold" />
             Anand Rathi Wealth · Hedging Sheet
           </span>
-          <span className="inline-flex items-center gap-1.5" data-testid="footer-nifty">
-            <Zap className="h-3.5 w-3.5 text-gold" />
+          <span className="inline-flex items-center gap-2" data-testid="footer-nifty">
+            <Zap className="icon-xs text-gold" />
             Nifty <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.niftyLevel != null ? fmtNumber(levels.niftyLevel, 2) : "-"}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5" data-testid="footer-sensex">
-            <TrendingUp className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
+          <span className="inline-flex items-center gap-2" data-testid="footer-sensex">
+            <TrendingUp className="icon-xs text-emerald-700 dark:text-emerald-400" />
             Sensex <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.sensexLevel != null ? fmtNumber(levels.sensexLevel, 2) : "-"}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5" data-testid="footer-fetched">
-            <Clock className="h-3.5 w-3.5 text-violet-700 dark:text-violet-300" />
+          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-fetched">
+            <Clock className="icon-xs text-violet-700 dark:text-violet-300" />
             Fetched At <span className="inline-block min-w-[12ch]">{fetched ? `${fetched} IST` : "-"}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5" data-testid="footer-market-status">
+          <span className="inline-flex items-center gap-2" data-testid="footer-market-status">
             <span className={cn("hs-status-dot", STATUS_TONE[status])} aria-hidden />
             Market <span className="inline-block min-w-[8ch]">{status}</span>
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="hs-chip inline-flex items-center gap-1.5" data-testid="footer-source">
-            <CircleDot className="h-3 w-3 text-gold-dark" />
+        <div className="footer-extra flex flex-wrap items-center gap-3">
+          <span className="hs-chip inline-flex items-center gap-2" data-testid="footer-source">
+            <CircleDot className="icon-xs text-gold-dark" />
             {levels?.source === "yahoo" ? "Yahoo Finance Closes" : "Closes Unavailable"}
           </span>
-          <span className="hs-chip inline-flex items-center gap-1.5" data-testid="footer-mongo">
-            <Database className={cn("h-3 w-3", mongo === "Connected" ? "text-emerald-700" : "text-rose-600")} />
+          <span className="hs-chip inline-flex items-center gap-2" data-testid="footer-mongo">
+            <Database className={cn("icon-xs", mongo === "Connected" ? "text-emerald-700" : "text-rose-600")} />
             Mongo {mongo}
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Activity className="h-3.5 w-3.5 text-emerald-800 dark:text-emerald-400" />
+          <span className="inline-flex items-center gap-2">
+            <Activity className="icon-xs text-emerald-800 dark:text-emerald-400" />
             <span suppressHydrationWarning>
               Desk Clock <span className="inline-block min-w-[22ch] tabular-nums">{now ? now.toLocaleString("en-IN", { timeZone: IST }) : "-"}</span>
             </span>

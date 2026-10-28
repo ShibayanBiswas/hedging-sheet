@@ -28,20 +28,18 @@ export function FieldRow({
   const inputId = useId();
   const forId = htmlFor ?? inputId;
   return (
-    <div className="grid w-full gap-2 md:grid-cols-[240px_1fr]">
-      <div className="flex items-start pt-3">
-        <label className="label-chip" htmlFor={forId} id={labelId}>
-          {label}
-        </label>
-      </div>
+    <div className="flex w-full min-w-0 flex-col gap-2">
+      <label className="field-label font-ui" htmlFor={forId} id={labelId}>
+        {label}
+      </label>
       <div className="min-w-0" role="group" aria-labelledby={labelId}>
         <FieldIdContext.Provider value={forId}>{children}</FieldIdContext.Provider>
-        {hint ? <p className="mt-1 font-ui text-[11px] text-muted">{hint}</p> : null}
+        {hint ? <p className="hint mt-1 font-ui">{hint}</p> : null}
         <AnimatePresence initial={false}>
           {error ? (
             <motion.p
               key={error}
-              className="hs-error mt-1.5"
+              className="hs-error mt-2"
               role="alert"
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -142,7 +140,7 @@ export function NumberInput({
           if (parsed != null) onChange(parsed);
         }}
         className={cn(
-          "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm tabular-nums outline-none transition focus:border-gold",
+          "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
           PLACEHOLDER,
           suffix && "pr-16",
           (bad || invalid) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
@@ -150,12 +148,12 @@ export function NumberInput({
         )}
       />
       {suffix ? (
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-ui text-xs font-bold tracking-wide text-gold-dark">
+        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-ui text-caption font-bold tracking-wide text-gold-dark">
           {suffix}
         </span>
       ) : null}
       {bad ? (
-        <p className="hs-error mt-1.5" role="alert">
+        <p className="hs-error mt-2" role="alert">
           {kind === "integer" ? "Enter a whole number." : "Enter a number."}
         </p>
       ) : null}
@@ -173,7 +171,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & {
       data-testid={testId}
       aria-invalid={invalid || undefined}
       className={cn(
-        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none transition focus:border-gold",
+        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none transition focus:border-gold",
         PLACEHOLDER,
         invalid && "border-rose-500 ring-2 ring-rose-400/60",
         className,
@@ -210,7 +208,7 @@ export function ChoiceSelect<T extends string | number>({
         if (picked) onChange(picked.value);
       }}
       className={cn(
-        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none transition focus:border-gold",
+        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none transition focus:border-gold",
         value === "" && "text-stone-500",
         invalid && "border-rose-500 ring-2 ring-rose-400/60",
       )}
@@ -297,7 +295,7 @@ export function Stepper({
         disabled={value <= min}
         data-testid={testId ? `${testId}-minus` : undefined}
       >
-        <Minus className="h-4 w-4" />
+        <Minus className="icon-sm" />
       </button>
       <div className="w-28">
         <NumberInput value={value} kind="integer" ariaLabel={label} onChange={(v) => onChange(clamp(v))} testId={testId ? `${testId}-input` : undefined} />
@@ -310,7 +308,7 @@ export function Stepper({
         disabled={value >= max}
         data-testid={testId ? `${testId}-plus` : undefined}
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="icon-sm" />
       </button>
     </div>
   );
@@ -318,7 +316,7 @@ export function Stepper({
 
 export function Toggle({ checked, onChange, label, testId }: { checked: boolean; onChange: (v: boolean) => void; label: string; testId?: string }) {
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2 font-ui text-xs font-semibold text-muted">
+    <label className="inline-flex cursor-pointer items-center gap-2 font-ui text-caption font-semibold text-muted">
       <input
         type="checkbox"
         className="h-4 w-4 accent-[#b8860b]"

@@ -24,7 +24,7 @@ export function Panel({
   return (
     <motion.section
       id={id}
-      className={cn("glass w-full min-w-0 rounded-2xl p-4 sm:p-5", recalculating && "hs-recalc", className)}
+      className={cn("glass section-pad w-full min-w-0 rounded-2xl", recalculating && "hs-recalc", className)}
       initial={reduce ? false : { opacity: 0, y: 14 }}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
@@ -49,11 +49,11 @@ export function SectionTitle({
   return (
     <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-ink sm:text-lg">
-          {Icon ? <Icon className="h-5 w-5 shrink-0 text-gold" aria-hidden /> : null}
+        <h2 className="flex items-center gap-2 font-bold tracking-tight text-ink text-h2">
+          {Icon ? <Icon className="icon-md text-gold" aria-hidden /> : null}
           <span className="min-w-0">{children}</span>
         </h2>
-        {subtitle ? <p className="mt-1 font-ui text-xs text-muted">{subtitle}</p> : null}
+        {subtitle ? <p data-desc className="mt-1 font-ui text-caption text-muted">{subtitle}</p> : null}
       </div>
       {aside ? <div className="flex flex-wrap items-center gap-2">{aside}</div> : null}
     </div>
@@ -71,8 +71,8 @@ export function PageIntro({ title, subtitle, aside }: { title: string; subtitle?
     >
       <div>
         <p className="label-chip">Hedging Sheet</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{title}</h1>
-        {subtitle ? <p className="mt-1 max-w-3xl font-ui text-sm text-muted">{subtitle}</p> : null}
+        <h1 className="mt-1 font-bold tracking-tight text-ink text-h1">{title}</h1>
+        {subtitle ? <p className="mt-1 max-w-3xl font-ui text-body text-muted">{subtitle}</p> : null}
       </div>
       {aside}
     </motion.div>

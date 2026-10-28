@@ -21,7 +21,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       aria-label={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
-      className={cn("btn-ghost btn-animated btn-motion inline-flex items-center gap-2 text-xs", className)}
+      className={cn("btn-ghost btn-animated btn-motion inline-flex items-center gap-2 text-caption", className)}
       data-testid="theme-toggle"
       type="button"
       onClick={toggle}
@@ -35,7 +35,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           exit={reduce ? undefined : { opacity: 0, rotate: 90, scale: 0.6 }}
           transition={{ duration: 0.28 }}
         >
-          {mounted ? isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5 opacity-40" />}
+          {mounted ? isDark ? <Sun className="icon-xs" /> : <Moon className="icon-xs" /> : <Sun className="icon-xs opacity-40" />}
         </motion.span>
       </AnimatePresence>
       <span className="hidden md:inline">{isDark ? "Light" : "Dark"}</span>

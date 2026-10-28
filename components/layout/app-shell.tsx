@@ -11,6 +11,7 @@ import { SiteNav } from "@/components/layout/site-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useDesk } from "@/lib/context/desk-provider";
 import { underlyingName } from "@/lib/inputs/draft";
+import { useScrollRails } from "@/lib/hooks/use-scroll-rails";
 import { useSurfaceUpload } from "@/lib/hooks/use-surface-upload";
 import { cn } from "@/lib/cn";
 
@@ -33,7 +34,7 @@ function DownloadExcelButton() {
         data-testid="download-excel"
         disabled={disabled}
         title={!lastRun ? "Run the simulation first" : stale ? "Downloads the last run; the inputs have changed since" : "Download the five sheet workbook"}
-        className={cn("btn-animated btn-motion btn-primary !px-3 !py-1.5 text-xs", disabled && "pointer-events-none opacity-50")}
+        className={cn("btn-animated btn-motion btn-primary !px-3 !py-2 text-caption", disabled && "pointer-events-none opacity-50")}
         onClick={async () => {
           if (!lastRun) return;
           setBusy(true);
@@ -50,8 +51,8 @@ function DownloadExcelButton() {
         }}
       >
         <span className="btn-shine" aria-hidden />
-        <span className="relative z-10 inline-flex items-center gap-1.5">
-          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+        <span className="relative z-10 inline-flex items-center gap-2">
+          {busy ? <Loader2 className="icon-xs animate-spin" /> : <Download className="icon-xs" />}
           Download Excel
         </span>
       </button>
@@ -67,7 +68,7 @@ function HeaderUploadShortcut() {
     <>
       <button
         type="button"
-        className="btn-animated btn-motion btn-accent !px-3 !py-1.5 text-xs"
+        className="btn-animated btn-motion btn-accent !px-3 !py-2"
         title="Upload Volatility Surface"
         aria-label="Upload Volatility Surface"
         data-testid="header-upload"
@@ -75,9 +76,9 @@ function HeaderUploadShortcut() {
         onClick={() => ref.current?.click()}
       >
         <span className="btn-shine" aria-hidden />
-        <span className="relative z-10 inline-flex items-center gap-1.5">
-          <Upload className="h-3.5 w-3.5" />
-          <FileSpreadsheet className="hidden h-3.5 w-3.5 sm:inline" />
+        <span className="relative z-10 inline-flex items-center gap-2">
+          <Upload className="icon-xs" />
+          <FileSpreadsheet className="hidden icon-xs sm:inline" />
           <span className="hidden lg:inline">{busy ? "Uploading" : "Upload Volatility Surface"}</span>
         </span>
       </button>
@@ -100,6 +101,7 @@ function HeaderUploadShortcut() {
 export function AppShell({ children }: { children: ReactNode }) {
   const { inputs } = useDesk();
   const [paletteOpen, setPaletteOpen] = useState(false);
+  useScrollRails();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -113,7 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-mesh font-serif">
+    <div className="relative flex min-h-dvh flex-col bg-mesh font-serif">
       <div className="desk-ambient-orbs" aria-hidden>
         <span className="desk-ambient-orb desk-ambient-orb--gold" />
         <span className="desk-ambient-orb desk-ambient-orb--maroon" />
@@ -121,20 +123,20 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="brand-header sticky top-0 z-50 font-ui">
         <div className="brand-header-glow" />
         <div className="brand-header-row">
-          <div className="flex min-w-0 items-center gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
             <BrandLogo />
-            <div className="min-w-0 border-l border-[color:var(--ar-border)] pl-4">
-              <h1 className="brand-title">Hedging Sheet</h1>
+            <div className="shrink-0 border-l border-[color:var(--ar-border)] pl-4">
+              <p className="brand-title">Hedging Sheet</p>
             </div>
             <span className="hs-chip hs-chip-maroon" data-testid="underlying-badge">
               {underlyingName(inputs)}
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <button className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" type="button" onClick={() => setPaletteOpen(true)}>
-              <Search className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">Search</span>
-              <kbd className="rounded border border-stone-200 bg-stone-50 px-1.5 py-0.5 font-mono text-[10px] text-stone-500 dark:border-stone-700 dark:bg-stone-900/80">
+            <button className="btn-ghost btn-animated inline-flex items-center gap-2" type="button" onClick={() => setPaletteOpen(true)}>
+              <Search className="icon-sm" aria-hidden />
+              <span className="sr-only md:not-sr-only">Search</span>
+              <kbd className="hidden rounded border border-stone-200 bg-stone-50 px-2 py-1 font-mono text-caption text-stone-500 dark:border-stone-700 dark:bg-stone-900/80 lg:inline">
                 Ctrl K
               </kbd>
             </button>
@@ -145,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <SiteNav />
       </header>
-      <main className="relative z-10 mx-auto w-full max-w-full flex-1 px-4 py-5 lg:px-6">{children}</main>
+      <main className="relative z-10 mx-auto w-full max-w-full flex-1 px-4 py-6 md:px-6 xl:px-8">{children}</main>
       <DeskFooter />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </div>

@@ -41,8 +41,8 @@ export default function PricerPage() {
                   subtitle="One column per live leg: the strike on top, the expiry date beneath. Volatility defaults to the surface; type over any cell to override that leg, then run the simulation again."
                   aside={
                     overrideCount ? (
-                      <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" onClick={() => setInputs({ legVolOverrides: {} })} data-testid="reset-leg-vols">
-                        <RotateCcw className="h-3.5 w-3.5" />
+                      <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" onClick={() => setInputs({ legVolOverrides: {} })} data-testid="reset-leg-vols">
+                        <RotateCcw className="icon-xs" />
                         Reset {overrideCount} Volatility {overrideCount === 1 ? "Override" : "Overrides"}
                       </button>
                     ) : null

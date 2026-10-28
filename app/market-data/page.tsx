@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, Database, Download, FileSpreadsheet, Gauge, Pencil, Plus, RotateCcw, Save, SlidersHorizontal, Trash2, TrendingDown, Upload, X } from "lucide-react";
 
 import { VolSurfaceGrid } from "@/components/market/vol-surface-grid";
-import { TableCard } from "@/components/ui/desk-table";
+import { headStyle, TableCard } from "@/components/ui/desk-table";
 import { NumberInput, Segmented } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
@@ -174,20 +174,20 @@ function SurfaceParamsEditor() {
           <div className="flex flex-wrap items-center gap-2">
             {editing ? (
               <>
-                <button type="button" className="btn-animated btn-motion btn-primary inline-flex items-center gap-2 !px-3 !py-1.5 text-xs" disabled={busy} onClick={() => void save()} data-testid="save-params">
-                  <Save className="h-3.5 w-3.5" /> {busy ? "Saving" : "Save"}
+                <button type="button" className="btn-animated btn-motion btn-primary inline-flex items-center gap-2 !px-3 !py-2" disabled={busy} onClick={() => void save()} data-testid="save-params">
+                  <Save className="icon-xs" /> {busy ? "Saving" : "Save"}
                 </button>
-                <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" onClick={cancel} data-testid="cancel-params">
-                  <X className="h-3.5 w-3.5" /> Cancel
+                <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" onClick={cancel} data-testid="cancel-params">
+                  <X className="icon-xs" /> Cancel
                 </button>
               </>
             ) : (
-              <button type="button" className="btn-ghost btn-animated inline-flex min-w-[180px] items-center justify-center gap-2 text-xs" onClick={start} data-testid="edit-params">
-                <Pencil className="h-3.5 w-3.5" /> Edit Parameters
+              <button type="button" className="btn-ghost btn-animated inline-flex min-w-[180px] items-center justify-center gap-2" onClick={start} data-testid="edit-params">
+                <Pencil className="icon-xs" /> Edit Parameters
               </button>
             )}
-            <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" onClick={() => void reset()} data-testid="reset-params">
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
+            <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" onClick={() => void reset()} data-testid="reset-params">
+              <RotateCcw className="icon-xs" /> Reset
             </button>
           </div>
         }
@@ -210,7 +210,7 @@ function SurfaceParamsEditor() {
                 <tr key={row.label} className={i % 2 === 1 ? "data-table-row-alt" : undefined}>
                   <td className="col-pinned font-semibold">{row.label}</td>
                   <td className="min-w-[14rem]">{row.value}</td>
-                  <td className="font-ui text-xs text-muted">{row.note ?? "-"}</td>
+                  <td className="font-ui text-muted">{row.note ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -226,7 +226,7 @@ function SurfaceParamsEditor() {
               <tr>
                 <th className="col-pinned">Tenor In Years</th>
                 <th className="text-right">Rate %</th>
-                <th>Linked To Premium Growth Rate</th>
+                <th style={headStyle("Linked To Premium Growth Rate")}>Linked To Premium Growth Rate</th>
                 <th className="text-right">Rate Used</th>
                 {editing ? <th aria-label="Remove" /> : null}
               </tr>
@@ -246,7 +246,7 @@ function SurfaceParamsEditor() {
                   </td>
                   <td>
                     {editing ? (
-                      <label className="inline-flex cursor-pointer items-center gap-2 font-ui text-sm">
+                      <label className="inline-flex cursor-pointer items-center gap-2 font-ui text-body">
                         <input type="checkbox" checked={Boolean(p.linkedToPremiumRate)} onChange={(e) => editPoint(i, { linkedToPremiumRate: e.target.checked })} data-testid={`curve-linked-${i}`} />
                         {p.linkedToPremiumRate ? "Yes" : "No"}
                       </label>
@@ -261,12 +261,12 @@ function SurfaceParamsEditor() {
                     <td className="text-right">
                       <button
                         type="button"
-                        className="btn-ghost btn-animated text-xs"
+                        className="btn-ghost btn-animated"
                         disabled={params.rateCurve.length <= 1}
                         onClick={() => edit({ rateCurve: params.rateCurve.filter((_, j) => j !== i) })}
                         aria-label={`Remove tenor ${p.years}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="icon-xs" />
                       </button>
                     </td>
                   ) : null}
@@ -279,14 +279,14 @@ function SurfaceParamsEditor() {
       {editing ? (
         <button
           type="button"
-          className="btn-ghost btn-animated mt-3 inline-flex items-center gap-2 text-xs"
+          className="btn-ghost btn-animated mt-3 inline-flex items-center gap-2"
           onClick={() => {
             const last = params.rateCurve[params.rateCurve.length - 1];
             edit({ rateCurve: [...params.rateCurve, { years: (last?.years ?? 0) + 1, ratePercent: last?.ratePercent ?? 6.5, linkedToPremiumRate: false }] });
           }}
           data-testid="curve-add"
         >
-          <Plus className="h-3.5 w-3.5" /> Add Tenor
+          <Plus className="icon-xs" /> Add Tenor
         </button>
       ) : null}
     </Panel>
@@ -406,32 +406,32 @@ export default function MarketDataPage() {
               />
               {editing ? (
                 <>
-                  <button type="button" className="btn-animated btn-motion btn-primary inline-flex min-w-[180px] items-center justify-center gap-2 !px-3 !py-1.5 text-xs" disabled={busy} onClick={() => void save()} data-testid="save-surface">
-                    <Check className="h-3.5 w-3.5" /> {busy ? "Saving" : "Save Surface"}
+                  <button type="button" className="btn-animated btn-motion btn-primary inline-flex min-w-[180px] items-center justify-center gap-2 !px-3 !py-2" disabled={busy} onClick={() => void save()} data-testid="save-surface">
+                    <Check className="icon-xs" /> {busy ? "Saving" : "Save Surface"}
                   </button>
-                  <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" onClick={() => setEditing(false)} data-testid="discard-surface">
-                    <X className="h-3.5 w-3.5" /> Cancel
+                  <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" onClick={() => setEditing(false)} data-testid="discard-surface">
+                    <X className="icon-xs" /> Cancel
                   </button>
                 </>
               ) : (
                 <button
                   type="button"
-                  className="btn-ghost btn-animated inline-flex min-w-[180px] items-center justify-center gap-2 text-xs"
+                  className="btn-ghost btn-animated inline-flex min-w-[180px] items-center justify-center gap-2"
                   onClick={() => {
                     setDraft(surface.volsPercent.map((row) => [...row]));
                     setEditing(true);
                   }}
                   data-testid="edit-surface"
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit Surface
+                  <Pencil className="icon-xs" /> Edit Surface
                 </button>
               )}
-              <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs" disabled={uploading || editing} onClick={() => fileRef.current?.click()} data-testid="upload-surface">
-                <Upload className="h-3.5 w-3.5" /> {uploading ? "Uploading" : "Upload Surface"}
+              <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" disabled={uploading || editing} onClick={() => fileRef.current?.click()} data-testid="upload-surface">
+                <Upload className="icon-xs" /> {uploading ? "Uploading" : "Upload Surface"}
               </button>
               <button
                 type="button"
-                className="btn-ghost btn-animated inline-flex items-center gap-2 text-xs"
+                className="btn-ghost btn-animated inline-flex items-center gap-2"
                 disabled={editing}
                 onClick={() =>
                   void downloadSurfaceFile(market, inputs.valuationDate, inputs.premiumRate).catch((err) =>
@@ -440,7 +440,7 @@ export default function MarketDataPage() {
                 }
                 data-testid="download-surface"
               >
-                <Download className="h-3.5 w-3.5" /> Download Surface
+                <Download className="icon-xs" /> Download Surface
               </button>
             </div>
           }
@@ -462,8 +462,8 @@ export default function MarketDataPage() {
             })
           }
         />
-        <p className="mt-3 flex flex-wrap items-center gap-2 font-ui text-xs text-muted">
-          <FileSpreadsheet className="h-3.5 w-3.5 text-gold-dark" />
+        <p className="mt-3 flex flex-wrap items-center gap-2 font-ui text-caption text-muted">
+          <FileSpreadsheet className="icon-xs text-gold-dark" />
           New to the layout? Download Surface gives a file you can edit and upload back, or use the
           <a className="font-semibold text-gold-dark underline-offset-2 hover:underline" href="/samples/Hedging_Sheet_Vol_Surface_Sample.xlsx" download data-testid="download-sample">
             sample file

@@ -7,6 +7,7 @@ import type { HedgingResult } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { fmtCrore, fmtPercent } from "@/lib/format";
 import { cellKey } from "@/lib/tables";
+import { headStyle } from "@/components/ui/desk-table";
 import { deskEase } from "@/lib/motion";
 
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
@@ -19,7 +20,7 @@ function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"
     emerald: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200",
     rose: "bg-rose-100 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200",
   };
-  return <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide", tones[tone])}>{children}</span>;
+  return <span className={cn("rounded px-2 py-1 text-caption font-semibold uppercase tracking-wide", tones[tone])}>{children}</span>;
 }
 
 /** Payoff scenarios in the Primary SP Dashboard style, with Initial, Target, Protection and Floor rows marked. */
@@ -39,14 +40,18 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
     >
       <div className="overflow-hidden rounded-2xl">
         <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className="desk-table-scroll horizontal-rail max-h-[min(56vh,560px)] overflow-auto !rounded-t-none" tabIndex={0} role="region" aria-label="Payoff Scenarios">
+        <div className="desk-table-scroll horizontal-rail max-h-[min(56dvh,560px)] overflow-auto !rounded-t-none" tabIndex={0} role="region" aria-label="Payoff Scenarios">
           <table className="data-table-premium data-table-fill payoff-scenarios-table">
             <thead>
               <tr className="hs-head-row">
                 <th className="col-pinned">{u} Performance</th>
                 <th className="text-right">Client Return</th>
-                <th className="text-right">Maturity Value In Crore</th>
-                <th className="text-right">Pre Tax Internal Rate Of Return</th>
+                <th className="text-right" style={headStyle("Maturity Value In Crore")}>
+                  Maturity Value In Crore
+                </th>
+                <th className="text-right" style={headStyle("Pre Tax Internal Rate Of Return")}>
+                  Pre Tax Internal Rate Of Return
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -67,7 +72,7 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                     )}
                   >
                     <td className="col-pinned font-semibold" data-cell={cellKey(row, `${u} Performance`)} data-value={p.performance}>
-                      <span className="inline-flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex flex-wrap items-center gap-2">
                         <span>{fmtPercent(p.performance, 2)}</span>
                         {initial ? <Badge tone="sky">Initial</Badge> : null}
                         {target ? <Badge tone="violet">Target</Badge> : null}
@@ -91,7 +96,7 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
           </table>
         </div>
       </div>
-      <p className="mt-2 font-ui text-xs italic text-muted">
+      <p className="mt-2 font-ui text-caption italic text-muted">
         Levels: every strike, the protection level and 0.01% below it, zero, and every 5% in between.
       </p>
     </motion.div>

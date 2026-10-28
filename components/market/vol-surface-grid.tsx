@@ -80,7 +80,7 @@ export function VolSurfaceGrid({
                     {editing ? (
                       <input
                         className={cn(
-                          "w-20 rounded-lg border bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-xs tabular-nums outline-none focus:border-gold",
+                          "w-20 rounded-lg border bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-caption tabular-nums outline-none focus:border-gold",
                           bad.has(key) ? "border-rose-500" : "border-[color:var(--ar-border)]",
                         )}
                         inputMode="decimal"
@@ -116,7 +116,7 @@ export function VolSurfaceGrid({
         </tbody>
       </table>
       {hidden > 0 ? (
-        <p className="px-3 py-2 font-ui text-xs italic text-muted">
+        <p className="px-3 py-2 font-ui text-caption italic text-muted">
           {hidden} expiry {hidden === 1 ? "row" : "rows"} before the valuation date {hidden === 1 ? "is" : "are"} hidden; they stay in the file and are never read by a live leg.
         </p>
       ) : null}

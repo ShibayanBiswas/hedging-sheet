@@ -49,7 +49,7 @@ export default function InputsPage() {
   useEdgeCasePopups();
 
   return (
-    <div className="flex w-full flex-col gap-4 pb-28">
+    <div className="flex w-full flex-col gap-4 pb-16">
       <PageIntro
         title="Inputs"
         subtitle={
@@ -61,7 +61,7 @@ export default function InputsPage() {
           <button type="button" className="btn-animated btn-motion btn-accent" onClick={resetInputs} data-testid="reset-inputs">
             <span className="btn-shine" aria-hidden />
             <span className="relative z-10 inline-flex items-center gap-2">
-              {mode === "default" ? <RotateCcw className="h-4 w-4" /> : <Eraser className="h-4 w-4" />}
+              {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}
               {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
             </span>
           </button>

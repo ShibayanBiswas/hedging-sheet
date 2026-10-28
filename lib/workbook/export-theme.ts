@@ -57,7 +57,7 @@ function excelCellLooksLikeDate(cell: ExcelJS.Cell): boolean {
 }
 
 /** Display length of a cell value for autofit. */
-function excelCellDisplayLength(cell: ExcelJS.Cell): number {
+export function excelCellDisplayLength(cell: ExcelJS.Cell): number {
   const v = cell.value;
   if (v == null || v === "") return 0;
   if (typeof v === "number") {
@@ -133,7 +133,25 @@ export function autofitExcelColumns(sheet: ExcelJS.Worksheet, max = 60): void {
     const pad = dateColumn ? 2 : 3;
     col.width = Math.min(max, Math.max(floor, longest + pad));
   });
+
+  // Text longer than a capped column wraps, and its row grows to show every line.
+  sheet.eachRow((row) => {
+    let lines = 1;
+    row.eachCell((cell) => {
+      if (cell.isMerged || typeof cell.value !== "string") return;
+      const width = sheet.getColumn(cell.col).width ?? 10;
+      const need = Math.ceil(excelCellDisplayLength(cell) / Math.max(1, width - 1));
+      if (need > 1) {
+        cell.alignment = { ...cell.alignment, wrapText: true, vertical: cell.alignment?.vertical ?? "top" };
+        lines = Math.max(lines, need);
+      }
+    });
+    if (lines > 1) row.height = Math.max(row.height ?? 15, lines * EXCEL_LINE_HEIGHT);
+  });
 }
+
+/** Points per wrapped line of 10 pt Calibri. */
+export const EXCEL_LINE_HEIGHT = 15;
 
 function columnLettersToNumber(letters: string): number {
   let n = 0;

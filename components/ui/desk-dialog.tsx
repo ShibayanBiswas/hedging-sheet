@@ -53,7 +53,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
       {open && state ? (
         <motion.div
           animate={{ opacity: 1 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-4"
           exit={reduce ? undefined : { opacity: 0 }}
           initial={reduce ? false : { opacity: 0 }}
           role="presentation"
@@ -66,7 +66,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
             aria-modal="true"
             data-testid="desk-dialog"
             className={cn(
-              "glass relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-gold/30 shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)]",
+              "desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden border border-gold/30 shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)] sm:max-w-lg",
               meta.glow === "cyan" ? "glass-glow-cyan" : "glass-glow-purple",
             )}
             exit={reduce ? undefined : { opacity: 0, scale: 0.96, y: 8 }}
@@ -74,25 +74,25 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
             role="alertdialog"
           >
             <div className="h-1 bg-gradient-to-r from-maroon via-gold to-maroon/70" />
-            <div className="border-b border-gold/15 bg-gradient-to-r from-maroon/[0.06] via-transparent to-gold/[0.08] px-5 py-4">
+            <div className="border-b border-gold/15 bg-gradient-to-r from-maroon/[0.06] via-transparent to-gold/[0.08] px-6 py-4">
               <div className="flex items-start gap-3">
                 <BrandLogo compact />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-gold-dark">{meta.label}</p>
-                  <h2 className="font-ui mt-1 text-lg font-bold text-ink" id="desk-dialog-title">
+                  <p className="text-caption font-bold uppercase tracking-[0.35em] text-gold-dark">{meta.label}</p>
+                  <h2 className="font-ui mt-1 font-bold text-ink text-h2" id="desk-dialog-title">
                     {state.title}
                   </h2>
                 </div>
                 <div className={cn("rounded-xl border border-gold/25 bg-[color:var(--ar-surface)] p-2 shadow-sm", meta.accent)}>
-                  <Icon className="h-5 w-5" aria-hidden />
+                  <Icon className="icon-md" aria-hidden />
                 </div>
               </div>
             </div>
-            <div className="space-y-3 px-5 py-4">
-              <p className="whitespace-pre-wrap font-ui text-sm leading-7 text-stone-700 dark:text-stone-300">{state.message}</p>
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-4">
+              <p className="whitespace-pre-wrap font-ui text-body leading-7 text-stone-700 dark:text-stone-300">{state.message}</p>
               {state.fix ? (
-                <p className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/5 px-3 py-2 font-ui text-xs leading-6 text-stone-700 dark:text-stone-300">
-                  <Lightbulb className="mt-1 h-3.5 w-3.5 shrink-0 text-gold-dark" aria-hidden />
+                <p className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/5 px-3 py-2 font-ui text-caption leading-6 text-stone-700 dark:text-stone-300">
+                  <Lightbulb className="mt-1 icon-xs shrink-0 text-gold-dark" aria-hidden />
                   <span>
                     <span className="font-bold text-gold-dark">How To Fix · </span>
                     {state.fix}
@@ -100,14 +100,14 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                 </p>
               ) : null}
               {state.groups?.length ? (
-                <div className="max-h-[45vh] space-y-3 overflow-y-auto pr-1" data-testid="desk-dialog-groups" tabIndex={0} role="region" aria-label="Fields To Fix">
+                <div className="max-h-[45dvh] space-y-3 overflow-y-auto pr-1" data-testid="desk-dialog-groups" tabIndex={0} role="region" aria-label="Fields To Fix">
                   {state.groups.map((g) => (
                     <div key={g.title}>
-                      <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">{g.title}</p>
+                      <p className="font-ui text-caption font-bold uppercase tracking-[0.18em] text-gold-dark">{g.title}</p>
                       <ul className="mt-1 space-y-1">
                         {g.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2 font-ui text-xs leading-5 text-stone-700 dark:text-stone-300">
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" aria-hidden />
+                          <li key={item} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700 dark:text-stone-300">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" aria-hidden />
                             {item}
                           </li>
                         ))}
@@ -117,7 +117,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                 </div>
               ) : null}
             </div>
-            <div className="flex flex-wrap justify-end gap-2 border-t border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] px-5 py-3">
+            <div className="sheet-actions flex flex-wrap justify-end gap-2 border-t border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] px-6 py-3">
               {state.actions?.map((a) => (
                 <button
                   key={a.label}

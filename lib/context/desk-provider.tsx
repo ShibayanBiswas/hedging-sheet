@@ -325,7 +325,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
         variant: "error",
         title: "Missing Or Invalid Inputs",
         groups: groupBySection(errors).map((g) => ({ title: g.title, items: g.items.map((e) => `${e.label}: ${e.message}`) })),
-        actions: [{ label: "Go To First Field", onClick: goFirst, testId: "go-to-first-field" }],
+        actions: [{ label: "Go To Field", onClick: goFirst, testId: "go-to-first-field" }],
         onClose: goFirst,
       });
       return false;

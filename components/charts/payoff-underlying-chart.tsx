@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Area, ComposedChart, Line, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { clientReturn, deriveTerms } from "@/lib/engine/structure";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import type { HedgingResult } from "@/lib/engine/types";
 import { fmtNumber, fmtPercent } from "@/lib/format";
 
@@ -17,11 +18,11 @@ function PayoffTooltip({ active, payload, label, underlying }: { active?: boolea
   if (!active || !payload?.length) return null;
   return (
     <div className="chart-tooltip chart-tooltip-animated whitespace-nowrap">
-      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-dark">
+      <p className="text-caption font-bold uppercase tracking-[0.2em] text-gold-dark">
         {underlying} Move {fmtPercent(Number(label), 1)}
       </p>
       {payload.map((entry) => (
-        <p key={entry.dataKey} className="mt-1 font-ui text-sm font-semibold" style={{ color: entry.color }}>
+        <p key={entry.dataKey} className="mt-1 font-ui text-body font-semibold" style={{ color: entry.color }}>
           {entry.name}: {entry.dataKey === "level" ? fmtNumber(entry.value ?? 0, 0) : fmtPercent(entry.value ?? 0, 2)}
         </p>
       ))}
@@ -32,6 +33,7 @@ function PayoffTooltip({ active, payload, label, underlying }: { active?: boolea
 /** Payoff and underlying chart in the Primary SP Dashboard style: gradient payoff area, kink markers, protection band. */
 export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
   const reduce = useReducedMotion();
+  const phone = useMediaQuery("(max-width: 639px)");
   const inputs = result.inputs;
   const start = result.structure.startLevel;
   const u = result.underlyingLabel;
@@ -59,7 +61,7 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
     <div className="flex w-full flex-col gap-3" data-testid="payoff-chart">
       <div className="grid w-full gap-2 sm:grid-cols-3">
         <div>
-          <p className="label-chip mb-1.5">{u} Move %</p>
+          <p className="label-chip mb-2">{u} Move %</p>
           <div className="relative">
             <input
               className="hs-input w-full pr-8"
@@ -71,22 +73,22 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
                 if (e.target.value === "" || /^-?\d*\.?\d*$/.test(e.target.value)) setMoveText(e.target.value);
               }}
             />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-ui text-sm font-semibold text-muted">%</span>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-ui text-body font-semibold text-muted">%</span>
           </div>
         </div>
         <div>
-          <p className="label-chip mb-1.5">{u} Level</p>
+          <p className="label-chip mb-2">{u} Level</p>
           <p className="hs-output" data-testid="payoff-level">{fmtNumber(start * (1 + move), 0)}</p>
         </div>
         <div>
-          <p className="label-chip mb-1.5">Client Return</p>
+          <p className="label-chip mb-2">Client Return</p>
           <p className="hs-output" data-testid="payoff-return">{fmtPercent(clientReturn(inputs, move))}</p>
         </div>
       </div>
       <div className="chart-shell w-full p-2">
-        <div className="chart-plot-surface h-[min(52vh,420px)] min-h-[300px] w-full rounded-2xl">
+        <div className="chart-plot-surface h-[min(52dvh,420px)] min-h-[300px] w-full rounded-2xl">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data} margin={{ top: 20, right: 58, left: 20, bottom: 36 }}>
+            <ComposedChart data={data} margin={phone ? { top: 16, right: 8, left: 4, bottom: 36 } : { top: 20, right: 58, left: 20, bottom: 36 }}>
               <defs>
                 <linearGradient id="hsPayoffGradient" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0%" stopColor={PAYOFF} stopOpacity={0.55} />
@@ -101,7 +103,7 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
                 fillOpacity={0.08}
                 stroke="#10b981"
                 strokeOpacity={0.25}
-                label={{ value: "Protection", position: "insideTop", fill: "#047857", fontSize: 10, fontWeight: 600 }}
+                label={{ value: "Protection", position: "insideTop", fill: "#047857", fontSize: 12, fontWeight: 600 }}
               />
               <ReferenceLine y={0} yAxisId="payoff" stroke="var(--ar-chart-border)" strokeDasharray="4 4" />
               <ReferenceLine x={move} yAxisId="payoff" stroke={UNDERLYING} strokeOpacity={0.5} strokeDasharray="4 4" />
@@ -111,25 +113,29 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
                 domain={["dataMin", "dataMax"]}
                 tickFormatter={(v: number) => fmtPercent(v, 0)}
                 stroke="var(--ar-chart-tick)"
-                tick={{ fontSize: 10 }}
-                label={{ value: `${u} Performance`, position: "insideBottom", offset: -18, fill: "var(--ar-chart-tick)", fontSize: 11, fontWeight: 600 }}
+                tick={{ fontSize: 12 }}
+                tickCount={phone ? 4 : 9}
+                minTickGap={phone ? 28 : 12}
+                label={{ value: `${u} Performance`, position: "insideBottom", offset: -18, fill: "var(--ar-chart-tick)", fontSize: 12, fontWeight: 600 }}
               />
               <YAxis
                 yAxisId="payoff"
                 tickFormatter={(v: number) => fmtPercent(v, 0)}
                 stroke={PAYOFF}
-                tick={{ fontSize: 10, fill: PAYOFF }}
-                width={58}
-                label={{ value: "Client Return", angle: -90, position: "insideLeft", fill: PAYOFF, fontSize: 10, fontWeight: 600 }}
+                tick={{ fontSize: 12, fill: PAYOFF }}
+                tickCount={phone ? 4 : 6}
+                width={phone ? 48 : 58}
+                label={{ value: "Client Return", angle: -90, position: "insideLeft", fill: PAYOFF, fontSize: 12, fontWeight: 600 }}
               />
               <YAxis
                 yAxisId="level"
                 orientation="right"
                 tickFormatter={(v: number) => fmtNumber(v, 0)}
                 stroke={UNDERLYING}
-                tick={{ fontSize: 10, fill: UNDERLYING }}
-                width={64}
-                label={{ value: `${u} Level`, angle: 90, position: "insideRight", fill: UNDERLYING, fontSize: 10, fontWeight: 600 }}
+                tick={{ fontSize: 12, fill: UNDERLYING }}
+                tickCount={phone ? 4 : 6}
+                width={phone ? 52 : 64}
+                label={{ value: `${u} Level`, angle: 90, position: "insideRight", fill: UNDERLYING, fontSize: 12, fontWeight: 600 }}
               />
               <Tooltip content={<PayoffTooltip underlying={u} />} cursor={{ stroke: "var(--ar-chart-border)" }} isAnimationActive={false} />
               {kinks.map((z) => (
@@ -163,7 +169,7 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
           </ResponsiveContainer>
         </div>
       </div>
-      <motion.div className="flex flex-wrap gap-4 font-ui text-xs text-muted" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}>
+      <motion.div className="flex flex-wrap gap-4 font-ui text-caption text-muted" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}>
         <span className="inline-flex items-center gap-2">
           <span className="h-2 w-6 rounded-full" style={{ backgroundColor: PAYOFF }} />
           Client Return · Left Axis

@@ -98,7 +98,7 @@ function FlowNode({
       type="button"
       onClick={onClick}
       className={cn(
-        "logic-node group relative w-full overflow-hidden rounded-xl border p-3.5 text-left shadow-sm transition-all duration-200",
+        "logic-node group relative w-full overflow-hidden rounded-xl border p-4 text-left shadow-sm transition-all duration-200",
         `logic-node--${node.kind}`,
         colors.border,
         colors.bg,
@@ -122,15 +122,15 @@ function FlowNode({
           animate={reduce ? undefined : { rotate: [0, -6, 6, 0] }}
           transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut", delay: index * 0.18 }}
         >
-          <Icon className={cn("h-4 w-4", colors.text, colors.textDark)} />
+          <Icon className={cn("icon-sm", colors.text, colors.textDark)} />
         </motion.div>
         <div className="min-w-0 flex-1">
-          <p className={cn("text-[10px] font-bold uppercase tracking-[0.25em]", colors.text, colors.textDark)}>
+          <p data-desc className={cn("text-caption font-bold uppercase tracking-[0.25em]", colors.text, colors.textDark)}>
             {node.kind}
           </p>
           <p className="mt-1 font-semibold text-ink dark:text-stone-100">{node.label}</p>
           {node.description ? (
-            <p className="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+            <p data-desc className="mt-2 text-body leading-relaxed text-stone-600 dark:text-stone-400">
               {node.description}
             </p>
           ) : null}
@@ -148,7 +148,7 @@ function FlowArrow({ toKind }: { toKind: FlowNodeKind }) {
       animate={reduce ? undefined : { opacity: [0.45, 1, 0.45], x: [0, 3, 0] }}
       transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
     >
-      <ArrowRight className={cn("h-4 w-4", arrowByKind[toKind])} />
+      <ArrowRight className={cn("icon-sm", arrowByKind[toKind])} />
     </motion.div>
   );
 }

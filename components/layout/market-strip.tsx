@@ -22,16 +22,16 @@ export function MarketStrip() {
 
   return (
     <div className="market-strip market-strip-live overflow-hidden" data-testid="market-strip">
-      <div className="mx-auto flex max-w-full items-center gap-4 px-4 py-1.5 lg:px-6">
+      <div className="mx-auto flex max-w-full flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 md:px-6 xl:px-8">
         {items.map((item, index) => (
           <motion.span
             key={item.label}
-            className="inline-flex items-center gap-1.5 font-ui text-[11px]"
+            className="inline-flex items-center gap-2 font-ui text-caption"
             initial={reduce ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.04, duration: 0.35, ease: deskEase }}
           >
-            <item.icon className={cn("h-3 w-3", item.color)} />
+            <item.icon className={cn("icon-xs", item.color)} aria-hidden />
             <span className="text-muted">{item.label}</span>
             <span className={cn("font-semibold text-ink", item.color)} data-testid={`strip-${item.label.toLowerCase()}`}>
               {item.value}

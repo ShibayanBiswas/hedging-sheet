@@ -57,15 +57,15 @@ function SubSection({ title, icon: Icon, children, subtitle }: { title: string; 
   return (
     <div className="w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] p-4">
       <div className="mb-3">
-        <h3 className="flex items-center gap-2 font-ui text-sm font-bold text-ink">
-          <span className="inline-flex rounded-lg bg-gradient-to-br from-gold/30 to-maroon/15 p-1.5 text-gold-dark">
-            <Icon className="h-4 w-4" aria-hidden />
+        <h3 className="flex items-center gap-2 font-ui font-bold text-ink text-h3">
+          <span className="inline-flex rounded-lg bg-gradient-to-br from-gold/30 to-maroon/15 p-2 text-gold-dark">
+            <Icon className="icon-sm" aria-hidden />
           </span>
           {title}
         </h3>
-        {subtitle ? <p className="mt-1 font-ui text-[11px] text-muted">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1 font-ui text-caption text-muted">{subtitle}</p> : null}
       </div>
-      <div className="flex flex-col gap-4">{children}</div>
+      <div className="field-grid">{children}</div>
     </div>
   );
 }
@@ -80,7 +80,7 @@ function ResetIcon({ onClick, label, testId }: { onClick: () => void; label: str
       data-testid={testId}
       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-dark transition hover:rotate-[-30deg] hover:bg-gold/20"
     >
-      <RotateCcw className="h-4 w-4" />
+      <RotateCcw className="icon-sm" />
     </button>
   );
 }
@@ -90,7 +90,7 @@ function StatusBadge({ tone, children, testId }: { tone: "ok" | "warn" | "muted"
     <span
       data-testid={testId}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-ui text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex items-center gap-1 rounded-full border px-3 py-1 font-ui text-caption font-bold uppercase tracking-wider",
         tone === "ok" && "border-emerald-400/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
         tone === "warn" && "border-amber-400/40 bg-amber-500/10 text-amber-900 dark:text-amber-200",
         tone === "muted" && "border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] text-muted",
@@ -133,7 +133,7 @@ function FetchButton({
       disabled={loading}
       whileHover={reduce ? undefined : { y: -1, scale: 1.02 }}
       whileTap={reduce ? undefined : { scale: 0.97 }}
-      className="btn-animated btn-motion btn-accent group inline-flex shrink-0 items-center gap-2.5"
+      className="btn-animated btn-motion btn-accent group inline-flex shrink-0 items-center gap-3"
       onClick={async () => {
         const v = await onClick();
         if (v != null) setDone(true);
@@ -144,7 +144,7 @@ function FetchButton({
         {loading ? <span className="absolute inset-0 animate-spin rounded-lg border-2 border-white/30 border-t-white" aria-hidden /> : null}
         <AnimatePresence mode="wait" initial={false}>
           <motion.span key={done ? "done" : "idle"} className="inline-flex" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}>
-            {done ? <Check className="h-4 w-4" data-testid={`${testId}-done`} /> : <Icon className="h-4 w-4" />}
+            {done ? <Check className="icon-sm" data-testid={`${testId}-done`} /> : <Icon className="icon-sm" />}
           </motion.span>
         </AnimatePresence>
       </span>
@@ -182,7 +182,7 @@ export function UnderlyingSection({ index }: { index: number }) {
       <SectionTitle icon={LineChart} subtitle="Every label renames with the chosen underlying. Spot is the last completed session close.">
         Underlying And Market
       </SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label="Underlying" error={errorFor("underlying")}>
           <ChoiceSelect<Underlying>
             value={inputs.underlying}
@@ -210,8 +210,8 @@ export function UnderlyingSection({ index }: { index: number }) {
           error={errorFor("spot")}
           hint={`Derived Spot equals the spot. Start ${u} Level is ${Number.isFinite(start) ? fmtNumber(start, 0) : "-"}.`}
         >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-0 flex-1 basis-40">
               <NumberInput
                 value={inputs.spot}
                 onChange={(v) => setInputs({ spot: v })}
@@ -246,7 +246,7 @@ export function UnderlyingSection({ index }: { index: number }) {
                 >
                   <span className="btn-shine" aria-hidden />
                   <span className="relative z-10 inline-flex items-center gap-2">
-                    <RefreshCw className={levelsLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                    <RefreshCw className={levelsLoading ? "icon-sm animate-spin" : "icon-sm"} />
                     Refresh From Yahoo
                   </span>
                 </button>
@@ -262,8 +262,8 @@ export function UnderlyingSection({ index }: { index: number }) {
           </div>
         </FieldRow>
         <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint="The listed option sold for the Day 1 Vega Hedge. Auto picks the nearest 100 point strike to the spot.">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-0 flex-1 basis-40">
               <NumberInput
                 value={inputs.hedgeStrike}
                 onChange={(v) => setInputs({ hedgeStrike: v, hedgeStrikeAuto: false })}
@@ -325,7 +325,7 @@ export function RatesSection({ index }: { index: number }) {
   return (
     <Panel index={index} id="rates">
       <SectionTitle icon={Percent}>Rates</SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label="NBFC Rate" error={errorFor("nbfcRate")}>
           <KeyNumber k="nbfcRate" kind="percent" suffix="%" eg="8" />
         </FieldRow>
@@ -358,7 +358,7 @@ export function ProductTermsSection({ index }: { index: number }) {
       >
         Product Terms
       </SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")} hint="Strike 1: the Sell Level of the top spread.">
           <NumberInput
             kind="percent"
@@ -454,7 +454,7 @@ export function ExpiriesSection({ index }: { index: number }) {
       >
         Observation Expiries
       </SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")} hint={`From ${MIN_EXPIRIES} to ${MAX_EXPIRIES}. That many month rows appear.`}>
           <ChoiceSelect<number>
             value={Number.isInteger(inputs.expiryCount) ? inputs.expiryCount : ""}
@@ -464,7 +464,7 @@ export function ExpiriesSection({ index }: { index: number }) {
             options={Array.from({ length: MAX_EXPIRIES - MIN_EXPIRIES + 1 }, (_, i) => ({ value: MIN_EXPIRIES + i, label: String(MIN_EXPIRIES + i) }))}
           />
         </FieldRow>
-        <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="field-wide grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <AnimatePresence initial={false}>
             {Array.from({ length: count }, (_, i) => {
               const month = inputs.expiryMonths[i];
@@ -520,8 +520,8 @@ export function ExpiriesSection({ index }: { index: number }) {
                         {date ? formatDate(date) : "-"}
                       </motion.span>
                     </AnimatePresence>
-                    {raw ? <span className="font-ui text-[10px] text-muted">Raw {formatDate(raw)}</span> : null}
-                    {i === (inputs.hedgeExpiryIndex ?? median) ? <span className="font-ui text-[10px] font-bold text-gold-dark">Option Expiry</span> : null}
+                    {raw ? <span className="font-ui text-caption text-muted">Raw {formatDate(raw)}</span> : null}
+                    {i === (inputs.hedgeExpiryIndex ?? median) ? <span className="font-ui text-caption font-bold text-gold-dark">Option Expiry</span> : null}
                   </div>
                   {error ? <p className="hs-error mt-2">{error}</p> : null}
                 </motion.div>
@@ -531,7 +531,7 @@ export function ExpiriesSection({ index }: { index: number }) {
         </div>
         <FieldRow label="Option Expiry" hint="The expiry of the listed hedge option: the median expiry, the lower middle one for an even count.">
           <select
-            className="input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none focus:border-gold"
+            className="input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none focus:border-gold"
             value={inputs.hedgeExpiryIndex ?? "median"}
             data-testid="input-hedgeExpiryIndex"
             aria-label="Option Expiry"
@@ -586,8 +586,8 @@ export function StrikesSection({ index }: { index: number }) {
                 exit={reduce ? undefined : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.25, ease: deskEase }}
               >
-                <p className="font-ui text-sm font-bold text-ink">Strike {i + 1}</p>
-                <p className="mb-2 min-h-[2rem] font-ui text-[10px] font-semibold uppercase tracking-wider text-gold-dark">{roleLabel(n, i)}</p>
+                <p className="font-ui text-body font-bold text-ink">Strike {i + 1}</p>
+                <p className="mb-2 min-h-[2rem] font-ui text-caption font-semibold uppercase tracking-wider text-gold-dark">{roleLabel(n, i)}</p>
                 <NumberInput
                   value={pct}
                   digits={2}
@@ -599,7 +599,7 @@ export function StrikesSection({ index }: { index: number }) {
                   onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
                   onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
                 />
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="hs-chip" data-testid={`strike-units-${i}`}>
                     Units {units != null ? fmtNumber(units, 2) : "-"}
                   </span>
@@ -661,7 +661,7 @@ export function SpreadsSection({ index }: { index: number }) {
       >
         Spreads And Option Type
       </SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label="Option Type" error={errorFor("optionType")} hint="Every leg, the hedge and every Option Type column use it. A call book replicates the same payoff up to futures and cash.">
           <ChoiceSelect<OptionType>
             value={inputs.optionType}
@@ -688,7 +688,7 @@ export function SpreadsSection({ index }: { index: number }) {
               <motion.div
                 key={j}
                 layout={!reduce}
-                className={cn("w-full rounded-2xl border bg-[color:var(--ar-panel)] p-4", error ? "border-rose-400/60" : "border-[color:var(--ar-border)]")}
+                className={cn("field-wide w-full rounded-2xl border bg-[color:var(--ar-panel)] p-4", error ? "border-rose-400/60" : "border-[color:var(--ar-border)]")}
                 data-testid={`spread-card-${j}`}
                 initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -703,7 +703,7 @@ export function SpreadsSection({ index }: { index: number }) {
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   <div>
-                    <p className="mb-1 font-ui text-[11px] font-semibold text-muted">Spread {j + 1} Buy Level</p>
+                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Buy Level</p>
                     <NumberInput
                       kind="percent"
                       suffix="%"
@@ -715,7 +715,7 @@ export function SpreadsSection({ index }: { index: number }) {
                     />
                   </div>
                   <div>
-                    <p className="mb-1 font-ui text-[11px] font-semibold text-muted">Spread {j + 1} Sell Level</p>
+                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Sell Level</p>
                     <NumberInput
                       kind="percent"
                       suffix="%"
@@ -728,7 +728,7 @@ export function SpreadsSection({ index }: { index: number }) {
                     />
                   </div>
                   <div>
-                    <p className="mb-1 flex items-center gap-2 font-ui text-[11px] font-semibold text-muted">
+                    <p className="mb-1 flex items-center gap-2 font-ui text-caption font-semibold text-muted">
                       Spread {j + 1} Participation Rate
                       {isTop ? (
                         <StatusBadge tone={derived ? "ok" : "warn"} testId={`spread-${j}-participation-status`}>
@@ -737,7 +737,7 @@ export function SpreadsSection({ index }: { index: number }) {
                       ) : null}
                     </p>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1">
+                      <div className="min-w-0 flex-1 basis-40">
                         <NumberInput
                           value={s.participation}
                           digits={2}
@@ -794,7 +794,7 @@ export function CostsSection({ index }: { index: number }) {
   return (
     <Panel index={index} id="costs">
       <SectionTitle icon={Coins}>Notional And Costs</SectionTitle>
-      <div className="flex flex-col gap-4">
+      <div className="field-grid">
         <FieldRow label="Notional In Crore" error={errorFor("notionalCr")}>
           <KeyNumber k="notionalCr" digits={2} suffix="₹ Cr" eg="100" />
         </FieldRow>
@@ -823,7 +823,7 @@ export function VolatilitySection({ index }: { index: number }) {
     <FetchButton
       testId={mode === "blank" ? "compute-volatility" : "compute-history"}
       icon={Sigma}
-      label={mode === "blank" ? "Compute Volatility From History" : "Compute From History"}
+      label={mode === "blank" ? "Compute Volatility" : "Compute From History"}
       busyLabel="Computing From History"
       doneLabel="Computed"
       loading={dailyVolStatus.loading && (mode === "default" || inputs.underlying !== "")}
@@ -840,8 +840,8 @@ export function VolatilitySection({ index }: { index: number }) {
           subtitle="Daily volatility is the standard deviation of daily log returns of Yahoo closes over the window. Annual volatility is daily volatility times the square root of 365."
         >
           <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")}>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="min-w-0 flex-1 basis-40">
                 <NumberInput
                   kind="percent"
                   digits={4}
@@ -883,9 +883,9 @@ export function VolatilitySection({ index }: { index: number }) {
                   : undefined
             }
           >
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2">
               <select
-                className="input-glow flex-1 rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-sm outline-none focus:border-gold"
+                className="input-glow flex-1 rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none focus:border-gold"
                 value={inputs.historyWindowDays}
                 data-testid="input-historyWindowDays"
                 aria-label="History Window"
