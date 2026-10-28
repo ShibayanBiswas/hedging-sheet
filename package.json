@@ -15,13 +15,16 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "build:samples": "npx tsx scripts/build-sample-inputs.ts",
-    "bake:vol": "npx tsx scripts/bake-vol-surface.ts",
-    "seed:mongo": "npx tsx scripts/seed-mongo.ts",
-    "test:mongo": "npx tsx scripts/test-mongo.ts",
-    "test:edge-cases": "npx tsx scripts/test-edge-cases.ts",
-    "test:upload-schema": "npx tsx scripts/test-upload-schema.ts",
     "verify:calculations": "npx tsx scripts/verify-calculations.ts",
-    "verify:exports": "npx tsx scripts/verify-exports.ts"
+    "verify:pricer": "npx tsx scripts/verify-pricer.ts",
+    "verify:exports": "npx tsx scripts/verify-exports.ts",
+    "verify:vol-upload": "npx tsx scripts/verify-vol-upload.ts",
+    "verify:edge-cases": "npx tsx scripts/verify-edge-cases.ts",
+    "verify:mongo": "npx tsx scripts/verify-mongo.ts",
+    "verify": "npm run verify:calculations && npm run verify:pricer && npm run verify:exports && npm run verify:vol-upload && npm run verify:edge-cases",
+    "seed:mongo": "npx tsx scripts/seed-mongo.ts",
+    "bake:vol-surface": "npx tsx scripts/bake-vol-surface.ts",
+    "e2e:local": "npx tsx scripts/e2e-local.ts"
   },
   "dependencies": {
     "clsx": "2.1.1",

@@ -25,8 +25,14 @@ async function main() {
   const sheetsOk = JSON.stringify(names) === JSON.stringify([...SHEET_NAMES]);
   console.log(`${sheetsOk ? "PASS" : "FAIL"}  Sheets: ${names.join(", ")}`);
   for (const s of reopened.worksheets) console.log(`      ${s.name.padEnd(28)} ${s.rowCount} rows, ${s.columnCount} columns`);
+  const noPivots = !Buffer.from(buffer as ArrayBuffer).toString("latin1").includes("pivotTable");
+  console.log(`${noPivots ? "PASS" : "FAIL"}  No pivot tables`);
+  const texts: string[] = [];
+  reopened.getWorksheet("Pricer")!.eachRow((row) => row.eachCell((cell) => texts.push(String(cell.value))));
+  const headersOk = texts.some((t) => /^\d+(\.\d+)?% · [\d,]+$/.test(t)) && texts.some((t) => /^\d{2}-[A-Z][a-z]{2}-\d{4}$/.test(t)) && !texts.some((t) => /Strike Block|^Field$|^Expiry \d+$/.test(t));
+  console.log(`${headersOk ? "PASS" : "FAIL"}  Pricer header: % strikes over real expiry dates`);
   console.log(`Wrote ${path.relative(process.cwd(), out)}`);
-  if (!sheetsOk) process.exit(1);
+  if (!sheetsOk || !noPivots || !headersOk) process.exit(1);
 }
 
 main().catch((e) => {

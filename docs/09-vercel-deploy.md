@@ -81,10 +81,10 @@ Open PowerShell in the project folder and run these one at a time.
 
    ```powershell
    npm run seed:mongo
-   npm run test:mongo
+   npm run verify:mongo
    ```
 
-   `test:mongo` prints only the database name, collection counts and sizes.
+   `verify:mongo` prints only the database name, collection counts and sizes.
 
 2. Open these addresses on the production site:
    - `/api/dataset` should show `"surfaceSource":"database"`.
@@ -97,7 +97,13 @@ Open PowerShell in the project folder and run these one at a time.
    $env:BASE_URL = "https://hedging-sheet.vercel.app"; npx playwright test; Remove-Item Env:BASE_URL
    ```
 
-   The upload test skips itself against production so the live surface is not replaced.
+   The upload and parameter save tests skip themselves against production so the live desk data is not replaced.
+
+6. Check every page and API in one go:
+
+   ```powershell
+   $env:BASE_URL = "https://hedging-sheet.vercel.app"; npm run e2e:local; Remove-Item Env:BASE_URL
+   ```
 
 ## If something goes wrong
 

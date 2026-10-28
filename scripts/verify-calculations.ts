@@ -5,11 +5,12 @@
  */
 import { defaultInputs, seedMarketData } from "../lib/engine/defaults";
 import { computeHedgingSheet } from "../lib/engine/hedging-sheet";
+import { forwardMarket } from "../lib/engine/vol-surface";
 
 const spot = Number(process.argv[2] ?? 82000);
 const valuationDate = process.argv[3] ?? "2026-10-27";
 
-const r = computeHedgingSheet(defaultInputs({ valuationDate, spot, dailyVol: 0.009 }), seedMarketData());
+const r = computeHedgingSheet(defaultInputs({ valuationDate, spot, dailyVol: 0.009 }), forwardMarket(seedMarketData(), valuationDate));
 if (!r.ok) {
   console.error("Blocked:", r.errors.map((e) => `${e.code}: ${e.message}`).join("\n"));
   process.exit(1);
@@ -24,7 +25,7 @@ const checks: Array<[string, boolean, string]> = [
   ["Stress grid has 15 moves", r.markToMarket.rows.length === 15, String(r.markToMarket.rows.length)],
 ];
 
-console.log(`Start level ${r.structure.startLevel}, Actual Inbuilt ${(r.summary.actualInbuilt * 100).toFixed(4)} percent`);
+console.log(`Start level ${r.structure.startLevel}, Actual Inbuilt ${(r.summary.actualInbuilt * 100).toFixed(4)}%`);
 for (const [label, ok, detail] of checks) console.log(`${ok ? "PASS" : "FAIL"}  ${label}${detail ? `  (${detail})` : ""}`);
 if (r.warnings.length) console.log("Warnings:", r.warnings.map((w) => w.code).join(", "));
 if (checks.some(([, ok]) => !ok)) process.exit(1);

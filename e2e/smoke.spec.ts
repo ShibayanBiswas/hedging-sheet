@@ -181,7 +181,51 @@ test("vol surface upload with the sample file", async ({ page }) => {
   await expect(page.getByTestId("vol-grid")).toContainText("24-Apr-2031");
 });
 
-test("Excel download is enabled after a run and has the five sheets", async ({ page }) => {
+test("surface edit validates cells, and the surface downloads in the upload layout", async ({ page }) => {
+  await fresh(page);
+  await page.getByTestId("nav-market-data").click();
+  await page.getByTestId("edit-surface").click();
+  const cell = page.locator('[data-testid^="vol-cell-"]').nth(1);
+  await cell.fill("abc");
+  await cell.blur();
+  await expect(page.getByTestId("desk-dialog")).toContainText("Wrong Input");
+  await dismissDialogs(page);
+  await expect(cell).toHaveAttribute("aria-invalid", "true");
+  await page.getByTestId("discard-surface").click();
+  await expect(page.getByTestId("edit-surface")).toBeVisible();
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-surface").click()]);
+  expect(download.suggestedFilename()).toMatch(/^Hedging_Sheet_Vol_Surface_\d{4}-\d{2}\.xlsx$/);
+  const file = path.join("test-results", download.suggestedFilename());
+  await download.saveAs(file);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(file);
+  expect(wb.worksheets.map((s) => s.name)).toEqual(["Vol Surface", "Surface Parameters", "Rate Curve", "Dividends"]);
+  await page.screenshot({ path: path.join(SHOTS, "market-data-toolbar.png") });
+});
+
+test("surface parameters save for the month and reset", async ({ page }) => {
+  test.skip(isRemote, "Parameter saves are only exercised against the local scratch database.");
+  await fresh(page);
+  await page.getByTestId("nav-market-data").click();
+  await page.getByTestId("edit-params").click();
+  await page.getByTestId("param-cap-buying").fill("6.9");
+  await page.getByTestId("param-cap-buying").blur();
+  await page.getByTestId("save-params").click();
+  await expect(page.getByTestId("desk-toast").or(page.getByTestId("desk-dialog")).first()).toContainText(/Saved/);
+  await dismissDialogs(page);
+  await expect(page.getByTestId("surface-params-table")).toContainText("6.900%");
+  await page.reload();
+  await expect(page.getByTestId("surface-params-table")).toContainText("6.900%", { timeout: 30_000 });
+  await page.getByTestId("edit-params").click();
+  await page.getByTestId("param-cap-buying").fill("6.8");
+  await page.getByTestId("param-cap-buying").blur();
+  await page.getByTestId("save-params").click();
+  await expect(page.getByTestId("surface-params-table")).toContainText("6.800%");
+  await page.getByTestId("reset-params").click();
+  await expect(page.getByTestId("surface-params-table")).toContainText("6.800%");
+});
+
+test("Excel download is enabled after a run and has the five sheets and no pivots", async ({ page }) => {
   await fresh(page);
   await expect(page.getByTestId("download-excel")).toBeDisabled();
   await runSimulation(page);
@@ -189,9 +233,51 @@ test("Excel download is enabled after a run and has the five sheets", async ({ p
   expect(download.suggestedFilename()).toMatch(/^SP-Hedging-Sheet-Sensex-\d{2}-[A-Z][a-z]{2}-\d{4}\.xlsx$/);
   const file = path.join("test-results", download.suggestedFilename());
   await download.saveAs(file);
+  expect(fs.readFileSync(file).toString("latin1").includes("pivotTable")).toBe(false);
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(file);
   expect(wb.worksheets.map((s) => s.name)).toEqual(["Summary Sheet", "Pricer", "Product Description", "Day 1 Vega Hedge", "Mark to Market and Margin"]);
+  const texts: string[] = [];
+  wb.getWorksheet("Pricer")!.eachRow((row) => row.eachCell((cell) => texts.push(String(cell.value))));
+  expect(texts.some((t) => /^137% · [\d,]+$/.test(t))).toBe(true);
+  expect(texts.some((t) => /Strike Block|^Field$/.test(t))).toBe(false);
+});
+
+test("Product Description payoff and the footer", async ({ page }) => {
+  await fresh(page);
+  await expect(page.getByTestId("footer-market-status")).toContainText(/Market (Open|Pre Open|Closed|Holiday|Weekend)/);
+  await expect(page.getByTestId("footer-sensex")).not.toContainText("-", { timeout: 30_000 });
+  await runSimulation(page);
+  await page.getByTestId("nav-product").click();
+  await expect(page.getByTestId("table-pd-greeks")).toContainText("Residual Futures To Be Done");
+  await expect(page.getByTestId("table-pd-payoff")).not.toContainText("Description");
+  await expect(page.getByTestId("table-pd-payoff")).toContainText("Initial");
+  await page.getByTestId("payoff-move").fill("-20");
+  await expect(page.getByTestId("payoff-return")).toContainText(/[-−]32\.00%/);
+  await page.getByTestId("nav-pricer").click();
+  await expect(page.getByTestId("table-pricer-legs")).toContainText("137% ·");
+  await expect(page.getByTestId("table-pricer-legs")).not.toContainText("Strike Block");
+});
+
+test("walkthrough of every tab in both themes and at mobile width", async ({ page }) => {
+  await fresh(page);
+  await runSimulation(page);
+  const tabs = ["inputs", "summary", "pricer", "product", "vega-hedge", "margin", "market-data", "logic-atlas"];
+  for (const theme of ["light", "dark"] as const) {
+    if (theme === "dark") await page.getByTestId("theme-toggle").click();
+    for (const id of tabs) {
+      await page.getByTestId(`nav-${id}`).click();
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: path.join(SHOTS, `walk-${theme}-${id}.png`) });
+    }
+  }
+  await page.getByTestId("theme-toggle").click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const id of tabs) {
+    await page.getByTestId(`nav-${id}`).click();
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SHOTS, `walk-mobile-${id}.png`) });
+  }
 });
 
 test("dark theme and mobile rails", async ({ page }) => {
