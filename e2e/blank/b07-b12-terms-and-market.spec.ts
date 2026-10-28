@@ -4,6 +4,9 @@ import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS, readCells, schema } from "../support/tables";
 import { chromiumOnly, dialogItems, fillBlank } from "./helpers";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const value = async (page: Page, testId: string) => Number(await page.getByTestId(testId).getAttribute("data-value"));
 
 /** The Pricer headline premium, read from its raw value. */
@@ -79,6 +82,8 @@ test.describe("B7 Spreads", () => {
       await inputs.fill("participations-0", v);
       await expect(inputs.field("participations-0")).toHaveAttribute("aria-invalid", "true");
     }
+    // A negative participation also breaks the spread rule, which opens its popup after the 900 ms pause.
+    await inputs.dialog.dismissAll(3_000);
     await inputs.runButton.click();
     expect((await dialogItems(page)).join("\n")).toContain("Spread 1 Participation Rate: Spread 1 Participation Rate must be above 0");
     await inputs.dialog.close();

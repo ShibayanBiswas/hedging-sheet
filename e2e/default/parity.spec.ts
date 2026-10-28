@@ -5,6 +5,9 @@ import { expectExcelMatches } from "../support/excel";
 import { restoreMarketFixtures } from "../support/market";
 import { close, OUTPUT_TAB_IDS, readAllOutputs, readCells, schema, tabProblems } from "../support/tables";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const expected = regression.mock.default;
 const tabOf = (tableId: string) => OUTPUT_TAB_IDS.find((t) => schema.tabs[t].some((x) => x.id === tableId))!;
 

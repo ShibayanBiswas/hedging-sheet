@@ -3758,3 +3758,15 @@ html.dark [tabindex]:not([tabindex="-1"]):focus-visible {
 html.dark .input-glow:focus {
   box-shadow: 0 0 0 2px rgba(212, 178, 76, 0.55);
 }
+
+/* Fields keep their glow on click; keyboard focus adds a ring every engine draws, selects included. */
+input.input-glow:focus-visible,
+select.input-glow:focus-visible {
+  outline: 2px solid #8a6508;
+  outline-offset: 2px;
+}
+
+html.dark input.input-glow:focus-visible,
+html.dark select.input-glow:focus-visible {
+  outline-color: #e5cf94;
+}

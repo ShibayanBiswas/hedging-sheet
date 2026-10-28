@@ -5,6 +5,9 @@ import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS } from "../support/tables";
 import { chromiumOnly, dialogItems, expectAccepted, expectFlagged, expectNotRun, fillBlank, fillValue, re, restoreField } from "./helpers";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const TODAY = "2026-10-28";
 const filled = blankFillInputs();
 const SELECTS = new Set(["underlying", "optionType", "expiryCount"]);

@@ -7,6 +7,9 @@ import { close, OUTPUT_TAB_IDS, readAllOutputs, readCells, schema, tabProblems, 
 import { copyProblems } from "../support/copy";
 import { chromiumOnly, FILL, fillBlank } from "./helpers";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const expected = regression.mock.blankFill;
 const tabOf = (tableId: string) => OUTPUT_TAB_IDS.find((t) => schema.tabs[t].some((x) => x.id === tableId))!;
 

@@ -8,6 +8,9 @@ import { expect, test } from "../fixtures";
 import { TAB_IDS } from "../pages";
 import { restoreMarketFixtures } from "../support/market";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const OUT = path.join("test-results", "downloads");
 
 test.beforeAll(() => fs.mkdirSync(OUT, { recursive: true }));

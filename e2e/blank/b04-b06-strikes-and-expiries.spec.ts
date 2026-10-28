@@ -3,6 +3,9 @@ import { expect, test } from "../fixtures";
 import { readShape } from "../support/tables";
 import { chromiumOnly, dialogItems, fillBlank, fillValue } from "./helpers";
 
+// Data and rule checks read the settled page; motion is covered by the animation smoke tests.
+test.use({ reducedMotion: "reduce" });
+
 const STRIKES = [0, 1, 2, 3, 4, 5].map((i) => Number(fillValue(`input-strikePercents-${i}`)));
 
 test.describe("B4 Strikes", () => {

@@ -67,7 +67,10 @@ test.describe("B19 Keyboard", () => {
         const el = document.activeElement as HTMLElement | null;
         if (!el || !el.closest("main")) return null;
         const r = el.getBoundingClientRect();
-        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, top: r.top + window.scrollY, left: r.left };
+        // Position within the content: sideways rails scroll as focus moves, so add their scroll back.
+        let scrolled = 0;
+        for (let p = el.parentElement; p; p = p.parentElement) if (p.scrollWidth > p.clientWidth) scrolled += p.scrollLeft;
+        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, top: r.top + window.scrollY, left: r.left + scrolled };
       });
       if (at) seen.push(at);
     }
@@ -127,7 +130,7 @@ test.describe("B19 Keyboard", () => {
     await expect(page).toHaveURL(/\/logic-atlas$/);
   });
 
-  test("B19.5 keyboard focus is visible on tabs, links, buttons and fields", async ({ page, inputs }) => {
+  test("B19.5 keyboard focus is visible on tabs, links, buttons and fields", async ({ page, inputs, browserName }) => {
     await inputs.goto();
     const ring = async (el: Locator) =>
       el.evaluate((e) => {
@@ -142,7 +145,9 @@ test.describe("B19 Keyboard", () => {
       await expect(el).toBeFocused();
       return el;
     };
-    for (const id of ["mode-default", "nav-summary", "run-simulation", "input-coupon", "input-underlying", "reset-inputs"]) {
+    // WebKit, like Safari, only tabs to links with Option+Tab, so the section tab link is checked on the other engines.
+    const ids = ["mode-default", "nav-summary", "run-simulation", "input-coupon", "input-underlying", "reset-inputs"].filter((id) => !(browserName === "webkit" && id.startsWith("nav-")));
+    for (const id of ids) {
       expect(await ring(await viaKeyboard(page, id)), id).toBe(true);
     }
   });

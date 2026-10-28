@@ -31,12 +31,15 @@ export class DeskDialog {
         return;
       }
       const title = (await this.title.first().textContent().catch(() => null)) ?? "";
-      // A popup that is already closing cannot be clicked; it leaves on its own.
+      const dialog = this.root.filter({ hasText: title });
+      // A popup that is already closing cannot be clicked and leaves on its own; one still open must be closed.
       await this.ok
         .first()
-        .click({ timeout: 3_000 })
-        .catch(() => undefined);
-      await expect(this.root.filter({ hasText: title })).toHaveCount(0);
+        .click({ timeout: 20_000 })
+        .catch(async (err) => {
+          if (await dialog.count()) throw err;
+        });
+      await expect(dialog).toHaveCount(0);
     }
   }
 

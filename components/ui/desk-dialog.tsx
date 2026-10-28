@@ -54,7 +54,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
         <motion.div
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-          exit={{ opacity: 0 }}
+          exit={reduce ? undefined : { opacity: 0 }}
           initial={reduce ? false : { opacity: 0 }}
           role="presentation"
         >
@@ -69,7 +69,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
               "glass relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-gold/30 shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)]",
               meta.glow === "cyan" ? "glass-glow-cyan" : "glass-glow-purple",
             )}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
+            exit={reduce ? undefined : { opacity: 0, scale: 0.96, y: 8 }}
             initial={reduce ? false : { opacity: 0, scale: 0.96, y: 12 }}
             role="alertdialog"
           >
