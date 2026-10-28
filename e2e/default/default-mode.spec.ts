@@ -3,9 +3,10 @@ import path from "node:path";
 
 import ExcelJS from "exceljs";
 
-import invalidCases from "../tests/fixtures/invalid-cases.json";
-import { expect, test } from "./fixtures";
-import { TAB_IDS } from "./pages";
+import invalidCases from "../../tests/fixtures/invalid-cases.json";
+import { expect, test } from "../fixtures";
+import { TAB_IDS } from "../pages";
+import { restoreMarketFixtures } from "../support/market";
 
 const OUT = path.join("test-results", "downloads");
 
@@ -89,7 +90,7 @@ test.describe("Default Values mode", () => {
       await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
       await inputs.dialog.dismissAll(3_000);
       await inputs.expectValidationDialog({ contains: [c.label, c.message] });
-      await inputs.dialog.ok.click();
+      await inputs.dialog.close();
       await expect(inputs.dialog.root).toHaveCount(0);
       await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
       await inputs.resetButton.click();
@@ -148,6 +149,10 @@ test.describe("Default Values mode", () => {
 });
 
 test.describe("Market Data", () => {
+  test.afterEach(async ({ request }) => {
+    await restoreMarketFixtures(request);
+  });
+
   test("surface edit validates cells, and the surface downloads in the upload layout", async ({ inputs, marketData, dialog }) => {
     await inputs.goto();
     await marketData.open();

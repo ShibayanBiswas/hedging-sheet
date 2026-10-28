@@ -30,10 +30,21 @@ export class DeskDialog {
       } catch {
         return;
       }
-      const title = (await this.title.first().textContent()) ?? "";
-      await this.ok.first().click();
+      const title = (await this.title.first().textContent().catch(() => null)) ?? "";
+      // A popup that is already closing cannot be clicked; it leaves on its own.
+      await this.ok
+        .first()
+        .click({ timeout: 3_000 })
+        .catch(() => undefined);
       await expect(this.root.filter({ hasText: title })).toHaveCount(0);
     }
+  }
+
+  /** Press OK on the open popup and wait until it has left, so the next step never meets a closing popup. */
+  async close() {
+    const title = (await this.title.first().textContent()) ?? "";
+    await this.ok.first().click();
+    await expect(this.root.filter({ hasText: title })).toHaveCount(0);
   }
 
   /** Run an action button by its test id and wait for the popup to leave. */
