@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 
@@ -28,6 +28,13 @@ const VARIANT_META: Record<DeskAlertVariant, { icon: typeof Info; glow: "cyan" |
 /** Blocking desk popup in the Primary SP Dashboard style. */
 export function DeskDialog({ open, state, onClose }: { open: boolean; state: DeskDialogState | null; onClose: () => void }) {
   const reduce = useReducedMotion();
+  const okRef = useRef<HTMLButtonElement>(null);
+  const shown = state ? `${state.title}\n${state.message}` : null;
+
+  useEffect(() => {
+    if (open && shown) okRef.current?.focus({ preventScroll: true });
+  }, [open, shown]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -125,7 +132,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                   <span className="relative z-10">{a.label}</span>
                 </button>
               ))}
-              <button type="button" className="btn-animated btn-motion btn-primary" onClick={onClose} data-testid="desk-dialog-ok">
+              <button ref={okRef} type="button" className="btn-animated btn-motion btn-primary" onClick={onClose} data-testid="desk-dialog-ok">
                 <span className="btn-shine" aria-hidden />
                 <span className="relative z-10">{state.okLabel ?? "OK"}</span>
               </button>

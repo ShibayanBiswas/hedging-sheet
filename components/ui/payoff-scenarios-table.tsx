@@ -6,9 +6,11 @@ import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { fmtCrore, fmtPercent } from "@/lib/format";
+import { cellKey } from "@/lib/tables";
 import { deskEase } from "@/lib/motion";
 
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+const finiteOrUndefined = (v: number) => (Number.isFinite(v) ? v : undefined);
 
 function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"; children: string }) {
   const tones = {
@@ -53,16 +55,18 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                 const target = near(p.performance, terms.target);
                 const protection = near(p.performance, -terms.protection);
                 const floor = near(p.performance, terms.floorLevel - 1);
+                const row = fmtPercent(p.performance, 2);
                 return (
                   <tr
                     key={p.performance}
+                    data-row={row}
                     className={cn(
                       i % 2 === 1 && "data-table-row-alt",
                       initial && "bg-sky-50/80 dark:bg-sky-950/25",
                       target && "bg-violet-50/80 dark:bg-violet-950/30",
                     )}
                   >
-                    <td className="col-pinned font-semibold">
+                    <td className="col-pinned font-semibold" data-cell={cellKey(row, `${u} Performance`)} data-value={p.performance}>
                       <span className="inline-flex flex-wrap items-center gap-1.5">
                         <span>{fmtPercent(p.performance, 2)}</span>
                         {initial ? <Badge tone="sky">Initial</Badge> : null}
@@ -71,9 +75,15 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                         {floor ? <Badge tone="rose">Floor</Badge> : null}
                       </span>
                     </td>
-                    <td className="text-right font-bold text-emerald-800 dark:text-emerald-300">{fmtPercent(p.clientReturn, 2)}</td>
-                    <td className="text-right">{fmtCrore(p.maturityValueCr)}</td>
-                    <td className="text-right">{fmtPercent(p.preTaxIrr, 2)}</td>
+                    <td className="text-right font-bold text-emerald-800 dark:text-emerald-300" data-cell={cellKey(row, "Client Return")} data-value={finiteOrUndefined(p.clientReturn)}>
+                      {fmtPercent(p.clientReturn, 2)}
+                    </td>
+                    <td className="text-right" data-cell={cellKey(row, "Maturity Value In Crore")} data-value={finiteOrUndefined(p.maturityValueCr)}>
+                      {fmtCrore(p.maturityValueCr)}
+                    </td>
+                    <td className="text-right" data-cell={cellKey(row, "Pre Tax Internal Rate Of Return")} data-value={finiteOrUndefined(p.preTaxIrr)}>
+                      {fmtPercent(p.preTaxIrr, 2)}
+                    </td>
                   </tr>
                 );
               })}

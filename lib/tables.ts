@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/engine/dates";
 import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg } from "@/lib/engine/types";
-import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
+import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, numberText, percentText, type Display } from "@/lib/format";
 
 export function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
@@ -53,6 +53,83 @@ export type GridSpec = {
 };
 
 type Item = KeyValueSpec["items"][number];
+
+export type AnySpec = TableSpec | KeyValueSpec | GridSpec;
+
+/** The text a cell shows, on screen and in the table schema. Blank and failed values show "-". */
+export function displayCell(value: CellValue, kind: CellKind, digits?: number): Display {
+  if (value == null || value === "") return blank();
+  switch (kind) {
+    case "date":
+      return dateText(String(value));
+    case "text":
+      return { text: String(value) };
+    case "percent":
+      return percentText(value, digits ?? 2);
+    case "crore":
+    case "rupee":
+      return croreText(value, digits ?? 2);
+    case "integer":
+      return numberText(value, 0);
+    case "greek":
+      return numberText(value, digits ?? 8);
+    default:
+      return numberText(value, digits ?? 2);
+  }
+}
+
+/** Stable address of a cell: its row label and column label. Pages write it to data-cell; tests and fixtures read it. */
+export function cellKey(row: string, col: string): string {
+  return `${row}::${col}`;
+}
+
+/** Grid columns repeat a strike across expiries, so the column number keeps each one unique. */
+export function gridColumnLabel(spec: GridSpec, i: number): string {
+  return `${spec.columnLabels[i]} #${i + 1}`;
+}
+
+export function tableRowLabel(spec: TableSpec, row: Record<string, CellValue>): string {
+  const first = spec.columns[0]!;
+  return displayCell(row[first.key] ?? null, first.kind, first.digits).text;
+}
+
+export type SpecCell = { key: string; row: string; col: string; value: CellValue; text: string };
+
+/** Every body cell of a table with its key, raw value and shown text. */
+export function specCells(spec: AnySpec): SpecCell[] {
+  const out: SpecCell[] = [];
+  const add = (row: string, col: string, value: CellValue, text: string) => out.push({ key: cellKey(row, col), row, col, value, text });
+  if ("items" in spec) {
+    for (const item of spec.items) {
+      add(item.label, "Item", item.label, item.label);
+      add(item.label, "Value", item.value, displayCell(item.value, item.kind, item.digits).text);
+    }
+  } else if ("columnLabels" in spec) {
+    for (const row of spec.rows) {
+      add(row.label, spec.corner[1], row.label, row.label);
+      row.values.forEach((v, i) => add(row.label, gridColumnLabel(spec, i), v, displayCell(v, row.kind, row.digits).text));
+    }
+  } else {
+    for (const row of spec.rows) {
+      const label = tableRowLabel(spec, row);
+      for (const c of spec.columns) add(label, c.label, row[c.key] ?? null, displayCell(row[c.key] ?? null, c.kind, c.digits).text);
+    }
+  }
+  return out;
+}
+
+/** Header rows as shown: one row for tables and key-value cards, two for Pricer style grids. */
+export function specHeaders(spec: AnySpec): string[][] {
+  if ("items" in spec) return [["Item", "Value"]];
+  if ("columnLabels" in spec) return [[spec.corner[0], ...spec.groups.map((g) => g.label)], [spec.corner[1], ...spec.columnLabels]];
+  return [spec.columns.map((c) => c.label)];
+}
+
+export function specRowLabels(spec: AnySpec): string[] {
+  if ("items" in spec) return spec.items.map((i) => i.label);
+  if ("columnLabels" in spec) return spec.rows.map((r) => r.label);
+  return spec.rows.map((row) => tableRowLabel(spec, row));
+}
 
 /** A one-row headline table that replaces a card rail. */
 export function headlineTable(id: string, title: string, items: Item[]): TableSpec {
@@ -667,5 +744,29 @@ export function marginTable(r: HedgingResult): TableSpec {
       total: m.totalRequirementCr,
     })),
     highlightRow: rows.findIndex((m) => m.move === 0),
+  };
+}
+
+// ------------------------------------------------------------------ Output tabs, in page order
+
+export const OUTPUT_TABS = ["summary", "pricer", "product", "vega-hedge", "margin"] as const;
+export type OutputTab = (typeof OUTPUT_TABS)[number];
+
+/** Every table each output tab shows, in page order. The table schema fixture and the table tests read it. */
+export function outputTables(r: HedgingResult): Record<OutputTab, AnySpec[]> {
+  const pd = productTables(r);
+  return {
+    summary: [summaryHeadline(r), ...summaryTables(r)],
+    pricer: [pricerHeadline(r), pricerPotTable(r), pricerPayoutTable(r), pricerGrid(r)],
+    product: [productHeadline(r), pd.termSheet, pd.details, pd.maturity, pd.greeks, pd.rates, pd.payoff],
+    "vega-hedge": [
+      vegaHeadline(r),
+      vegaHedgeInputs(r),
+      vegaHedgeMarginTable(r),
+      vegaHedgePriceTable(r, "fair"),
+      vegaHedgePriceTable(r, "exchange"),
+      vegaHedgePriceTable(r, "stressed"),
+    ],
+    margin: [marginHeadline(r), marginTable(r)],
   };
 }

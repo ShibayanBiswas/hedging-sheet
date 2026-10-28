@@ -1,8 +1,8 @@
 import { isValidYmd } from "@/lib/engine/dates";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
-import { deriveTerms, MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
+import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
-import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
+import { blankInputs, underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 
 export const INPUT_SECTIONS = [
   "Underlying And Market",
@@ -68,9 +68,79 @@ const rules: NumberRule[] = [
   { key: "futuresMargin", label: () => "Futures Margin", section: "Volatility And Margin", min: 0, max: 1, minInclusive: true, percent: true },
 ];
 
+const MONTH_RULE = { min: 1, max: 120, minInclusive: true, integer: true } as const;
+const STRIKE_RULE = { min: 0, max: 500 } as const;
+const PARTICIPATION_RULE = { min: 0, max: 100 } as const;
+
+export type NumberFieldRule = {
+  field: string;
+  label: string;
+  section: InputSection;
+  min: number;
+  max: number;
+  minInclusive: boolean;
+  integer: boolean;
+  /** Typed as a % on screen and stored as a decimal. */
+  percent: boolean;
+};
+
+/** Every number field and its range for the inputs in hand: the fixed fields, then each expiry month, strike and typed participation. */
+export function numberFieldRules(inputs: DeskInputs): NumberFieldRule[] {
+  const u = underlyingName(inputs);
+  const out: NumberFieldRule[] = rules.map((r) => ({
+    field: String(r.key),
+    label: r.label(u),
+    section: r.section,
+    min: r.min,
+    max: r.max,
+    minInclusive: Boolean(r.minInclusive),
+    integer: Boolean(r.integer),
+    percent: Boolean(r.percent),
+  }));
+  const count = Number.isInteger(inputs.expiryCount) ? inputs.expiryCount : 0;
+  for (let i = 0; i < count; i++) {
+    out.push({ field: `expiryMonths.${i}`, label: `Expiry Month ${i + 1}`, section: "Observation Expiries", ...MONTH_RULE, percent: false });
+  }
+  inputs.strikePercents.forEach((_, i) =>
+    out.push({ field: `strikePercents.${i}`, label: `Strike ${i + 1}`, section: "Strikes", ...STRIKE_RULE, minInclusive: false, integer: false, percent: false }),
+  );
+  inputs.participations.forEach((p, j) => {
+    if (p === null) return;
+    out.push({
+      field: `participations.${j}`,
+      label: `Spread ${j + 1} Participation Rate`,
+      section: "Spreads And Option Type",
+      ...PARTICIPATION_RULE,
+      minInclusive: false,
+      integer: false,
+      percent: false,
+    });
+  });
+  return out;
+}
+
+/**
+ * Every field Run Simulation requires, for a product with this many expiries and spreads:
+ * the fields that are empty in Blank Inputs, plus the month and strike rows the counts create.
+ */
+export function requiredFields(expiryCount: number, nSpreads: number): FieldError[] {
+  const sized: DeskInputs = {
+    ...blankInputs(),
+    expiryCount,
+    expiryMonths: Array.from({ length: expiryCount }, () => NaN),
+    strikePercents: Array.from({ length: nSpreads + 4 }, () => NaN),
+    participations: [...Array.from({ length: nSpreads - 1 }, () => NaN), null],
+  };
+  const fields = new Map<string, FieldError>();
+  for (const e of [...validateDeskInputs(blankInputs(), { today: "9999-12-31" }), ...validateDeskInputs(sized, { today: "9999-12-31" })]) {
+    if (e.kind === "required" && !fields.has(e.field)) fields.set(e.field, e);
+  }
+  return [...fields.values()];
+}
+
 const show = (v: number, percent?: boolean) => (percent ? `${+(v * 100).toFixed(4)}%` : v.toLocaleString("en-IN"));
 
-function checkNumber(value: number, rule: Omit<NumberRule, "key" | "label" | "section">, label: string): { kind: "required" | "invalid"; message: string } | null {
+function checkNumber(value: number, rule: { min: number; max: number; minInclusive?: boolean; integer?: boolean; percent?: boolean }, label: string): { kind: "required" | "invalid"; message: string } | null {
   if (typeof value !== "number" || Number.isNaN(value)) return { kind: "required", message: `${label} is required.` };
   if (!Number.isFinite(value)) return { kind: "invalid", message: `${label} must be a finite number.` };
   if (rule.integer && !Number.isInteger(value)) return { kind: "invalid", message: `${label} must be a whole number.` };
@@ -146,7 +216,7 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
   } else {
     for (let i = 0; i < count; i++) {
       const label = `Expiry Month ${i + 1}`;
-      const r = checkNumber(inputs.expiryMonths[i] ?? NaN, { min: 1, max: 120, minInclusive: true, integer: true }, label);
+      const r = checkNumber(inputs.expiryMonths[i] ?? NaN, MONTH_RULE, label);
       if (r) push({ field: `expiryMonths.${i}`, label, section: "Observation Expiries", ...r });
     }
   }
@@ -159,7 +229,7 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
   }
   k.forEach((v, i) => {
     const label = `Strike ${i + 1}`;
-    const r = checkNumber(v, { min: 0, max: 500 }, label);
+    const r = checkNumber(v, STRIKE_RULE, label);
     if (r) push({ field: `strikePercents.${i}`, label, section: "Strikes", ...r });
   });
 
@@ -168,7 +238,7 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
   inputs.participations.forEach((p, j) => {
     if (p == null) return;
     const label = `Spread ${j + 1} Participation Rate`;
-    const r = checkNumber(p, { min: 0, max: 100 }, label);
+    const r = checkNumber(p, PARTICIPATION_RULE, label);
     if (r) push({ field: `participations.${j}`, label, section: "Spreads And Option Type", ...r });
   });
 
@@ -179,18 +249,6 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
     for (const issue of validateStructure(inputs as HedgeInputs)) {
       const mapped = mapEngineField(issue.field);
       push({ ...mapped, kind: "invalid", message: issue.message, code: issue.code, fix: issue.fix });
-    }
-    const terms = deriveTerms(inputs);
-    const top = terms.spreads[terms.nSpreads - 1];
-    if (top && terms.participationDerived[terms.nSpreads - 1] && !(top.participation > 0)) {
-      push({
-        field: `participations.${terms.nSpreads - 1}`,
-        label: `Spread ${terms.nSpreads} Participation Rate`,
-        section: "Spreads And Option Type",
-        kind: "invalid",
-        message: "The coupon cannot be reached: the top spread would need a participation at or below zero.",
-        code: "coupon-unreachable",
-      });
     }
   }
   const scheduleFilled =

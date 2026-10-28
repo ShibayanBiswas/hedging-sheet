@@ -130,8 +130,8 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { label: "Greeks", value: "Bump And Reprice" },
       ],
       nodes: [
-        { kind: "lookup", label: "Volatility", description: "FORECAST across the two nearest strike columns, then linear in days between expiry rows." },
-        { kind: "lookup", label: "Rate Curve", description: "Upper and Lower Maturity bracket the expiry; the discount yield is the capped FORECAST." },
+        { kind: "lookup", label: "Volatility", description: "A straight-line forecast across the two nearest strike columns, then linear in days between expiry rows." },
+        { kind: "lookup", label: "Rate Curve", description: "Upper and Lower Maturity bracket the expiry; the discount yield is the capped straight-line forecast." },
         { kind: "engine", label: "Price", description: "The forward is spot times e to the growth times time; the option is discounted at the discount yield." },
         { kind: "output", label: "Greeks And Book", description: "Delta, gamma, theta, vega and rho per leg and in rupees for the book." },
       ],
@@ -265,7 +265,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Cash Under Stress",
       accent: "rose",
       description:
-        "For each move the spot bump is set, the book delta is read and the bump is reset to zero, as the MTM macro does. Book delta plus the hedge delta is the residual futures position. Futures margin is charged on its notional value, mark to market is built outward from the 0% row, and the option margin comes from the Day 1 Vega Hedge. The 0% total is the margin funded in the Pricer.",
+        "For each move the spot bump is set, the book delta is read and the bump is reset to zero, as the Mark To Market macro does. Book delta plus the hedge delta is the residual futures position. Futures margin is charged on its notional value, mark to market is built outward from the 0% row, and the option margin comes from the Day 1 Vega Hedge. The 0% total is the margin funded in the Pricer.",
       metrics: [
         { label: "Range", value: "−50% To +20%" },
         { label: "Funded Row", value: "0%" },
@@ -277,10 +277,10 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "output", label: "Total Requirement", description: "Futures margin, mark to market and option margin." },
       ],
       formulas: [
-        { name: "Residual Futures", words: "Product requirement plus option delta, in lakh.", source: "MTM G6" },
-        { name: "Futures Margin", words: "Minus residual futures times the futures margin rate times the level, in crore.", source: "MTM H6" },
-        { name: "Step Mark To Market", words: "Residual of the row nearer 0% times the level change, in crore.", source: "MTM P6" },
-        { name: "Total", words: "Futures margin plus cumulative mark to market plus option margin.", source: "MTM K6" },
+        { name: "Residual Futures", words: "Product requirement plus option delta, in lakh.", source: "Mark To Market G6" },
+        { name: "Futures Margin", words: "Minus residual futures times the futures margin rate times the level, in crore.", source: "Mark To Market H6" },
+        { name: "Step Mark To Market", words: "Residual of the row nearer 0% times the level change, in crore.", source: "Mark To Market P6" },
+        { name: "Total", words: "Futures margin plus cumulative mark to market plus option margin.", source: "Mark To Market K6" },
       ],
       edgeCases: ["The spot bump is checked to be zero after every run."],
       insights: ["The worst case is shown for reference; the funded margin is the 0% row, as the sheet does."],
@@ -306,7 +306,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { name: "Column Strike", words: "Reference price of the underlying times the Strike Change.", source: "Vol Surface strike rows" },
         { name: "Nifty Dividends", words: "Sensex points times the Nifty over Sensex reference prices.", source: "Pricer B30" },
       ],
-      edgeCases: ["A failed database write still applies an upload to the session and says so.", "Uploads over 4.5 MB are refused before sending."],
+      edgeCases: ["A failed database write still applies an upload to the session and says so.", "Uploads over 4.5 megabytes are refused before sending."],
       insights: ["Download Surface writes a file that uploads back to the same surface."],
       outputs: ["Vol surface", "Forward Pricing Params", "Future dividends"],
     }),
@@ -362,10 +362,10 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
 export const COMPUTATION_PRIMITIVES: ComputationPrimitive[] = [
   { name: "Black Price On The Forward", category: "Pricing", uses: "Every leg and every hedge row", role: "Option price from forward, strike, volatility, time and discount." },
   { name: "Bump And Reprice", category: "Greeks", uses: "Delta, gamma, theta, vega, rho", role: "Finite differences exactly as the sheet takes them." },
-  { name: "Bilinear Surface Read", category: "Market", uses: "Leg and fair volatility", role: "FORECAST across strikes, then linear in days." },
-  { name: "Curve FORECAST", category: "Market", uses: "Discount yield, Upper and Lower Forward", role: "Straight line between the bracketing curve dates." },
+  { name: "Bilinear Surface Read", category: "Market", uses: "Leg and fair volatility", role: "A straight-line forecast across strikes, then linear in days." },
+  { name: "Curve Forecast", category: "Market", uses: "Discount yield, Upper and Lower Forward", role: "Straight line between the bracketing curve dates." },
   { name: "Nearest Weekday", category: "Schedule", uses: "Every expiry", role: "Snap the raw date to the underlying's expiry day." },
   { name: "Slope Change", category: "Replication", uses: "Units per strike", role: "Turn the payoff into an option book." },
   { name: "Brent Goal Seek", category: "Solver", uses: "Actual Inbuilt", role: "Replace Macro2 with a bracketed root find." },
-  { name: "Set, Read, Reset", category: "Stress", uses: "Fifteen moves", role: "Replace the MTM macro without leaving the spot shocked." },
+  { name: "Set, Read, Reset", category: "Stress", uses: "Fifteen moves", role: "Replace the Mark To Market macro without leaving the spot shocked." },
 ];

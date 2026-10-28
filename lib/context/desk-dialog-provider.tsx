@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
@@ -18,16 +18,25 @@ export function DeskDialogProvider({ children }: { children: ReactNode }) {
   const [queue, setQueue] = useState<DeskDialogState[]>([]);
   const [toastText, setToastText] = useState<string | null>(null);
   const state = queue[0] ?? null;
+  /** Where focus was before the first popup opened; it goes back there when the last one closes. */
+  const returnFocus = useRef<HTMLElement | null>(null);
 
   const close = useCallback(() => {
     setQueue((current) => {
       const closing = current[0];
-      if (closing?.onClose) window.setTimeout(closing.onClose, 0);
-      return current.slice(1);
+      const rest = current.slice(1);
+      window.setTimeout(() => {
+        if (!rest.length && returnFocus.current?.isConnected) returnFocus.current.focus({ preventScroll: true });
+        closing?.onClose?.();
+      }, 0);
+      return rest;
     });
   }, []);
 
   const alert = useCallback((message: string, options?: DeskAlertOptions) => {
+    if (typeof document !== "undefined" && !document.querySelector('[data-testid="desk-dialog"]')) {
+      returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
     const variant = options?.variant ?? "info";
     const title = options?.title ?? (variant === "error" ? "Cannot Continue" : variant === "warning" ? "Data Notice" : "Hedging Sheet");
     const next: DeskDialogState = {

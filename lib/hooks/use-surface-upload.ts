@@ -17,7 +17,7 @@ export function useSurfaceUpload() {
   const upload = useCallback(
     async (file: File) => {
       if (file.size > MAX_UPLOAD_BYTES) {
-        alert("This workbook is over the 4.5 MB request limit of the hosted desk.", {
+        alert("This workbook is over the 4.5 megabyte request limit of the hosted desk.", {
           variant: "error",
           title: "Upload Failed",
           fix: "Upload the Volatility Surface sample layout, which is well under the limit.",

@@ -44,7 +44,6 @@ export const hedgeInputSchema = z.object({
   stressSigmas: finite("Shock Sigmas").min(0),
   stressDays: finite("Shock Days").min(0),
   stressVolMultiplier: finite("Volatility Multiplier").positive(),
-  volBump: finite("Volatility Bump"),
   legVolOverrides: z.record(z.string(), z.number()),
   hedgeVolOverride: z.number().nullable(),
 });

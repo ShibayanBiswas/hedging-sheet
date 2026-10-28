@@ -76,7 +76,6 @@ export function defaultInputs(options?: { valuationDate?: string; spot?: number;
     stressSigmas: DEFAULT_TERMS.stressSigmas,
     stressDays: DEFAULT_TERMS.stressDays,
     stressVolMultiplier: DEFAULT_TERMS.stressVolMultiplier,
-    volBump: 0,
     legVolOverrides: {},
     hedgeVolOverride: null,
   };

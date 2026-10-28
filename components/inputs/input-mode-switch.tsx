@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Eraser, Sparkles } from "lucide-react";
 
 import { useDesk } from "@/lib/context/desk-provider";
+import { moveFocusWithArrows } from "@/lib/keyboard";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { cn } from "@/lib/cn";
 
@@ -14,7 +15,13 @@ export function InputModeSwitch() {
   const { mode, requestMode } = useDesk();
   const reduce = useReducedMotion();
   return (
-    <div className="nav-pill-shell flex w-full items-stretch gap-1 rounded-2xl border p-1 shadow-sm" role="tablist" aria-label="Input Mode" data-testid="mode-switch">
+    <div
+      className="nav-pill-shell flex w-full items-stretch gap-1 rounded-2xl border p-1 shadow-sm"
+      role="tablist"
+      aria-label="Input Mode"
+      data-testid="mode-switch"
+      onKeyDown={(e) => moveFocusWithArrows(e, '[role="tab"]')}
+    >
       {INPUT_MODES.map((m) => {
         const active = mode === m.id;
         const Icon = ICONS[m.id];
@@ -24,6 +31,7 @@ export function InputModeSwitch() {
             type="button"
             role="tab"
             aria-selected={active}
+            tabIndex={active ? 0 : -1}
             data-testid={`mode-${m.id}`}
             className={cn(
               "relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-2.5 text-center transition-colors",

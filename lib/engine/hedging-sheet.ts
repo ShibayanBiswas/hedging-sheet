@@ -226,21 +226,22 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const pricerGrowth = options?.forwardGrowth ?? forwardSellRateForMonth(surface.pricingParams, inputs.valuationDate);
 
   // ------------------------------------------------------------ Pricer legs
-  type LegSetup = { slotIndex: number; expiryIndex: number; maturity: string; vol: number; overridden: boolean };
+  type LegSetup = { slotIndex: number; expiryIndex: number; maturity: string; vol: number; volBump: number; overridden: boolean };
   const setups: LegSetup[] = [];
   strikes.forEach((slot, blockIndex) => {
     dates.forEach((maturity, expiryIndex) => {
       const override = inputs.legVolOverrides[legKey(blockIndex, expiryIndex)];
-      // Pricer B32: bilinear lookup on the surface, then + B33 vol bump.
-      const surfaceVol = interpolateVolPercent(surface, slot.strike, maturity, underlying, inputs.spot) / 100 + inputs.volBump;
+      // Pricer B33 = the Pricing Params vol bump of the expiry; B32: bilinear lookup on the surface, then + B33.
+      const volBump = lookupVolBump(surface.pricingParams, maturity);
+      const surfaceVol = interpolateVolPercent(surface, slot.strike, maturity, underlying, inputs.spot) / 100 + volBump;
       const overridden = typeof override === "number" && Number.isFinite(override);
-      setups.push({ slotIndex: blockIndex, expiryIndex, maturity, vol: overridden ? override : surfaceVol, overridden });
+      setups.push({ slotIndex: blockIndex, expiryIndex, maturity, vol: overridden ? override : surfaceVol, volBump, overridden });
     });
   });
 
   /** Prices every leg with the Pricer spot bump J7 applied: B27 = B2 × (1 + J7). */
   const priceBook = (spotBump: number): PricerLeg[] =>
-    setups.map(({ slotIndex, expiryIndex, maturity, vol, overridden }) => {
+    setups.map(({ slotIndex, expiryIndex, maturity, vol, volBump, overridden }) => {
       const slot = strikes[slotIndex]!;
       const spot = inputs.spot * (1 + spotBump);
       const curve = readRateCurve(curvePoints, maturity);
@@ -264,7 +265,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         discount,
         vol,
         volOverridden: overridden,
-        volBump: inputs.volBump,
+        volBump,
         dividends,
         curve,
       });

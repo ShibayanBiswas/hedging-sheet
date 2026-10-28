@@ -68,8 +68,6 @@ export type HedgeInputs = {
   stressDays: number;
   stressVolMultiplier: number;
 
-  /** Pricer vol bump input, added to every leg. */
-  volBump: number;
   /** Per-leg volatility overrides keyed "block-expiry", as a decimal. */
   legVolOverrides: Record<string, number>;
   /** Day 1 hedge fair volatility override, as a decimal. */

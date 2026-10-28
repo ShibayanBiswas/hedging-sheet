@@ -3734,3 +3734,27 @@ html.dark .kpi-card-live::after {
     @apply inline-block h-2 w-2 rounded-full;
   }
 }
+
+/* Keyboard focus is always visible: outside the layers so it outranks the outline-none utility. */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="tab"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid #8a6508;
+  outline-offset: 2px;
+}
+
+html.dark a:focus-visible,
+html.dark button:focus-visible,
+html.dark select:focus-visible,
+html.dark summary:focus-visible,
+html.dark [role="tab"]:focus-visible,
+html.dark [tabindex]:not([tabindex="-1"]):focus-visible {
+  outline-color: #e5cf94;
+}
+
+html.dark .input-glow:focus {
+  box-shadow: 0 0 0 2px rgba(212, 178, 76, 0.55);
+}

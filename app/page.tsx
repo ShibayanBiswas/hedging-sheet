@@ -36,7 +36,8 @@ function useEdgeCasePopups() {
     const id = window.setTimeout(() => {
       const first = fresh[0]!;
       for (const e of fresh) shown.current.add(`${e.code}:${e.field}`);
-      alert(first.message, { variant: "error", title: "Please Fix This Input", fix: first.fix, onClose: () => focusField(first.field) });
+      const title = first.code === "coupon-unreachable" ? "Coupon Not Reachable" : "Please Fix This Input";
+      alert(first.message, { variant: "error", title, fix: first.fix, onClose: () => focusField(first.field) });
     }, 900);
     return () => window.clearTimeout(id);
   }, [alert, fieldErrors]);

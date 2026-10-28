@@ -415,7 +415,7 @@ export function ProductTermsSection({ index }: { index: number }) {
         <FieldRow label="Tenor In Days" error={errorFor("tenorDays")}>
           <KeyNumber k="tenorDays" kind="integer" suffix="Days" eg="1,940" />
         </FieldRow>
-        <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")} hint="Start level is ROUNDUP of the spot times one plus this uplift, to the next 100.">
+        <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")} hint="Start level is the spot times one plus this uplift, rounded up to the next 100.">
           <KeyNumber k="startLevelUplift" kind="percent" suffix="%" eg="0.6" />
         </FieldRow>
       </div>
@@ -856,7 +856,7 @@ export function VolatilitySection({ index }: { index: number }) {
               </div>
               {Number.isFinite(inputs.dailyVol) ? (
                 <StatusBadge tone={source === "calculated" ? "ok" : "warn"} testId="daily-vol-status">
-                  {source === "calculated" ? "Calculated" : source === "overridden" ? (mode === "blank" ? "Entered" : "Overridden") : "Fallback"}
+                  {source === "calculated" ? "Calculated" : source === "overridden" ? "Overridden" : "Fallback"}
                 </StatusBadge>
               ) : null}
               {mode === "default" && source !== "calculated" ? <ResetIcon label="Reset To Calculated" testId="daily-vol-reset" onClick={() => void computeDailyVol()} /> : null}

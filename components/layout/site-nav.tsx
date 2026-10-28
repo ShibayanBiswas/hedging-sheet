@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { MarketStrip } from "@/components/layout/market-strip";
+import { moveFocusWithArrows } from "@/lib/keyboard";
 import { activeNav, NAV_ITEMS } from "@/lib/navigation";
 import { cn } from "@/lib/cn";
 
@@ -18,7 +19,10 @@ export function SiteNav() {
     <div className="border-t border-[color:var(--ar-border)]">
       <MarketStrip />
       <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-2 lg:px-6">
-        <div className="nav-pill-shell flex w-full items-stretch gap-1 overflow-x-auto rounded-2xl border p-1 shadow-sm">
+        <div
+          className="nav-pill-shell flex w-full items-stretch gap-1 overflow-x-auto rounded-2xl border p-1 shadow-sm"
+          onKeyDown={(e) => moveFocusWithArrows(e, "a[data-testid^='nav-']")}
+        >
           {NAV_ITEMS.map((item) => {
             const active = section.id === item.id;
             const Icon = item.icon;

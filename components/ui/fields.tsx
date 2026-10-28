@@ -118,6 +118,7 @@ export function NumberInput({
         id={id ?? (ariaLabel ? undefined : contextId)}
         aria-label={ariaLabel}
         data-testid={testId}
+        data-value={Number.isFinite(value) ? value : undefined}
         inputMode="decimal"
         disabled={disabled}
         placeholder={placeholder}

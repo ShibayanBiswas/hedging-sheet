@@ -175,15 +175,22 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       });
     }
     if (!(s.participation > 0)) {
-      errors.push({
-        field: `spreads.${j}`,
-        code: "participation",
-        message: `Spread ${j + 1} has a Participation Rate of ${Number.isFinite(s.participation) ? s.participation.toFixed(2) : "blank"}. It must be above zero.`,
-        fix:
-          j === terms.nSpreads - 1 && terms.participationDerived[j]
-            ? "The lower spreads already pay more than the Coupon. Lower their participation or raise the Coupon."
-            : `Enter a Participation Rate above zero for Spread ${j + 1}.`,
-      });
+      if (j === terms.nSpreads - 1 && terms.participationDerived[j]) {
+        const lower = terms.spreads.slice(0, j).reduce((a, x) => a + (x.sell - x.buy) * x.participation, 0);
+        errors.push({
+          field: "coupon",
+          code: "coupon-unreachable",
+          message: `The lower spreads already pay ${(lower * 100).toFixed(2)}%, so the Coupon of ${(inputs.coupon * 100).toFixed(2)}% cannot be reached with a top spread participation above zero.`,
+          fix: "Raise the Coupon, or lower the participation of the lower spreads.",
+        });
+      } else {
+        errors.push({
+          field: `spreads.${j}`,
+          code: "participation",
+          message: `Spread ${j + 1} has a Participation Rate of ${Number.isFinite(s.participation) ? s.participation.toFixed(2) : "blank"}. It must be above zero.`,
+          fix: `Enter a Participation Rate above zero for Spread ${j + 1}.`,
+        });
+      }
     }
   });
   const reach = terms.spreads.reduce((a, s) => a + (s.sell - s.buy) * s.participation, 0);

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const buffer = await file.arrayBuffer();
   if (!buffer.byteLength) return NextResponse.json({ error: "The workbook is empty.", issues: ["The workbook is empty."] }, { status: 400 });
   if (buffer.byteLength > MAX_BYTES) {
-    return NextResponse.json({ error: "The workbook is too large.", issues: ["Keep the upload under 8 MB."] }, { status: 400 });
+    return NextResponse.json({ error: "The workbook is too large.", issues: ["Keep the upload under 8 megabytes."] }, { status: 400 });
   }
   const monthKey = String(form.get("monthKey") || "") || istTodayYmd().slice(0, 7);
 
