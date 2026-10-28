@@ -78,20 +78,29 @@ export async function loadActiveSurface(): Promise<{ surface: VolSurface; source
   return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(SEED_SURFACE)), source: "seed" };
 }
 
-export async function loadActiveParams(): Promise<{ params: PricingParams; source: DatasetSource }> {
+/** Surface parameters are saved per month; the latest month on or before today is active. */
+export async function loadActiveParams(): Promise<{ params: PricingParams; source: DatasetSource; monthKey: string | null }> {
   const db = await getDb();
   if (db) {
     try {
-      const doc = await db.collection(COLLECTIONS.pricingParams).findOne({ isActive: true });
+      const col = db.collection(COLLECTIONS.pricingParams);
+      const monthly = await col
+        .find({ monthKey: { $lte: deskMonthKey() } })
+        .sort({ monthKey: -1 })
+        .limit(1)
+        .next();
+      const doc = monthly ?? (await col.findOne({ isActive: true }));
       if (doc && looksLikeParams(doc)) {
-        return { params: normalizePricingParams(stripMeta(doc as unknown as PricingParams)), source: "database" };
+        const { monthKey, key, ...rest } = stripMeta(doc as unknown as PricingParams & { monthKey?: string; key?: string });
+        void key;
+        return { params: normalizePricingParams(rest), source: "database", monthKey: monthKey ?? null };
       }
     } catch (err) {
       console.error("[load] pricing params", err instanceof Error ? err.message : err);
     }
   }
-  if (runtimeParams) return { params: runtimeParams, source: "runtime" };
-  return { params: seedPricingParams(), source: "seed" };
+  if (runtimeParams) return { params: runtimeParams, source: "runtime", monthKey: null };
+  return { params: seedPricingParams(), source: "seed", monthKey: null };
 }
 
 export async function persistActiveSurface(surface: VolSurface, source: string): Promise<boolean> {
@@ -116,7 +125,7 @@ export async function persistActiveSurface(surface: VolSurface, source: string):
   return true;
 }
 
-export async function persistActiveParams(raw: PricingParams, source: string): Promise<boolean> {
+export async function persistActiveParams(raw: PricingParams, source: string, monthKey = deskMonthKey()): Promise<boolean> {
   const params = normalizePricingParams(raw);
   runtimeParams = params;
   const db = await getDb();
@@ -127,11 +136,11 @@ export async function persistActiveParams(raw: PricingParams, source: string): P
     await db
       .collection(COLLECTIONS.pricingParams)
       .updateOne(
-        { key: "active" },
-        { $set: { ...params, key: "active", isActive: true, source, updatedAt: new Date() } },
+        { monthKey },
+        { $set: { ...params, monthKey, key: `month:${monthKey}`, isActive: true, source, updatedAt: new Date() } },
         { upsert: true, ...wc },
       );
-    await db.collection(COLLECTIONS.uploadLogs).insertOne({ type: "pricing_params", filename: source, at: new Date() }, wc);
+    await db.collection(COLLECTIONS.uploadLogs).insertOne({ type: "pricing_params", filename: source, monthKey, at: new Date() }, wc);
   });
   return true;
 }

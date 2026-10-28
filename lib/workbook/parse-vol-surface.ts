@@ -118,7 +118,7 @@ function parseParameters(grid: Grid) {
     if (a.includes("reference") && a.includes("sensex")) referenceSensexPrice = positivePrice(b);
     else if (a.includes("reference") && (a.includes("nifty") || a.includes("underlying"))) referenceUnderlyingPrice = positivePrice(b);
     if (a.includes("rate cap") && a.includes("buying")) rateCapBuyingForward = asFraction(b, 0.068);
-    if (a.includes("dividend") && a.includes("multiplier")) dividendBidOfferMultiplier = Number(b) || 1;
+    if (a.includes("dividend") && (a.includes("multiplier") || a.includes("factor"))) dividendBidOfferMultiplier = Number(b) || 1;
     if (a === "bid or offer") bidOffer = /^o/i.test(String(b ?? "")) ? "O" : "B";
 
     if (tableHeader < 0) {
@@ -261,7 +261,7 @@ export function parseVolSurfaceWorkbook(buffer: ArrayBuffer, monthKey: string = 
     if (firstMoneyCol < 0) firstMoneyCol = c;
     moneyness.push(Math.round(m * 10000) / 10000);
   }
-  if (!moneyness.length || firstMoneyCol < 1) throw new Error("No Strike Change percent columns were found.");
+  if (!moneyness.length || firstMoneyCol < 1) throw new Error("No Strike Change % columns were found.");
   const deepCol = firstMoneyCol - 1;
 
   let dataRow = headerRow + 1;

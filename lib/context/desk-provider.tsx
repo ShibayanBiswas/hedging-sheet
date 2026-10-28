@@ -7,7 +7,7 @@ import { autoHedgeStrike, defaultInputs, seedMarketData } from "@/lib/engine/def
 import { istTodayYmd } from "@/lib/engine/dates";
 import { computeHedgingSheet, validateInputs } from "@/lib/engine/hedging-sheet";
 import type { HedgeInputs, HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
-import { normalizeVolSurface } from "@/lib/engine/vol-surface";
+import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import type { MarketLevels } from "@/lib/market-data";
 
 type InputsPatch = Partial<HedgeInputs> | ((prev: HedgeInputs) => Partial<HedgeInputs>);
@@ -223,7 +223,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       await wait(220);
       setSimulation({ running: true, step });
     }
-    const result = computeHedgingSheet(inputsRef.current, fresh);
+    const result = computeHedgingSheet(inputsRef.current, forwardMarket(fresh, inputsRef.current.valuationDate));
     await wait(220);
     setSimulation({ running: false, step: SIMULATION_STEPS.length });
     if (!result.ok) {

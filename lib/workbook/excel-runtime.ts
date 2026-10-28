@@ -1,6 +1,6 @@
 import type { Workbook } from "exceljs";
 
-import type { HedgingResult } from "@/lib/engine/types";
+import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { buildDeskExportFilename } from "@/lib/workbook/export-filename";
 
 type ExcelJsModule = typeof import("exceljs");
@@ -45,6 +45,26 @@ export async function downloadHedgingExcel(result: HedgingResult): Promise<strin
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   const name = hedgingExportFilename(result);
+  saveBlob(blob, name);
+  return name;
+}
+
+/** The active vol surface in the upload layout, so the desk can edit it offline and upload it back. */
+export async function downloadSurfaceFile(market: MarketData, asOf: string, premiumRate: number): Promise<string> {
+  const [{ buildSurfaceWorkbook, surfaceFileName }, { fetchBrandLogoBase64 }] = await Promise.all([
+    import("@/lib/workbook/build-surface-file"),
+    import("@/lib/workbook/export-branding"),
+  ]);
+  const wb = await createWorkbook();
+  const logo = await fetchBrandLogoBase64();
+  buildSurfaceWorkbook(wb, market.surface, market.params, { logoBase64: logo, asOf, premiumRate });
+  const buffer = await wb.xlsx.writeBuffer();
+  const name = surfaceFileName(market.surface);
+  saveBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name);
+  return name;
+}
+
+function saveBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -53,5 +73,4 @@ export async function downloadHedgingExcel(result: HedgingResult): Promise<strin
   a.click();
   a.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 2_000);
-  return name;
 }
