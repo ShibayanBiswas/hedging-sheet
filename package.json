@@ -26,6 +26,8 @@
     "e2e:visual": "playwright test e2e/visual e2e/blank --project=chromium --grep \"visual baselines|animation smoke\"",
     "e2e:visual:update": "playwright test e2e/visual e2e/blank --project=chromium --grep \"visual baselines\" --update-snapshots",
     "e2e:perf": "playwright test e2e/perf.spec.ts --project=chromium",
+    "e2e:responsive": "playwright test e2e/responsive --project=chromium",
+    "e2e:responsive:update": "playwright test e2e/responsive --project=chromium --grep \"visual baselines\" --update-snapshots",
     "e2e:prod": "playwright test --project=prod",
     "e2e:server": "npx tsx scripts/e2e-server.ts",
     "fixtures:build": "npx tsx scripts/build-test-fixtures.ts && npx tsx scripts/build-regression-fixture.ts && npx tsx scripts/build-table-schema.ts",

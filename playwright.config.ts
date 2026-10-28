@@ -9,7 +9,7 @@ const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
-const CHROMIUM_ONLY = [/visual\//, /perf\.spec/];
+const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//];
 const desktop = { viewport: { width: 1440, height: 900 } };
 
 export default defineConfig({

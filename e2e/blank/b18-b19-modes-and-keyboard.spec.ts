@@ -66,6 +66,8 @@ test.describe("B19 Keyboard", () => {
       const at = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement | null;
         if (!el || !el.closest("main")) return null;
+        // The Run Simulation bar is pinned to the bottom edge, so it always reads as the last stop.
+        if (el.closest(".hs-run-bar")) return { id: el.dataset.testid ?? "run", top: document.documentElement.scrollHeight, left: 0 };
         const r = el.getBoundingClientRect();
         // Position within the content: sideways rails scroll as focus moves, so add their scroll back.
         let scrolled = 0;

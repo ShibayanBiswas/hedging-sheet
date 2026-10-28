@@ -19,7 +19,7 @@ const SHEET_FOR_TAB: Record<TabId, string> = {
 };
 
 /** Download Excel from the header and return the saved path. */
-async function downloadExcel(page: Page): Promise<{ file: string; name: string }> {
+export async function downloadExcel(page: Page): Promise<{ file: string; name: string }> {
   fs.mkdirSync(OUT, { recursive: true });
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-excel").click()]);
   const file = path.join(OUT, `${Date.now()}-${download.suggestedFilename()}`);

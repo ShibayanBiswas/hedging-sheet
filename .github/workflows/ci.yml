@@ -93,7 +93,7 @@ jobs:
           linux=$(ls e2e/visual/__screenshots__/chromium/linux/*.png 2>/dev/null | wc -l)
           echo "missing=$([ "$linux" -lt "$win" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
       # Until every Linux baseline is committed, this step writes them for the artifact instead of failing.
-      - run: npx playwright test e2e/visual e2e/blank --project=chromium --grep "visual baselines"
+      - run: npx playwright test e2e/visual e2e/blank e2e/responsive --project=chromium --grep "visual baselines"
         continue-on-error: ${{ steps.baselines.outputs.missing == 'true' }}
       - uses: actions/upload-artifact@v4
         if: always()
