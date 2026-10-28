@@ -9,6 +9,8 @@ import path from "node:path";
 
 import { defaultInputs, seedMarketData } from "../lib/engine/defaults";
 import { computeHedgingSheet } from "../lib/engine/hedging-sheet";
+import { outputTables, productTables, specCells } from "../lib/tables";
+import { blankFillInputs, mockDefaultInputs, priceLikeTheApp } from "../tests/helpers/mock-market";
 
 const inputs = { ...defaultInputs({ valuationDate: "2026-08-04", spot: 76799, dailyVol: 0.00895071 }), hedgeStrike: 76800 };
 const options = {
@@ -47,6 +49,45 @@ const expected = {
   },
 };
 
+/** Headline numbers and the cells of the tables they come from, keyed as the pages write data-cell. */
+function mockCase(inputs: Parameters<typeof priceLikeTheApp>[0]) {
+  const m = priceLikeTheApp(inputs);
+  const tabs = outputTables(m);
+  const ids = ["summary-headline", "pricer-headline", "product-headline", "vega-headline", "margin-headline", "pd-greeks", "mtm"];
+  const cells: Record<string, Record<string, number | string>> = {};
+  for (const spec of Object.values(tabs).flat()) {
+    if (!ids.includes(spec.id)) continue;
+    cells[spec.id] = Object.fromEntries(
+      specCells(spec)
+        .filter((c) => c.value != null && c.value !== "")
+        .map((c) => [c.key, typeof c.value === "number" ? c.value : c.text]),
+    );
+  }
+  const greeks = productTables(m).greeks.items;
+  return {
+    headline: {
+      actualInbuilt: m.summary.actualInbuilt,
+      totalPremiumCr: m.summary.totalPremiumCr,
+      maturityCr: m.productDescription.maturityCr,
+      margin: m.summary.margin,
+      hedgeQuantity: m.dayOneVegaHedge.quantity,
+      worstMtmCr: m.markToMarket.worstCase.totalRequirementCr,
+      worstMtmMove: m.markToMarket.worstCase.move,
+    },
+    greekDetails: Object.fromEntries(greeks.map((g) => [g.label, g.value])),
+    cells,
+  };
+}
+
+const withMock = {
+  ...expected,
+  mock: {
+    note: "Mock mode, 28-Oct-2026 10:00 IST: the seeded surface and parameters, as the app computes them. default is Default Values; blankFill is tests/fixtures/blank-valid-fill.json typed into Blank Inputs.",
+    default: mockCase(mockDefaultInputs()),
+    blankFill: mockCase(blankFillInputs()),
+  },
+};
+
 const out = path.join(process.cwd(), "tests", "fixtures", "regression-expected.json");
-fs.writeFileSync(out, `${JSON.stringify(expected, null, 2)}\n`);
+fs.writeFileSync(out, `${JSON.stringify(withMock, null, 2)}\n`);
 console.log("Wrote", path.relative(process.cwd(), out));

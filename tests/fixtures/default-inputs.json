@@ -54,7 +54,6 @@
     "stressSigmas": 6,
     "stressDays": 2,
     "stressVolMultiplier": 1.25,
-    "volBump": 0,
     "legVolOverrides": {},
     "hedgeVolOverride": null
   },
