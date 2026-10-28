@@ -128,7 +128,7 @@ For forward growth g, discount r, vol σ, time T, spot S and strike K: F = S·e^
 
 `lib/engine/vol-surface.ts`. The strike axis is Deep ₹500, then each Strike Change column times the reference price of the underlying. The lookup is FORECAST across the two bracketing strike columns of the bracketing expiry row, then linear in days to the next row: bilinear within the grid. Beyond the last row the last row is held flat, and the run shows the "Expiries Beyond The Surface" warning. The volatility bump is added after dividing by 100.
 
-Any leg's volatility can be overridden on the Pricer by typing over the Volatility cell. The override is keyed by half and expiry (`legKey`), badged Overridden, and cleared by Reset.
+Any leg's volatility can be overridden on the Pricer by typing over the Volatility cell. The override is keyed by strike and expiry (`legKey`), applies to both halves of the book, badged Overridden, and cleared by Reset.
 
 ### Rate curve
 

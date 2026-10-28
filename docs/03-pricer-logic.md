@@ -18,7 +18,7 @@ The Pricer tab shows the option book that replicates the payoff. The row by row 
 
 ## Volatility overrides
 
-Every Volatility cell in the Leg Grid is editable. Typing a value overrides that leg in both halves at that expiry, marks the cell with a gold ring and an Overridden badge, and marks the run stale. Clearing the cell or pressing Reset returns every leg to the surface. Run the simulation again to price on the overrides.
+Every Volatility cell in the Leg Grid is editable. Typing a value overrides that strike at that expiry, in both halves of the book, marks the cell with a gold ring and an Overridden badge, and marks the run stale. Clearing the cell or pressing Reset returns every leg to the surface. Run the simulation again to price on the overrides.
 
 ## Bid or Offer
 
