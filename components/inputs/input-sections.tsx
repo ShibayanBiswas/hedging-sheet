@@ -16,13 +16,15 @@ import {
   RefreshCw,
   RotateCcw,
   ScrollText,
+  Plus,
   ShieldAlert,
+  Trash2,
   TrendingUp,
   Zap,
   type LucideIcon,
 } from "lucide-react";
 
-import { ChoiceSelect, FieldRow, NumberInput, Stepper, TextInput, Toggle } from "@/components/ui/fields";
+import { ChoiceSelect, FieldRow, NumberInput, Segmented, Stepper, TextInput, Toggle } from "@/components/ui/fields";
 import { Panel, SectionTitle } from "@/components/ui/panel";
 import { useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
@@ -30,8 +32,10 @@ import { formatDate } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
 import { EXPIRY_WEEKDAY, expiryDates, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, resizeList, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { deriveTerms, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, spreadCount, startLevel } from "@/lib/engine/structure";
-import type { HedgeInputs, OptionType, Underlying } from "@/lib/engine/types";
+import type { HedgeInputs, OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
+import { LEVEL_FIELD, UNDERLYINGS } from "@/lib/underlyings";
+import { canRemoveStrike, insertStrike, removeStrike } from "@/lib/inputs/strikes";
 import { fmtNumber, fmtPercent } from "@/lib/format";
 import { deskEase } from "@/lib/motion";
 import { cn } from "@/lib/cn";
@@ -80,8 +84,8 @@ function StatusBadge({ tone, children, testId }: { tone: "ok" | "warn" | "muted"
       data-testid={testId}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-3 py-1 font-ui text-caption font-bold uppercase tracking-wider",
-        tone === "ok" && "border-emerald-400/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
-        tone === "warn" && "border-amber-400/40 bg-amber-500/10 text-amber-900 dark:text-amber-200",
+        tone === "ok" && "border-emerald-400/40 text-emerald-800",
+        tone === "warn" && "border-amber-400/40 text-amber-900",
         tone === "muted" && "border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] text-muted",
       )}
     >
@@ -131,7 +135,6 @@ function FetchButton({
     >
       {Icon ? (
         <>
-          <span className="btn-shine" aria-hidden />
           <span className="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gold-light via-gold to-gold-dark text-white shadow-sm">
             {loading ? <span className="absolute inset-0 animate-spin rounded-lg border-2 border-white/30 border-t-white" aria-hidden /> : null}
             <AnimatePresence mode="wait" initial={false}>
@@ -163,7 +166,7 @@ export function UnderlyingSection({ index }: { index: number }) {
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
   return (
     <Panel index={index} id="underlying">
-      <SectionTitle icon={LineChart} subtitle="Every label renames with the chosen underlying. Spot is the last completed session close.">
+      <SectionTitle icon={LineChart}>
         Underlying And Market
       </SectionTitle>
       <div className="field-grid">
@@ -173,10 +176,7 @@ export function UnderlyingSection({ index }: { index: number }) {
             testId="input-underlying"
             invalid={Boolean(errorFor("underlying"))}
             onChange={setUnderlying}
-            options={[
-              { value: "Nifty", label: "Nifty" },
-              { value: "Sensex", label: "Sensex" },
-            ]}
+            options={UNDERLYINGS.map((u) => ({ value: u, label: u }))}
           />
         </FieldRow>
         <FieldRow label="Valuation Date" error={errorFor("valuationDate")} hint={mode === "default" ? "Today in India by default." : "Today or an earlier date."}>
@@ -224,11 +224,10 @@ export function UnderlyingSection({ index }: { index: number }) {
                   data-testid="refresh-yahoo"
                   onClick={async () => {
                     const lv = await refreshLevels();
-                    const level = inputs.underlying === "Nifty" ? lv?.niftyLevel : lv?.sensexLevel;
+                    const level = inputs.underlying ? lv?.[LEVEL_FIELD[inputs.underlying]] : undefined;
                     if (lv && level) setInputs({ spot: level, valuationDate: lv.valuationDate });
                   }}
                 >
-                  <span className="btn-shine" aria-hidden />
                   <span className="relative z-10 inline-flex items-center gap-2">
                     <RefreshCw className={levelsLoading ? "icon-sm animate-spin" : "icon-sm"} />
                     Refresh From Yahoo
@@ -518,12 +517,39 @@ export function ExpiriesSection({ index }: { index: number }) {
 
 // ------------------------------------------------------------------ Strikes
 
+const OPTION_TYPES: Array<{ value: OptionType; label: string }> = [
+  { value: "P", label: "Put" },
+  { value: "C", label: "Call" },
+];
+const SIDES: Array<{ value: StrikeSide; label: string }> = [
+  { value: "B", label: "Buy" },
+  { value: "S", label: "Sell" },
+];
+
+function setAt<T>(list: T[], i: number, v: T): T[] {
+  const next = [...list];
+  next[i] = v;
+  return next;
+}
+
 export function StrikesSection({ index }: { index: number }) {
-  const { inputs, setInputs } = useDesk();
+  const { mode, inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
   const reduce = useReducedMotion();
+  const [newStrike, setNewStrike] = useState(NaN);
+  const [addError, setAddError] = useState<string | null>(null);
   // The start level moves with the spot, the underlying, the uplift and the rounding; the % stays put.
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
+  const add = () => {
+    const next = insertStrike(inputs, newStrike, mode);
+    if (!next) {
+      setAddError("Enter a strike % above the protection strike that is not already a strike, with at most four spreads.");
+      return;
+    }
+    setAddError(null);
+    setNewStrike(NaN);
+    setInputs(next);
+  };
   return (
     <Panel index={index} id="strikes">
       <SectionTitle icon={Layers} aside={<span className="hs-chip">{inputs.strikePercents.length} Strikes</span>}>
@@ -532,7 +558,7 @@ export function StrikesSection({ index }: { index: number }) {
       <div className="flex w-full flex-col gap-3">
         <AnimatePresence initial={false}>
           {inputs.strikePercents.map((pct, i) => {
-            const error = errorFor(`strikePercents.${i}`);
+            const error = errorFor(`strikePercents.${i}`) ?? errorFor(`strikeOptionTypes.${i}`) ?? errorFor(`strikeSides.${i}`);
             const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
             return (
               <motion.div
@@ -540,7 +566,7 @@ export function StrikesSection({ index }: { index: number }) {
                 layout={!reduce}
                 data-testid={`strike-row-${i}`}
                 className={cn(
-                  "grid w-full items-center gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3 sm:grid-cols-[6rem_1fr_1fr]",
+                  "grid w-full items-end gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3 sm:grid-cols-2 xl:grid-cols-[5rem_minmax(8rem,1fr)_minmax(8rem,1fr)_auto_auto_auto]",
                   error ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
                 )}
                 initial={reduce ? false : { opacity: 0, y: 6 }}
@@ -548,10 +574,10 @@ export function StrikesSection({ index }: { index: number }) {
                 exit={reduce ? undefined : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.25, ease: deskEase }}
               >
-                <span className="font-ui text-body font-bold text-ink">Strike {i + 1}</span>
+                <span className="pb-3 font-ui text-body font-bold text-ink sm:col-span-2 xl:col-span-1">Strike {i + 1}</span>
                 <div className="flex min-w-0 flex-col gap-1">
                   <label className="field-label font-ui" htmlFor={`strike-percent-${i}`}>
-                    Strike %
+                    Level %
                   </label>
                   <NumberInput
                     id={`strike-percent-${i}`}
@@ -559,7 +585,7 @@ export function StrikesSection({ index }: { index: number }) {
                     digits={2}
                     suffix="%"
                     testId={`input-strikePercents-${i}`}
-                    invalid={Boolean(error)}
+                    invalid={Boolean(errorFor(`strikePercents.${i}`))}
                     placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
                     onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
                     onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
@@ -567,7 +593,7 @@ export function StrikesSection({ index }: { index: number }) {
                 </div>
                 <div className="flex min-w-0 flex-col gap-1">
                   <label className="field-label font-ui" htmlFor={`strike-level-${i}`}>
-                    Strike Level
+                    Level In Points
                   </label>
                   <NumberInput
                     id={`strike-level-${i}`}
@@ -580,17 +606,74 @@ export function StrikesSection({ index }: { index: number }) {
                     onChange={(v) => setInputs((prev) => withStrike(prev, i, percentFromLevel(v, start)))}
                   />
                 </div>
-                {error ? <p className="hs-error sm:col-span-3">{error}</p> : null}
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="field-label font-ui">Option Type</span>
+                  <Segmented<OptionType>
+                    label={`Strike ${i + 1} Option Type`}
+                    value={inputs.strikeOptionTypes[i] ?? ""}
+                    options={OPTION_TYPES}
+                    testId={`input-strikeOptionTypes-${i}`}
+                    invalid={Boolean(errorFor(`strikeOptionTypes.${i}`))}
+                    onChange={(v) => setInputs((prev) => ({ strikeOptionTypes: setAt(prev.strikeOptionTypes, i, v) }))}
+                  />
+                </div>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="field-label font-ui">Buy Or Sell</span>
+                  <Segmented<StrikeSide>
+                    label={`Strike ${i + 1} Buy Or Sell`}
+                    value={inputs.strikeSides[i] ?? ""}
+                    options={SIDES}
+                    testId={`input-strikeSides-${i}`}
+                    invalid={Boolean(errorFor(`strikeSides.${i}`))}
+                    onChange={(v) => setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, v) }))}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-ghost btn-animated inline-flex h-11 w-11 items-center justify-center self-end !p-0"
+                  aria-label={`Remove Strike ${i + 1}`}
+                  title={canRemoveStrike(inputs, i) ? `Remove Strike ${i + 1}` : "Only A Spread Level Can Go, While More Than One Spread Remains"}
+                  data-testid={`remove-strike-${i}`}
+                  disabled={!canRemoveStrike(inputs, i)}
+                  onClick={() => {
+                    const next = removeStrike(inputs, i, mode);
+                    if (next) setInputs(next);
+                  }}
+                >
+                  <Trash2 className="icon-sm" aria-hidden />
+                </button>
+                {error ? (
+                  <p className="hs-error sm:col-span-2 xl:col-span-6" role="alert" data-testid={`strike-error-${i}`}>
+                    {error}
+                  </p>
+                ) : null}
               </motion.div>
             );
           })}
         </AnimatePresence>
+        <div className="flex w-full flex-wrap items-end gap-3 rounded-2xl border border-dashed border-[color:var(--ar-border)] p-3">
+          <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1">
+            <label className="field-label font-ui" htmlFor="new-strike">
+              New Strike %
+            </label>
+            <NumberInput id="new-strike" value={newStrike} digits={2} suffix="%" testId="input-newStrike" placeholder="Eg 100" onChange={setNewStrike} onBlankChange={() => setNewStrike(NaN)} />
+          </div>
+          <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" data-testid="add-strike" onClick={add}>
+            <Plus className="icon-sm" aria-hidden />
+            Add Strike
+          </button>
+          {addError ? (
+            <p className="hs-error w-full" role="alert" data-testid="add-strike-error">
+              {addError}
+            </p>
+          ) : null}
+        </div>
       </div>
     </Panel>
   );
 }
 
-// ------------------------------------------------------------------ Spreads and Option Type
+// ------------------------------------------------------------------ Spreads
 
 export function SpreadsSection({ index }: { index: number }) {
   const { mode, inputs, setInputs } = useDesk();
@@ -601,27 +684,21 @@ export function SpreadsSection({ index }: { index: number }) {
   const payouts = terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
   const total = payouts.reduce((a, b) => a + b, 0);
 
+  // New spreads go on top of the old target, five points apart; removing one drops the top strike.
   const setCount = (count: number) =>
     setInputs((prev) => {
-      const cur = spreadCount(prev);
-      const k = [...prev.strikePercents];
-      let parts = [...prev.participations];
-      let types = [...prev.spreadOptionTypes];
-      if (count > cur) {
-        // New spreads go on top of the old target, five points apart; the old top spread falls back to 1.
-        parts = parts.map((p, j) => (j === parts.length - 1 ? 1 : p));
-        for (let a = 0; a < count - cur; a++) {
-          k.unshift(k[0]! + 5);
-          parts.push(a === count - cur - 1 ? null : 1);
-          types.push(mode === "blank" ? "" : "P");
-        }
-      } else if (count < cur) {
-        k.splice(0, cur - count);
-        parts = parts.slice(0, count);
-        parts[parts.length - 1] = null;
-        types = types.slice(0, count);
+      let next: DeskInputs = prev;
+      while (spreadCount(next) < count) {
+        const added = insertStrike(next, next.strikePercents[0]! + 5, mode);
+        if (!added) break;
+        next = { ...next, ...added };
       }
-      return { strikePercents: k, participations: parts, spreadOptionTypes: types };
+      while (spreadCount(next) > count) {
+        const removed = removeStrike(next, 0, mode);
+        if (!removed) break;
+        next = { ...next, ...removed };
+      }
+      return { strikePercents: next.strikePercents, participations: next.participations, strikeOptionTypes: next.strikeOptionTypes, strikeSides: next.strikeSides };
     });
 
   const setLevel = (strikeIndex: number, fraction: number) => setInputs((prev) => withStrike(prev, strikeIndex, 100 * (1 + fraction)));
@@ -668,7 +745,7 @@ export function SpreadsSection({ index }: { index: number }) {
                   <p className="font-ui text-body font-bold text-ink">Spread {j + 1}</p>
                   <span className="hs-chip">Pays {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]) : "-"}</span>
                 </div>
-                <div className="grid w-full items-start gap-3 md:grid-cols-[1fr_1fr_1.4fr_minmax(9rem,0.8fr)]">
+                <div className="grid w-full items-start gap-3 md:grid-cols-[1fr_1fr_1.4fr]">
                   <div>
                     <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Buy Level</p>
                     <NumberInput
@@ -749,29 +826,8 @@ export function SpreadsSection({ index }: { index: number }) {
                       </p>
                     ) : null}
                   </div>
-                  <div>
-                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Option Type</p>
-                    <ChoiceSelect<OptionType>
-                      value={inputs.spreadOptionTypes[j] ?? ""}
-                      testId={`input-spreadOptionTypes-${j}`}
-                      ariaLabel={`Spread ${j + 1} Option Type`}
-                      invalid={Boolean(errorFor(`spreadOptionTypes.${j}`))}
-                      onChange={(v) =>
-                        setInputs((prev) => {
-                          const types = [...prev.spreadOptionTypes];
-                          types[j] = v;
-                          return { spreadOptionTypes: types };
-                        })
-                      }
-                      options={[
-                        { value: "P", label: "Put" },
-                        { value: "C", label: "Call" },
-                      ]}
-                    />
-                  </div>
                 </div>
                 {error ? <p className="hs-error mt-2">{error}</p> : null}
-                {errorFor(`spreadOptionTypes.${j}`) ? <p className="hs-error mt-2">{errorFor(`spreadOptionTypes.${j}`)}</p> : null}
               </motion.div>
             );
           })}

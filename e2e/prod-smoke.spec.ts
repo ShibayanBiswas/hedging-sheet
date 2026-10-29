@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { InputsPage, NavBar, TAB_IDS, outputPages } from "./pages";
 
 /**
- * Read-only checks against a live deployment: BASE_URL=https://hedging-sheet.vercel.app npm run e2e:prod.
+ * Read-only checks against a live deployment: BASE_URL=https://hedging-sheet.vercel.app npm run test:prod.
  * Nothing is uploaded or saved, so the desk database is never written.
  */
 test.skip(!process.env.BASE_URL, "Set BASE_URL to the deployment under test.");
@@ -13,7 +13,7 @@ test("every page loads and the live close fills Inputs", async ({ page }) => {
   page.on("pageerror", (e) => errors.push(e.message));
   const inputs = new InputsPage(page);
   await inputs.goto();
-  await expect(page.getByTestId("footer-market-status")).toContainText(/Market (Open|Pre Open|Closed|Holiday|Weekend)/);
+  await expect(page.getByTestId("footer-market-status")).toContainText(/Market\s*(Open|Pre Open|Closed|Holiday|Weekend)/);
   const nav = new NavBar(page);
   for (const id of TAB_IDS) await nav.go(id);
   expect(errors).toEqual([]);

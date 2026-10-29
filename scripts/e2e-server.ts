@@ -34,6 +34,7 @@ async function main() {
       TEST_NOW: process.env.TEST_NOW ?? MOCK_NOW_ISO,
       DESK_WRITE_KEY: E2E_DESK_KEY,
       DESK_WRITE_LIMIT: "100000",
+      NEXT_PUBLIC_E2E: "1",
       NEXT_TELEMETRY_DISABLED: "1",
     },
   });

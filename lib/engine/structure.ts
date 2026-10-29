@@ -1,4 +1,4 @@
-import type { HedgeInputs, OptionType, SpreadInput, StrikeRole, StrikeSlot, ValidationIssue } from "@/lib/engine/types";
+import type { HedgeInputs, SpreadInput, StrikeRole, StrikeSide, StrikeSlot, ValidationIssue } from "@/lib/engine/types";
 
 export const MIN_SPREADS = 1;
 export const MAX_SPREADS = 4;
@@ -38,7 +38,7 @@ export type DerivedTerms = {
 };
 
 /** Every product term the strikes imply. */
-export function deriveTerms(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon"> & { spreadOptionTypes?: Array<OptionType | ""> }): DerivedTerms {
+export function deriveTerms(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon">): DerivedTerms {
   const k = inputs.strikePercents;
   const n = Math.max(0, k.length - 4);
   const raw: Array<{ buy: number; sell: number }> = [];
@@ -57,7 +57,7 @@ export function deriveTerms(inputs: Pick<HedgeInputs, "strikePercents" | "partic
   }
   return {
     nSpreads: n,
-    spreads: raw.map((s, j) => ({ ...s, participation: parts[j]!, optionType: inputs.spreadOptionTypes?.[j] === "C" ? "C" : "P" })),
+    spreads: raw.map((s, j) => ({ ...s, participation: parts[j]! })),
     target: (k[0] ?? NaN) / 100 - 1,
     protection: 1 - (k[n + 1] ?? NaN) / 100,
     outflowWidth: ((k[n + 1] ?? NaN) - (k[n + 2] ?? NaN)) / 100,
@@ -84,48 +84,56 @@ export function percentFromLevel(level: number, start: number): number {
 }
 
 /**
- * The option book, one leg per strike and option type, using the rounded rupee strikes as the Pricer row 47 does.
- * Spread j buys u options at its Buy Level strike and sells u at its Sell Level strike, puts or calls by its own type,
- * with u = payout × start ÷ rupee width. The protection, outflow and floor legs are puts.
- * Adjacent spreads of one type share a strike, so their units net into one leg, as the workbook's put book does.
+ * Units per strike: the change in the payoff's slope across it, from the strike levels given by `level`.
+ * Spread j sells u at its Sell Level strike and buys u at its Buy Level strike, u = payout × start ÷ width.
  */
-export function buildStrikes(inputs: HedgeInputs, start: number): StrikeSlot[] {
+function unitsAt(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon" | "decay" | "floorUnits">, start: number, level: (i: number) => number): number[] {
   const terms = deriveTerms(inputs);
-  const k = inputs.strikePercents;
   const n = terms.nSpreads;
-  const kOf = (i: number) => rupeeStrike(start, k[i]!);
-  const units = k.map(() => ({ P: 0, C: 0 }));
-  const used = k.map(() => ({ P: false, C: false }));
-  const add = (i: number, type: OptionType, u: number) => {
-    units[i]![type] += u;
-    used[i]![type] = true;
-  };
-
+  const units = inputs.strikePercents.map(() => 0);
   // Pricer C13 and C14: the payout of each spread. Row 47: payout × start ÷ rupee width.
   terms.spreads.forEach((s, j) => {
     const sell = n - j - 1;
     const buy = n - j;
-    const u = ((s.sell - s.buy) * s.participation * start) / (kOf(sell) - kOf(buy));
-    add(sell, s.optionType, -u);
-    add(buy, s.optionType, u);
+    const u = ((s.sell - s.buy) * s.participation * start) / (level(sell) - level(buy));
+    units[sell]! -= u;
+    units[buy]! += u;
   });
   // Pricer Z47 = −E14 × B5 ÷ (Z19 − AH19) − E12, with E14 = protection × decay: the slope across the outflow step.
-  const outflowSlope = (terms.protection * inputs.decay * start) / (kOf(n + 1) - kOf(n + 2)) + inputs.decay;
-  add(n + 1, "P", -outflowSlope);
-  add(n + 2, "P", outflowSlope - inputs.decay);
+  const outflowSlope = (terms.protection * inputs.decay * start) / (level(n + 1) - level(n + 2)) + inputs.decay;
+  units[n + 1]! -= outflowSlope;
+  units[n + 2]! += outflowSlope - inputs.decay;
   // Below the floor the slope is decay less the floor units: 1.60 − 1.00 = 0.60.
-  add(n + 3, "P", inputs.decay - (inputs.decay - inputs.floorUnits));
-
-  return k.flatMap((pct, i) =>
-    (["P", "C"] as const)
-      .filter((type) => used[i]![type])
-      .map((type) => ({ percent: pct, strike: kOf(i), roles: strikeRoles(n, i), units: units[i]![type], optionType: type })),
-  );
+  units[n + 3]! += inputs.decay - (inputs.decay - inputs.floorUnits);
+  return units;
 }
 
-/** The put spreads' payouts, paid in cash at maturity. A call spread is zero below its Buy Level, so it needs none. */
+/** The side each strike must take for the book to give the payoff: Sell where units are negative, Buy where positive. */
+export function derivedSides(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon" | "decay" | "floorUnits">): StrikeSide[] {
+  return unitsAt(inputs, 100, (i) => inputs.strikePercents[i]!).map((u) => (u < 0 ? "S" : "B"));
+}
+
+/**
+ * The option book, one leg per strike, using the rounded rupee strikes as the Pricer row 47 does.
+ * Each strike takes its own option type; a call strike carries a futures leg, so it replicates the put's payoff.
+ */
+export function buildStrikes(inputs: HedgeInputs, start: number): StrikeSlot[] {
+  const n = deriveTerms(inputs).nSpreads;
+  const kOf = (i: number) => rupeeStrike(start, inputs.strikePercents[i]!);
+  const units = unitsAt(inputs, start, kOf);
+  return inputs.strikePercents.map((pct, i) => ({
+    percent: pct,
+    strike: kOf(i),
+    roles: strikeRoles(n, i),
+    units: units[i]!,
+    optionType: inputs.strikeOptionTypes?.[i] === "C" ? "C" : "P",
+    side: units[i]! < 0 ? "S" : "B",
+  }));
+}
+
+/** The spreads' payouts, paid in cash at maturity on top of the option book. */
 export function upsideCash(terms: DerivedTerms): number {
-  return terms.spreads.reduce((acc, s) => acc + (s.optionType === "P" ? (s.sell - s.buy) * s.participation : 0), 0);
+  return terms.spreads.reduce((acc, s) => acc + (s.sell - s.buy) * s.participation, 0);
 }
 
 /** Edge cases that block pricing. Each carries a code and a fix for the popup. */
@@ -210,12 +218,12 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       fix: "Reset the top spread participation to derived, raise a participation, or lower the Coupon.",
     });
   }
-  if (!(terms.protection > 0 && terms.protection < 1)) {
+  if (!(terms.protection >= 0 && terms.protection < 1)) {
     errors.push({
       field: "protection",
       code: "protection",
-      message: `The protection strike at ${k[n + 1]}% must sit below 100% of the start level.`,
-      fix: "Set Protection between 0% and 100%, such as 15%.",
+      message: `The protection strike at ${k[n + 1]}% must sit at or below 100% of the start level.`,
+      fix: "Set Protection from 0%, for no protection, up to below 100%, such as 15%.",
     });
   }
   if (!(terms.floorLevel < 1 - terms.protection - terms.outflowWidth)) {
@@ -224,6 +232,19 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       code: "floor-level",
       message: "The Decay Floor Level must sit below the Protection level less one point.",
       fix: `Lower the Decay Floor Level below ${(100 * (1 - terms.protection - terms.outflowWidth)).toFixed(2)}%.`,
+    });
+  }
+  if (!errors.length) {
+    derivedSides(inputs).forEach((want, i) => {
+      const chosen = inputs.strikeSides?.[i];
+      if (chosen && chosen !== want) {
+        errors.push({
+          field: `strikeSides.${i}`,
+          code: "strike-side",
+          message: `This Strike Must Be A ${want === "B" ? "Buy" : "Sell"} To Give The Product Payoff`,
+          fix: `Set Strike ${i + 1} to ${want === "B" ? "Buy" : "Sell"}.`,
+        });
+      }
     });
   }
   if (inputs.floorUnits > inputs.decay) {
@@ -257,11 +278,17 @@ export function clientReturn(inputs: HedgeInputs, performance: number): number {
   return p;
 }
 
-/** Client return implied by the option book: the put spreads' cash plus every leg at expiry. */
+/** Client return implied by the option book: the spreads' cash plus every leg at expiry, a call strike with its futures leg. */
 export function bookReturn(inputs: HedgeInputs, strikes: StrikeSlot[], start: number, performance: number): number {
   const s = 1 + performance;
   const cash = upsideCash(deriveTerms(inputs));
-  return cash + strikes.reduce((acc, k) => acc + k.units * (k.optionType === "P" ? Math.max(k.strike / start - s, 0) : Math.max(s - k.strike / start, 0)), 0);
+  return (
+    cash +
+    strikes.reduce((acc, slot) => {
+      const k = slot.strike / start;
+      return acc + slot.units * (slot.optionType === "P" ? Math.max(k - s, 0) : Math.max(s - k, 0) + (k - s));
+    }, 0)
+  );
 }
 
 /**

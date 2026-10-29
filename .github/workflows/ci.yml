@@ -14,9 +14,9 @@ env:
 
 jobs:
   checks:
-    name: Typecheck, Lint, Vitest And Build
+    name: Typecheck, Lint, Vitest, Mapping, Copy And Build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,7 +26,10 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm run test:coverage
+      - name: Unit, golden and API tests, with coverage
+        run: npm run test:coverage
+      - run: npm run verify:mapping
+      - run: npm run verify:copy
       - run: npm run build
       - uses: actions/upload-artifact@v4
         if: always()
@@ -48,6 +51,8 @@ jobs:
         shard: [1, 2, 3, 4]
     env:
       E2E_PROD: "1"
+      # Exposes window.__HS_TEST__ for the number crawl; production builds never set it.
+      NEXT_PUBLIC_E2E: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,7 +62,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
-      # Visual baselines are per platform and run in their own job below.
+      # End to end, accessibility, layout, number and button crawls; the visual baselines run in their own job.
       - run: npx playwright test --shard=${{ matrix.shard }}/4 --grep-invert "visual baselines"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -76,6 +81,7 @@ jobs:
     timeout-minutes: 30
     env:
       E2E_PROD: "1"
+      NEXT_PUBLIC_E2E: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -85,15 +91,13 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      # Checked before the run, because the run itself writes any missing baselines.
-      # Baselines are added on Windows first, so fewer Linux files means some are still to be generated here.
+      # 8 tabs at desktop, tablet and phone widths: 24 Linux baselines. Counted before the run, which writes any missing.
       - id: baselines
         run: |
-          win=$(ls e2e/visual/__screenshots__/chromium/win32/*.png 2>/dev/null | wc -l)
           linux=$(ls e2e/visual/__screenshots__/chromium/linux/*.png 2>/dev/null | wc -l)
-          echo "missing=$([ "$linux" -lt "$win" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-      # Until every Linux baseline is committed, this step writes them for the artifact instead of failing.
-      - run: npx playwright test e2e/visual e2e/blank e2e/responsive --project=chromium --grep "visual baselines"
+          echo "missing=$([ "$linux" -lt 24 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      # Until all 24 are committed, this step writes them for the artifact instead of failing.
+      - run: npm run test:visual
         continue-on-error: ${{ steps.baselines.outputs.missing == 'true' }}
       - uses: actions/upload-artifact@v4
         if: always()

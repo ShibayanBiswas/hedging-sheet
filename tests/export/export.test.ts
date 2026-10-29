@@ -2,9 +2,9 @@ import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 
 import type { HedgingResult } from "@/lib/engine/types";
-import { buildHedgingWorkbook, SHEET_NAMES } from "@/lib/workbook/build-hedging-excel";
-import { hedgingExportFilename } from "@/lib/workbook/excel-runtime";
-import { EXCEL_THEME } from "@/lib/workbook/export-theme";
+import { buildHedgingExcel, SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
+import { hedgingExportFilename } from "@/lib/excel/excel-runtime";
+import { EXCEL_THEME } from "@/lib/excel/export-theme";
 import { titleCaseViolations } from "@/lib/format/title-case";
 
 import { priced } from "../helpers/fixture";
@@ -44,11 +44,32 @@ function columnValues(sheet: ExcelJS.Worksheet, header: string): ExcelJS.CellVal
   return out;
 }
 
+describe("Excel number formats", () => {
+  it("show at most 3 decimals on every numeric cell of all five sheets", () => {
+    const wb = new ExcelJS.Workbook();
+    buildHedgingExcel(wb, priced({ strikeOptionTypes: ["C", "P", "C", "P", "P", "P"] }), null);
+    const wide: string[] = [];
+    let numbers = 0;
+    wb.eachSheet((ws) =>
+      ws.eachRow((row) =>
+        row.eachCell((cell) => {
+          if (typeof cell.value !== "number") return;
+          numbers++;
+          const places = Math.max(0, ...(cell.numFmt ?? "General").split(";").map((part) => part.match(/\.([0#]+)/)?.[1]?.length ?? 0));
+          if (places > 3 || !cell.numFmt || cell.numFmt === "General") wide.push(`${ws.name}!${cell.address} "${cell.numFmt ?? "General"}"`);
+        }),
+      ),
+    );
+    expect(numbers).toBeGreaterThan(2000);
+    expect(wide.slice(0, 20)).toEqual([]);
+  });
+});
+
 describe("Excel download", () => {
   it("has the five sheets in order and values match the engine", async () => {
     const r = result();
     const wb = new ExcelJS.Workbook();
-    buildHedgingWorkbook(wb, r, null);
+    buildHedgingExcel(wb, r, null);
     const buffer = await wb.xlsx.writeBuffer();
 
     const reopened = new ExcelJS.Workbook();
@@ -61,7 +82,7 @@ describe("Excel download", () => {
     expect(valueRightOf(product, "Residual Futures To Be Done")).toBeCloseTo(r.productDescription.greeks.residualFutures, 6);
 
     const margin = reopened.getWorksheet("Mark To Market And Margin")!;
-    const totals = columnValues(margin, "Total Of Futures Margin, Mark To Market And Options Margin");
+    const totals = columnValues(margin, "Total Margin In Crore");
     expect(totals.length).toBe(15);
     expect(totals[10]).toBeCloseTo(r.markToMarket.zeroRow.totalRequirementCr, 9);
 
@@ -80,7 +101,7 @@ describe("Excel download", () => {
 
   it("has no pivots and the Pricer header shows % strikes over real expiry dates", async () => {
     const wb = new ExcelJS.Workbook();
-    buildHedgingWorkbook(wb, result(), null);
+    buildHedgingExcel(wb, result(), null);
     const buffer = await wb.xlsx.writeBuffer();
     expect(Buffer.from(buffer as ArrayBuffer).toString("latin1").includes("pivotTable")).toBe(false);
     const reopened = new ExcelJS.Workbook();
@@ -97,7 +118,7 @@ describe("Excel download", () => {
 
   it("capitalises every word of the sheet names and every header row", async () => {
     const wb = new ExcelJS.Workbook();
-    buildHedgingWorkbook(wb, result(), null);
+    buildHedgingExcel(wb, result(), null);
     const reopened = new ExcelJS.Workbook();
     await reopened.xlsx.load((await wb.xlsx.writeBuffer()) as ArrayBuffer);
     const offenders: string[] = [];

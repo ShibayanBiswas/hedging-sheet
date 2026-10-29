@@ -18,11 +18,14 @@ next-env.d.ts
 # testing
 test-results/
 playwright-report/
+blob-report/
 coverage/
+*.trace.zip
 .lighthouseci/
 
-# workbook, scratch and the local build brief
+# workbook, scratch and the local build brief; the reference copy is a test fixture
 *.xlsm
+!fixtures/reference/*.xlsm
 .scratch/
 hedging_sheet_cursor_prompt.md
 hedging_sheet_walkthrough.md

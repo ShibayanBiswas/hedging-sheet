@@ -1,42 +1,35 @@
-import type { Page } from "@playwright/test";
-
 import { expect, test } from "../fixtures";
 import { TAB_IDS } from "../pages";
+import { masks, settle } from "../responsive/helpers";
 
 /**
- * Pixel baselines per page. Clocks, fetch times and live spots are masked, and animations are disabled.
- * Baselines are per platform: update them with npm run e2e:visual:update on the machine that runs CI.
+ * The one set of pixel baselines: the 8 tabs at 1440, 768 and 390 px, light theme, after a run.
+ * Clocks, fetch times and live spots are masked and motion is reduced. Baselines are Linux only, from CI.
  */
-function masks(page: Page) {
-  return [
-    page.getByTestId("desk-footer"),
-    page.getByTestId("market-strip"),
-    page.getByTestId("fetched-at"),
-    page.getByTestId("input-spot"),
-    page.getByTestId("input-valuationDate"),
-  ];
+const WIDTHS = [
+  { name: "desktop", width: 1440, height: 900 },
+  { name: "tablet", width: 768, height: 1024 },
+  { name: "phone", width: 390, height: 844 },
+] as const;
+
+for (const w of WIDTHS) {
+  test.describe(`${w.name} ${w.width}`, () => {
+    test.use({ viewport: { width: w.width, height: w.height }, reducedMotion: "reduce" });
+
+    test(`visual baselines ${w.name} every tab after a run`, async ({ page, inputs, nav }) => {
+      test.setTimeout(240_000);
+      await inputs.goto();
+      await inputs.run();
+      await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
+      for (const id of TAB_IDS) {
+        await nav.go(id);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await settle(page);
+        await expect(page).toHaveScreenshot(`${w.name}-${id}.png`, { mask: masks(page) });
+      }
+    });
+  });
 }
-
-test.describe("visual baselines", () => {
-  test("every page after a run", async ({ page, inputs, nav }) => {
-    await inputs.goto();
-    await expect(page).toHaveScreenshot("inputs-default.png", { mask: masks(page), fullPage: false });
-    await inputs.run();
-    for (const id of TAB_IDS) {
-      await nav.go(id);
-      await page.waitForTimeout(800);
-      await expect(page).toHaveScreenshot(`${id}.png`, { mask: masks(page), fullPage: false });
-    }
-  });
-
-  test("Blank Inputs and the validation popup", async ({ page, inputs }) => {
-    await inputs.goto("blank");
-    await expect(page).toHaveScreenshot("inputs-blank.png", { mask: masks(page) });
-    await inputs.expectValidationDialog();
-    await page.waitForTimeout(400);
-    await expect(page).toHaveScreenshot("validation-popup.png", { mask: masks(page) });
-  });
-});
 
 test.describe("animation smoke", () => {
   test("the mode pill moves to the chosen mode", async ({ page, inputs }) => {

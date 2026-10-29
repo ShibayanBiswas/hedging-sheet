@@ -171,19 +171,19 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
       </div>
       <motion.div className="flex flex-wrap gap-4 font-ui text-caption text-muted" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}>
         <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-6 rounded-full" style={{ backgroundColor: PAYOFF }} />
+          <span className="inline-block w-6 border-t-[3px]" style={{ borderColor: PAYOFF }} aria-hidden />
           Client Return · Left Axis
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-6 rounded-full" style={{ backgroundColor: UNDERLYING }} />
+          <span className="inline-block w-6 border-t-[3px]" style={{ borderColor: UNDERLYING }} aria-hidden />
           {u} Level · Right Axis
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: PAYOFF }} />
+          <span className="inline-block h-2.5 w-2.5 rounded-full border-2" style={{ borderColor: PAYOFF }} aria-hidden />
           Strikes · Where The Slope Turns
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2.5 w-4 rounded-sm bg-emerald-500/20 ring-1 ring-emerald-500/40" />
+          <span className="inline-block h-2.5 w-4 rounded-sm border border-emerald-600" aria-hidden />
           Protection Band
         </span>
         <span className="italic">

@@ -4,7 +4,7 @@ import { test } from "./fixtures";
 import { settle } from "./responsive/helpers";
 
 /**
- * Market Data at three widths and both themes. Read-only, so it also runs against a live deployment:
+ * Market Data at three widths. Read-only, so it also runs against a live deployment:
  * nothing is saved, and uploads are refused before any request leaves the browser.
  */
 const VIEWS = [
@@ -19,9 +19,8 @@ const ymdOf = (text: string) => {
   return `${y}-${String(MONTHS.indexOf(m!) + 1).padStart(2, "0")}-${d}`;
 };
 
-async function openMarketData(page: Page, theme: "light" | "dark") {
+async function openMarketData(page: Page) {
   await page.goto("/");
-  if (theme === "dark") await page.getByTestId("theme-toggle").click();
   await page.getByTestId("nav-market-data").click();
   await expect(page.getByRole("heading", { level: 1, name: "Market Data" })).toBeVisible();
   await expect(page.getByTestId("vol-grid").locator("[data-kind='date']").first()).toBeVisible({ timeout: 30_000 });
@@ -55,18 +54,16 @@ async function inputContrasts(page: Page, selector: string): Promise<number[]> {
 }
 
 for (const view of VIEWS) {
-  for (const theme of ["light", "dark"] as const) {
-    test.describe(`Market Data ${view.width} by ${view.height} ${theme}`, () => {
+  {
+    test.describe(`Market Data ${view.width} by ${view.height}`, () => {
       test.use({ viewport: view, reducedMotion: "reduce", hasTouch: view.width < 640, isMobile: view.width < 640 });
 
       test("layout, grid, alignment, units, toolbar, copy and history", async ({ page }) => {
         test.setTimeout(120_000);
-        await openMarketData(page, theme);
+        await openMarketData(page);
 
-        // No sideways scroll on the page, and none in the Headline.
+        // No sideways scroll on the page; the Headline keeps each cell on one line and scrolls inside its box.
         expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
-        const headline = await page.getByTestId("table-market-headline").evaluate((el) => el.scrollWidth - el.clientWidth);
-        expect(headline, "Headline scrolls sideways").toBeLessThanOrEqual(1);
         await expect(page.getByTestId("table-market-headline")).toContainText("Fetched At");
 
         // The header row stays put while the grid scrolls; no column is pinned, so the Expiry column scrolls away.
@@ -99,14 +96,20 @@ for (const view of VIEWS) {
         );
         expect(misaligned).toEqual([]);
 
-        // Volatility headers carry %, and the Deep strike comes from the data.
+        // Volatility headers carry %; the Deep strike shows as Deep, never 500, and its volatility is the 55% one.
         const heads = await grid.locator("thead th").allTextContents();
         expect(heads).toContain("Volatility %");
         expect(heads.filter((h) => /^\d+%$/.test(h.trim())).length).toBeGreaterThan(5);
-        const dataset = await (await page.request.get("/api/dataset")).json();
-        const deep = Number(dataset.surface.deepStrike);
-        const expected = deep > 0 ? deep.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-";
-        for (const u of ["nifty", "sensex"]) await expect(page.getByTestId(`deep-strike-${u}`)).toHaveText(expected);
+        for (const u of ["nifty", "sensex"]) await expect(page.getByTestId(`deep-strike-${u}`)).toHaveText("Deep");
+        await expect(grid).not.toContainText("500.00");
+        const pairs = await grid.locator("tbody tr").evaluateAll((rows) =>
+          rows
+            .map((r) => Array.from(r.querySelectorAll("td")).map((c) => c.textContent?.trim() ?? ""))
+            .filter((cells) => cells.length > 3 && /\d{2}-\w{3}-\d{4}|\w{3} \d{2}/.test(cells[0]!))
+            .map((cells) => [cells[1], cells[2]]),
+        );
+        expect(pairs.length).toBeGreaterThan(3);
+        for (const [deep, at55] of pairs) expect(deep).toBe(at55);
 
         // One toolbar, every button the same height, 40 to 44 px, and at least 44 px square on phones.
         const sizes = await page.getByTestId("surface-toolbar").locator("button").evaluateAll((bs) => bs.map((b) => b.getBoundingClientRect()).map((r) => ({ w: r.width, h: r.height })));
@@ -139,13 +142,11 @@ for (const view of VIEWS) {
         const hidden = await page.locator("main section.glass").evaluateAll((s) => s.filter((x) => Number(getComputedStyle(x).opacity) < 1).length);
         expect(hidden).toBe(0);
 
-        if (theme === "dark") {
-          await page.getByTestId("edit-params").click();
-          const ratios = await inputContrasts(page, "[data-testid='surface-params-table'] input.input-glow, [data-testid='rate-curve-editor'] input.input-glow");
-          expect(ratios.length).toBeGreaterThan(3);
-          expect(Math.min(...ratios), "dark input text contrast").toBeGreaterThanOrEqual(4.5);
-          await page.getByTestId("cancel-params").click();
-        }
+        await page.getByTestId("edit-params").click();
+        const ratios = await inputContrasts(page, "[data-testid='surface-params-table'] input.input-glow, [data-testid='rate-curve-editor'] input.input-glow");
+        expect(ratios.length).toBeGreaterThan(3);
+        expect(Math.min(...ratios), "input text contrast").toBeGreaterThanOrEqual(4.5);
+        await page.getByTestId("cancel-params").click();
       });
     });
   }
@@ -155,7 +156,7 @@ test.describe("Market Data behaviour", () => {
   test.use({ reducedMotion: "reduce" });
 
   test("Show History lists the earlier rows", async ({ page }) => {
-    await openMarketData(page, "light");
+    await openMarketData(page);
     const rows = page.getByTestId("table-pricing-params").locator("tbody tr");
     const upcoming = await rows.count();
     await page.getByTestId("pricing-history-toggle").click();
@@ -164,7 +165,7 @@ test.describe("Market Data behaviour", () => {
   });
 
   test("editing marks abc and -5 invalid and turns Save off, with no popup", async ({ page }) => {
-    await openMarketData(page, "light");
+    await openMarketData(page);
     await page.getByTestId("edit-surface").click();
     const save = page.getByTestId("save-surface");
     await expect(save).toBeEnabled();
@@ -188,10 +189,10 @@ test.describe("Market Data behaviour", () => {
       sent += 1;
       return route.abort();
     });
-    await openMarketData(page, "light");
+    await openMarketData(page);
     const file = page.getByTestId("surface-file");
     await file.setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("not a workbook") });
-    await expect(page.getByTestId("market-status")).toContainText("Upload Refused: Choose An Excel Workbook.");
+    await expect(page.getByTestId("market-status")).toContainText("Upload Refused: Choose An Excel File.");
     await file.setInputFiles({ name: "big.xlsx", mimeType: "application/octet-stream", buffer: Buffer.alloc(Math.ceil(4.6 * 1024 * 1024)) });
     await expect(page.getByTestId("market-status")).toContainText("Over The 4.5 Megabyte Limit");
     await expect(page.getByTestId("desk-dialog")).toHaveCount(0);
@@ -206,7 +207,7 @@ test.describe("Market Data behaviour", () => {
   });
 
   test("Download Sample and Download Current Surface give non-empty workbooks", async ({ page }) => {
-    await openMarketData(page, "light");
+    await openMarketData(page);
     for (const id of ["download-sample", "download-surface"]) {
       const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId(id).click()]);
       expect(download.suggestedFilename()).toMatch(/\.xlsx$/);

@@ -16,7 +16,7 @@ Next.js 16 App Router with Turbopack, React 19, TypeScript in strict mode, Tailw
 | Market | `lib/market-data.ts` | Yahoo closes for Nifty and Sensex, completed sessions only. |
 | State | `lib/context` | `DeskProvider` holds the inputs, the market data and the last run. `DeskDialogProvider` holds the popup queue and toasts. |
 | UI | `app`, `components` | One route per tab. Shared shell, tables, fields and dialogs. |
-| Workbook | `lib/workbook` | Excel export and the surface upload parser. |
+| Excel | `lib/excel` | Excel export and the surface upload parser. |
 
 ## State and the Run Simulation flow
 
@@ -77,7 +77,7 @@ There is no service worker and no PWA cache. `npm run cache:clear -- --local`, `
 
 ## Design system
 
-The shell, tabs, dialogs, tables and the Logic Atlas follow the Primary SP Dashboard. The upload shortcut, dialogs after upload, run button and loading states follow the Unwinding Calculator. Maroon and gold masthead, glass cards, Times New Roman for body copy and Segoe UI for controls and tables, dark and light themes, and `deskEase` motion that respects reduced motion.
+The shell, tabs, dialogs, tables and the Logic Atlas follow the Primary SP Dashboard. The upload shortcut, dialogs after upload, run button and loading states follow the Unwinding Calculator. Plain white surfaces with 1 px neutral borders, maroon and gold accents, controls with a faint neutral fill, Times New Roman for body copy and Segoe UI for controls and tables, and `deskEase` motion that respects reduced motion.
 
 ## Copy rules
 

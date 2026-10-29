@@ -2,7 +2,7 @@ import { addDays, parseYmd, toYmd } from "@/lib/engine/dates";
 import type { HedgeInputs, Underlying, ValidationIssue } from "@/lib/engine/types";
 
 export const MIN_EXPIRIES = 1;
-export const MAX_EXPIRIES = 8;
+export const MAX_EXPIRIES = 12;
 
 /** Days per month number. Summary G3:M3 = n × 30.5. */
 export const DAYS_PER_MONTH = 30.5;

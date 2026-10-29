@@ -4,23 +4,29 @@ import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
-import type { Underlying, VolSurface } from "@/lib/engine/types";
+import type { VolSurface } from "@/lib/engine/types";
 import { referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fmtNumber } from "@/lib/format";
+import { UNDERLYINGS } from "@/lib/underlyings";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 /** Volatility cells are in %; anything outside this range is a typing error. */
 const MAX_VOL = 200;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const UNDERLYINGS: Underlying[] = ["Nifty", "Sensex"];
-
 /** One sequential scale: faint for the lowest volatility, strongest for the highest. The hue follows the theme. */
 export function heatAlpha(value: number, min: number, max: number): number {
   if (!Number.isFinite(value) || max <= min) return 0;
   return 0.05 + 0.4 * Math.min(1, Math.max(0, (value - min) / (max - min)));
 }
 
-const heat = (alpha: number) => (alpha > 0 ? `rgb(var(--heat-rgb) / ${alpha.toFixed(3)})` : undefined);
+/** Text colour on the white grid: stone for the lowest volatility to maroon for the highest, both above 4.5 to 1. */
+const LOW_RGB = [87, 83, 78];
+const HIGH_RGB = [122, 30, 44];
+const heatColor = (alpha: number) => {
+  if (!(alpha > 0)) return undefined;
+  const t = (alpha - 0.05) / 0.4;
+  return `rgb(${LOW_RGB.map((lo, i) => Math.round(lo + (HIGH_RGB[i]! - lo) * t)).join(" ")})`;
+};
 
 /** "Jun 26" on phones, so the Expiry column stays narrow. */
 function shortDate(ymd: string): string {
@@ -68,8 +74,6 @@ export function VolSurfaceGrid({
   const hidden = surface.expiries.length - rows.length;
   const span = surface.moneyness.length + 2;
   const empty = !loading && surface.expiries.length === 0;
-  const deep = Number.isFinite(surface.deepStrike) && surface.deepStrike > 0 ? fmtNumber(surface.deepStrike, 2) : "-";
-
   const markCell = (key: string, ok: boolean) => {
     if (ok === !bad.has(key)) return;
     const next = new Set(bad);
@@ -137,8 +141,8 @@ export function VolSurfaceGrid({
                   return (
                     <tr key={u} data-testid={`strike-row-${u.toLowerCase()}`}>
                       <td className="font-semibold">{u} Strikes</td>
-                      <td className="text-right" data-kind="number" data-testid={`deep-strike-${u.toLowerCase()}`}>
-                        {deep}
+                      <td className="text-right" data-kind="text" data-testid={`deep-strike-${u.toLowerCase()}`}>
+                        Deep
                       </td>
                       {surface.moneyness.map((m) => (
                         <td key={m} className="text-right" data-kind="number">
@@ -161,9 +165,11 @@ export function VolSurfaceGrid({
                     {(editing ? (draft[r] ?? []) : (surface.volsPercent[r] ?? [])).map((v, c) => {
                       const key = `${r}:${c}`;
                       const invalid = bad.has(key);
+                      // Deep copies the 55% column, so it is read only.
+                      const editable = editing && c > 0;
                       return (
-                        <td key={c} className="text-right" data-kind="number" style={{ background: editing ? undefined : heat(heatAlpha(v, min, max)) }}>
-                          {editing ? (
+                        <td key={c} className="text-right" data-kind="number" style={editable ? undefined : { color: heatColor(heatAlpha(v, min, max)), fontWeight: heatAlpha(v, min, max) > 0.3 ? 700 : 500 }}>
+                          {editable ? (
                             <input
                               className={cn("vol-grid-input", invalid && "vol-grid-input--invalid")}
                               inputMode="decimal"
@@ -194,9 +200,14 @@ export function VolSurfaceGrid({
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-ui text-caption text-muted" data-testid={`${testId}-legend`}>
           <span className="font-semibold text-ink">Volatility Scale</span>
           <span className="inline-flex items-center gap-2">
-            Low <span className="tabular-nums text-ink">{fmtNumber(min, 2)}%</span>
-            <span className="vol-grid-legend-bar" aria-hidden />
-            High <span className="tabular-nums text-ink">{fmtNumber(max, 2)}%</span>
+            Low{" "}
+            <span className="tabular-nums" style={{ color: heatColor(0.05), fontWeight: 500 }}>
+              {fmtNumber(min, 2)}%
+            </span>
+            to High{" "}
+            <span className="tabular-nums" style={{ color: heatColor(0.45), fontWeight: 700 }}>
+              {fmtNumber(max, 2)}%
+            </span>
           </span>
           {hidden > 0 ? (
             <span>

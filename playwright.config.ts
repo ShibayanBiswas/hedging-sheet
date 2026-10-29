@@ -9,7 +9,7 @@ const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
-const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/];
+const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/, /layout\.spec/, /numbers\.spec/, /buttons\.spec/, /pipeline\//];
 const desktop = { viewport: { width: 1440, height: 900 } };
 
 export default defineConfig({
@@ -26,6 +26,8 @@ export default defineConfig({
   ],
   outputDir: "test-results/playwright",
   snapshotPathTemplate: "e2e/visual/__screenshots__/{projectName}/{platform}/{arg}{ext}",
+  // Baselines are Linux only, made and compared in CI, so font rendering on other systems never fails them.
+  ignoreSnapshots: process.platform !== "linux",
   use: {
     baseURL: external ?? `http://localhost:${port}`,
     trace: "retain-on-failure",

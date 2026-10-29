@@ -11,8 +11,8 @@ import ExcelJS from "exceljs";
 import { istTodayYmd } from "../lib/engine/dates";
 import { seedMarketData } from "../lib/engine/defaults";
 import { forwardMarket } from "../lib/engine/vol-surface";
-import { buildSurfaceWorkbook } from "../lib/workbook/build-surface-file";
-import { parseVolSurfaceWorkbook } from "../lib/workbook/parse-vol-surface";
+import { buildSurfaceFile } from "../lib/excel/build-surface-file";
+import { parseVolSurfaceFile } from "../lib/excel/parse-vol-surface";
 
 let failures = 0;
 function check(label: string, ok: boolean, detail = "") {
@@ -24,9 +24,9 @@ async function main() {
   const today = istTodayYmd();
   const market = seedMarketData();
   const live = forwardMarket(market, today);
-  const wb = buildSurfaceWorkbook(new ExcelJS.Workbook(), market.surface, market.params, { asOf: today });
+  const wb = buildSurfaceFile(new ExcelJS.Workbook(), market.surface, market.params, { asOf: today });
   const buffer = (await wb.xlsx.writeBuffer()) as ArrayBuffer;
-  const parsed = parseVolSurfaceWorkbook(buffer, market.surface.monthKey);
+  const parsed = parseVolSurfaceFile(buffer, market.surface.monthKey);
 
   check("Strike Change columns", JSON.stringify(parsed.surface.moneyness) === JSON.stringify(market.surface.moneyness), `${parsed.surface.moneyness.length}`);
   check("Expiry rows", parsed.surface.expiries.length === market.surface.expiries.length, `${parsed.surface.expiries.length}`);
@@ -43,7 +43,7 @@ async function main() {
   const sample = path.join(process.cwd(), "public", "samples", "Hedging_Sheet_Vol_Surface_Sample.xlsx");
   if (fs.existsSync(sample)) {
     const buf = fs.readFileSync(sample);
-    const s = parseVolSurfaceWorkbook(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+    const s = parseVolSurfaceFile(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
     check("Public sample parses", s.surface.expiries.length > 0 && s.surface.moneyness.length > 0, `${s.surface.label}`);
   }
   console.log(failures ? `${failures} check${failures === 1 ? "" : "s"} failed` : "All checks passed");

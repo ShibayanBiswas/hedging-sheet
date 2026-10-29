@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { isTitleCase, titleCase, titleCaseViolations } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { INPUT_SECTIONS } from "@/lib/inputs/validate";
-import { COMPUTATION_PRIMITIVES, logicModules } from "@/lib/logic-atlas";
+import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import {
   marginHeadline,
@@ -27,7 +27,7 @@ import {
   type KeyValueSpec,
   type TableSpec,
 } from "@/lib/tables";
-import { SHEET_NAMES } from "@/lib/workbook/build-hedging-excel";
+import { SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
 
 import { priced } from "../helpers/fixture";
 
@@ -72,12 +72,12 @@ describe("label constants", () => {
     expectAll(labels);
   });
 
-  it("Logic Atlas: section titles, card kickers and metrics, flow steps, formula names and primitives", () => {
+  it("Logic Atlas: section titles, card kickers and metrics, flow steps, formula names, inputs, outputs and output links", () => {
     const labels: string[] = [];
     for (const m of logicModules("Sensex", "Thursday")) {
-      labels.push(m.title, m.subtitle, ...m.metrics.flatMap((x) => [x.label, x.value]), ...m.nodes.map((n) => n.label), ...m.formulas.map((f) => f.name));
+      labels.push(m.title, m.subtitle, ...m.metrics.flatMap((x) => [x.label, x.value]), ...m.nodes.map((n) => n.label));
+      labels.push(...m.formulas.flatMap((f) => [f.name, f.inputs, f.output]), ...m.outputs.map((o) => o.label));
     }
-    labels.push(...COMPUTATION_PRIMITIVES.flatMap((p) => [p.name, p.category]));
     expectAll(labels);
   });
 

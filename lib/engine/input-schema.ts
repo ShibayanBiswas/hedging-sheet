@@ -22,8 +22,9 @@ const hedgeInputSchema = z.object({
   strikePercents: z.array(z.union([z.number(), z.nan()])),
   participations: z.array(z.union([z.number(), z.nan(), z.null()])),
   floorUnits: finite("Decay Reduction Below Floor"),
-  // A spread without an entry is a put spread.
-  spreadOptionTypes: z.array(z.enum(["P", "C"])),
+  // A strike without an entry is a put; a side without one is checked by the engine.
+  strikeOptionTypes: z.array(z.enum(["P", "C"])),
+  strikeSides: z.array(z.enum(["B", "S"])),
   expiryCount: z.number().int(),
   expiryMonths: z.array(z.union([z.number(), z.nan()])),
   hedgeExpiryIndex: z.number().int().min(0).nullable(),

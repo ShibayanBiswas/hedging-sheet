@@ -89,9 +89,9 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
               </div>
             </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-4">
-              <p className="whitespace-pre-wrap font-ui text-body leading-7 text-stone-700 dark:text-stone-300">{state.message}</p>
+              <p className="whitespace-pre-wrap font-ui text-body leading-7 text-stone-700">{state.message}</p>
               {state.fix ? (
-                <p className="flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/5 px-3 py-2 font-ui text-caption leading-6 text-stone-700 dark:text-stone-300">
+                <p className="flex items-start gap-2 rounded-xl border border-gold/25 px-3 py-2 font-ui text-caption leading-6 text-stone-700">
                   <Lightbulb className="mt-1 icon-xs shrink-0 text-gold-dark" aria-hidden />
                   <span>
                     <span className="font-bold text-gold-dark">How To Fix · </span>
@@ -106,8 +106,8 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                       <p className="font-ui text-caption font-bold uppercase tracking-[0.18em] text-gold-dark">{g.title}</p>
                       <ul className="mt-1 space-y-1">
                         {g.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700 dark:text-stone-300">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" aria-hidden />
+                          <li key={item} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" aria-hidden />
                             {item}
                           </li>
                         ))}
@@ -133,7 +133,6 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                 </button>
               ))}
               <button ref={okRef} type="button" className="btn-animated btn-motion btn-primary" onClick={onClose} data-testid="desk-dialog-ok">
-                <span className="btn-shine" aria-hidden />
                 <span className="relative z-10">{state.okLabel ?? "OK"}</span>
               </button>
             </div>

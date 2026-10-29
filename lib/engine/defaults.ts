@@ -1,6 +1,7 @@
 import pricingSeed from "@/lib/data/pricing-params-seed.json";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { defaultRateCurve } from "@/lib/engine/rates";
+import { derivedSides } from "@/lib/engine/structure";
 import type { DividendPoint, HedgeInputs, MarketData, PricingParams, RatePoint } from "@/lib/engine/types";
 import { normalizeVolSurface, SEED_SURFACE } from "@/lib/engine/vol-surface";
 
@@ -54,7 +55,8 @@ export function defaultInputs(options?: { valuationDate?: string; spot?: number;
     strikePercents: [...DEFAULT_TERMS.strikePercents],
     participations: [...DEFAULT_TERMS.participations],
     floorUnits: DEFAULT_TERMS.floorUnits,
-    spreadOptionTypes: DEFAULT_TERMS.participations.map(() => "P" as const),
+    strikeOptionTypes: DEFAULT_TERMS.strikePercents.map(() => "P" as const),
+    strikeSides: derivedSides(DEFAULT_TERMS),
     expiryCount: DEFAULT_TERMS.expiryMonths.length,
     expiryMonths: [...DEFAULT_TERMS.expiryMonths],
     hedgeExpiryIndex: null,

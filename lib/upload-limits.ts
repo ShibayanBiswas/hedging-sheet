@@ -12,8 +12,8 @@ export function looksLikeExcel(bytes: Uint8Array): boolean {
 
 /** The reason a file cannot be uploaded, checked before anything is sent, or null when it may go. */
 export function uploadProblem(file: { name: string; size: number }): string | null {
-  if (!EXCEL_FILE_NAME.test(file.name)) return "Choose An Excel Workbook.";
-  if (file.size === 0) return "The Workbook Is Empty.";
-  if (file.size > MAX_UPLOAD_BYTES) return "The Workbook Is Over The 4.5 Megabyte Limit.";
+  if (!EXCEL_FILE_NAME.test(file.name)) return "Choose An Excel File.";
+  if (file.size === 0) return "The Excel File Is Empty.";
+  if (file.size > MAX_UPLOAD_BYTES) return "The Excel File Is Over The 4.5 Megabyte Limit.";
   return null;
 }

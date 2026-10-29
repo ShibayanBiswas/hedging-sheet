@@ -86,7 +86,23 @@ function interp1(xs: number[], ys: number[], x: number): number {
   return intercept + slope * x;
 }
 
-/** Sort expiries and strike columns so the bilinear lookup stays correct after edits. */
+/** The moneyness the Deep column copies: 55%, or the lowest column when a surface has no 55% column. */
+export const DEEP_MONEYNESS = 0.55;
+
+function deepSourceColumn(moneyness: number[]): number {
+  const i = moneyness.findIndex((m) => Math.abs(m - DEEP_MONEYNESS) < 1e-9);
+  return i >= 0 ? i : 0;
+}
+
+/** Rows whose Deep volatility differs from their 55% volatility, before normalising: an upload reports them. */
+export function deepMismatchCount(surface: Pick<VolSurface, "moneyness" | "volsPercent">): number {
+  const ordered = [...(surface.moneyness ?? [])].map((m, i) => ({ m: Number(m), i })).sort((a, b) => a.m - b.m);
+  const source = ordered[deepSourceColumn(ordered.map((x) => x.m))];
+  if (!source) return 0;
+  return (surface.volsPercent ?? []).filter((row) => Math.abs(Number(row[0]) - Number(row[source.i + 1])) > 1e-9).length;
+}
+
+/** Sort expiries and strike columns so the bilinear lookup stays correct after edits. The Deep column copies the 55% column. */
 export function normalizeVolSurface(surface: VolSurface): VolSurface {
   const rows = (surface.expiries ?? [])
     .map((expiry, i) => ({ expiry, vols: [...(surface.volsPercent?.[i] ?? [])] }))
@@ -98,15 +114,14 @@ export function normalizeVolSurface(surface: VolSurface): VolSurface {
     .filter((x) => Number.isFinite(x.m) && x.m > 0)
     .sort((a, b) => a.m - b.m);
   const moneyness = moneyIdx.map((x) => x.m);
+  const deepColumn = deepSourceColumn(moneyness);
   const volsPercent = rows.map((row) => {
-    const deep = Number(row.vols[0]);
-    return [
-      Number.isFinite(deep) ? deep : 0,
-      ...moneyIdx.map((x) => {
-        const v = Number(row.vols[x.i + 1]);
-        return Number.isFinite(v) ? v : 0;
-      }),
-    ];
+    const cols = moneyIdx.map((x) => {
+      const v = Number(row.vols[x.i + 1]);
+      return Number.isFinite(v) ? v : 0;
+    });
+    // The Deep column always carries the 55% volatility of its row.
+    return [cols[deepColumn] ?? 0, ...cols];
   });
 
   const pricingParams: PricingParamPoint[] = (surface.pricingParams ?? [])
@@ -136,7 +151,7 @@ export function normalizeVolSurface(surface: VolSurface): VolSurface {
   };
 }
 
-/** Rupee strike axis: Deep 500, then moneyness times the named index anchor. */
+/** Strike axis: a far out of the money Deep strike, used only to interpolate, then moneyness times the named index anchor. */
 function moneynessStrikes(surface: VolSurface, underlying: Underlying, spot?: number): number[] {
   const anchor = referencePriceForUnderlying(surface, underlying, spot);
   return [DEEP_STRIKE, ...surface.moneyness.map((m) => m * anchor)];

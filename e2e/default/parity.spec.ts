@@ -18,7 +18,7 @@ test.describe("Default Values parity", () => {
     await expect(inputs.field("spot")).toHaveValue("76835.78");
     await expect(inputs.field("valuationDate")).toHaveValue("2026-10-28");
     const empty = await page.locator('main input[data-testid^="input-"]:not([type="checkbox"])').evaluateAll((els) =>
-      els.filter((e) => !(e as HTMLInputElement).value && (e as HTMLInputElement).dataset.testid !== "input-participations-1").map((e) => (e as HTMLInputElement).dataset.testid),
+      els.filter((e) => !(e as HTMLInputElement).value && !["input-participations-1", "input-newStrike"].includes((e as HTMLInputElement).dataset.testid ?? "")).map((e) => (e as HTMLInputElement).dataset.testid),
     );
     expect(empty).toEqual([]);
   });
@@ -74,7 +74,7 @@ test.describe("Default Values parity", () => {
     await expect(footer.sensex).toContainText("76,835.78");
     await expect(footer.nifty).toContainText("23,500.00");
     await expect(footer.fetched).toContainText(/Fetched At/i);
-    await expect(footer.marketStatus).toContainText("Market Open");
+    await expect(footer.marketStatus).toContainText(/Market\s*Open/);
   });
 
   test.describe("D7 surface parameters", () => {

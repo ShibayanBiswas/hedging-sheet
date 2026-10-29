@@ -129,6 +129,8 @@ export function requiredFields(expiryCount: number, nSpreads: number): FieldErro
     expiryCount,
     expiryMonths: Array.from({ length: expiryCount }, () => NaN),
     strikePercents: Array.from({ length: nSpreads + 4 }, () => NaN),
+    strikeOptionTypes: Array.from({ length: nSpreads + 4 }, () => ""),
+    strikeSides: Array.from({ length: nSpreads + 4 }, () => ""),
     participations: [...Array.from({ length: nSpreads - 1 }, () => NaN), null],
   };
   const fields = new Map<string, FieldError>();
@@ -138,7 +140,7 @@ export function requiredFields(expiryCount: number, nSpreads: number): FieldErro
   return [...fields.values()];
 }
 
-const show = (v: number, percent?: boolean) => (percent ? `${+(v * 100).toFixed(4)}%` : v.toLocaleString("en-IN"));
+const show = (v: number, percent?: boolean) => (percent ? `${+(v * 100).toFixed(3)}%` : v.toLocaleString("en-IN", { maximumFractionDigits: 3 }));
 
 function checkNumber(value: number, rule: { min: number; max: number; minInclusive?: boolean; integer?: boolean; percent?: boolean }, label: string): { kind: "required" | "invalid"; message: string } | null {
   if (typeof value !== "number" || Number.isNaN(value)) return { kind: "required", message: `${label} is required.` };
@@ -154,10 +156,15 @@ function checkNumber(value: number, rule: { min: number; max: number; minInclusi
   return null;
 }
 
+/** Errors shown only under their field: they open no popup and keep Run off until fixed. */
+export const INLINE_ONLY_CODES = new Set(["coupon-exceeded", "strike-side"]);
+
 /** Engine issue fields mapped to input keys. */
 function mapEngineField(field: string): { field: string; section: InputSection; label: string } {
   const strike = /^strikes\.(\d+)$/.exec(field);
   if (strike) return { field: `strikePercents.${strike[1]}`, section: "Strikes", label: `Strike ${Number(strike[1]) + 1}` };
+  const side = /^strikeSides\.(\d+)$/.exec(field);
+  if (side) return { field, section: "Strikes", label: `Strike ${Number(side[1]) + 1} Buy Or Sell` };
   const spread = /^spreads\.(\d+)$/.exec(field);
   if (spread) return { field, section: "Spreads", label: `Spread ${Number(spread[1]) + 1}` };
   const participation = /^participations\.(\d+)$/.exec(field);
@@ -233,13 +240,16 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
     const label = `Strike ${i + 1}`;
     const r = checkNumber(v, STRIKE_RULE, label);
     if (r) push({ field: `strikePercents.${i}`, label, section: "Strikes", ...r });
+    if (!inputs.strikeOptionTypes[i]) {
+      push({ field: `strikeOptionTypes.${i}`, label: `Strike ${i + 1} Option Type`, section: "Strikes", kind: "required", message: "Select Put or Call." });
+    }
+    if (!inputs.strikeSides[i]) {
+      push({ field: `strikeSides.${i}`, label: `Strike ${i + 1} Buy Or Sell`, section: "Strikes", kind: "required", message: "Select Buy or Sell." });
+    }
   });
 
-  // Spreads and Option Type
+  // Spreads
   inputs.participations.forEach((p, j) => {
-    if (!inputs.spreadOptionTypes[j]) {
-      push({ field: `spreadOptionTypes.${j}`, label: `Spread ${j + 1} Option Type`, section: "Spreads", kind: "required", message: "Select Put or Call." });
-    }
     if (p == null) return;
     const label = `Spread ${j + 1} Participation Rate`;
     const r = checkNumber(p, PARTICIPATION_RULE, label);

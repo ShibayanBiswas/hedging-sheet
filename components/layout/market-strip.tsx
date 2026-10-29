@@ -15,9 +15,9 @@ export function MarketStrip() {
   const runState = simulation.running ? "Running" : !lastRun ? "Not Run" : stale ? "Inputs Changed" : "Up To Date";
 
   const items = [
-    { icon: CalendarClock, label: "Valuation", value: formatDate(inputs.valuationDate), color: "text-violet-700 dark:text-violet-300" },
-    { icon: Database, label: "Surface", value: market.surface.label.replace(" Volatility Surface", ""), color: "text-sky-700 dark:text-sky-300" },
-    { icon: Play, label: "Simulation", value: runState, color: stale || !lastRun ? "text-rose-600 dark:text-rose-300" : "text-emerald-700 dark:text-emerald-300" },
+    { icon: CalendarClock, label: "Valuation", value: formatDate(inputs.valuationDate), color: "text-violet-700" },
+    { icon: Database, label: "Surface", value: market.surface.label.replace(" Volatility Surface", ""), color: "text-sky-700" },
+    { icon: Play, label: "Simulation", value: runState, color: stale || !lastRun ? "text-rose-600" : "text-emerald-700" },
   ];
 
   return (

@@ -27,7 +27,7 @@ type SurfaceUploadValue = {
 
 const SurfaceUploadContext = createContext<SurfaceUploadValue | null>(null);
 
-const issueOf = (data: { issues?: string[]; error?: string }) => data.issues?.[0] ?? data.error ?? "The workbook could not be read.";
+const issueOf = (data: { issues?: string[]; error?: string }) => data.issues?.[0] ?? data.error ?? "The Excel file could not be read.";
 
 /** Upload flow shared by the header shortcut and Market Data: check, preview, confirm, then a toast and a status row. */
 export function SurfaceUploadProvider({ children }: { children: ReactNode }) {
@@ -69,7 +69,7 @@ export function SurfaceUploadProvider({ children }: { children: ReactNode }) {
         setStatus(null);
         setPreview({ file, surface: data.surface, params: data.params, summary: data.summary });
       } catch {
-        setStatus({ tone: "error", text: "Upload Refused: The Workbook Could Not Be Sent." });
+        setStatus({ tone: "error", text: "Upload Refused: The Excel File Could Not Be Sent." });
       } finally {
         setBusy(false);
       }
@@ -93,6 +93,8 @@ export function SurfaceUploadProvider({ children }: { children: ReactNode }) {
       const detail = `${preview.file.name} · ${data.summary.expiries} Expiry Rows · ${data.summary.strikePercents} Strike Columns · ${at}`;
       setStatus(data.persisted === false ? { tone: "warn", text: `Applied For This Session: ${detail}` } : { tone: "ok", text: `Saved To Desk Database: ${detail}` });
       toast(data.persisted === false ? "Surface Applied For This Session" : "Surface Uploaded");
+      const deep = Number(data.summary.deepAdjusted ?? 0);
+      if (deep > 0) toast(`Deep Volatility Set To The 55% Value On ${deep} ${deep === 1 ? "Row" : "Rows"}`);
       setPreview(null);
     } catch {
       setStatus({ tone: "error", text: "Upload Failed: Nothing Was Saved. Try Again." });

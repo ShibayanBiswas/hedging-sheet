@@ -14,10 +14,10 @@ const finiteOrUndefined = (v: number) => (Number.isFinite(v) ? v : undefined);
 
 function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"; children: string }) {
   const tones = {
-    sky: "bg-sky-100 text-sky-900 dark:bg-sky-950/50 dark:text-sky-200",
-    violet: "bg-violet-100 text-violet-900 dark:bg-violet-950/50 dark:text-violet-200",
-    emerald: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200",
-    rose: "bg-rose-100 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200",
+    sky: "text-sky-900",
+    violet: "text-violet-900",
+    emerald: "text-emerald-900",
+    rose: "text-rose-900",
   };
   return <span className={cn("rounded px-2 py-1 text-caption font-semibold uppercase tracking-wide", tones[tone])}>{children}</span>;
 }
@@ -61,12 +61,12 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                     data-row={row}
                     className={cn(
                       i % 2 === 1 && "data-table-row-alt",
-                      initial && "bg-sky-50/80 dark:bg-sky-950/25",
-                      target && "bg-violet-50/80 dark:bg-violet-950/30",
+                      initial && "",
+                      target && "",
                     )}
                   >
                     <td className="font-semibold" data-cell={cellKey(row, `${u} Performance`)} data-value={p.performance}>
-                      <span className="inline-flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap">
                         <span>{fmtPercent(p.performance, 2)}</span>
                         {initial ? <Badge tone="sky">Initial</Badge> : null}
                         {target ? <Badge tone="violet">Target</Badge> : null}
@@ -74,7 +74,7 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                         {floor ? <Badge tone="rose">Floor</Badge> : null}
                       </span>
                     </td>
-                    <td className="text-right font-bold text-emerald-800 dark:text-emerald-300" data-cell={cellKey(row, "Client Return")} data-value={finiteOrUndefined(p.clientReturn)}>
+                    <td className="text-right font-bold text-emerald-800" data-cell={cellKey(row, "Client Return")} data-value={finiteOrUndefined(p.clientReturn)}>
                       {fmtPercent(p.clientReturn, 2)}
                     </td>
                     <td className="text-right" data-cell={cellKey(row, "Maturity Value In Crore")} data-value={finiteOrUndefined(p.maturityValueCr)}>

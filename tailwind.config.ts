@@ -40,7 +40,7 @@ const config: Config = {
         panel: "var(--ar-panel)",
         ink: "var(--ar-ink)",
         muted: "var(--ar-muted)",
-        gold: { DEFAULT: "#d4b24c", light: "#e5cf94", dark: "#b8860b" },
+        gold: { DEFAULT: "#d4b24c", light: "#e5cf94", dark: "#8a6508" },
         maroon: { DEFAULT: "#7a1e2c", dark: "#5c1520" },
       },
       fontFamily: {

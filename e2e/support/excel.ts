@@ -5,7 +5,7 @@ import ExcelJS from "exceljs";
 import { expect, type Page } from "@playwright/test";
 
 import { titleCaseViolations } from "../../lib/format/title-case";
-import { SHEET_NAMES } from "../../lib/workbook/build-hedging-excel";
+import { SHEET_NAMES } from "../../lib/excel/build-hedging-excel";
 import { close, schema, type CellRead, type TabId } from "./tables";
 
 const OUT = path.join("test-results", "downloads");

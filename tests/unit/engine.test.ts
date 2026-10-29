@@ -88,12 +88,10 @@ describe("simulation invariants", () => {
     expect(r.markToMarket.rows.length).toBe(15);
   });
 
-  it("prices each spread's legs with that spread's Option Type; the downside legs and the hedge stay puts", () => {
-    const call = priced({ spreadOptionTypes: ["C", "C"] });
-    const spreadLegs = call.pricer.legs.filter((l) => l.strikePercent > 100);
-    expect(spreadLegs.length).toBeGreaterThan(0);
-    expect(spreadLegs.every((l) => l.optionType === "C")).toBe(true);
-    expect(call.pricer.legs.filter((l) => l.strikePercent < 100).every((l) => l.optionType === "P")).toBe(true);
+  it("prices each strike's legs with that strike's Option Type; the hedge stays a put", () => {
+    const call = priced({ strikeOptionTypes: ["C", "C", "P", "P", "P", "C"] });
+    const types = call.pricer.legs.map((l) => `${l.strikePercent}${l.optionType}`);
+    expect(new Set(types)).toEqual(new Set(["137C", "127C", "125P", "85P", "84P", "70C"]));
     expect(call.dayOneVegaHedge.fair.every((h) => h.optionType === "P")).toBe(true);
     expect(r.pricer.legs.every((l) => l.optionType === "P")).toBe(true);
   });

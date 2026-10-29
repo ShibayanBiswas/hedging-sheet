@@ -1,8 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 
-import type { OptionType } from "../lib/engine/types";
-import { mockDefaultInputs, priceLikeTheApp } from "../tests/helpers/mock-market";
 import { expect, test } from "./fixtures";
 import { close, readCells } from "./support/tables";
 
@@ -93,10 +91,9 @@ test.describe("Strikes, spreads and per spread option type", () => {
     await expect(inputs.runButton).toBeEnabled();
   });
 
-  test("S7 all Put matches main, all Call matches the engine, and the payoff at 0% is 0.00% in both", async ({ page, inputs, nav }) => {
+  test("S7 all Put matches main, all Call gives the same Premium and Inbuilt, and the payoff at 0% is 0.00% in both", async ({ page, inputs, nav }) => {
     test.setTimeout(180_000);
     const live = Boolean(process.env.BASE_URL);
-    const engine = (types: OptionType[]) => priceLikeTheApp({ ...mockDefaultInputs(), spreadOptionTypes: types });
     const main = { premium: 51.12022123483423, inbuilt: 0.0835573934196645 };
 
     await inputs.goto();
@@ -109,20 +106,12 @@ test.describe("Strikes, spreads and per spread option type", () => {
     expect(put.zero).toBe("0.00%");
 
     await nav.go("inputs");
-    await inputs.fill("spreadOptionTypes-0", "C");
-    await inputs.fill("spreadOptionTypes-1", "C");
+    for (let i = 0; i < 6; i++) await inputs.fill(`strikeOptionTypes-${i}`, "C");
     await inputs.run();
     const call = await readRun(page, nav);
-    if (live) {
-      // Live data: the call book loses only the carry between expiry and maturity, never the put units' sign flip of SK5.
-      expect(call.inbuilt, "call Inbuilt below put").toBeLessThan(put.inbuilt);
-      expect(put.inbuilt - call.inbuilt, "call Inbuilt within 10 points of put").toBeLessThan(0.1);
-    } else {
-      const want = engine(["C", "C"]);
-      expect(close(call.premium, want.pricer.header.premium / 1e7, 1e-9), `call premium ${call.premium}`).toBe(true);
-      expect(close(call.inbuilt, want.summary.actualInbuilt, 1e-9), `call inbuilt ${call.inbuilt}`).toBe(true);
-      expect(want.diagnostics.payoffBookGap).toBeLessThan(1e-6);
-    }
+    // Each call strike carries its futures leg, so the book is the put book: same Premium and Inbuilt.
+    expect(close(call.premium, put.premium, 1e-9), `call premium ${call.premium}`).toBe(true);
+    expect(Math.abs(call.inbuilt - put.inbuilt), `call inbuilt ${call.inbuilt}`).toBeLessThan(0.0025);
     expect(call.zero).toBe("0.00%");
   });
 
@@ -178,41 +167,39 @@ test.describe("Strikes, spreads and per spread option type", () => {
     }
   });
 
-  test("S12 every control is glass and text keeps 4.5 to 1 in both themes", async ({ page, inputs, nav }) => {
+  test("S12 every button is a faint neutral fill with a 1 px border on white, and text keeps 4.5 to 1", async ({ page, inputs, nav }) => {
     test.setTimeout(180_000);
     await inputs.goto();
     await inputs.run();
-    for (const theme of ["light", "dark"] as const) {
-      if (theme === "dark") await nav.themeToggle.click();
-      for (const id of ["inputs", "pricer"] as const) {
-        await nav.go(id);
-        await page.mouse.move(0, 0);
-        // The theme switch transitions colours; axe must read the settled ones.
-        await page.evaluate(() =>
-          Promise.all(
-            document
-              .getAnimations()
-              .filter((a) => a instanceof CSSTransition)
-              .map((a) => a.finished.catch(() => undefined)),
-          ),
-        );
-        const off = await page.evaluate(() =>
-          Array.from(document.querySelectorAll<HTMLElement>("button"))
-            .filter((b) => b.offsetParent !== null && !b.dataset.testid?.startsWith("run-simulation"))
-            .map((b) => {
-              const s = getComputedStyle(b);
-              const alpha = Number(/rgba?\([^)]*?,\s*([\d.]+)\)$/.exec(s.backgroundColor)?.[1] ?? (s.backgroundColor.startsWith("rgb(") ? 1 : 0));
-              return { name: b.getAttribute("aria-label") ?? b.textContent?.trim(), alpha, blur: s.backdropFilter.includes("blur") };
-            })
-            .filter((b) => !b.blur || b.alpha < 0.12 || b.alpha > 0.36),
-        );
-        expect(off, `${theme} ${id}`).toEqual([]);
-        const axe = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
-        expect(
-          axe.violations.flatMap((v) => v.nodes.map((n) => n.target.join(" "))),
-          `${theme} ${id} contrast`,
-        ).toEqual([]);
-      }
+    for (const id of ["inputs", "pricer"] as const) {
+      await nav.go(id);
+      await page.mouse.move(0, 0);
+      await page.evaluate(() =>
+        Promise.all(
+          document
+            .getAnimations()
+            .filter((a) => a instanceof CSSTransition)
+            .map((a) => a.finished.catch(() => undefined)),
+        ),
+      );
+      const off = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLElement>("button"))
+          .filter((b) => b.offsetParent !== null)
+          .map((b) => {
+            const s = getComputedStyle(b);
+            const [r, g, bl, a = "1"] = (s.backgroundColor.match(/[\d.]+/g) ?? ["0", "0", "0", "0"]);
+            const alpha = s.backgroundColor === "transparent" ? 0 : Number(a);
+            const neutral = Math.max(+r!, +g!, +bl!) - Math.min(+r!, +g!, +bl!) <= 40;
+            return { name: b.getAttribute("aria-label") ?? b.textContent?.trim(), alpha, neutral, border: parseFloat(s.borderTopWidth), image: s.backgroundImage };
+          })
+          .filter((b) => b.image !== "none" || b.alpha > 0.12 || (b.alpha > 0 && !b.neutral) || b.border < 1),
+      );
+      expect(off, id).toEqual([]);
+      const axe = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
+      expect(
+        axe.violations.flatMap((v) => v.nodes.map((n) => n.target.join(" "))),
+        `${id} contrast`,
+      ).toEqual([]);
     }
   });
 

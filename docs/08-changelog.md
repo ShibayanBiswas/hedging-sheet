@@ -1,5 +1,27 @@
 # 08 · Changelog
 
+## Round 10: Mapping, Golden Tests, Crawls And Sign Off
+
+| Area | Change |
+|---|---|
+| Strikes | Each strike takes its own Option Type and Buy Or Sell. A strike on the wrong side shows "This Strike Must Be A Buy To Give The Product Payoff" under it and turns Run off. A call strike carries a futures leg worth contracts × discount × (forward − strike), so every total equals the all Put book; Summary shows the Futures Adjustment For Call Strikes row in crore. Spreads keep Buy Level, Sell Level and Participation only. Strikes can be added at any level between the target and protection, and spread strikes removed |
+| Limits | Up to 12 expiries. A protection of 0% is allowed, for a product with no protection |
+| Warnings | `loss-cap` when the decayed loss reaches 100% before a 90% fall |
+| Surfaces | Plain white everywhere, no dark theme; controls carry a faint neutral fill with a 1 px border; Run Simulation keeps a maroon border |
+| Numbers | At most 3 decimals on screen and in every Excel number format |
+| Tables | One line per cell, no pinned column, long tables scroll in a box of at most min(70vh, 40rem) with a sticky header; "Total Margin In Crore" with a tooltip |
+| Expiries | The hedge expiry reads "Observation And Hedge Option Expiry", and follows the chosen Option Expiry |
+| Footer And Inputs | The footer fills the width; the gap above the footer is at most 24 px |
+| Market Data | Deep is the 55% column everywhere and reads "Deep" |
+| Logic Atlas | No primitives table; insights and outputs from the last run; a Debug Drawer with stage timings, the input hash and Copy JSON; never shows a run made with other inputs |
+| Stale Results | Download Excel is off while the inputs differ from the last run |
+| Copy | No wording about the spreadsheet the app replaced; `lib/workbook` is now `lib/excel`; underlying names come from `lib/underlyings.ts` |
+| API | `daily-vol` refuses an unknown underlying with 400 |
+| Tests | Golden G0 to G6 and fast-check invariants, the workbook mapping check, the stage spy test, API contracts for every route, the number, button and layout crawls, the pipeline specs and the strike matrix |
+| Housekeeping | Linux only visual baselines, 24 files; build and test output ignored by git; package scripts renamed to `test:*` and `verify:*` |
+
+See [13 Bug Log](13-bug-log.md) for every defect and its regression test.
+
 ## Round 9: Strikes, Spreads, Per Spread Option Type, Call Logic, Tables And Glass Buttons
 
 | ID | Before | After |

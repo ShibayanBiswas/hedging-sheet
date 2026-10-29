@@ -6,11 +6,8 @@ import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
 import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
 import { SurfaceUploadProvider } from "@/lib/context/surface-upload-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
-import { ThemeProvider } from "@/lib/context/theme-provider";
 
 import "./globals.css";
-
-const themeInitScript = `(function(){try{var t=localStorage.getItem("hs-theme");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}else{document.documentElement.classList.remove("dark");document.documentElement.style.colorScheme="light";}}catch(e){}})();`;
 
 export const metadata: Metadata = {
   title: "Hedging Sheet | Anand Rathi Wealth",
@@ -22,32 +19,25 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf7f0" },
-    { media: "(prefers-color-scheme: dark)", color: "#12100c" },
-  ],
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Pages open on today's IST date, so they render per request rather than at build time.
   await connection();
   return (
-    <html lang="en-IN" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
-      <body className="bg-background font-serif text-ink antialiased">
-        <ThemeProvider>
-          <DeskDialogProvider>
-            <DeskKeyProvider>
-              <DeskProvider>
-                <SurfaceUploadProvider>
-                  <AppShell>{children}</AppShell>
-                </SurfaceUploadProvider>
-              </DeskProvider>
-            </DeskKeyProvider>
-          </DeskDialogProvider>
-        </ThemeProvider>
+    <html lang="en-IN">
+      <body className="bg-white font-serif text-ink antialiased">
+        <DeskDialogProvider>
+          <DeskKeyProvider>
+            <DeskProvider>
+              <SurfaceUploadProvider>
+                <AppShell>{children}</AppShell>
+              </SurfaceUploadProvider>
+            </DeskProvider>
+          </DeskKeyProvider>
+        </DeskDialogProvider>
       </body>
     </html>
   );

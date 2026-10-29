@@ -60,11 +60,11 @@ test.describe("B4 Strikes", () => {
 test.describe("B5 Expiries", () => {
   const MONTHS = [41, 44, 47, 50, 53, 56, 59, 62];
 
-  test("B5.1 the count runs from 1 to 8 and that many month rows render", async ({ page, inputs }) => {
+  test("B5.1 the count runs from 1 to 12 and that many month rows render", async ({ page, inputs }) => {
     await inputs.goto("blank");
     const options = await inputs.field("expiryCount").locator("option:not([disabled])").allTextContents();
-    expect(options).toEqual(["1", "2", "3", "4", "5", "6", "7", "8"]);
-    for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 3]) {
+    expect(options).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]);
+    for (const n of [1, 6, 12, 3]) {
       await inputs.fill("expiryCount", String(n));
       await expect(page.locator('[data-testid^="input-expiryMonths-"]')).toHaveCount(n);
       await expect(page.locator('[data-testid^="expiry-date-"]')).toHaveCount(n);

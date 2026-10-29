@@ -81,7 +81,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
             return (
               <button
                 key={route.href}
-                className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-ui text-body text-stone-700 hover:bg-gold/10 hover:text-ink dark:text-stone-300"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-ui text-body text-stone-700 hover:bg-gold/10 hover:text-ink"
                 type="button"
                 onClick={() => {
                   router.push(route.href);
