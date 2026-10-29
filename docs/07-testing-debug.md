@@ -6,7 +6,7 @@
 |---|---|---|
 | Unit | `tests/unit` | Engine, acceptance, frozen regression, inputs and validation, the Blank suite rules, title case, copy rules, market status, Yahoo mocks |
 | Component | `tests/component` | React Testing Library in jsdom: fields, the desk dialog, both input modes and the grouped validation popup |
-| API | `tests/api` | Route handlers against an in-memory Mongo seeded from `tests/fixtures`, with Yahoo answered by MSW |
+| API | `tests/api` | Route handlers against an in-memory Mongo replica set with the production validators and indexes, seeded from `tests/fixtures`, with Yahoo answered by MSW. `database.test.ts` proves that invalid documents are rejected, repeated saves and uploads leave one document per month, a run writes nothing, writes need the Desk Key and are rate and size limited, previews and tests never use the production database name, and the health check shows no secrets |
 | Export | `tests/export` | The Excel file: five title-case sheets, header rows, values that match the engine, no pivots |
 | Blank Inputs suite | `e2e/blank` | B1 to B22: empty state, each required field, invalid values in every number field, strikes, expiries, the weekday rule, spreads, Option Type, coupon and solver, protection and floor, volatility, fetch buttons, the full fill against the frozen regression, every output table, payoff, fixed grids, Excel, mode switching, keyboard, 390 px width, both themes and axe |
 | Default parity suite | `e2e/default` | D1 to D7: prefilled fields, regression numbers at the mock spot, the table checks, Excel, the run gate, the footer and the surface parameter editor; plus the market data flows |
@@ -48,7 +48,7 @@ Run one test by name with `npx playwright test -g "B13.2"`, or one project with 
 
 - `lib/test/mocks/yahoo.ts` answers every Yahoo chart request: Sensex 76,835.78, Nifty 23,500.00 and a seeded one-year history of weekday closes ending on the session before the frozen day.
 - On the server, `deskNow()` returns `TEST_NOW`, 28-Oct-2026 10:00 IST, a Wednesday in the cash session.
-- `scripts/e2e-server.ts` starts an in-memory Mongo, seeds it from `tests/fixtures/surface.json` and `pricing-params.json`, then runs `next dev`, or `next start` with `E2E_PROD=1`. The live database is never touched.
+- `scripts/e2e-server.ts` starts an in-memory Mongo replica set with the production validators and indexes, sets the test Desk Key, seeds it from `tests/fixtures/surface.json` and `pricing-params.json`, then runs `next dev`, or `next start` with `E2E_PROD=1`. The live database is never touched.
 - Playwright freezes the browser clock at the same instant with `page.clock.setFixedTime`; Vitest uses `vi.setSystemTime`.
 - Tests that upload a surface or save surface parameters put the fixtures back afterwards with `e2e/support/market.ts`, so later specs price against the same market.
 

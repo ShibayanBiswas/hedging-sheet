@@ -84,6 +84,10 @@ Every edge case in [10 Edge Cases](10-edge-cases.md) opens a blocking popup with
 | `/api/market/daily-vol` | GET | Daily volatility over a window |
 | `/api/market/index-at-date` | GET | Closes on a date, for surface anchors |
 | `/api/dataset` | GET | Active surface and surface parameters, with their sources |
-| `/api/surface` | POST | Save an edited surface |
+| `/api/surface` | GET, POST | Read the active surface, or save an edited one |
 | `/api/params` | GET, POST | Read or save this month's surface parameters and forward grid |
-| `/api/uploads/vol-surface` | POST | Parse and store an uploaded surface file |
+| `/api/uploads/vol-surface` | POST | Parse, check and store an uploaded surface file |
+| `/api/health` | GET | Database connection, counts, the latest surface month and the latest close date |
+| `/api/admin/revalidate` | POST | Expire the surface and history caches |
+
+GET routes only read. Every POST needs the Desk Key in the `x-desk-key` header; the app asks for it once per page load in a popup and keeps it in memory only. Without the key the answer is 401, after too many attempts 429, for a body too large 413, and on a deployment without `DESK_WRITE_KEY` 503.

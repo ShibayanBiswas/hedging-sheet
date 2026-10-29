@@ -17,14 +17,17 @@ The Hedging Sheet is a **Next.js** app. Vercel hosts it and rebuilds it every ti
 
 ## Environment variables: exact names and values
 
-Vercel does not read `.env.local`. Each name and value must be added to the Vercel project for **Production**, **Preview** and **Development**.
+Vercel does not read `.env.local`. Each name and value must be added to the Vercel project for the environments shown.
 
-| Name | Value | Secret |
-|---|---|---|
-| `MONGODB_URI` | Everything after `MONGODB_URI=` in `.env.local`, as one line | Yes, treat it as a password |
-| `MONGODB_DB` | `hedging_sheet` | No |
+| Name | Production | Preview | Development | Secret |
+|---|---|---|---|---|
+| `MONGODB_URI` | Everything after `MONGODB_URI=` in `.env.local`, as one line | The same | The same | Yes, treat it as a password |
+| `MONGODB_DB` | `hedging_sheet` | `hedging_sheet_preview` | Your choice; the app uses `hedging_sheet_development` | No |
+| `DESK_WRITE_KEY` | A long random key, also kept in `.env.local` | A different random key | Not needed | Yes |
 
-That is the full list the app reads. `DEFAULT_VOL_MONTH` is not used: the app always shows the current month and carries the latest uploaded surface forward.
+That is the full list the app reads. Previews can never reach the production database: if `MONGODB_DB` names it on a preview, the app uses `hedging_sheet_preview` anyway. Without `DESK_WRITE_KEY`, saving is turned off on that deployment. `DEFAULT_VOL_MONTH` is not used: the app always shows the current month and carries the latest uploaded surface forward.
+
+Generate a Desk Key with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`, and pass it to `vercel env add DESK_WRITE_KEY production --sensitive` through the prompt, never as a command argument. Give it only to the people who upload surfaces.
 
 **`MONGODB_URI`** points at the `cluster0.lvoycia.mongodb.net` Atlas cluster, the same cluster as the Unwinding Calculator, with the database part of the address set to `hedging_sheet`. It looks like this, with your own user and password:
 
@@ -75,6 +78,31 @@ Open PowerShell in the project folder and run these one at a time.
 3. Open **Environment Variables** and add `MONGODB_URI` and `MONGODB_DB` from the table above, ticking Production, Preview and Development.
 4. Click **Deploy** and wait for the green tick.
 
+## What every build does
+
+Vercel runs the `vercel-build` script: `scripts/db-deploy-setup.ts` applies the indexes and validators to the database of that deployment, then `next build` runs. Pages render per request, so no stale HTML is stored.
+
+## Deploy with every cache cleared
+
+1. Turn the build cache off for one build, then push or redeploy:
+
+   ```powershell
+   "1" | vercel env add VERCEL_FORCE_NO_BUILD_CACHE production
+   git push origin main
+   ```
+
+2. When the deployment is ready, turn the build cache back on with `vercel env rm VERCEL_FORCE_NO_BUILD_CACHE production --yes`.
+3. Purge the CDN and data cache, and expire the app's tagged reads:
+
+   ```powershell
+   npm run cache:clear -- --vercel
+   npm run cache:clear -- --app https://hedging-sheet.vercel.app
+   ```
+
+4. Open `/api/health`: `status` should be `ok`, `database.name` `hedging_sheet`, and the collections `vol_surfaces` and `pricing_params` only.
+
+For a clean local build: `npm run cache:clear -- --local`, then `npm ci` and `npm run build`.
+
 ## After the first deploy
 
 1. Seed the database once from your laptop, if it is not already seeded:
@@ -97,7 +125,7 @@ Open PowerShell in the project folder and run these one at a time.
    $env:BASE_URL = "https://hedging-sheet.vercel.app"; npx playwright test; Remove-Item Env:BASE_URL
    ```
 
-   The upload and parameter save tests skip themselves against production so the live desk data is not replaced.
+   The upload and parameter save tests skip themselves against production so the live desk data is not replaced. The production project also checks `/api/health` and that saves without the Desk Key are refused.
 
 6. Check every page and API in one go:
 

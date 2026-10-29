@@ -1,5 +1,46 @@
 # 08 · Changelog
 
+## Round 7
+
+### Database audit and cleanup
+
+- `scripts/db-audit.ts` writes a read-only inventory to [the audit report](db-audit-report.md): counts, sizes, indexes, a masked sample, schema variations, duplicates, orphans, test documents, empty keys, expired months and collections the code no longer uses.
+- `scripts/db-cleanup.ts` is a dry run by default. With `--apply` it backs every affected collection up to the git-ignored `backups/<date>/` as Extended JSON, checks the backup, then applies.
+- **Applied on `hedging_sheet`:**
+  - deleted the legacy parameters document, which had no month and an old dated rate curve;
+  - dropped `upload_logs`, 3 log entries;
+  - removed the old `isActive` and `key` flags;
+  - dropped the leftover test database `hedging_sheet_e2e`, 21 documents.
+- **Kept:** the August 2026 surface and the October 2026 surface parameters. Before, there were 6 documents in 3 collections, plus 21 in a test database; after, 2 documents in 2 collections.
+
+### Database design
+
+- **One data access layer in `lib/db`:**
+  - `client.ts` keeps one cached client with pool and timeout limits;
+  - `vol-surfaces.ts` and `pricing-params.ts` are the only modules that touch a collection;
+  - `schemas.ts` holds the Zod schemas and the matching `$jsonSchema` validators;
+  - `setup.ts` holds the indexes and validators;
+  - `config.ts` keeps previews, development deployments and tests off the production database name.
+- **Validators:** strict `$jsonSchema` validators and unique `monthKey` indexes, applied by `db-apply-validators`, `db-ensure-indexes` and on every Vercel build through `vercel-build`.
+- **Whole writes:** every save is checked in full before writing, then the surface and parameters are replaced in one transaction. A missing volatility row used to be filled with zeros; now it is refused.
+- **Desk Key:** saves need a Desk Key set on the server as `DESK_WRITE_KEY`, typed once per page load into a popup and held in memory only. Saves are rate limited, bodies are capped, and uploads must be Excel workbooks by name and content.
+- **No logs:** upload logs are no longer written.
+- **Health:** `GET /api/health` reports the connection, counts and the latest close date, without secrets.
+- **Tests:** the API tests and the mock server run on an in-memory replica set with the production validators. `tests/api/database.test.ts` proves rejection of bad documents, no duplicates, no writes from a run, write protection and database separation.
+
+### Caching
+
+- **Daily history:** cached for three hours under `history` tags.
+- **Surface and parameters:** cached under the `surface` tag, which every save expires at once.
+- **Static assets:** brand images are immutable for a year.
+- **Clearing:** `npm run cache:clear` clears the local, app and Vercel caches. The policy is in [01 Architecture](01-architecture.md#caching).
+
+### Environment
+
+- **Previews:** set to `MONGODB_DB=hedging_sheet_preview`.
+- **Desk Keys:** production and previews each have their own `DESK_WRITE_KEY`.
+- **Secrets:** a scan of the whole git history found no committed secrets; `.env.example` holds placeholders only.
+
 ## Round 6
 
 ### Sizes and layout

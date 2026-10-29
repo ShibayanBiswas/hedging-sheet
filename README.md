@@ -24,7 +24,9 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 |---|---|
 | `MONGODB_URI` | Desk database connection, or use the three below |
 | `MONGODB_HOST`, `MONGODB_USER`, `MONGODB_PASSWORD` | Desk database connection in parts |
-| `MONGODB_DB` | Database name |
+| `MONGODB_DB` | Database name; previews and development deployments always use their own |
+| `DESK_WRITE_KEY` | The Desk Key every save needs; without it, saving is turned off |
+| `DESK_WRITE_LIMIT` | Optional: saves per address per ten minutes, default 20 |
 
 ## Scripts
 
@@ -57,6 +59,10 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run verify:edge-cases` | Every popup and its fix |
 | `npm run verify:mongo` | Collection counts and sizes, never the connection string |
 | `npm run seed:mongo` | Write the built in seed to the database |
+| `npm run db:audit` | Read-only database inventory into `docs/db-audit-report.md` |
+| `npm run db:cleanup` and `db:cleanup -- --apply` | Dry run of the cleanup, and applying it after a backup to `backups/<date>/` |
+| `npm run db:apply-validators` and `db:ensure-indexes` | The `$jsonSchema` validators and the unique indexes; both also run on every Vercel build |
+| `npm run cache:clear -- --local`, `--app <url>` or `--vercel` | Clear the local build caches, the app's tagged reads or the Vercel CDN and data cache |
 | `npm run bake:vol-surface -- "<file.xlsx>" [YYYY-MM]` | Rebuild the built in seed from a surface file |
 | `npm run build:samples` | Rebuild the sample surface file |
 
@@ -85,14 +91,27 @@ See [07 Testing and Debug](docs/07-testing-debug.md) for mock mode, fixtures, pa
 
 - `lib/engine`: pure TypeScript engine, one function per sheet block, with the sheet cell in a comment above each formula.
 - `lib/tables.ts`: every table defined once and rendered both on screen and in Excel.
-- `lib/data` and `lib/db`: built in seeds, MongoDB load and save per month.
+- `lib/data` and `lib/db`: built in seeds, and the one data access layer for MongoDB.
 - `lib/workbook`: the Excel export, the surface file and the upload parser.
 - `app` and `components`: pages, API routes and UI.
 - `tests` and `e2e`: Vitest and Playwright.
 
+## Database
+
+MongoDB holds reference data only: one volatility surface and one set of surface parameters per month, in `vol_surfaces` and `pricing_params`. Inputs, runs, sessions, logs and market data are never stored; a run writes nothing.
+
+- `lib/db` is the only code that touches MongoDB: one cached client, one module per collection, and `schemas.ts` with the Zod schemas and the matching `$jsonSchema` validators the database enforces.
+- A unique `monthKey` index per collection, and saves that replace the month, so nothing is ever duplicated.
+- Every save needs the Desk Key, is rate limited and size limited, is checked in full first, and is written in one transaction.
+- Production uses `hedging_sheet`, previews `hedging_sheet_preview`, and tests an in-memory replica set.
+- `GET /api/health` shows the connection, the counts and the latest close date.
+- Surface reads are cached under the tag `surface` and expired on every save; daily history is cached for three hours; the live spot is never cached.
+
+See [01 Architecture](docs/01-architecture.md#database), [05 MongoDB and Seed](docs/05-mongodb-and-seed.md) and the [audit report](docs/db-audit-report.md).
+
 ## Deploy
 
-Pushing to `main` deploys to Vercel production. See [09 Deploy on Vercel](docs/09-vercel-deploy.md).
+Pushing to `main` deploys to Vercel production; each build applies the database indexes and validators first. See [09 Deploy on Vercel](docs/09-vercel-deploy.md).
 
 ## Docs
 
