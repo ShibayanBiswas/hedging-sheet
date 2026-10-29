@@ -342,7 +342,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Surface, Rates And Dividends",
       accent: "cyan",
       description:
-        "The latest monthly volatility surface comes from the desk database; a month without an upload carries the last grid forward with that month's closes as the 100% anchors. The surface can be edited cell by cell, uploaded or downloaded. The Deep column always equals the 55% column. Only the forward pricing parameters and future dividends are shown.",
+        "The latest monthly volatility surface comes from the desk database; a month without an upload carries the last grid forward with that month's closes as the 100% anchors. The surface can be edited cell by cell, uploaded or downloaded. The Deep column always equals the 55% column. The forward pricing parameters, the rate curve and the future dividends drive pricing and travel in the surface file; the page shows the surface and its parameters.",
       metrics: [
         { label: "Sources", value: "Upload And Yahoo" },
         { label: "Fallback", value: "Built In Surface" },

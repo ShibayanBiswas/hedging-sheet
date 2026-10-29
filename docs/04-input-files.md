@@ -2,6 +2,8 @@
 
 The desk uploads one file: the monthly vol surface. Use Upload Surface on Market Data or the header shortcut; a popup reports the result, and the next Run Simulation prices on it. Download Surface writes the active surface in the same layout, so the desk can edit it offline and upload it back. The sample file on Market Data has the same layout; `npm run build:samples` rebuilds it.
 
+The forward Pricing Params grid, the Rate Curve and the Dividends sheets drive pricing and round trip through the file, but Market Data no longer shows them as tables.
+
 The hosted app accepts files up to 4.5 MB. `npm run verify:vol-upload` builds the file from the built in seed, parses it back and checks every value.
 
 ## Vol Surface sheet

@@ -25,7 +25,7 @@
 | Visual | 24 Linux baselines, compared in CI |
 | Lighthouse | Budgets passed in CI |
 | `test:prod` on the preview | 28 passed |
-| `test:prod` on production | 28 passed, Run only, nothing saved |
+| `test:prod` on production | 28 passed on `b076df3` and again on `a4d8d31`, Run only, nothing saved |
 | `verify:db` on production | Read only: validators strict, unique `monthKey` indexes, no invalid documents, orphans or junk |
 | `verify:db` on the preview | The empty database got its indexes and validators, then the built in reference data |
 
@@ -95,7 +95,7 @@ Measured on production with `scripts/measure-layout.ts`, Run only, at 1440 and 3
 | 15 | Footer fills the width | `layout.spec.ts` at 4 widths | ☑ |
 | 16 | No space below Run Simulation | `layout.spec.ts` before and after Run | ☑ |
 | 17 | Per strike Option Type and Buy Or Sell | `strike-matrix.spec.ts`, `structure.test.ts`, `call.test.ts` | ☑ |
-| 18 | Complete suite, preview and production verified, sign off | This document | ☑ |
+| 18 | Complete suite, preview and production verified, sign off | This document; CI on `a4d8d31` waits on the Actions billing | ☑ |
 | 19 | No fixed columns, header sticky only | `layout.spec.ts` | ☑ |
 | 20 | C1 to C20 verified | The table above | ☑ |
 | 21 | Unused code removed; README, docs and scripts updated | Dead styles and the theme files removed, `lib/workbook` renamed, README and docs 01, 02, 06, 07, 08, 10 to 14 | ☑ |

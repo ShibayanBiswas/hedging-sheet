@@ -13,22 +13,12 @@ const VIEWS = [
   { width: 390, height: 844 },
 ] as const;
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const ymdOf = (text: string) => {
-  const [d, m, y] = text.trim().split("-");
-  return `${y}-${String(MONTHS.indexOf(m!) + 1).padStart(2, "0")}-${d}`;
-};
-
 async function openMarketData(page: Page) {
   await page.goto("/");
   await page.getByTestId("nav-market-data").click();
   await expect(page.getByRole("heading", { level: 1, name: "Market Data" })).toBeVisible();
   await expect(page.getByTestId("vol-grid").locator("[data-kind='date']").first()).toBeVisible({ timeout: 30_000 });
   await settle(page);
-}
-
-async function valuationDate(page: Page): Promise<string> {
-  return ymdOf(await page.getByTestId("strip-valuation").innerText());
 }
 
 /** WCAG contrast of an element's text against its own background. */
@@ -58,7 +48,7 @@ for (const view of VIEWS) {
     test.describe(`Market Data ${view.width} by ${view.height}`, () => {
       test.use({ viewport: view, reducedMotion: "reduce", hasTouch: view.width < 640, isMobile: view.width < 640 });
 
-      test("layout, grid, alignment, units, toolbar, copy and history", async ({ page }) => {
+      test("layout, grid, alignment, units, toolbar, copy and the removed tables", async ({ page }) => {
         test.setTimeout(120_000);
         await openMarketData(page);
 
@@ -131,12 +121,13 @@ for (const view of VIEWS) {
         const labels = await page.locator("main th, main button, main label, main h1, main h2, main h3, [data-testid='market-strip']").allTextContents();
         expect(labels.filter((l) => /\b(or|and|not)\b/.test(l))).toEqual([]);
 
-        // History tables start on the valuation date by default.
-        const today = await valuationDate(page);
-        for (const id of ["table-pricing-params", "table-dividends"]) {
-          const first = await page.getByTestId(id).locator("tbody tr").first().locator("[data-kind='date']").innerText();
-          expect(ymdOf(first) >= today, `${id} starts ${first}`).toBe(true);
+        // The forward grid, rate curve and dividend tables, and the Used In, Linked and Rate Used columns, are not shown.
+        for (const gone of ["Used In", "Linked To Premium Growth Rate", "Rate Used", "Pricing Parameters By Expiry", "Rate Curve As Read", "Implied Dividends"]) {
+          expect(text, gone).not.toContain(gone);
         }
+        for (const id of ["table-pricing-params", "table-rate-curve-used", "table-dividends"]) await expect(page.getByTestId(id)).toHaveCount(0);
+        expect(await page.getByTestId("rate-curve-editor").locator("thead th").allTextContents()).toEqual(["Tenor In Years", "Rate %"]);
+        expect(await page.getByTestId("surface-params-table").locator("thead th").allTextContents()).toEqual(["Parameter", "Value"]);
 
         // Sections are on screen without scrolling them into view.
         const hidden = await page.locator("main section.glass").evaluateAll((s) => s.filter((x) => Number(getComputedStyle(x).opacity) < 1).length);
@@ -154,15 +145,6 @@ for (const view of VIEWS) {
 
 test.describe("Market Data behaviour", () => {
   test.use({ reducedMotion: "reduce" });
-
-  test("Show History lists the earlier rows", async ({ page }) => {
-    await openMarketData(page);
-    const rows = page.getByTestId("table-pricing-params").locator("tbody tr");
-    const upcoming = await rows.count();
-    await page.getByTestId("pricing-history-toggle").click();
-    await expect(page.getByTestId("pricing-history-toggle")).toHaveAttribute("aria-pressed", "true");
-    expect(await rows.count()).toBeGreaterThan(upcoming);
-  });
 
   test("editing marks abc and -5 invalid and turns Save off, with no popup", async ({ page }) => {
     await openMarketData(page);
@@ -222,7 +204,8 @@ test.describe("Market Data behaviour", () => {
     await page.goto("/market-data");
     await page.waitForTimeout(500);
     const sections = await page.locator("main section").evaluateAll((s) => s.map((x) => Number(getComputedStyle(x).opacity)));
-    expect(sections.length).toBeGreaterThan(4);
+    // Headline, Volatility Surface and Surface Parameters.
+    expect(sections.length).toBe(3);
     expect(sections.every((o) => o === 1)).toBe(true);
   });
 });

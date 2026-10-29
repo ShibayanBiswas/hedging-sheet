@@ -50,6 +50,7 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run e2e:copy` | Copy rules and capitalisation on every page in both modes |
 | `npm run test:a11y` | axe accessibility checks |
 | `npm run test:visual` and `test:visual:update` | Linux screenshot baselines, and rewriting them |
+| `npm run test:visual:linux` | Rewrites the Linux baselines with Docker, in the image CI uses |
 | `npm run e2e:perf` and `npm run lhci` | Web vitals and Lighthouse budgets |
 | `npm run e2e:responsive` | The responsive audit on 12 viewports |
 | `npm run test:prod` | Read-only Playwright checks against `BASE_URL`: Run only, nothing saved |

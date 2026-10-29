@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, Download, FileSpreadsheet, Gauge, History, Pencil, Plus, RefreshCw, RotateCcw, Save, SlidersHorizontal, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Check, Download, FileSpreadsheet, Gauge, Pencil, Plus, RefreshCw, RotateCcw, Save, SlidersHorizontal, Trash2, Upload, X } from "lucide-react";
 
 import { VolSurfaceGrid } from "@/components/market/vol-surface-grid";
-import { PairsTable, TableCard } from "@/components/ui/desk-table";
+import { PairsTable } from "@/components/ui/desk-table";
 import { NumberInput, Segmented } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
@@ -13,12 +13,11 @@ import { useWriteFetch } from "@/lib/context/desk-key-provider";
 import { useDesk } from "@/lib/context/desk-provider";
 import { useSurfaceUpload, type MarketStatus } from "@/lib/context/surface-upload-provider";
 import { formatDate } from "@/lib/engine/dates";
-import { anchoredCurve, rateCapSellingForward, resolvedRate } from "@/lib/engine/rates";
+import { rateCapSellingForward } from "@/lib/engine/rates";
 import type { BidOffer, PricingParams, VolSurface } from "@/lib/engine/types";
-import { forwardMarket, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
+import { pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fmtIstTime, fmtPercent } from "@/lib/format";
 import { QUOTE_UNDERLYING } from "@/lib/underlyings";
-import type { TableSpec } from "@/lib/tables";
 import { downloadSurfaceFile } from "@/lib/excel/excel-runtime";
 
 const SAMPLE_FILE = "/samples/Hedging_Sheet_Vol_Surface_Sample.xlsx";
@@ -139,7 +138,7 @@ function SurfaceParamsEditor() {
   const pctCell = (value: number, onChange: (v: number) => void, testId: string) =>
     editing ? <NumberInput kind="percent" digits={2} suffix="%" value={value} onChange={onChange} testId={testId} /> : fmtPercent(value, 2);
 
-  const rows: Array<{ label: string; value: ReactNode; note?: string }> = [
+  const rows: Array<{ label: string; value: ReactNode }> = [
     { label: "Month", value: market.surface.label.replace(" Volatility Surface", "") },
     {
       label: "Bid Or Offer",
@@ -159,13 +158,12 @@ function SurfaceParamsEditor() {
       ) : (
         "Bid"
       ),
-      note: "Pricer row 34. Bid carries no incremental margin.",
     },
-    { label: "Volatility Bump", value: pctCell(g.volBump, (v) => editGrid({ volBump: v }), "param-vol-bump"), note: "Pricer row 33, by expiry." },
-    { label: "Incremental Margin", value: pctCell(g.incMargin, (v) => editGrid({ incMargin: v }), "param-inc-margin"), note: "Pricer row 38 on Offer." },
-    { label: "Full Margin", value: pctCell(g.fullMargin, (v) => editGrid({ fullMargin: v }), "param-full-margin"), note: "Pricer row 43." },
-    { label: "Margin Cost", value: pctCell(g.marginCost, (v) => editGrid({ marginCost: v }), "param-margin-cost"), note: "Pricer rows 39 and 44." },
-    { label: "Forward Sell Rate", value: pctCell(g.fwdSellRate, (v) => editGrid({ fwdSellRate: v }), "param-fwd-sell"), note: "Pricer row 28, the valuation month row." },
+    { label: "Volatility Bump", value: pctCell(g.volBump, (v) => editGrid({ volBump: v }), "param-vol-bump") },
+    { label: "Incremental Margin", value: pctCell(g.incMargin, (v) => editGrid({ incMargin: v }), "param-inc-margin") },
+    { label: "Full Margin", value: pctCell(g.fullMargin, (v) => editGrid({ fullMargin: v }), "param-full-margin") },
+    { label: "Margin Cost", value: pctCell(g.marginCost, (v) => editGrid({ marginCost: v }), "param-margin-cost") },
+    { label: "Forward Sell Rate", value: pctCell(g.fwdSellRate, (v) => editGrid({ fwdSellRate: v }), "param-fwd-sell") },
     {
       label: "Dividend Bid Or Offer Factor",
       value: editing ? (
@@ -173,13 +171,11 @@ function SurfaceParamsEditor() {
       ) : (
         params.dividendBidOfferMultiplier.toFixed(2)
       ),
-      note: "Pricing Parameters M2, applied to the Dividends row.",
     },
-    { label: "Rate Cap While Buying Forward", value: pctCell(params.rateCapBuyingForward, (v) => edit({ rateCapBuyingForward: v }), "param-cap-buying"), note: "Pricing Parameters N2." },
+    { label: "Rate Cap While Buying Forward", value: pctCell(params.rateCapBuyingForward, (v) => edit({ rateCapBuyingForward: v }), "param-cap-buying") },
     {
       label: "Rate Cap While Selling Forward",
       value: fmtPercent(rateCapSellingForward(params, inputs.premiumRate), 2),
-      note: "Pricing Parameters O2: the last rate curve point.",
     },
     {
       label: "Premium Growth Rate Link",
@@ -201,9 +197,8 @@ function SurfaceParamsEditor() {
       ) : (
         "Some Points Linked"
       ),
-      note: "Linked points follow the Premium Growth Rate input.",
     },
-    { label: "Rate Curve Points", value: `${params.rateCurve.length} Tenors`, note: "Edit them in the Rate Curve Points table." },
+    { label: "Rate Curve Points", value: `${params.rateCurve.length} Tenors` },
   ];
 
   return (
@@ -244,7 +239,6 @@ function SurfaceParamsEditor() {
                 <tr>
                   <th>Parameter</th>
                   <th>Value</th>
-                  <th>Used In</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,7 +246,6 @@ function SurfaceParamsEditor() {
                   <tr key={row.label}>
                     <td className="md-param-label font-semibold">{row.label}</td>
                     <td className="md-param-value">{row.value}</td>
-                    <td className="font-ui text-muted">{row.note ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -267,8 +260,6 @@ function SurfaceParamsEditor() {
                   <tr>
                     <th className="text-right">Tenor In Years</th>
                     <th className="text-right">Rate %</th>
-                    <th>Linked To Premium Growth Rate</th>
-                    <th className="text-right">Rate Used %</th>
                     {editing ? <th className="text-right">Remove</th> : null}
                   </tr>
                 </thead>
@@ -299,21 +290,6 @@ function SurfaceParamsEditor() {
                         ) : (
                           p.ratePercent.toFixed(2)
                         )}
-                      </td>
-                      <td>
-                        {editing ? (
-                          <label className="inline-flex cursor-pointer items-center gap-2 font-ui text-body">
-                            <input type="checkbox" checked={Boolean(p.linkedToPremiumRate)} onChange={(e) => editPoint(i, { linkedToPremiumRate: e.target.checked })} data-testid={`curve-linked-${i}`} />
-                            {p.linkedToPremiumRate ? "Yes" : "No"}
-                          </label>
-                        ) : p.linkedToPremiumRate ? (
-                          "Yes"
-                        ) : (
-                          "No"
-                        )}
-                      </td>
-                      <td className="text-right" data-kind="number">
-                        {(resolvedRate(p, inputs.premiumRate) * 100).toFixed(2)}
                       </td>
                       {editing ? (
                         <td className="text-right">
@@ -354,14 +330,6 @@ function SurfaceParamsEditor() {
   );
 }
 
-function HistoryToggle({ shown, onToggle, testId }: { shown: boolean; onToggle: () => void; testId: string }) {
-  return (
-    <ToolButton icon={History} aria-pressed={shown} onClick={onToggle} data-testid={testId}>
-      {shown ? "Hide History" : "Show History"}
-    </ToolButton>
-  );
-}
-
 export default function MarketDataPage() {
   const { inputs, market, datasetSource, datasetLoading, datasetFetchedAt, datasetError, applyMarket, refreshDataset } = useDesk();
   const { toast } = useDeskDialog();
@@ -372,14 +340,11 @@ export default function MarketDataPage() {
   const [invalidCells, setInvalidCells] = useState(0);
   const [busy, setBusy] = useState(false);
   const [reloading, setReloading] = useState(false);
-  const [pricingHistory, setPricingHistory] = useState(false);
-  const [dividendHistory, setDividendHistory] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Market data shows the quote underlying's terms until an underlying is chosen.
   const u = inputs.underlying || QUOTE_UNDERLYING;
   const surface = market.surface;
-  const live = useMemo(() => forwardMarket(market, inputs.valuationDate), [market, inputs.valuationDate]);
   const lastExpiry = surface.expiries[surface.expiries.length - 1];
   const { setStatus } = upload;
   const firstLoad = datasetLoading && !datasetFetchedAt;
@@ -442,58 +407,12 @@ export default function MarketDataPage() {
     a.remove();
   };
 
-  const curveTable: TableSpec = {
-    id: "rate-curve-used",
-    title: "Rate Curve As Read",
-    note: "Tenors dated from the valuation date, with one more point a year past the longest expiry so Lower Maturity always resolves.",
-    columns: [
-      { key: "date", label: "Date", kind: "date" },
-      { key: "rate", label: "Rate %", kind: "number", digits: 2 },
-    ],
-    rows: anchoredCurve(market.params.rateCurve, inputs.valuationDate, inputs.premiumRate, lastExpiry).map((p) => ({ date: p.date, rate: p.rate * 100 })),
-  };
-
-  const pricingRows = pricingHistory ? surface.pricingParams : live.surface.pricingParams.filter((p) => p.date.slice(0, 10) >= inputs.valuationDate);
-  const pricingTable: TableSpec = {
-    id: "pricing-params",
-    title: "Pricing Parameters By Expiry",
-    note: pricingHistory ? "Every row in the surface file, history included." : "Rows from the valuation date on. Show History lists the earlier rows.",
-    columns: [
-      { key: "date", label: "Date", kind: "date" },
-      { key: "bump", label: "Volatility Bump", kind: "percent" },
-      { key: "inc", label: "Incremental Margin", kind: "percent" },
-      { key: "full", label: "Full Margin", kind: "percent" },
-      { key: "cost", label: "Margin Cost", kind: "percent" },
-      { key: "fwd", label: "Forward Sell Rate", kind: "percent" },
-    ],
-    rows: pricingRows.map((p) => ({ date: p.date.slice(0, 10), bump: p.volBump, inc: p.incMargin ?? null, full: p.fullMargin ?? null, cost: p.marginCost ?? null, fwd: p.fwdSellRate })),
-  };
-
-  const dividendRows = dividendHistory ? market.params.dividends : live.params.dividends.filter((d) => d.date.slice(0, 10) >= inputs.valuationDate);
-  const dividendTable: TableSpec = {
-    id: "dividends",
-    title: "Implied Dividends",
-    note:
-      u !== QUOTE_UNDERLYING
-        ? `Points are in ${QUOTE_UNDERLYING} terms; ${u} scales them by the ratio of the reference prices.`
-        : dividendHistory
-          ? "Every dividend in the surface file, history included."
-          : "Future dates only. Show History lists the earlier dividends.",
-    columns: [
-      { key: "date", label: "Date", kind: "date" },
-      { key: "amount", label: "Implied Dividend In Index Points", kind: "number", digits: 3 },
-    ],
-    rows: dividendRows.map((d) => ({ date: d.date.slice(0, 10), amount: d.amount })),
-  };
-
-  const pricingToggle = <HistoryToggle shown={pricingHistory} onToggle={() => setPricingHistory((v) => !v)} testId="pricing-history-toggle" />;
-  const dividendToggle = <HistoryToggle shown={dividendHistory} onToggle={() => setDividendHistory((v) => !v)} testId="dividends-history-toggle" />;
   const preview = upload.preview;
   const previewVols = preview ? preview.surface.volsPercent.flat().filter((v) => Number.isFinite(v)) : [];
 
   return (
     <div className="md-page flex w-full flex-col gap-4">
-      <PageIntro title="Market Data" subtitle="The active volatility surface, its surface parameters, the pricing parameters the Pricer reads, the rate curve and future dividends." />
+      <PageIntro title="Market Data" subtitle="The active volatility surface and the surface parameters the Pricer reads." />
       <Panel>
         <SectionTitle icon={Gauge}>Headline</SectionTitle>
         <PairsTable
@@ -608,22 +527,6 @@ export default function MarketDataPage() {
         />
       </Panel>
       <SurfaceParamsEditor />
-      <Panel index={3} className="md-history">
-        <SectionTitle icon={SlidersHorizontal} aside={pricingToggle}>
-          Pricing Parameters By Expiry
-        </SectionTitle>
-        <TableCard spec={pricingTable} />
-      </Panel>
-      <Panel index={4}>
-        <SectionTitle icon={TrendingDown}>Rate Curve As Read</SectionTitle>
-        <TableCard spec={curveTable} />
-      </Panel>
-      <Panel index={5} className="md-history">
-        <SectionTitle icon={TrendingDown} aside={dividendToggle}>
-          Implied Dividends
-        </SectionTitle>
-        <TableCard spec={dividendTable} />
-      </Panel>
     </div>
   );
 }

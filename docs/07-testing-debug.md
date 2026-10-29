@@ -9,7 +9,7 @@
 | Component | `tests/component` | React Testing Library in jsdom: fields, the desk dialog, both input modes and the grouped validation popup |
 | API | `tests/api` | Route handlers against an in-memory Mongo replica set with the production validators and indexes, seeded from `tests/fixtures`, with Yahoo answered by MSW. `contracts.test.ts` covers every route: the happy path with its response checked by Zod, a bad request, and for each write a missing Desk Key and the rate limit. `database.test.ts` proves that invalid documents are rejected, repeated saves leave one document per month, a run writes nothing, bodies are size limited, previews and tests never use the production database name, and the health check shows no secrets |
 | Export | `tests/export` | The Excel file: five title-case sheets, header rows, values that match the engine, at most 3 decimals in every number format, no pivots |
-| Copy | `tests/copy`, `tests/unit/copy-rules.test.ts` | No copy names the spreadsheet the app replaced: tables, Logic Atlas, the Excel file, validation messages and the text in every page and component |
+| Copy | `tests/copy`, `tests/unit/copy-rules.test.ts` | No copy names the spreadsheet the app replaced: tables, Logic Atlas, the Excel file, validation messages and the text in every page and component. The Used In, Linked To Premium Growth Rate and Rate Used columns and the forward grid, rate curve and dividend tables appear in none of them; `e2e/removed-display.spec.ts` checks every tab at 1440 and 390 px |
 | Mapping | `scripts/extract-mapping.ts` | Every formula cell of the reference workbook has a row in `docs/11-workbook-mapping.md` |
 | Blank Inputs suite | `e2e/blank` | B1 to B22: empty state, each required field, invalid values in every number field, strikes, expiries, the weekday rule, spreads, Option Type, coupon and solver, protection and floor, volatility, fetch buttons, the full fill against the frozen regression, every output table, payoff, fixed grids, Excel, mode switching, keyboard, 390 px width and axe |
 | Structure and Call | `tests/structure.test.ts`, `tests/call.test.ts` | Start level, strikes and units, Strike Level edits, adding and removing strikes, each strike's Buy Or Sell, the book against the payoff for all Put, all Call and mixed, put-call parity on every leg, and each leg's option type in Excel |
@@ -45,6 +45,7 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run e2e:copy` | The copy rules and capitalisation crawls |
 | `npm run test:a11y` | The axe checks |
 | `npm run test:visual`, `test:visual:update` | Visual baselines on Chromium, and rewriting them; on Linux only |
+| `npm run test:visual:linux` | Rewrites the Linux baselines with Docker from any machine |
 | `npm run e2e:perf` | Web vitals and the run time on Chromium |
 | `npm run e2e:responsive` | The responsive audit on Chromium |
 | `npm run test:prod` | The read-only production project; needs `BASE_URL` |
@@ -89,7 +90,7 @@ Run one test by name with `npx playwright test -g "B13.2"`, or one project with 
 
 ## Updating snapshots
 
-Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 8 tabs at 3 widths, 24 files. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. After an intended visual change, run the CI visual job; when fewer than 24 Linux files are committed it writes them and uploads the `visual-baselines-linux` artifact instead of failing. Download that artifact, copy the images into `e2e/visual/__screenshots__/chromium/linux` and commit them.
+Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 8 tabs at 3 widths, 24 files. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. After an intended visual change, run `npm run test:visual:linux`: it rebuilds the app and rewrites all 24 baselines with Docker in `mcr.microsoft.com/playwright:v1.63.0-noble`, the image the CI visual job runs in, then commit them. When fewer than 24 Linux files are committed, the CI visual job also writes them and uploads the `visual-baselines-linux` artifact instead of failing.
 
 ## Reading traces
 

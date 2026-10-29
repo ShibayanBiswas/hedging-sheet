@@ -61,7 +61,7 @@ export default function LogicAtlasPage() {
     <div className="intel-page flex w-full flex-col gap-4">
       <motion.header className="intel-hero" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: deskEase }}>
         <p className="intel-hero-kicker relative z-10">Anand Rathi Wealth · Desk Intelligence</p>
-        <h1 className="intel-hero-title relative z-10 text-h2">Logic Atlas</h1>
+        <h1 className="intel-hero-title relative z-10">Logic Atlas</h1>
         <p className="intel-hero-sub relative z-10">
           How the {underlyingName(inputs)} accelerator flows from the inputs through the Pricer, the goal seek, the vega hedge and the stress grid to the Excel file.
         </p>

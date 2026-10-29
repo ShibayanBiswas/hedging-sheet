@@ -68,8 +68,8 @@ The payoff chart and scenario table follow the Primary SP Dashboard. The chart h
   - The grid has an Expiry column, the Nifty and Sensex strike rows under Reference Strikes, a Volatility % header over the strike columns, one heat scale with a legend, and a sticky header.
   - While editing, each cell is checked as it is typed, and Save Surface stays off until every cell holds a volatility above 0 and at most 200.
   - An upload is checked in the browser, shown as a preview table and grid, and written only on Confirm Upload.
-- **Surface Parameters.** A Parameter, Value and Used In table beside the Rate Curve Points table from 1024 px, with Edit Parameters, Save and Reset, and its own status row.
-- **Pricing Parameters By Expiry**, **Rate Curve As Read** and **Implied Dividends.** From the valuation date on; Show History lists the earlier rows.
+- **Surface Parameters.** A Parameter and Value table beside the Rate Curve Points table, Tenor In Years and Rate %, from 1024 px, with Edit Parameters, Save and Reset, and its own status row. The Premium Growth Rate Link row sets whether the curve points follow the Premium Growth Rate.
+- **Not shown.** The forward pricing parameters by expiry, the rate curve as read and the implied dividends still drive pricing, and they travel in the Download Current Surface file, but they have no table on the page.
 
 ## Logic Atlas
 

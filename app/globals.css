@@ -318,7 +318,7 @@ textarea {
   }
 
   .intel-hero-title {
-    @apply mt-2 font-serif text-h2 font-bold tracking-tight md:text-h1;
+    @apply mt-2 font-serif text-h1 font-bold tracking-tight;
     color: var(--ar-ink);
   }
 
@@ -1461,11 +1461,6 @@ svg.lucide {
 /* The grid scrolls in a box shorter than the window, under its sticky header. */
 .md-page .vol-grid-box {
   max-height: min(60dvh, 26rem);
-}
-
-/* The history tables list upcoming rows by default, so a shorter box shows them without a long scroll. */
-.md-page .md-history .desk-table-scroll {
-  max-height: min(50dvh, 22rem);
 }
 
 /* The first header row is 14 + 16 + 14 px plus its 2 px rule. */

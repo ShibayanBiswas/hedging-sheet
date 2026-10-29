@@ -124,6 +124,8 @@ export function normalizeVolSurface(surface: VolSurface): VolSurface {
     return [cols[deepColumn] ?? 0, ...cols];
   });
 
+  // One row per date: the sort is stable, so a repeated date keeps the row that came first.
+  const seenDates = new Set<string>();
   const pricingParams: PricingParamPoint[] = (surface.pricingParams ?? [])
     .filter((p) => !Number.isNaN(parseYmd(p.date).getTime()))
     .map((p) => ({
@@ -131,7 +133,13 @@ export function normalizeVolSurface(surface: VolSurface): VolSurface {
       volBump: Number.isFinite(p.volBump) ? p.volBump : 0,
       fwdSellRate: Number.isFinite(p.fwdSellRate) ? p.fwdSellRate : DEFAULT_FWD_SELL_RATE,
     }))
-    .sort((a, b) => parseYmd(a.date).getTime() - parseYmd(b.date).getTime());
+    .sort((a, b) => parseYmd(a.date).getTime() - parseYmd(b.date).getTime())
+    .filter((p) => {
+      const day = p.date.slice(0, 10);
+      if (seenDates.has(day)) return false;
+      seenDates.add(day);
+      return true;
+    });
 
   const key = /^\d{4}-\d{2}$/.test(surface.monthKey ?? "") ? surface.monthKey : monthKey();
   return {

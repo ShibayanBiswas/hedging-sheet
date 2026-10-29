@@ -57,7 +57,8 @@
     "verify:mapping": "tsx scripts/extract-mapping.ts",
     "verify:copy": "vitest run tests/copy tests/unit/copy-rules.test.ts tests/unit/title-case.test.ts",
     "verify:db": "tsx scripts/verify-db.ts",
-    "fixtures:workbook": "tsx scripts/extract-workbook-values.ts"
+    "fixtures:workbook": "tsx scripts/extract-workbook-values.ts",
+    "test:visual:linux": "tsx scripts/visual-baselines.ts"
   },
   "dependencies": {
     "exceljs": "4.4.0",

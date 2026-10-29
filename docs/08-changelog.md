@@ -1,5 +1,15 @@
 # 08 · Changelog
 
+## Round 11: Fewer Columns And Tables On Market Data
+
+| Area | Change |
+|---|---|
+| Columns | Used In is gone from Surface Parameters; Linked To Premium Growth Rate and Rate Used % are gone from Rate Curve Points. The Premium Growth Rate Link row still sets the link |
+| Tables | Pricing Parameters By Expiry, the forward grid, Rate Curve As Read and Implied Dividends are gone from Market Data, with their footnotes and Show History buttons |
+| Engine | Unchanged: the forward grid, the rate curve and the dividends still price every leg, and the frozen regression and table schema regenerate identically. The forward grid now keeps one row per date, the first; the built in surface repeated 25-Mar-2027 with the same values |
+| Surface file | Download Current Surface still writes the forward grid, the Rate Curve with its linked flags and the Dividends sheets, so a downloaded file uploads back without losing pricing data |
+| Tests | `tests/unit/forward-grid.test.ts`, `tests/copy/removed-display.test.ts` and `e2e/removed-display.spec.ts` |
+
 ## Round 10: Mapping, Golden Tests, Crawls And Sign Off
 
 | Area | Change |
