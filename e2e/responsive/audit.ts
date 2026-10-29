@@ -188,10 +188,12 @@ export async function audit(page: Page, where: string, opts: AuditOptions): Prom
         return (clone.textContent ?? "").replace(/\s+/g, " ").trim();
       };
       const words = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9₹%]/.test(w)).length;
+      // Button names the Market Data brief fixes word for word.
+      const namedByBrief = new Set(["Reload From Desk Database"]);
       for (const el of Array.from(document.querySelectorAll("button, a.btn-animated"))) {
         if (!shown(el) || el.matches("[role='tab']") || el.closest(".logic-module-rail")) continue;
         const n = nameOf(el);
-        if (n && words(n) > 3) out.push(`R7 button "${n}" has ${words(n)} words`);
+        if (n && words(n) > 3 && !namedByBrief.has(n)) out.push(`R7 button "${n}" has ${words(n)} words`);
       }
       for (const el of Array.from(document.querySelectorAll("[role='tab'], nav a"))) {
         const n = nameOf(el);

@@ -162,10 +162,9 @@ test.describe("Market Data", () => {
     await marketData.editSurface.click();
     const cell = marketData.volCell(1);
     await cell.fill("abc");
-    await cell.blur();
-    await expect(dialog.root).toContainText("Wrong Input");
-    await dialog.dismissAll();
     await expect(cell).toHaveAttribute("aria-invalid", "true");
+    await expect(dialog.root).toHaveCount(0);
+    await expect(marketData.saveSurface).toBeDisabled();
     await marketData.discardSurface.click();
     await expect(marketData.editSurface).toBeVisible();
     const [download] = await Promise.all([marketData.downloadSurface.page().waitForEvent("download"), marketData.downloadSurface.click()]);
@@ -187,20 +186,26 @@ test.describe("Market Data", () => {
     await marketData.enterDeskKey();
     await expect(page.getByTestId("desk-toast").or(dialog.root).first()).toContainText(/Saved/);
     await dialog.dismissAll();
-    await expect(marketData.paramsTable).toContainText("6.900%");
+    await expect(marketData.paramsTable).toContainText("6.90%");
+    await expect(page.getByTestId("params-status")).toContainText("Saved To Desk Database");
     await page.reload();
-    await expect(marketData.paramsTable).toContainText("6.900%", { timeout: 30_000 });
+    await expect(marketData.paramsTable).toContainText("6.90%", { timeout: 30_000 });
     await marketData.resetParams.click();
     await dialog.dismissAll();
   });
 
-  test("vol surface upload with the sample file", async ({ inputs, marketData, dialog }) => {
+  test("surface upload with the sample file: preview, confirm, then an inline status and no popup", async ({ inputs, marketData, dialog, page }) => {
     await inputs.goto();
     await marketData.open();
     await marketData.surfaceFile.setInputFiles(path.join(process.cwd(), "public", "samples", "Hedging_Sheet_Vol_Surface_Sample.xlsx"));
     await marketData.enterDeskKey();
-    await expect(dialog.root).toContainText(/replaced the active surface/, { timeout: 30_000 });
-    await dialog.dismissAll();
+    const preview = page.getByTestId("upload-preview");
+    await expect(preview).toContainText("Hedging_Sheet_Vol_Surface_Sample.xlsx", { timeout: 30_000 });
+    await expect(page.getByTestId("table-upload-preview")).toContainText("18");
+    await page.getByTestId("confirm-upload").click();
+    await expect(page.getByTestId("market-status")).toContainText("Saved To Desk Database", { timeout: 30_000 });
+    await expect(preview).toHaveCount(0);
+    await expect(dialog.root).toHaveCount(0);
     await expect(marketData.volGrid).toContainText("24-Apr-2031");
   });
 

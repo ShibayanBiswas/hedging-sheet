@@ -9,7 +9,7 @@ const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
-const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//];
+const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/];
 const desktop = { viewport: { width: 1440, height: 900 } };
 
 export default defineConfig({
@@ -37,7 +37,7 @@ export default defineConfig({
   },
   projects: external
     ? [
-        { name: "prod", testMatch: /prod-smoke\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        { name: "prod", testMatch: /(prod-smoke|market-data)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
         // Read-only layout checks on live data; the screenshots need the mock data, so R8 stays local.
         { name: "prod-responsive", testMatch: /responsive[\\/]r(01|09|10|11)[^\\/]*\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
       ]

@@ -9,6 +9,7 @@ export class MarketDataPage {
   readonly volGrid: Locator;
   readonly surfaceFile: Locator;
   readonly editSurface: Locator;
+  readonly saveSurface: Locator;
   readonly discardSurface: Locator;
   readonly downloadSurface: Locator;
   readonly paramsTable: Locator;
@@ -21,6 +22,7 @@ export class MarketDataPage {
     this.volGrid = page.getByTestId("vol-grid");
     this.surfaceFile = page.getByTestId("surface-file");
     this.editSurface = page.getByTestId("edit-surface");
+    this.saveSurface = page.getByTestId("save-surface");
     this.discardSurface = page.getByTestId("discard-surface");
     this.downloadSurface = page.getByTestId("download-surface");
     this.paramsTable = page.getByTestId("surface-params-table");

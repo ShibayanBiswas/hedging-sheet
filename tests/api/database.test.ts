@@ -111,6 +111,27 @@ describe("repeated saves do not create duplicates", () => {
   });
 });
 
+describe("upload preview", () => {
+  it("parses and returns the surface without writing anything", async () => {
+    const before = await snapshot();
+    const sample = fs.readFileSync(path.join(process.cwd(), "public", "samples", "Hedging_Sheet_Vol_Surface_Sample.xlsx"));
+    const form = new FormData();
+    form.append("file", new File([sample], "sample.xlsx"));
+    form.append("mode", "preview");
+    const res = await postUpload(withKey("/api/uploads/vol-surface", { method: "POST", body: form }));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({ preview: true, persisted: false, summary: { expiries: 18, strikePercents: 20 } });
+    expect(await snapshot()).toBe(before);
+  });
+
+  it("refuses a workbook over the shared 4.5 megabyte limit", async () => {
+    const form = new FormData();
+    form.append("file", new File([new Uint8Array(4.6 * 1024 * 1024)], "big.xlsx"));
+    expect((await postUpload(withKey("/api/uploads/vol-surface", { method: "POST", body: form }))).status).toBe(413);
+  });
+});
+
 describe("a run writes nothing", () => {
   it("loading the market, the closes, the volatility and pricing the book leave the database unchanged", async () => {
     const before = await snapshot();
