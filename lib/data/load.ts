@@ -1,4 +1,8 @@
-import { COLLECTIONS, getDb, writeWithRetry } from "@/lib/db/mongo";
+import { CACHE_TAGS, cachedRead, expireTags } from "@/lib/cache";
+import { withTransaction } from "@/lib/db/client";
+import { readParamsOnOrBefore, replaceParams } from "@/lib/db/pricing-params";
+import { pricingParamsSchema, volSurfaceSchema } from "@/lib/db/schemas";
+import { readSurfaceOnOrBefore, replaceSurface } from "@/lib/db/vol-surfaces";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { normalizePricingParams, seedPricingParams } from "@/lib/engine/defaults";
 import type { PricingParams, VolSurface } from "@/lib/engine/types";
@@ -7,34 +11,16 @@ import { fetchIndexAtDate } from "@/lib/market-data";
 
 export type DatasetSource = "database" | "runtime" | "seed";
 
-/** Same-instance cache when Mongo is unreachable. */
+/** Same-instance copy of the last save when the database is unreachable. */
 let runtimeSurface: VolSurface | null = null;
 let runtimeParams: PricingParams | null = null;
-
-function stripMeta<T>(doc: T & { _id?: unknown; isActive?: unknown; source?: unknown; updatedAt?: unknown }): T {
-  const { _id, isActive, source, updatedAt, ...rest } = doc;
-  void _id;
-  void isActive;
-  void source;
-  void updatedAt;
-  return rest as T;
-}
-
-export function looksLikeSurface(value: unknown): value is VolSurface {
-  if (!value || typeof value !== "object") return false;
-  const s = value as VolSurface;
-  return Array.isArray(s.expiries) && s.expiries.length > 0 && Array.isArray(s.volsPercent) && Array.isArray(s.moneyness);
-}
-
-export function looksLikeParams(value: unknown): value is PricingParams {
-  if (!value || typeof value !== "object") return false;
-  const p = value as PricingParams;
-  return Array.isArray(p.rateCurve) && Array.isArray(p.dividends) && Number.isFinite(Number(p.rateCapBuyingForward));
-}
 
 export function deskMonthKey(today = istTodayYmd()): string {
   return today.slice(0, 7);
 }
+
+const cachedSurface = cachedRead((monthKey: string) => readSurfaceOnOrBefore(monthKey), ["surface-on-or-before"], [CACHE_TAGS.surface]);
+const cachedParams = cachedRead((monthKey: string) => readParamsOnOrBefore(monthKey), ["params-on-or-before"], [CACHE_TAGS.surface]);
 
 const anchorCache = new Map<string, { nifty: number | null; sensex: number | null }>();
 
@@ -56,23 +42,11 @@ async function presentSurfaceForDeskMonth(surface: VolSurface): Promise<VolSurfa
 }
 
 export async function loadActiveSurface(): Promise<{ surface: VolSurface; source: DatasetSource }> {
-  const db = await getDb();
-  if (db) {
-    try {
-      const monthKey = deskMonthKey();
-      const col = db.collection(COLLECTIONS.volSurfaces);
-      const doc = await col
-        .find({ monthKey: { $lte: monthKey }, "expiries.0": { $exists: true } })
-        .sort({ monthKey: -1 })
-        .limit(1)
-        .next();
-      if (doc) {
-        const surface = normalizeVolSurface(stripMeta(doc as unknown as VolSurface));
-        return { surface: await presentSurfaceForDeskMonth(surface), source: "database" };
-      }
-    } catch (err) {
-      console.error("[load] vol surface", err instanceof Error ? err.message : err);
-    }
+  try {
+    const stored = await cachedSurface(deskMonthKey());
+    if (stored) return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(stored)), source: "database" };
+  } catch (err) {
+    console.error("[load] vol surface:", err instanceof Error ? err.message : "read failed");
   }
   if (runtimeSurface) return { surface: await presentSurfaceForDeskMonth(runtimeSurface), source: "runtime" };
   return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(SEED_SURFACE)), source: "seed" };
@@ -80,67 +54,50 @@ export async function loadActiveSurface(): Promise<{ surface: VolSurface; source
 
 /** Surface parameters are saved per month; the latest month on or before today is active. */
 export async function loadActiveParams(): Promise<{ params: PricingParams; source: DatasetSource; monthKey: string | null }> {
-  const db = await getDb();
-  if (db) {
-    try {
-      const col = db.collection(COLLECTIONS.pricingParams);
-      const monthly = await col
-        .find({ monthKey: { $lte: deskMonthKey() } })
-        .sort({ monthKey: -1 })
-        .limit(1)
-        .next();
-      const doc = monthly ?? (await col.findOne({ isActive: true }));
-      if (doc && looksLikeParams(doc)) {
-        const { monthKey, key, ...rest } = stripMeta(doc as unknown as PricingParams & { monthKey?: string; key?: string });
-        void key;
-        return { params: normalizePricingParams(rest), source: "database", monthKey: monthKey ?? null };
-      }
-    } catch (err) {
-      console.error("[load] pricing params", err instanceof Error ? err.message : err);
-    }
+  try {
+    const stored = await cachedParams(deskMonthKey());
+    if (stored) return { params: normalizePricingParams(stored.params), source: "database", monthKey: stored.monthKey };
+  } catch (err) {
+    console.error("[load] pricing params:", err instanceof Error ? err.message : "read failed");
   }
   if (runtimeParams) return { params: runtimeParams, source: "runtime", monthKey: null };
   return { params: seedPricingParams(), source: "seed", monthKey: null };
 }
 
-export async function persistActiveSurface(surface: VolSurface, source: string): Promise<boolean> {
-  const plain = normalizeVolSurface(surface);
-  runtimeSurface = plain;
-  const db = await getDb();
-  if (!db) return false;
-  await writeWithRetry("vol surface", async (acknowledged) => {
-    const wc = acknowledged ? undefined : { writeConcern: { w: 1 as const } };
-    await db.collection(COLLECTIONS.volSurfaces).updateMany({}, { $set: { isActive: false } }, wc);
-    await db
-      .collection(COLLECTIONS.volSurfaces)
-      .updateOne(
-        { monthKey: plain.monthKey },
-        { $set: { ...plain, isActive: true, source, updatedAt: new Date() } },
-        { upsert: true, ...wc },
-      );
-    await db
-      .collection(COLLECTIONS.uploadLogs)
-      .insertOne({ type: "vol_surface", filename: source, monthKey: plain.monthKey, at: new Date() }, wc);
-  });
-  return true;
+export class ReferenceDataError extends Error {
+  constructor(readonly issues: string[]) {
+    super(issues[0] ?? "The data is not valid.");
+  }
 }
 
-export async function persistActiveParams(raw: PricingParams, source: string, monthKey = deskMonthKey()): Promise<boolean> {
-  const params = normalizePricingParams(raw);
-  runtimeParams = params;
-  const db = await getDb();
-  if (!db) return false;
-  await writeWithRetry("pricing params", async (acknowledged) => {
-    const wc = acknowledged ? undefined : { writeConcern: { w: 1 as const } };
-    await db.collection(COLLECTIONS.pricingParams).updateMany({}, { $set: { isActive: false } }, wc);
-    await db
-      .collection(COLLECTIONS.pricingParams)
-      .updateOne(
-        { monthKey },
-        { $set: { ...params, monthKey, key: `month:${monthKey}`, isActive: true, source, updatedAt: new Date() } },
-        { upsert: true, ...wc },
-      );
-    await db.collection(COLLECTIONS.uploadLogs).insertOne({ type: "pricing_params", filename: source, monthKey, at: new Date() }, wc);
+/**
+ * Saves a surface, surface parameters or both in one transaction, after checking the whole of each,
+ * then expires the surface cache. Returns false when there is no database: the save then lasts for this instance only.
+ */
+export async function saveReferenceData(
+  change: { surface?: VolSurface; params?: { values: PricingParams; monthKey: string } },
+  source: string,
+): Promise<boolean> {
+  // The raw data is checked first: normalizing would quietly fill a missing row with zeros.
+  const check = (surface: VolSurface | null, params: PricingParams | null) => {
+    const issues = [
+      ...(surface ? volSurfaceSchema.safeParse(surface).error?.issues ?? [] : []),
+      ...(params ? pricingParamsSchema.safeParse(params).error?.issues ?? [] : []),
+    ].map((i) => (i.path.length ? `${i.path.join(".")}: ${i.message}` : i.message));
+    if (issues.length) throw new ReferenceDataError(issues.slice(0, 8));
+  };
+  check(change.surface ?? null, change.params?.values ?? null);
+  const surface = change.surface ? normalizeVolSurface(change.surface) : null;
+  const params = change.params ? normalizePricingParams(change.params.values) : null;
+  check(surface, params);
+
+  const written = await withTransaction(async (db, session) => {
+    if (surface) await replaceSurface(db, session, surface, source);
+    if (params) await replaceParams(db, session, params, change.params!.monthKey, source);
+    return true;
   });
-  return true;
+  if (surface) runtimeSurface = surface;
+  if (params) runtimeParams = params;
+  expireTags([CACHE_TAGS.surface], ["/"]);
+  return written === true;
 }

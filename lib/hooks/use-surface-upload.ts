@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
+import { useWriteFetch } from "@/lib/context/desk-key-provider";
 import { useDesk } from "@/lib/context/desk-provider";
 
 /** Hosted requests are capped near 4.5 MB on Vercel. */
@@ -12,6 +13,7 @@ const MAX_UPLOAD_BYTES = 4.5 * 1024 * 1024;
 export function useSurfaceUpload() {
   const { applyMarket } = useDesk();
   const { alert } = useDeskDialog();
+  const writeFetch = useWriteFetch();
   const [busy, setBusy] = useState(false);
 
   const upload = useCallback(
@@ -28,7 +30,8 @@ export function useSurfaceUpload() {
       try {
         const form = new FormData();
         form.append("file", file);
-        const res = await fetch("/api/uploads/vol-surface", { method: "POST", body: form });
+        const res = await writeFetch("/api/uploads/vol-surface", { method: "POST", body: form });
+        if (!res) return false;
         const data = await res.json();
         if (!res.ok) {
           alert(Array.isArray(data.issues) ? data.issues.join("\n") : (data.error ?? "The workbook could not be read."), {
@@ -51,7 +54,7 @@ export function useSurfaceUpload() {
         setBusy(false);
       }
     },
-    [alert, applyMarket],
+    [alert, applyMarket, writeFetch],
   );
 
   return { upload, busy };

@@ -8,6 +8,7 @@ import { headStyle, TableCard } from "@/components/ui/desk-table";
 import { NumberInput, Segmented } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
+import { useWriteFetch } from "@/lib/context/desk-key-provider";
 import { useDesk } from "@/lib/context/desk-provider";
 import { formatDate } from "@/lib/engine/dates";
 import { anchoredCurve, rateCapSellingForward, resolvedRate } from "@/lib/engine/rates";
@@ -34,6 +35,7 @@ function gridFrom(surface: VolSurface, valuationDate: string, fallbackFwd: numbe
 function SurfaceParamsEditor() {
   const { market, inputs, applyMarket, refreshDataset } = useDesk();
   const { alert, toast } = useDeskDialog();
+  const writeFetch = useWriteFetch();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<PricingParams | null>(null);
   const [grid, setGrid] = useState<Grid | null>(null);
@@ -75,7 +77,8 @@ function SurfaceParamsEditor() {
     }
     setBusy(true);
     try {
-      const res = await fetch("/api/params", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ params, grid: g }) });
+      const res = await writeFetch("/api/params", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ params, grid: g }) });
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.issues?.[0] ?? data.error ?? "Save failed");
       applyMarket({ params: data.params, ...(data.surface ? { surface: data.surface } : {}) });
@@ -296,6 +299,7 @@ function SurfaceParamsEditor() {
 export default function MarketDataPage() {
   const { inputs, market, datasetSource, applyMarket } = useDesk();
   const { alert } = useDeskDialog();
+  const writeFetch = useWriteFetch();
   const { upload, busy: uploading } = useSurfaceUpload();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<number[][]>([]);
@@ -317,7 +321,8 @@ export default function MarketDataPage() {
     setBusy(true);
     try {
       const next: VolSurface = { ...surface, volsPercent: draft };
-      const res = await fetch("/api/surface", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(next) });
+      const res = await writeFetch("/api/surface", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(next) });
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.issues?.[0] ?? data.error ?? "Save failed");
       applyMarket({ surface: data.surface });

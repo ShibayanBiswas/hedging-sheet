@@ -3,6 +3,7 @@ import { connection } from "next/server";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
+import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
 import { ThemeProvider } from "@/lib/context/theme-provider";
 
@@ -37,9 +38,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="bg-background font-serif text-ink antialiased">
         <ThemeProvider>
           <DeskDialogProvider>
-            <DeskProvider>
-              <AppShell>{children}</AppShell>
-            </DeskProvider>
+            <DeskKeyProvider>
+              <DeskProvider>
+                <AppShell>{children}</AppShell>
+              </DeskProvider>
+            </DeskKeyProvider>
           </DeskDialogProvider>
         </ThemeProvider>
       </body>

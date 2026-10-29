@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 
-import { loadActiveSurface, looksLikeSurface, persistActiveSurface } from "@/lib/data/load";
+import { loadActiveSurface, ReferenceDataError, saveReferenceData } from "@/lib/data/load";
+import type { VolSurface } from "@/lib/engine/types";
 import { normalizeVolSurface } from "@/lib/engine/vol-surface";
+import { guardWrite, readJsonBody } from "@/lib/server/write-guard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+const MAX_BYTES = 1024 * 1024;
 
 export async function GET() {
   const { surface, source } = await loadActiveSurface();
@@ -12,21 +16,18 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  if (!looksLikeSurface(body)) {
-    return NextResponse.json(
-      { error: "Volatility Surface is incomplete", issues: ["Keep at least one expiry row and the Deep strike column before saving."] },
-      { status: 400 },
-    );
+  const blocked = guardWrite(req, MAX_BYTES);
+  if (blocked) return blocked;
+  const read = await readJsonBody(req, MAX_BYTES);
+  if (!read.ok) return read.response;
+  if (!read.body || typeof read.body !== "object") {
+    return NextResponse.json({ error: "Volatility Surface is incomplete", issues: ["Keep at least one expiry row before saving."] }, { status: 400 });
   }
-  const surface = normalizeVolSurface(body);
   try {
-    const persisted = await persistActiveSurface(surface, "desk-edit");
-    return NextResponse.json({ ok: true, surface, persisted });
+    const persisted = await saveReferenceData({ surface: read.body as VolSurface }, "desk edit");
+    return NextResponse.json({ ok: true, surface: normalizeVolSurface(read.body as VolSurface), persisted });
   } catch (err) {
-    return NextResponse.json(
-      { error: "The Volatility Surface could not be saved.", issues: [err instanceof Error ? err.message : "Write failed"] },
-      { status: 500 },
-    );
+    if (err instanceof ReferenceDataError) return NextResponse.json({ error: "Volatility Surface is incomplete", issues: err.issues }, { status: 400 });
+    return NextResponse.json({ error: "The Volatility Surface could not be saved.", issues: ["Nothing was saved. Try again."] }, { status: 500 });
   }
 }
