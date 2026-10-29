@@ -4,8 +4,9 @@
 
 | Item | Value |
 |---|---|
-| Release commit | `b076df3`, the merge of [pull request 1](https://github.com/ShibayanBiswas/hedging-sheet/pull/1): `c1da017`, `a8b962a` and `3956954` |
-| Production | [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app), deployment `hedging-sheet-gdk5f5qgi`, redeployed without the build cache ("Skipping build cache" in the build log) |
+| Release commit | `b076df3`, the merge of [pull request 1](https://github.com/ShibayanBiswas/hedging-sheet/pull/1): `c1da017`, `a8b962a` and `3956954`; then `a4d8d31`, the Logic Atlas heading and the button crawl fix |
+| Production | [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app), deployment `hedging-sheet-pyrk8sa4i` from `a4d8d31`. The release `b076df3` was redeployed without the build cache, `hedging-sheet-gdk5f5qgi`, with "Skipping build cache" in the build log |
+| CI | Pull request 1 at `a8b962a`: every job green, 476 Playwright tests on 4 browsers. Main at `b076df3`: every job green except the button crawl, which counted the route swap on a slow runner as layout shift; fixed in `a4d8d31` and passed locally. Main at `a4d8d31`: GitHub did not start the jobs because of the account's Actions billing, so it needs a re-run once billing is fixed |
 | Preview | `hedging-sheet-9fbu8bvjs`, on the `hedging_sheet_preview` database |
 | Caches | The `surface`, `history`, `history:nifty` and `history:sensex` tags expired on production, then the Vercel CDN and data cache purged |
 | Environment | `MONGODB_URI`, `MONGODB_DB` and `DESK_WRITE_KEY` set for Production and Preview; `NEXT_PUBLIC_E2E` set nowhere; `VERCEL_FORCE_NO_BUILD_CACHE` added for the one redeploy and removed |
