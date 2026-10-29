@@ -63,7 +63,7 @@ export function PairsTable({ items, testId, title }: { items: PairItem[]; testId
   const perRow = wide ? 4 : 2;
   const rows = Array.from({ length: Math.ceil(items.length / perRow) }, (_, r) => items.slice(r * perRow, r * perRow + perRow));
   return (
-    <div className="data-table-premium-wrap" data-testid={testId} role="region" aria-label={title}>
+    <div className="data-table-premium-wrap" data-testid={testId} tabIndex={0} role="region" aria-label={title}>
       <table className="data-table-premium hs-pairs">
         <colgroup>
           {Array.from({ length: perRow }, (_, i) => (
@@ -111,7 +111,7 @@ export function TableCard({ spec, testId }: { spec: TableSpec; testId?: string }
         <thead>
           <tr className="hs-head-row">
             {spec.columns.map((c) => (
-              <th key={c.key} className={cn(rightAligned(c.kind) && "text-right")}>
+              <th key={c.key} className={cn(rightAligned(c.kind) && "text-right")} title={c.tip}>
                 {c.label}
               </th>
             ))}
@@ -243,8 +243,8 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                   }
                   const key = spec.columnKeys![i]!;
                   return (
-                    <td key={i} className={cn("p-1 text-right", overridden && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
-                      <div className="flex flex-col items-end gap-1">
+                    <td key={i} className={cn("hs-edit-cell text-right", overridden && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
+                      <div className="flex items-center justify-end gap-2">
                         <input
                           className="w-20 rounded-lg border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-caption tabular-nums outline-none focus:border-gold"
                           inputMode="decimal"

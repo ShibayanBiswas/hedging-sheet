@@ -73,12 +73,11 @@ The client receives the coupon plus a book of options `V(s) = Σ uᵢ · (kᵢ �
 
 With the defaults the units are −10.05, +9.05, +1, −25.6, +24 and +1.
 
-**Option Type.** Each spread has its own Option Type, Put by default; the protection, outflow and floor legs and the Day 1 Vega Hedge are always puts.
+**Option Type and Buy Or Sell.** Each strike takes its own Option Type, Put by default, and its own Buy Or Sell. The units above fix the side: Sell where they are negative, Buy where positive. `derivedSides` gives it, and a strike set to the other side blocks Run with the inline error `strike-side`. The Day 1 Vega Hedge is always a put.
 
-- **Put spread.** It pays `participation × min(max(p − b, 0), s − b)` as the cash `participation × (s − b)` at maturity, less a put spread: sell `u` puts at the Sell Level strike and buy `u` at the Buy Level strike, with `u = participation × (s − b) × start ÷ rupee width`. `upsideCash` sums that cash, and the goal seek targets payout ÷ notional − 1 − cash.
-- **Call spread.** Buy `u` calls at the Buy Level strike and sell `u` at the Sell Level strike, with no cash term; the achieved coupon adds what the call spreads pay at the Target.
-- **Mixed books.** A strike shared by a put spread and a call spread carries two legs, one per type, in the Pricer, Greeks, Vega Hedge, margin and Excel.
-- **Put and Call compared.** Parity holds on every leg, so a call book has the put book's delta and vega, and its Premium is the put book's less each call spread's payout × notional × the average discount factor of the expiries. The pots grow premium at the Premium Growth Rate to maturity while the legs settle at the expiries, so the Inbuilt moves by payout × (1 − discount factor × premium growth) ÷ NBFC growth: 8.38% for all Put and 3.35% for all Call on the fixture. `tests/call.test.ts` asserts both.
+- **Put strike.** `units` puts at the rupee strike. The spreads also pay the cash `participation × (s − b)` at maturity; `upsideCash` sums it, and the goal seek targets payout ÷ notional − 1 − cash.
+- **Call strike.** `units` calls plus a short futures leg worth `contracts × discount × (forward − strike)`, the parity gap. Call plus futures leg is the put, so the strike's payoff, Premium and Greeks equal the put strike's, and every total equals the all Put book. The Pricer shows the call's own price and the leg's Futures Adjustment; Summary adds the Futures Adjustment For Call Strikes row in crore.
+- **Equivalence.** `tests/call.test.ts` and `tests/golden/products.test.ts` check that all Call and mixed books equal the all Put book to 1e-9, and that every call leg holds parity against an independent Black formula.
 
 **Payoff and book agree.** `payoffBookGap` evaluates the book and the payoff at every strike, half a point either side, and every 1% from −89% to 20 points past the target, skipping only the one point outflow band where the book spreads the protection drop. The largest gap is about 5e-15 for one, two and three spreads.
 
@@ -102,7 +101,7 @@ The leg grid shows these rows in Pricer column A order. The strike % and rupee s
 | 21 | Upper Maturity | last curve date on or before maturity | `readRateCurve` |
 | 22 | Lower Maturity | next curve date | `readRateCurve` |
 | 23, 24 | Upper and Lower Forward | curve rates at rows 21 and 22 | `readRateCurve` |
-| 25 | Option Type | the leg's type: its spread's Option Type, or Put below the spreads | `StrikeSlot.optionType` |
+| 25 | Option Type | the strike's Option Type | `StrikeSlot.optionType` |
 | 26 | Valuation Date | the valuation date | `inputs.valuationDate` |
 | 27 | Spot Price | spot, plus the stress bump in the Mark to Market loop | `priceBook(spotBump)` |
 | 28 | Forward Growth | `'Pricing Params'!H69`: the Forward Sell Rate of the valuation month row | `forwardSellRateForMonth` |

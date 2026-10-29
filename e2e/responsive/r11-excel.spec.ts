@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 
-import { EXCEL_FONT, EXCEL_LINE_HEIGHT, EXCEL_THEME, excelCellDisplayLength } from "../../lib/workbook/export-theme";
+import { EXCEL_FONT, EXCEL_LINE_HEIGHT, EXCEL_THEME, excelCellDisplayLength } from "../../lib/excel/export-theme";
 import { expect, test } from "../fixtures";
 import { downloadExcel } from "../support/excel";
 

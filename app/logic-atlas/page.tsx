@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { AlertTriangle, Brain, Bug, Calculator, CheckCircle2, ChevronDown, LayoutDashboard, LineChart, Network, Sparkles, Workflow } from "lucide-react";
+import { AlertTriangle, Brain, Bug, Calculator, CheckCircle2, ChevronDown, Copy, LayoutDashboard, LineChart, Network, Sparkles } from "lucide-react";
 
 import { LogicFlowDiagram, type FlowNodeSpec } from "@/components/atlas/logic-flow";
 import { HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
@@ -13,9 +14,10 @@ import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
 import { EXPIRY_WEEKDAY, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { underlyingName } from "@/lib/inputs/draft";
-import { COMPUTATION_PRIMITIVES, logicModules } from "@/lib/logic-atlas";
+import { inputHash } from "@/lib/input-hash";
+import { logicModules } from "@/lib/logic-atlas";
 import { deskEase } from "@/lib/motion";
-import { headlineTable, spreadTypesLabel, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
+import { headlineTable, strikeTypesLabel, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
 const SHELL_TONES = {
   amber: "intel-pipeline-shell--amber",
@@ -26,10 +28,10 @@ const SHELL_TONES = {
   gold: "intel-pipeline-shell--gold",
 } as const;
 
-const CHIP_TONES = { amber: "amber", cyan: "cyan", purple: "purple", green: "green", rose: "rose", gold: "amber" } as const;
-
 export default function LogicAtlasPage() {
-  const { inputs, lastRun } = useDesk();
+  const { inputs, lastRun: anyRun, staleInputs } = useDesk();
+  // A run made with other inputs is never shown: its values no longer describe the product on screen.
+  const lastRun = staleInputs ? null : anyRun;
   const reduce = useReducedMotion();
   const weekday = inputs.underlying ? WEEKDAY_NAMES[EXPIRY_WEEKDAY[inputs.underlying]]! : "Expiry Weekday";
   const modules = logicModules(underlyingName(inputs), weekday);
@@ -47,28 +49,17 @@ export default function LogicAtlasPage() {
     columns: [
       { key: "name", label: "Formula", kind: "text" },
       { key: "words", label: "In Words", kind: "text" },
-      { key: "source", label: "Source Sheet And Row", kind: "text" },
+      { key: "inputs", label: "Inputs", kind: "text" },
+      { key: "output", label: "Output", kind: "text" },
+      { key: "value", label: "Value From The Last Run", kind: "text" },
     ],
-    rows: selected.formulas.map((f) => ({ name: f.name, words: f.words, source: f.source })),
+    rows: selected.formulas.map((f) => ({ name: f.name, words: f.words, inputs: f.inputs, output: f.output, value: r ? f.value(r) : "-" })),
   };
-
-  const primitivesTable: TableSpec = {
-    id: "atlas-primitives",
-    title: "Computation Primitives",
-    columns: [
-      { key: "name", label: "Primitive", kind: "text" },
-      { key: "category", label: "Category", kind: "text" },
-      { key: "uses", label: "Uses", kind: "text" },
-      { key: "role", label: "Role", kind: "text" },
-    ],
-    rows: COMPUTATION_PRIMITIVES.map((p) => ({ ...p })),
-  };
+  const insights = selected.insights(r ?? null);
 
   return (
     <div className="intel-page flex w-full flex-col gap-4">
       <motion.header className="intel-hero" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: deskEase }}>
-        <span className="intel-hero-orb intel-hero-orb--gold" aria-hidden />
-        <span className="intel-hero-orb intel-hero-orb--maroon" aria-hidden />
         <p className="intel-hero-kicker relative z-10">Anand Rathi Wealth · Desk Intelligence</p>
         <h2 className="intel-hero-title relative z-10 text-h2">Logic Atlas</h2>
         <p className="intel-hero-sub relative z-10">
@@ -123,16 +114,13 @@ export default function LogicAtlasPage() {
                   setActiveNode(null);
                 }}
               >
-                <span className="logic-module-card__sheen" aria-hidden />
-                <span className="logic-module-card__orb logic-module-card__orb--primary" aria-hidden />
-                <span className="logic-module-card__orb logic-module-card__orb--secondary" aria-hidden />
                 <div className="relative z-10">
                   <p className="logic-module-card__kicker">{module.subtitle}</p>
                   <h3 className="logic-module-card__title mt-2 font-serif font-bold text-h3">{module.title}</h3>
-                  <p className="mt-2 text-caption leading-relaxed text-stone-600 dark:text-stone-400 ">{module.description}</p>
+                  <p className="mt-2 text-caption leading-relaxed text-stone-600 ">{module.description}</p>
                 </div>
                 <div className="logic-module-card__footer relative z-10 mt-3 flex flex-wrap items-center gap-2">
-                  <span className="logic-module-card__connected inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-1 text-caption font-bold tracking-wide text-emerald-800 dark:text-emerald-300">
+                  <span className="logic-module-card__connected inline-flex items-center gap-1 rounded-full border border-emerald-400/35 px-3 py-1 text-caption font-bold tracking-wide text-emerald-800">
                     <CheckCircle2 className="icon-xs" />
                     {module.stageCount} Stages · {module.formulas.length} Formulas
                   </span>
@@ -164,11 +152,11 @@ export default function LogicAtlasPage() {
                 {selected.title}
               </motion.h3>
             </AnimatePresence>
-            <p className="measure mt-2 text-body leading-relaxed text-stone-500 dark:text-stone-400">{selected.description}</p>
+            <p className="measure mt-2 text-body leading-relaxed text-stone-500">{selected.description}</p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-caption font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
-            <CheckCircle2 className="icon-xs" />
-            Pipeline Complete
+          <span className="hs-chip" data-testid="atlas-status">
+            <CheckCircle2 className="icon-xs" aria-hidden />
+            {r ? `Ran ${new Date(lastRun!.at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })} · ${selected.stageCount} Stages Live` : "Waiting For Run Simulation"}
           </span>
         </div>
         <div className={cn("intel-pipeline-shell mt-4", SHELL_TONES[selected.accent])}>
@@ -177,7 +165,7 @@ export default function LogicAtlasPage() {
       </Panel>
 
       <Panel>
-        <SectionTitle icon={Calculator} subtitle="Each formula in words, with the sheet and row it comes from.">
+        <SectionTitle icon={Calculator} subtitle="Each formula in words, with its inputs, its output and the value from the last run.">
           Formulas
         </SectionTitle>
         <TableCard spec={formulaTable} />
@@ -190,11 +178,11 @@ export default function LogicAtlasPage() {
             {activeNode ? (
               <motion.div key={activeNode.label} className="mt-3 space-y-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} data-testid="atlas-node-detail">
                 <span className="hs-chip capitalize">{activeNode.kind}</span>
-                <p className="measure text-body leading-relaxed text-stone-700 dark:text-stone-300">{activeNode.description}</p>
+                <p className="measure text-body leading-relaxed text-stone-700">{activeNode.description}</p>
               </motion.div>
             ) : (
               <motion.ul key={`insights-${selected.id}`} className="intel-insight-list measure mt-3" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {selected.insights.map((insight, i) => (
+                {insights.map((insight, i) => (
                   <motion.li key={insight} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.25 }}>
                     {insight}
                   </motion.li>
@@ -205,17 +193,13 @@ export default function LogicAtlasPage() {
         </Panel>
         <Panel>
           <SectionTitle icon={LineChart}>Outputs</SectionTitle>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="mt-3 flex flex-col gap-2" data-testid="atlas-outputs">
             {selected.outputs.map((output, i) => (
-              <motion.li
-                key={`${selected.id}-${output}`}
-                className={cn("intel-output-chip", `intel-output-chip--${CHIP_TONES[selected.accent]}`)}
-                initial={reduce ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04, duration: 0.25 }}
-                whileHover={{ x: 4, scale: 1.01 }}
-              >
-                {output}
+              <motion.li key={`${selected.id}-${output.label}`} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.25 }}>
+                <Link href={output.href} className="glass-control flex w-full items-center justify-between gap-3 rounded-xl px-4 py-2 font-ui text-body">
+                  <span className="font-semibold">{output.label}</span>
+                  <span className="tabular-nums">{r ? output.value(r) : "-"}</span>
+                </Link>
               </motion.li>
             ))}
           </ul>
@@ -229,13 +213,6 @@ export default function LogicAtlasPage() {
             <li key={e}>{e}</li>
           ))}
         </ul>
-      </Panel>
-
-      <Panel>
-        <SectionTitle icon={Workflow} subtitle="Building blocks every section reuses.">
-          Computation Primitives
-        </SectionTitle>
-        <TableCard spec={primitivesTable} />
       </Panel>
 
       <Panel>
@@ -258,6 +235,7 @@ export default function LogicAtlasPage() {
 }
 
 function DebugValues({ result: r }: { result: NonNullable<ReturnType<typeof useDesk>["lastRun"]>["result"] }) {
+  const [copied, setCopied] = useState(false);
   const i = r.inputs;
   const inputsSpec: KeyValueSpec = {
     id: "debug-inputs",
@@ -271,10 +249,21 @@ function DebugValues({ result: r }: { result: NonNullable<ReturnType<typeof useD
       { label: "Strikes", value: i.strikePercents.map((k) => `${k}%`).join(", "), kind: "text" },
       { label: "Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
       { label: "Daily Volatility", value: i.dailyVol, kind: "percent", digits: 4 },
-      { label: "Option Type", value: spreadTypesLabel(i.spreadOptionTypes), kind: "text" },
+      { label: "Option Type", value: strikeTypesLabel(i.strikeOptionTypes), kind: "text" },
     ],
   };
+  const hash = inputHash(r.inputs);
+  const timings: TableSpec = {
+    id: "debug-timings",
+    title: "Stage Timings",
+    columns: [
+      { key: "stage", label: "Stage", kind: "text" },
+      { key: "ms", label: "Milliseconds", kind: "number", digits: 3 },
+    ],
+    rows: Object.entries(r.diagnostics.timings).map(([stage, ms]) => ({ stage, ms })),
+  };
   const diagnostics = headlineTable("debug-diagnostics", "Diagnostics", [
+    { label: "Input Hash", value: hash, kind: "text" },
     { label: "Goal Seek Iterations", value: r.diagnostics.solverIterations, kind: "integer" },
     { label: "Goal Seek Residual", value: r.diagnostics.goalSeekResidual.toExponential(2), kind: "text" },
     { label: "Margin Loop Passes", value: r.diagnostics.loopPasses, kind: "integer" },
@@ -325,9 +314,23 @@ function DebugValues({ result: r }: { result: NonNullable<ReturnType<typeof useD
     ],
     rows: r.diagnostics.curvePoints.map((p) => ({ date: p.date, rate: p.rate })),
   };
+  const copy = () => {
+    const json = JSON.stringify({ inputHash: hash, inputs: r.inputs, diagnostics: r.diagnostics, header: r.pricer.header }, null, 2);
+    void navigator.clipboard?.writeText(json).then(
+      () => setCopied(true),
+      () => setCopied(false),
+    );
+  };
   return (
     <div className="mt-3 flex w-full flex-col gap-4" data-testid="debug-values">
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" onClick={copy} data-testid="debug-copy-json">
+          <Copy className="icon-sm" aria-hidden />
+          {copied ? "Copied" : "Copy As JSON"}
+        </button>
+      </div>
       <TableCard spec={diagnostics} />
+      <TableCard spec={timings} />
       <KeyValueCard spec={inputsSpec} />
       <TableCard spec={solver} />
       <TableCard spec={legs} />

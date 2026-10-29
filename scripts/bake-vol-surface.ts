@@ -12,7 +12,7 @@ import path from "node:path";
 
 import { istTodayYmd } from "../lib/engine/dates";
 import { normalizePricingParams, seedPricingParams } from "../lib/engine/defaults";
-import { parseVolSurfaceWorkbook } from "../lib/workbook/parse-vol-surface";
+import { parseVolSurfaceFile } from "../lib/excel/parse-vol-surface";
 
 const [src, monthArg] = process.argv.slice(2);
 const monthKey = monthArg ?? istTodayYmd().slice(0, 7);
@@ -26,7 +26,7 @@ if (!fs.existsSync(src)) {
 }
 
 const buf = fs.readFileSync(src);
-const parsed = parseVolSurfaceWorkbook(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), monthKey);
+const parsed = parseVolSurfaceFile(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), monthKey);
 const params = normalizePricingParams({ ...seedPricingParams(), ...parsed.params });
 
 const write = (rel: string, data: unknown) => {

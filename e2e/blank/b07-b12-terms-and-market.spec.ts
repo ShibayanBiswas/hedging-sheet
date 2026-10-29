@@ -22,8 +22,11 @@ async function optionTypeCells(page: Page, nav: { go: (id: (typeof OUTPUT_TAB_ID
       const cells = await readCells(page, t.id);
       for (const [key, c] of Object.entries(cells)) {
         const [row, col] = key.split("::");
-        // Skip labels: the Option Type row label, and the Total marker of the options table's total row.
-        if ((row === "Option Type" || col === "Option Type") && c.text !== "Option Type" && c.text !== "Total") texts.push(c.text);
+        // Skip labels: the Option Type row label, and the markers of the options table's futures adjustment and total rows.
+        // The Product Description's Option Type item describes the whole book; it is checked on its own below.
+        const marker = ["Option Type", "Total", "Futures Adjustment For Call Strikes"].includes(c.text);
+        const bookSummary = row === "Option Type" && col === "Value";
+        if ((row === "Option Type" || col === "Option Type") && !marker && !bookSummary) texts.push(c.text);
       }
     }
   }
@@ -91,7 +94,7 @@ test.describe("B7 Spreads", () => {
 });
 
 test.describe("B8 Option Type", () => {
-  test("B8.1 and B8.2 each spread takes its own Option Type, the downside and hedge stay puts, and a call book prices differently", async ({ page, inputs, nav }, testInfo) => {
+  test("B8.1 and B8.2 each strike takes its own Option Type, the hedge stays a put, and calls replicate the put book's premium", async ({ page, inputs, nav }, testInfo) => {
     chromiumOnly(testInfo);
     test.setTimeout(180_000);
     await fillBlank(inputs);
@@ -103,20 +106,15 @@ test.describe("B8 Option Type", () => {
     const putPremium = await pricerPremium(page);
 
     await nav.go("inputs");
-    await inputs.fill("spreadOptionTypes-0", "C");
-    await inputs.fill("spreadOptionTypes-1", "C");
+    for (const i of [0, 1, 2]) await inputs.fill(`strikeOptionTypes-${i}`, "C");
     await inputs.run();
     const calls = await optionTypeCells(page, nav);
     expect(calls.length).toBe(puts.length);
     expect(new Set(calls)).toEqual(new Set(["Call", "Put"]));
     await nav.go("pricer");
-    expect(await pricerPremium(page)).not.toBeCloseTo(putPremium, 6);
-
-    await nav.go("inputs");
-    await inputs.fill("spreadOptionTypes-1", "P");
-    await inputs.run();
+    expect(await pricerPremium(page)).toBeCloseTo(putPremium, 6);
     await nav.go("product");
-    await expect(page.locator('[data-cell="Option Type::Value"]').first()).toHaveText("Spread 1 Call, Spread 2 Put");
+    await expect(page.locator('[data-cell="Option Type::Value"]').first()).toHaveText("Call At Strikes 1, 2 And 3, Put Elsewhere");
   });
 });
 
@@ -134,6 +132,10 @@ test.describe("B9 Coupon and solver", () => {
   test("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9", async ({ page, inputs, atlas }) => {
     await fillBlank(inputs);
     await inputs.fill("coupon", "2.01");
+    // Just above the 2% the lower spread pays, the top participation is 0.001, so Strike 2 must now be sold.
+    await expect(page.getByTestId("strike-error-1")).toHaveText("This Strike Must Be A Sell To Give The Product Payoff");
+    await expect(inputs.runButton).toBeDisabled();
+    await inputs.fill("input-strikeSides-1", "S");
     await inputs.run();
     await atlas.open();
     await atlas.debugDrawer.click();
@@ -147,12 +149,12 @@ test.describe("B10 Protection and floor", () => {
     await fillBlank(inputs);
   });
 
-  test("B10.1 protection that puts the strike at or above 100% is rejected", async ({ inputs }) => {
-    for (const v of ["0", "-5"]) {
-      await inputs.fill("protection", v);
-      await expect(inputs.field("protection")).toHaveAttribute("aria-invalid", "true");
-      await inputs.dialog.dismissAll(3_000);
-    }
+  test("B10.1 protection that puts the strike above 100% is rejected; 0% is a product with no protection", async ({ inputs }) => {
+    await inputs.fill("protection", "-5");
+    await expect(inputs.field("protection")).toHaveAttribute("aria-invalid", "true");
+    await inputs.dialog.dismissAll(3_000);
+    await inputs.fill("protection", "0");
+    await expect(inputs.field("protection")).not.toHaveAttribute("aria-invalid", "true");
   });
 
   test("B10.2 a floor at or above protection less the step is rejected", async ({ inputs }) => {

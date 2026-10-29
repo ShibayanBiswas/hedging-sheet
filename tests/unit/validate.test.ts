@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { bsPrice } from "@/lib/engine/black-scholes";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
 import { EXPIRY_WEEKDAY, expiryForMonth, medianExpiryIndex, rawExpiryDate } from "@/lib/engine/schedule";
-import { bookReturn, clientReturn, deriveTerms, payoffLevels, validateStructure } from "@/lib/engine/structure";
+import { bookReturn, clientReturn, deriveTerms, derivedSides, payoffLevels, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs, Underlying } from "@/lib/engine/types";
 import { blankInputs, type DeskInputs } from "@/lib/inputs/draft";
 import { fieldTestId, groupBySection, INPUT_SECTIONS, numberFieldRules, requiredFields, validateDeskInputs } from "@/lib/inputs/validate";
@@ -24,7 +24,7 @@ describe("validateDeskInputs", () => {
     const errors = validateDeskInputs(blankInputs(), { today: TODAY });
     expect(errors.every((e) => e.kind === "required")).toBe(true);
     const fields = errors.map((e) => e.field);
-    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "spreadOptionTypes.0", "spreadOptionTypes.1", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
+    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "strikeOptionTypes.0", "strikeSides.5", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
       expect(fields).toContain(key);
     }
     for (let i = 0; i < 6; i++) expect(fields).toContain(`strikePercents.${i}`);
@@ -71,7 +71,7 @@ describe("Blank Inputs suite, unit level", () => {
 
   it("B2.1 the required field list covers every field, month row, strike and typed participation", () => {
     const fields = requiredFields(6, 2).map((e) => e.field);
-    expect(fields).toEqual(expect.arrayContaining(["underlying", "valuationDate", "expiryCount", "spreadOptionTypes.0", "spreadOptionTypes.1", "participations.0"]));
+    expect(fields).toEqual(expect.arrayContaining(["underlying", "valuationDate", "expiryCount", "strikeOptionTypes.0", "strikeSides.5", "participations.0"]));
     for (const r of numberFieldRules(filled)) expect(fields, r.field).toContain(r.field);
     expect(new Set(fields).size).toBe(fields.length);
   });
@@ -200,8 +200,11 @@ describe("Blank Inputs suite, unit level", () => {
   it("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9", () => {
     const lower = deriveTerms(filled).spreads[0]!;
     const coupon = (lower.sell - lower.buy) * lower.participation + 1e-4;
-    expect(errorsFor({ coupon })).toEqual([]);
-    const r = priceLikeTheApp({ ...filled, coupon });
+    // So little is left for the top spread that Strike 2 must now be sold.
+    const strikeSides = derivedSides({ ...filled, coupon });
+    expect(strikeSides[1]).toBe("S");
+    expect(errorsFor({ coupon, strikeSides })).toEqual([]);
+    const r = priceLikeTheApp({ ...filled, coupon, strikeSides });
     expect(r.diagnostics.goalSeekResidual).toBeLessThan(1e-9);
   });
 

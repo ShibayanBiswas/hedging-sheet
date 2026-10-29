@@ -38,45 +38,45 @@ const kindColorMap: Record<
     border: "border-sky-400/50",
     bg: "bg-gradient-to-br from-sky-50 via-white to-cyan-50/70",
     text: "text-sky-800",
-    textDark: "dark:text-sky-300",
-    iconBg: "bg-sky-500/12 dark:bg-sky-400/15",
+    textDark: "",
+    iconBg: "",
   },
   process: {
     border: "border-teal-500/45",
     bg: "bg-gradient-to-br from-teal-50 via-white to-emerald-50/60",
     text: "text-teal-800",
-    textDark: "dark:text-teal-300",
-    iconBg: "bg-teal-500/12 dark:bg-teal-400/15",
+    textDark: "",
+    iconBg: "",
   },
   engine: {
     border: "border-violet-500/45",
     bg: "bg-gradient-to-br from-violet-50 via-white to-fuchsia-50/50",
     text: "text-violet-900",
-    textDark: "dark:text-violet-300",
-    iconBg: "bg-violet-500/12 dark:bg-violet-400/15",
+    textDark: "",
+    iconBg: "",
   },
   lookup: {
     border: "border-indigo-500/45",
     bg: "bg-gradient-to-br from-indigo-50 via-white to-blue-50/60",
     text: "text-indigo-900",
-    textDark: "dark:text-indigo-300",
-    iconBg: "bg-indigo-500/12 dark:bg-indigo-400/15",
+    textDark: "",
+    iconBg: "",
   },
   output: {
     border: "border-emerald-500/50",
     bg: "bg-gradient-to-br from-emerald-50 via-white to-lime-50/50",
     text: "text-emerald-900",
-    textDark: "dark:text-emerald-300",
-    iconBg: "bg-emerald-500/12 dark:bg-emerald-400/15",
+    textDark: "",
+    iconBg: "",
   },
 };
 
 const arrowByKind: Record<FlowNodeKind, string> = {
-  input: "text-sky-600/80 dark:text-sky-400/90",
-  process: "text-teal-600/80 dark:text-teal-400/90",
-  engine: "text-violet-600/80 dark:text-violet-400/90",
-  lookup: "text-indigo-600/80 dark:text-indigo-400/90",
-  output: "text-emerald-600/80 dark:text-emerald-400/90",
+  input: "text-sky-600/80",
+  process: "text-teal-600/80",
+  engine: "text-violet-600/80",
+  lookup: "text-indigo-600/80",
+  output: "text-emerald-600/80",
 };
 
 function FlowNode({
@@ -98,8 +98,7 @@ function FlowNode({
       type="button"
       onClick={onClick}
       className={cn(
-        "logic-node group relative w-full overflow-hidden rounded-xl border p-4 text-left shadow-sm transition-all duration-200",
-        `logic-node--${node.kind}`,
+        "group relative w-full overflow-hidden rounded-xl border p-4 text-left shadow-sm transition-all duration-200",
         colors.border,
         colors.bg,
         active && "ring-2 ring-gold/50 ring-offset-2 ring-offset-[color:var(--ar-surface)]",
@@ -110,12 +109,6 @@ function FlowNode({
       whileHover={reduce ? undefined : { y: -4, scale: 1.02 }}
       transition={{ delay: index * 0.06, duration: 0.35, ease: "easeOut" }}
     >
-      <motion.span
-        aria-hidden
-        className="logic-node__orb"
-        animate={reduce ? undefined : { opacity: [0.35, 0.65, 0.35], scale: [1, 1.15, 1] }}
-        transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.12 }}
-      />
       <div className="relative z-[1] flex items-start gap-3">
         <motion.div
           className={cn("rounded-xl p-2", colors.iconBg)}
@@ -128,9 +121,9 @@ function FlowNode({
           <p data-desc className={cn("text-caption font-bold uppercase tracking-[0.25em]", colors.text, colors.textDark)}>
             {node.kind}
           </p>
-          <p className="mt-1 font-semibold text-ink dark:text-stone-100">{node.label}</p>
+          <p className="mt-1 font-semibold text-ink">{node.label}</p>
           {node.description ? (
-            <p data-desc className="mt-2 text-body leading-relaxed text-stone-600 dark:text-stone-400">
+            <p data-desc className="mt-2 text-body leading-relaxed text-stone-600">
               {node.description}
             </p>
           ) : null}

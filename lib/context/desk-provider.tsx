@@ -11,6 +11,7 @@ import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
 import { fieldTestId, groupBySection, validateDeskInputs, type FieldError } from "@/lib/inputs/validate";
 import type { MarketLevels } from "@/lib/market-data";
+import { LEVEL_FIELD } from "@/lib/underlyings";
 
 type InputsPatch = Partial<DeskInputs> | ((prev: DeskInputs) => Partial<DeskInputs>);
 
@@ -65,6 +66,12 @@ export type DeskContextValue = {
 const DeskContext = createContext<DeskContextValue | null>(null);
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+/** Run warnings shown as a popup after the simulation, by code. */
+const WARNING_TITLES: Record<string, string> = {
+  "expiry-surface": "Expiries Beyond The Surface",
+  "loss-cap": "Loss Reaches 100% Before A 90% Fall",
+};
 
 /** Overrides are made on the output tabs, so they are keyed apart from the inputs. */
 function splitKeys(inputs: DeskInputs): { inputsKey: string; overridesKey: string } {
@@ -127,7 +134,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
 
   const spotFor = (u: Underlying | "", lv: MarketLevels | null): number | null => {
     if (!u) return null;
-    const level = u === "Sensex" ? lv?.sensexLevel : lv?.niftyLevel;
+    const level = lv?.[LEVEL_FIELD[u]];
     return level != null && level > 0 ? level : null;
   };
 
@@ -356,8 +363,9 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       return false;
     }
     setLastRun({ result, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
-    for (const w of result.warnings.filter((w) => w.code === "expiry-surface")) {
-      alert(w.message, { variant: "warning", title: "Expiries Beyond The Surface", fix: w.fix });
+    for (const w of result.warnings) {
+      const title = WARNING_TITLES[w.code ?? ""];
+      if (title) alert(w.message, { variant: "warning", title, fix: w.fix });
     }
     toast("Simulation Complete");
     return true;
@@ -366,6 +374,12 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const keys = useMemo(() => splitKeys(inputs), [inputs]);
   const staleInputs = lastRun != null && lastRun.inputsKey !== keys.inputsKey;
   const stale = lastRun != null && (staleInputs || lastRun.overridesKey !== keys.overridesKey || lastRun.marketVersion !== marketVersion);
+
+  // The end to end suite reads the last result here; production builds leave NEXT_PUBLIC_E2E unset.
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_E2E !== "1") return;
+    (window as unknown as { __HS_TEST__?: unknown }).__HS_TEST__ = { result: lastRun?.result ?? null, inputs, mode, stale };
+  }, [lastRun, inputs, mode, stale]);
 
   const value = useMemo<DeskContextValue>(
     () => ({

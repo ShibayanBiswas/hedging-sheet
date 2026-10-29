@@ -25,9 +25,9 @@ export default defineConfig({
         "lib/motion.ts",
         "lib/navigation.ts",
         "lib/cn.ts",
-        "lib/workbook/excel-runtime.ts",
-        "lib/workbook/export-branding.ts",
-        "lib/workbook/export-filename.ts",
+        "lib/excel/excel-runtime.ts",
+        "lib/excel/export-branding.ts",
+        "lib/excel/export-filename.ts",
         "lib/desk-alert.ts",
       ],
       thresholds: {

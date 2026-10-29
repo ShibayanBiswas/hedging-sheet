@@ -1,12 +1,13 @@
 import { defaultInputs } from "@/lib/engine/defaults";
-import type { HedgeInputs, OptionType, Underlying } from "@/lib/engine/types";
+import type { HedgeInputs, OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 
 export type InputMode = "default" | "blank";
 
-/** Inputs as the desk edits them: the underlying and each spread's Option Type may be unset, and any number may be blank (NaN). */
-export type DeskInputs = Omit<HedgeInputs, "underlying" | "spreadOptionTypes"> & {
+/** Inputs as the desk edits them: the underlying and each strike's Option Type and side may be unset, and any number may be blank (NaN). */
+export type DeskInputs = Omit<HedgeInputs, "underlying" | "strikeOptionTypes" | "strikeSides"> & {
   underlying: Underlying | "";
-  spreadOptionTypes: Array<OptionType | "">;
+  strikeOptionTypes: Array<OptionType | "">;
+  strikeSides: Array<StrikeSide | "">;
 };
 
 export const INPUT_MODES: Array<{ id: InputMode; label: string; subtitle: string }> = [
@@ -34,7 +35,8 @@ export function blankInputs(): DeskInputs {
     strikePercents: [NaN, NaN, NaN, NaN, NaN, NaN],
     participations: [NaN, null],
     floorUnits: NaN,
-    spreadOptionTypes: ["", ""],
+    strikeOptionTypes: ["", "", "", "", "", ""],
+    strikeSides: ["", "", "", "", "", ""],
     expiryCount: NaN,
     expiryMonths: [],
     hedgeExpiryIndex: null,
@@ -63,7 +65,7 @@ export function underlyingName(inputs: Pick<DeskInputs, "underlying">): string {
   return inputs.underlying || "Underlying";
 }
 
-/** Inputs the engine can price: the underlying and every spread's Option Type are chosen. */
-export function isPriceable(inputs: DeskInputs): inputs is HedgeInputs {
-  return inputs.underlying !== "" && inputs.spreadOptionTypes.every((t) => t !== "");
+/** Inputs the engine can price: the underlying and every strike's Option Type and side are chosen. */
+export function isPriceable(inputs: DeskInputs): inputs is DeskInputs & HedgeInputs {
+  return inputs.underlying !== "" && inputs.strikeOptionTypes.every((t) => t !== "") && inputs.strikeSides.every((t) => t !== "");
 }

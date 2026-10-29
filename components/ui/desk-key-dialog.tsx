@@ -48,7 +48,7 @@ export function DeskKeyDialog({ error, onSubmit, onCancel }: { error: string | n
           <KeyRound className="icon-md text-maroon" aria-hidden />
         </div>
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-4">
-          <p className="font-ui text-body text-stone-700 dark:text-stone-300">
+          <p className="font-ui text-body text-stone-700">
             Saving changes the market data for every desk user. Enter the Desk Key to continue; it is kept only until you reload the page.
           </p>
           <label className="field-label font-ui" htmlFor="desk-key-input">

@@ -1,16 +1,22 @@
 import { formatDate } from "@/lib/engine/dates";
 import { deriveTerms } from "@/lib/engine/structure";
-import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg } from "@/lib/engine/types";
+import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg, StrikeSide } from "@/lib/engine/types";
 import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, numberText, percentText, type Display } from "@/lib/format";
 
 function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
 }
 
-/** "Put" or "Call" when every spread agrees, otherwise each spread: "Spread 1 Call, Spread 2 Put". */
-export function spreadTypesLabel(types: OptionType[]): string {
+function sideLabel(side: StrikeSide): string {
+  return side === "S" ? "Sell" : "Buy";
+}
+
+/** "Put" or "Call" when every strike agrees, otherwise the call strikes: "Call At Strikes 1 And 3, Put Elsewhere". */
+export function strikeTypesLabel(types: OptionType[]): string {
   if (types.every((t) => t === types[0])) return optionTypeLabel(types[0] ?? "P");
-  return types.map((t, j) => `Spread ${j + 1} ${optionTypeLabel(t)}`).join(", ");
+  const calls = types.flatMap((t, i) => (t === "C" ? [String(i + 1)] : []));
+  const list = calls.length > 1 ? `${calls.slice(0, -1).join(", ")} And ${calls[calls.length - 1]}` : calls[0];
+  return `Call At Strike${calls.length > 1 ? "s" : ""} ${list}, Put Elsewhere`;
 }
 
 /** How a value is shown on screen and written to Excel. */
@@ -23,6 +29,8 @@ type Column = {
   label: string;
   kind: CellKind;
   digits?: number;
+  /** A header tooltip that explains a short label. */
+  tip?: string;
 };
 
 export type TableSpec = {
@@ -94,9 +102,13 @@ export function gridColumnLabel(spec: GridSpec, i: number): string {
   return `${spec.columnLabels[i]} #${i + 1}`;
 }
 
+/** The first column names the row; a row with that cell blank, such as a total, is named by its first text column. */
 export function tableRowLabel(spec: TableSpec, row: Record<string, CellValue>): string {
   const first = spec.columns[0]!;
-  return displayCell(row[first.key] ?? null, first.kind, first.digits).text;
+  const value = row[first.key] ?? null;
+  const named = spec.columns.find((c) => c.kind === "text" && row[c.key] != null && row[c.key] !== "");
+  if ((value == null || value === "") && named) return String(row[named.key]);
+  return displayCell(value, first.kind, first.digits).text;
 }
 
 export type SpecCell = { key: string; row: string; col: string; value: CellValue; text: string };
@@ -259,12 +271,15 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
     strike: l.strike,
     strikePercent: l.strikePercent / 100,
     option: optionTypeLabel(l.optionType),
+    side: sideLabel(l.side),
     units: l.units,
     quantity: l.quantityLakh,
     price: l.averagePrice,
     premium: l.premiumCr,
   }));
-  legRows.push({ strike: null, strikePercent: null, option: "Total", units: null, quantity: null, price: null, premium: s.totalPremiumCr });
+  const none = { strike: null, strikePercent: null, side: null, units: null, quantity: null, price: null };
+  legRows.push({ ...none, option: "Futures Adjustment For Call Strikes", premium: s.futuresAdjustmentCr });
+  legRows.push({ ...none, option: "Total", premium: s.totalPremiumCr });
 
   return [
     {
@@ -287,7 +302,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
       rows: r.schedule.expiries.map((d, k) => ({
         expiry: `Expiry ${k + 1}`,
         date: d,
-        role: d === r.schedule.hedgeExpiry ? "Option Expiry" : "Observation",
+        role: d === r.schedule.hedgeExpiry ? "Observation And Hedge Option Expiry" : "Observation",
       })),
     },
     {
@@ -304,7 +319,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         { label: "Weighted Average Forward", value: s.rhoWeightedForward, kind: "percent" },
         { label: "Rho In Crore", value: s.rhoCr, kind: "crore" },
       ],
-      note: "Weighted Average Volatility weights each leg by its signed vega, as the sheet does, so long and short legs offset. Absolute Weighted Average Volatility weights by the size of each leg's vega.",
+      note: "Weighted Average Volatility weights each leg by its signed vega, so long and short legs offset. Absolute Weighted Average Volatility weights by the size of each leg's vega.",
     },
     {
       id: "summary-costs",
@@ -323,6 +338,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         num("strike", "Strike", 0),
         pct("strikePercent", "Strike %", 0),
         text("option", "Option Type"),
+        text("side", "Buy Or Sell"),
         num("units", "Units"),
         num("quantity", "Quantity In Lakh"),
         num("price", "Average Price", 0),
@@ -486,7 +502,7 @@ export function pricerGrid(r: HedgingResult): GridSpec {
   return {
     id: "pricer-legs",
     title: "Leg Grid",
-    note: `${legs.length} live legs: ${r.structure.strikes.length} strikes by ${r.schedule.expiries.length} expiries. The sheet keeps the book in two identical halves, so book totals count every leg twice.`,
+    note: `${legs.length} live legs: ${r.structure.strikes.length} strikes by ${r.schedule.expiries.length} expiries. Each leg is booked in two equal halves, so book totals count every leg twice.`,
     corner: ["Strike", "Expiry"],
     groups,
     columnLabels: legs.map((l) => formatDate(l.maturity)),
@@ -528,7 +544,7 @@ function termSheet(r: HedgingResult): KeyValueSpec {
     { label: "Capital Protection", value: `Down To ${fmtPercent(-terms.protection, 0)}`, kind: "text" },
     { label: "Downside Decay", value: `${fmtNumber(i.decay, 2)} Times Below Protection`, kind: "text" },
     { label: "Decay Floor", value: `${fmtPercent(terms.floorLevel, 0)} Of Start Level`, kind: "text" },
-    { label: "Option Type", value: spreadTypesLabel(i.spreadOptionTypes), kind: "text" },
+    { label: "Option Type", value: strikeTypesLabel(i.strikeOptionTypes), kind: "text" },
     { label: "Observation Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
     { label: "Client Internal Rate Of Return", value: r.productDescription.irr, kind: "percent" },
   );
@@ -604,7 +620,7 @@ export function productTables(r: HedgingResult): {
         { label: "Weighted Average Half Yearly Compounding Rate", value: d.weightedHalfYearlyRate, kind: "percent" },
         { label: "Weighted Average Quarterly Compounding Rate", value: d.weightedQuarterlyRate, kind: "percent" },
       ],
-      note: "Weighted by the amounts with the NBFC and in margin, as the sheet does.",
+      note: "Weighted by the amounts with the NBFC and in margin.",
     },
     payoff: {
       id: "pd-payoff",
@@ -736,7 +752,7 @@ export function marginTable(r: HedgingResult): TableSpec {
       cr("futures", "Futures Margin In Crore"),
       cr("mtm", "Mark To Market In Crore"),
       cr("options", "Options Margin In Crore"),
-      cr("total", "Total Of Futures Margin, Mark To Market And Options Margin"),
+      { ...cr("total", "Total Margin In Crore"), tip: "Futures margin plus mark to market plus options margin." },
     ],
     rows: rows.map((m) => ({
       level: m.level,

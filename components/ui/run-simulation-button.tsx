@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2, Play } from "lucide-react";
 
 import { SIMULATION_STEPS, useDesk } from "@/lib/context/desk-provider";
+import { INLINE_ONLY_CODES } from "@/lib/inputs/validate";
 import { cn } from "@/lib/cn";
 import { deskEase } from "@/lib/motion";
 
@@ -11,7 +12,7 @@ import { deskEase } from "@/lib/motion";
 export function RunSimulationButton({ className, compact, onDone }: { className?: string; compact?: boolean; onDone?: () => void }) {
   const { simulation, runSimulation, lastRun, stale, fieldErrors } = useDesk();
   // Shown inline under the participation; Run stays off until it is fixed.
-  const blocked = fieldErrors.some((e) => e.code === "coupon-exceeded");
+  const blocked = fieldErrors.some((e) => e.code != null && INLINE_ONLY_CODES.has(e.code));
   const reduce = useReducedMotion();
   const running = simulation.running;
   const label = running ? SIMULATION_STEPS[Math.max(0, simulation.step)] : lastRun && !stale ? "Run Simulation Again" : "Run Simulation";
@@ -36,7 +37,6 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
         className,
       )}
     >
-      <span className="btn-shine" aria-hidden />
       {running ? (
         <motion.span
           aria-hidden

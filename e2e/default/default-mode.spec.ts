@@ -5,7 +5,6 @@ import ExcelJS from "exceljs";
 
 import invalidCases from "../../tests/fixtures/invalid-cases.json";
 import { expect, test } from "../fixtures";
-import { TAB_IDS } from "../pages";
 import { restoreMarketFixtures } from "../support/market";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
@@ -26,7 +25,7 @@ test.describe("Default Values mode", () => {
     await expect(page.getByTestId("expiry-weekday")).toContainText("Thursday");
     await expect(page.getByTestId("fetch-live-spot")).toHaveCount(0);
     await expect(page.getByTestId("compute-volatility")).toHaveCount(0);
-    await expect(footer.marketStatus).toContainText("Market Open");
+    await expect(footer.marketStatus).toContainText(/Market\s*Open/);
     await expect(footer.sensex).toContainText("76,835.78");
   });
 
@@ -138,16 +137,6 @@ test.describe("Default Values mode", () => {
     await expect(outputs.product.table("pd-payoff")).toContainText("Initial");
     await outputs.product.payoffMove.fill("-20");
     await expect(outputs.product.payoffReturn).toContainText(/[-−]32\.00%/);
-  });
-
-  test("every tab renders in the dark theme", async ({ inputs, nav, page }) => {
-    await inputs.goto();
-    await inputs.run();
-    await nav.themeToggle.click();
-    await expect(page.locator("html")).toHaveClass(/dark/);
-    for (const id of TAB_IDS) await nav.go(id);
-    await nav.themeToggle.click();
-    await expect(page.locator("html")).not.toHaveClass(/dark/);
   });
 });
 

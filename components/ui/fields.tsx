@@ -5,11 +5,12 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
+import { MAX_DECIMALS } from "@/lib/format";
 
 /** FieldRow shares its id with the input inside, so the label names the input. */
 const FieldIdContext = createContext<string | undefined>(undefined);
 
-const PLACEHOLDER = "placeholder:text-stone-400 placeholder:font-normal dark:placeholder:text-stone-500";
+const PLACEHOLDER = "placeholder:text-stone-400 placeholder:font-normal";
 
 export function FieldRow({
   label,
@@ -60,7 +61,8 @@ function toDraft(value: number, kind: NumberKind, digits: number, grouped = fals
   if (!Number.isFinite(value)) return "";
   const shown = kind === "percent" ? value * 100 : value;
   if (kind === "integer") return String(Math.round(shown));
-  return shown.toLocaleString("en-IN", { minimumFractionDigits: digits, maximumFractionDigits: fixed ? digits : Math.max(digits, 8), useGrouping: grouped });
+  const most = Math.min(MAX_DECIMALS, fixed ? digits : Math.max(digits, MAX_DECIMALS));
+  return shown.toLocaleString("en-IN", { minimumFractionDigits: Math.min(digits, most), maximumFractionDigits: most, useGrouping: grouped });
 }
 
 function parseDraft(text: string, kind: NumberKind): number | null {
@@ -240,17 +242,20 @@ export function Segmented<T extends string>({
   onChange,
   testId,
   label,
+  invalid,
 }: {
   options: Array<{ value: T; label: string }>;
-  value: T;
+  /** "" while nothing is chosen. */
+  value: T | "";
   onChange: (v: T) => void;
   testId?: string;
   label: string;
+  invalid?: boolean;
 }) {
   const reduce = useReducedMotion();
   const id = useId();
   return (
-    <div className="hs-segment" role="radiogroup" aria-label={label} data-testid={testId}>
+    <div className={cn("hs-segment", invalid && "hs-segment--invalid")} role="radiogroup" aria-label={label} aria-invalid={invalid || undefined} data-testid={testId} data-value={value}>
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -261,7 +266,7 @@ export function Segmented<T extends string>({
             aria-checked={active}
             data-testid={testId ? `${testId}-${o.value}` : undefined}
             onClick={() => onChange(o.value)}
-            className={cn(active ? "text-maroon dark:text-gold-light" : "text-muted hover:text-ink")}
+            className={cn(active ? "text-maroon" : "text-muted hover:text-ink")}
           >
             {active ? (
               <motion.span

@@ -100,7 +100,8 @@ describe("data routes on an in-memory Mongo", () => {
     const res = await postUpload(writeReq("/api/uploads/vol-surface", { method: "POST", body: form }));
     const body = await res.json();
     expect(res.status).toBe(200);
-    expect(body.summary).toEqual({ expiries: 18, strikePercents: 20 });
+    expect(body.summary).toEqual({ expiries: 18, strikePercents: 20, deepAdjusted: 0 });
+    expect(body.surface.volsPercent.every((row: number[]) => row[0] === row[1])).toBe(true);
     expect(body.persisted).toBe(true);
     const bad = new FormData();
     bad.append("file", new File(["not a workbook"], "notes.txt"));

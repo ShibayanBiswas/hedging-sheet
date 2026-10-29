@@ -19,9 +19,7 @@ import { PageIntro } from "@/components/ui/panel";
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
-
-/** Errors that only show inline, with Run Simulation turned off, never as a popup. */
-const INLINE_ONLY = new Set(["coupon-exceeded"]);
+import { INLINE_ONLY_CODES } from "@/lib/inputs/validate";
 
 /** Rules across fields open a popup the moment a typed value breaks them. Empty fields wait for Run Simulation. */
 function useEdgeCasePopups() {
@@ -30,7 +28,7 @@ function useEdgeCasePopups() {
   const shown = useRef(new Set<string>());
 
   useEffect(() => {
-    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code && !INLINE_ONLY.has(e.code));
+    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code && !INLINE_ONLY_CODES.has(e.code));
     const keys = new Set(current.map((e) => `${e.code}:${e.field}`));
     // Forget fixed issues so they can pop again if they come back.
     for (const k of [...shown.current]) if (!keys.has(k)) shown.current.delete(k);
@@ -52,17 +50,11 @@ export default function InputsPage() {
   useEdgeCasePopups();
 
   return (
-    <div className="flex w-full flex-col gap-4 pb-16">
+    <div className="-mb-3 flex w-full flex-col gap-4">
       <PageIntro
         title="Inputs"
-        subtitle={
-          mode === "default"
-            ? "Set the product and market inputs, then run the simulation. Spot, valuation date and daily volatility load from live data."
-            : "Every field starts empty. Fill each one, or fetch the live spot and volatility, then run the simulation."
-        }
         aside={
           <button type="button" className="btn-animated btn-motion btn-accent" onClick={resetInputs} data-testid="reset-inputs">
-            <span className="btn-shine" aria-hidden />
             <span className="relative z-10 inline-flex items-center gap-2">
               {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}
               {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}

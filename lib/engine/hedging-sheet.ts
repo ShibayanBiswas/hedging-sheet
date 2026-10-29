@@ -141,6 +141,20 @@ function hedgeGrowth(type: OptionType, bidOffer: BidOffer, discount: number, div
   return type === "P" ? Math.min(fwdSell - 0.005, net) : Math.max(net, fwdSell);
 }
 
+/**
+ * The fall at which the decayed loss reaches 100%, when that happens before a 90% fall. The payoff stops at
+ * a 100% loss there, while the option book keeps losing, so the two part below that level.
+ */
+export function totalLossFall(inputs: HedgeInputs): number | null {
+  const { floorLevel } = deriveTerms(inputs);
+  const floorPerf = floorLevel - 1;
+  const below = inputs.decay - inputs.floorUnits;
+  const at = (p: number) => (p >= floorPerf ? p * inputs.decay : floorPerf * inputs.decay + (p - floorPerf) * below);
+  if (!(at(-0.9) < -1)) return null;
+  const p = floorPerf * inputs.decay <= -1 ? -1 / inputs.decay : floorPerf + (-1 - floorPerf * inputs.decay) / below;
+  return -p;
+}
+
 export function validateInputs(
   inputs: HedgeInputs,
   market?: MarketData,
@@ -166,6 +180,17 @@ export function validateInputs(
   const schedule = validateSchedule(inputs);
   errors.push(...schedule.errors);
   errors.push(...validateStructure(inputs));
+  if (!errors.length) {
+    const fall = totalLossFall(inputs);
+    if (fall != null) {
+      warnings.push({
+        field: "floorUnits",
+        code: "loss-cap",
+        message: `The Client Loss Reaches 100% At A ${(fall * 100).toFixed(1)}% Fall; Below That The Option Book Loses More Than The Payoff`,
+        fix: "Raise the Decay Reduction Below Floor, or lower the Decay.",
+      });
+    }
+  }
 
   const lastSurface = market?.surface.expiries[market.surface.expiries.length - 1];
   if (lastSurface) {
@@ -194,6 +219,14 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const { errors, warnings } = validated;
   if (errors.length) return { ok: false, errors, warnings };
   const dates = options?.expiryDates?.length === validated.dates.length ? options.expiryDates : validated.dates;
+  // Milliseconds per stage, for the Logic Atlas Debug Drawer.
+  const timings: Record<string, number> = {};
+  let mark = performance.now();
+  const stamp = (stage: string) => {
+    const now = performance.now();
+    timings[stage] = now - mark;
+    mark = now;
+  };
 
   const { surface, params } = market;
   const bidOffer: BidOffer = params.bidOffer ?? "B";
@@ -248,7 +281,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         divScale,
         dividendMultiplier(slot.optionType, bidOffer, params.dividendBidOfferMultiplier),
       );
-      const priced = priceOption({
+      const request: PriceRequest = {
         valuationDate: inputs.valuationDate,
         spot,
         strike: slot.strike,
@@ -262,7 +295,11 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         volBump,
         dividends,
         curve,
-      });
+      };
+      const priced = priceOption(request);
+      // A call strike holds the call and a short futures leg worth discount × (forward − strike): together the put.
+      // Its Greeks are the combined position's, which by parity are the put's; vega and gamma are the same either way.
+      const combined = slot.optionType === "C" ? priceOption({ ...request, optionType: "P" }) : priced;
       // Pricer B55 = B47 × E5 ÷ B5 ÷ (2 × COUNTIF(B25:I25, "P"))
       const contracts = (slot.units * notional) / start / (HALVES * nLive);
       const pp = pricingParamOnOrBefore(surface.pricingParams, maturity);
@@ -284,13 +321,19 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         action: contracts < 0 ? "Sell" : "Buy",
         contracts,
         // Pricer rows 56 to 62
+        delta: combined.delta,
+        gamma: combined.gamma,
+        theta: combined.theta,
+        vega: combined.vega,
+        rho: combined.rho,
         optionValue: contracts * priced.price * -1,
-        deltaInr: priced.delta * priced.spot * contracts,
-        deltaContracts: contracts * priced.delta,
-        gammaContracts: contracts * priced.gamma,
-        thetaInr: priced.theta * contracts,
-        vegaInr: contracts * priced.vega,
-        rhoInr: priced.rho * contracts,
+        futuresAdjustment: contracts * (priced.price - combined.price),
+        deltaInr: combined.delta * priced.spot * contracts,
+        deltaContracts: contracts * combined.delta,
+        gammaContracts: contracts * combined.gamma,
+        thetaInr: combined.theta * contracts,
+        vegaInr: contracts * combined.vega,
+        rhoInr: combined.rho * contracts,
         incrementalMargin: incMargin,
         incrementalMarginCost: marginCost,
         incrementalCostInr: incCost,
@@ -305,11 +348,14 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
 
   // Pricer J7 "Switch": the spot bump, 0 for the book itself.
   let spotBump = 0;
+  stamp("Schedule And Surface");
   const legs = priceBook(spotBump);
+  stamp("Legs");
   const sumLegs = (book: PricerLeg[], pick: (l: PricerLeg) => number) => HALVES * book.reduce((acc, l) => acc + pick(l), 0);
   const sum = (pick: (l: PricerLeg) => number) => sumLegs(legs, pick);
   // Pricer K5, Q5, R5, S5, T5
-  const premium = sum((l) => l.optionValue);
+  const premium = sum((l) => l.optionValue + l.futuresAdjustment);
+  const futuresAdjustment = sum((l) => l.futuresAdjustment);
   const bookDelta = sum((l) => l.deltaContracts);
   const bookVega = sum((l) => l.vegaInr);
   const bookRho = sum((l) => l.rhoInr);
@@ -428,6 +474,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     };
   });
 
+  stamp("Vega Hedge");
   // ------------------------------------------------------------ Macro MTM and the stress grid
   // The macro writes each move into Pricer J7, copies K7 = SUM(B58:CQ58) ÷ 1e5 into MTM E6:E20,
   // and never resets J7. Here the full book is repriced at each bump and the bump is reset to 0.
@@ -498,6 +545,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const zeroRow = marginRows[zeroIdx]!;
   const worstCase = marginRows.reduce((w, r) => (r.totalRequirementCr < w.totalRequirementCr ? r : w), marginRows[0]!);
 
+  stamp("Stress And Margin");
   // ------------------------------------------------------------ pots, margin loop and Macro2
   // Pricer G5 = SUM(B8:B10); I5 = G5 × E5
   const costRate = inputs.transactionCost + inputs.issuanceCost + inputs.marginCost;
@@ -507,7 +555,6 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const premiumGrowth = (1 + premiumRate) ** (tenor / 365);
   const marginGrowth = (1 + inputs.marginGrowthRate) ** (tenor / 365);
   // Pricer O5 = (E5 − H5 − I5 − V5)(1 + L5)^(N5/365) + K5(1 + M5)^(N5/365) + V5(1 + Summary C6)^(N5/365).
-  // The pots fund the principal and the put spreads' cash; call spreads pay their part of the coupon through the calls.
   const payoutFor = (inbuilt: number, marginInr: number) =>
     (notional - inbuilt - transactionCostInr - marginInr) * nbfcGrowth + premium * premiumGrowth + marginInr * marginGrowth;
 
@@ -549,14 +596,14 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   }
   const marginInr = notional * marginFraction;
   const payout = payoutFor(inbuilt, marginInr);
-  // Pricer P5 = O5 ÷ E5 − 1, plus what the call spreads pay at the Target; U5 = (1 + P5)^(365/N5) − 1
-  const callUpside = terms.spreads.reduce((acc, s) => acc + (s.optionType === "C" ? (s.sell - s.buy) * s.participation : 0), 0);
-  const achievedCoupon = payout / notional - 1 + callUpside;
+  // Pricer P5 = O5 ÷ E5 − 1; U5 = (1 + P5)^(365/N5) − 1
+  const achievedCoupon = payout / notional - 1;
   const irr = (1 + achievedCoupon) ** (365 / tenor) - 1;
   // Pricer J5 = E5 − H5 − I5 − V5; F5 = H5 ÷ E5
   const nbfcAmount = notional - inbuilt - transactionCostInr - marginInr;
   const actualInbuilt = inbuilt / notional;
 
+  stamp("Solver");
   // ------------------------------------------------------------ Summary leg table
   const summaryLegs: SummaryLeg[] = strikes.map((slot, b) => {
     const own = legs.filter((l) => l.blockIndex === b);
@@ -568,6 +615,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       strikePercent: slot.percent,
       strike: slot.strike,
       optionType: slot.optionType,
+      side: slot.side,
       units: slot.units,
       quantityLakh,
       averagePrice: avgPrice,
@@ -648,7 +696,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         // Pricer K7 = SUM of every delta column ÷ 1e5, at bump 0.
         deltaLakh: bookDelta / LAKH,
         spreadPayouts,
-        upsideCash: cash,
+        futuresAdjustment,
         // Pricer E14 = E13 × E12
         protectionLoss: terms.protection * inputs.decay,
       },
@@ -671,8 +719,9 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       rhoWeightedForward,
       rhoCr: (bookRho / CRORE) * -1,
       legs: summaryLegs,
-      // Summary F29 = SUM(F23:F28)
-      totalPremiumCr: summaryLegs.reduce((acc, l) => acc + l.premiumCr, 0),
+      // Summary F29 = SUM(F23:F28), plus the futures legs of any call strikes.
+      futuresAdjustmentCr: futuresAdjustment / CRORE,
+      totalPremiumCr: summaryLegs.reduce((acc, l) => acc + l.premiumCr, 0) + futuresAdjustment / CRORE,
       hedgeStrike: inputs.hedgeStrike,
       hedgeExpiry,
       hedgeQuantityLakh,
@@ -724,6 +773,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     dayOneVegaHedge: { quantity: hedgeQuantity, margin: hedgeMargin, fair, exchange, stressed },
     markToMarket: { rows: marginRows, zeroRow, worstCase },
     diagnostics: {
+      timings,
       solverIterations,
       solverTrace,
       goalSeekResidual: achievedCoupon - inputs.coupon,

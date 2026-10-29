@@ -8,10 +8,11 @@ import volSeed from "@/lib/data/vol-surface-seed.json";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { seedMarketData } from "@/lib/engine/defaults";
 import { normCdf } from "@/lib/engine/normal";
-import { forwardMarket } from "@/lib/engine/vol-surface";
+import type { VolSurface } from "@/lib/engine/types";
+import { deepMismatchCount, forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { resizeList } from "@/lib/engine/schedule";
 import { checkInputShape } from "@/lib/engine/input-schema";
-import { parseVolSurfaceWorkbook } from "@/lib/workbook/parse-vol-surface";
+import { parseVolSurfaceFile } from "@/lib/excel/parse-vol-surface";
 import { buildVolSurfaceSample } from "@/scripts/build-sample-inputs";
 
 import { fixtureInputs } from "../helpers/fixture";
@@ -37,12 +38,24 @@ describe("input lists", () => {
   });
 });
 
+describe("Deep volatility", () => {
+  it("equals the 55% volatility on every row, and a different Deep in a file is set to it and counted", () => {
+    const changed = { ...volSeed, volsPercent: volSeed.volsPercent.map((row, r) => (r < 3 ? [row[0]! + 5, ...row.slice(1)] : row)) } as unknown as VolSurface;
+    expect(deepMismatchCount(volSeed as unknown as VolSurface)).toBe(0);
+    expect(deepMismatchCount(changed)).toBe(3);
+    const normal = normalizeVolSurface(changed);
+    const col55 = normal.moneyness.indexOf(0.55) + 1;
+    expect(col55).toBe(1);
+    normal.volsPercent.forEach((row) => expect(row[0]).toBe(row[col55]));
+  });
+});
+
 describe("vol surface upload", () => {
   it("reads the generated sample back to the seed", async () => {
     const dir = path.join(process.cwd(), "test-results", "samples");
     const file = await buildVolSurfaceSample(dir);
     const buf = fs.readFileSync(file);
-    const parsed = parseVolSurfaceWorkbook(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), "2026-10");
+    const parsed = parseVolSurfaceFile(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), "2026-10");
     expect(parsed.surface.moneyness).toEqual(volSeed.moneyness);
     expect(parsed.surface.expiries).toEqual(volSeed.expiries);
     expect(parsed.surface.referenceSensexPrice).toBeCloseTo(volSeed.referenceSensexPrice, 6);

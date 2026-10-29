@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { bsGreeks } from "@/lib/engine/black-scholes";
 import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
 import type { HedgeInputs, HedgingResult, MarketData, OptionType } from "@/lib/engine/types";
-import { buildHedgingWorkbook } from "@/lib/workbook/build-hedging-excel";
+import { buildHedgingExcel } from "@/lib/excel/build-hedging-excel";
 
 import defaults from "./fixtures/default-inputs.json";
 import pricingParams from "./fixtures/pricing-params.json";
@@ -16,46 +16,19 @@ const market = { surface, params } as unknown as MarketData;
 const base = defaults.inputs as unknown as HedgeInputs;
 
 function run(types: OptionType[]): HedgingResult {
-  const r = computeHedgingSheet({ ...base, spreadOptionTypes: types }, market);
+  const r = computeHedgingSheet({ ...base, strikeOptionTypes: types }, market);
   if (!r.ok) throw new Error(r.errors.map((e) => e.message).join("; "));
   return r;
 }
 
-/** Average discount factor of the observation expiries, which every leg shares. */
-function meanDiscountFactor(r: HedgingResult): number {
-  const byExpiry = new Map<number, number>();
-  for (const l of r.pricer.legs) byExpiry.set(l.expiryIndex, Math.exp((-l.discountYield * l.days) / 365));
-  return [...byExpiry.values()].reduce((a, b) => a + b, 0) / byExpiry.size;
-}
+const rel = (a: number, b: number) => Math.abs(a - b) / Math.max(Math.abs(b), 1e-12);
 
-/** What the call spreads pay at the Target, as a fraction of notional. */
-function callPayout(r: HedgingResult): number {
-  return r.pricer.header.spreadPayouts.reduce((acc, p, j) => acc + (r.inputs.spreadOptionTypes[j] === "C" ? p : 0), 0);
-}
-
-/**
- * Put-call parity on each call spread: the call book pays the put book's premium less each call spread's
- * payout discounted at the options' own rates. The pots grow premium at the Premium Growth Rate to maturity
- * and fund the NBFC at the NBFC Rate, so the Inbuilt moves by payout × (1 − DF × premium growth) ÷ NBFC growth.
- */
-function explained(put: HedgingResult, other: HedgingResult) {
-  const h = put.pricer.header;
-  const df = meanDiscountFactor(put);
-  const payout = callPayout(other);
-  const premiumGrowth = (1 + h.premiumRate) ** (h.tenorDays / 365);
-  const nbfcGrowth = (1 + h.nbfcRate) ** (h.tenorDays / 365);
-  return {
-    premium: h.premium - payout * h.mobilisation * df,
-    inbuilt: put.summary.actualInbuilt + (payout * (1 - df * premiumGrowth)) / nbfcGrowth,
-  };
-}
-
-const put = run(["P", "P"]);
-const call = run(["C", "C"]);
-const mixed = run(["C", "P"]);
+const put = run(["P", "P", "P", "P", "P", "P"]);
+const call = run(["C", "C", "C", "C", "C", "C"]);
+const mixed = run(["C", "C", "P", "P", "C", "P"]);
 
 describe("All Put equals main", () => {
-  it("matches the figures recorded on main before per spread option types", () => {
+  it("matches the figures recorded on main before per strike option types", () => {
     const h = put.pricer.header;
     expect(h.premium / 1e7).toBeCloseTo(51.12022123483423, 9);
     expect(put.summary.actualInbuilt).toBeCloseTo(0.08378730026608702, 12);
@@ -65,6 +38,12 @@ describe("All Put equals main", () => {
     expect(put.dayOneVegaHedge.quantity).toBeCloseTo(12344.456810980662, 6);
     expect(put.markToMarket.zeroRow.totalRequirementCr).toBeCloseTo(-32.109324386103424, 9);
     expect(put.structure.strikes.map((s) => s.units)).toEqual([-10.05, 9.05, 1, -25.6, 24, 1].map((u) => expect.closeTo(u, 9)));
+    expect(h.futuresAdjustment).toBe(0);
+  });
+
+  it("defaults to puts with the sides the payoff needs: Sell, Buy, Buy, Sell, Buy, Buy", () => {
+    expect(put.structure.strikes.map((s) => `${s.percent} ${s.optionType} ${s.side}`)).toEqual(["137 P S", "127 P B", "125 P B", "85 P S", "84 P B", "70 P B"]);
+    expect(base.strikeSides).toEqual(["S", "B", "B", "S", "B", "B"]);
   });
 });
 
@@ -78,66 +57,66 @@ describe("put-call parity on every leg", () => {
     const forward = l.spot * Math.exp(l.forwardGrowth * t);
     expect(Math.abs(c.price - p.price - df * (forward - l.strike))).toBeLessThan(0.01);
     expect(Math.abs(c.delta - p.delta - Math.exp((l.forwardGrowth - l.discountYield) * t))).toBeLessThan(1e-3);
+    expect(Math.abs(c.vega - p.vega)).toBeLessThan(1e-6);
+    expect(Math.abs(c.gamma - p.gamma)).toBeLessThan(1e-6);
   });
 });
 
-describe("All Call", () => {
-  it("replicates the payoff table", () => {
-    expect(call.diagnostics.payoffBookGap).toBeLessThan(1e-6);
+describe.each([
+  ["All Call", call],
+  ["Mixed: Strikes 1, 2 And 5 Call", mixed],
+])("%s", (_name, r) => {
+  it("prices each call strike as a call and books the parity difference as a futures leg", () => {
+    const calls = r.pricer.legs.filter((l) => l.optionType === "C");
+    expect(calls.length).toBeGreaterThan(0);
+    for (const l of calls) {
+      const t = l.days / 365;
+      const parity = Math.exp(-l.discountYield * t) * (l.forward - l.strike);
+      expect(Math.abs(l.futuresAdjustment - l.contracts * parity)).toBeLessThan(1e-4 * Math.max(1, Math.abs(l.contracts)));
+    }
+    expect(r.pricer.legs.filter((l) => l.optionType === "P").every((l) => l.futuresAdjustment === 0)).toBe(true);
+    expect(r.pricer.header.futuresAdjustment).not.toBe(0);
   });
 
-  it("prices the spreads as calls and keeps the downside and hedge as puts", () => {
-    const types = call.structure.strikes.map((s) => `${s.percent}${s.optionType}`);
-    expect(types).toEqual(["137C", "127C", "125C", "85P", "84P", "70P"]);
-    expect(call.dayOneVegaHedge.fair[0]!.optionType).toBe("P");
+  it("gives the all-Put Premium, Inbuilt, NBFC, Greeks and payoff", () => {
+    const a = r.pricer.header;
+    const b = put.pricer.header;
+    expect(rel(a.premium, b.premium)).toBeLessThan(1e-9);
+    expect(Math.abs(r.summary.actualInbuilt - put.summary.actualInbuilt)).toBeLessThan(1e-9);
+    expect(rel(a.nbfcAmount, b.nbfcAmount)).toBeLessThan(1e-9);
+    expect(rel(a.delta, b.delta)).toBeLessThan(1e-9);
+    expect(rel(a.vega, b.vega)).toBeLessThan(1e-9);
+    expect(rel(a.gamma, b.gamma)).toBeLessThan(1e-6);
+    expect(rel(r.summary.totalPremiumCr, put.summary.totalPremiumCr)).toBeLessThan(1e-9);
+    expect(r.diagnostics.payoffBookGap).toBeLessThan(1e-6);
+    expect(Math.abs(r.diagnostics.goalSeekResidual)).toBeLessThan(1e-8);
   });
 
-  it("matches the all-Put Premium after adding the call spreads' payout at the options' discount factor", () => {
-    const want = explained(put, call);
-    expect(Math.abs(call.pricer.header.premium - want.premium) / Math.abs(put.pricer.header.premium)).toBeLessThan(0.01);
-  });
-
-  it("moves the Inbuilt only by the carry between expiry and maturity", () => {
-    expect(Math.abs(call.summary.actualInbuilt - explained(put, call).inbuilt)).toBeLessThan(1e-6);
-  });
-
-  it("keeps the delta and vega of the put book", () => {
-    expect(call.pricer.header.delta).toBeCloseTo(put.pricer.header.delta, 3);
-    expect(call.summary.vegaCr).toBeCloseTo(put.summary.vegaCr, 9);
-  });
-
-  it("reaches the coupon", () => {
-    expect(Math.abs(call.diagnostics.goalSeekResidual)).toBeLessThan(1e-8);
+  it("keeps the downside and hedge figures of the put book", () => {
+    expect(r.dayOneVegaHedge.fair[0]!.optionType).toBe("P");
+    expect(rel(r.dayOneVegaHedge.quantity, put.dayOneVegaHedge.quantity)).toBeLessThan(1e-9);
+    expect(rel(r.markToMarket.zeroRow.totalRequirementCr, put.markToMarket.zeroRow.totalRequirementCr)).toBeLessThan(1e-9);
   });
 });
 
-describe("Mixed: Spread 1 Call, Spread 2 Put", () => {
-  it("replicates the payoff table", () => {
-    expect(mixed.diagnostics.payoffBookGap).toBeLessThan(1e-6);
-  });
-
-  it("has an Inbuilt between all-Call and all-Put", () => {
-    const lo = Math.min(call.summary.actualInbuilt, put.summary.actualInbuilt);
-    const hi = Math.max(call.summary.actualInbuilt, put.summary.actualInbuilt);
-    expect(mixed.summary.actualInbuilt).toBeGreaterThan(lo);
-    expect(mixed.summary.actualInbuilt).toBeLessThan(hi);
-    expect(Math.abs(mixed.summary.actualInbuilt - explained(put, mixed).inbuilt)).toBeLessThan(1e-6);
-  });
-
-  it("writes each leg's option type to the Excel Summary Sheet", async () => {
+describe("Excel", () => {
+  it("writes each leg's option type and side, and the futures adjustment row, to the Summary Sheet", async () => {
     const wb = new ExcelJS.Workbook();
-    buildHedgingWorkbook(wb, mixed, null);
+    buildHedgingExcel(wb, mixed, null);
     const reopened = new ExcelJS.Workbook();
     await reopened.xlsx.load((await wb.xlsx.writeBuffer()) as ArrayBuffer);
-    const label = (t: OptionType) => (t === "C" ? "Call" : "Put");
     const legStrikes = new Set(mixed.summary.legs.map((l) => l.strike));
     const found: string[] = [];
+    let adjustment = false;
     reopened.getWorksheet("Summary Sheet")!.eachRow((row) => {
       const values = (row.values as unknown[]).slice(1);
+      if (values.includes("Futures Adjustment For Call Strikes")) adjustment = true;
       const type = values.find((v) => v === "Put" || v === "Call");
+      const side = values.find((v) => v === "Buy" || v === "Sell");
       const strike = values.find((v) => typeof v === "number" && legStrikes.has(v));
-      if (type && strike != null) found.push(`${strike} ${type}`);
+      if (type && side && strike != null) found.push(`${strike} ${type} ${side}`);
     });
-    expect(found).toEqual(mixed.summary.legs.map((l) => `${l.strike} ${label(l.optionType)}`));
+    expect(found).toEqual(mixed.summary.legs.map((l) => `${l.strike} ${l.optionType === "C" ? "Call" : "Put"} ${l.side === "S" ? "Sell" : "Buy"}`));
+    expect(adjustment).toBe(true);
   });
 });

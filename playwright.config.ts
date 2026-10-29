@@ -5,11 +5,13 @@ import { defineConfig, devices } from "@playwright/test";
  * With BASE_URL set, only the read-only prod project runs against that deployment.
  */
 const external = process.env.BASE_URL;
+/** Protected preview deployments need Vercel's automation bypass; the secret comes from the environment only. */
+const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
-const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/];
+const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/, /layout\.spec/, /numbers\.spec/, /buttons\.spec/, /pipeline\//];
 const desktop = { viewport: { width: 1440, height: 900 } };
 
 export default defineConfig({
@@ -26,6 +28,8 @@ export default defineConfig({
   ],
   outputDir: "test-results/playwright",
   snapshotPathTemplate: "e2e/visual/__screenshots__/{projectName}/{platform}/{arg}{ext}",
+  // Baselines are Linux only, made and compared in CI, so font rendering on other systems never fails them.
+  ignoreSnapshots: process.platform !== "linux",
   use: {
     baseURL: external ?? `http://localhost:${port}`,
     trace: "retain-on-failure",
@@ -34,6 +38,7 @@ export default defineConfig({
     acceptDownloads: true,
     timezoneId: "Asia/Kolkata",
     locale: "en-IN",
+    extraHTTPHeaders: bypass ? { "x-vercel-protection-bypass": bypass, "x-vercel-set-bypass-cookie": "true" } : undefined,
   },
   projects: external
     ? [

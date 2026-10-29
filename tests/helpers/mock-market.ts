@@ -5,7 +5,7 @@
  */
 import { autoHedgeStrike, normalizePricingParams } from "@/lib/engine/defaults";
 import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
-import type { HedgeInputs, MarketData, OptionType, PricingParams, Underlying, VolSurface } from "@/lib/engine/types";
+import type { HedgeInputs, MarketData, OptionType, PricingParams, StrikeSide, Underlying, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, type DeskInputs } from "@/lib/inputs/draft";
 import { numberFieldRules } from "@/lib/inputs/validate";
@@ -36,10 +36,14 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
   for (const [testId, text] of fill) {
     const key = testId.replace(/^input-/, "");
     if (key === "underlying") d = { ...d, underlying: text as Underlying };
-    else if (key.startsWith("spreadOptionTypes-")) {
-      const types = [...d.spreadOptionTypes];
+    else if (key.startsWith("strikeOptionTypes-")) {
+      const types = [...d.strikeOptionTypes];
       types[Number(key.split("-")[1])] = text as OptionType;
-      d = { ...d, spreadOptionTypes: types };
+      d = { ...d, strikeOptionTypes: types };
+    } else if (key.startsWith("strikeSides-")) {
+      const sides = [...d.strikeSides];
+      sides[Number(key.split("-")[1])] = text as StrikeSide;
+      d = { ...d, strikeSides: sides };
     }
     else if (key === "valuationDate") d = { ...d, valuationDate: text };
     else if (key === "expiryCount") {

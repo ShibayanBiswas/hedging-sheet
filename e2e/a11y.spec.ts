@@ -45,15 +45,3 @@ test("no serious or critical axe violations on Blank Inputs with errors and the 
   found.push(...(await violations(page, "blank inputs with errors")));
   expect(found, found.join("\n")).toEqual([]);
 });
-
-test("no serious or critical axe violations in the dark theme", async ({ page, inputs, nav }) => {
-  await inputs.goto();
-  await inputs.run();
-  await nav.themeToggle.click();
-  const found: string[] = [];
-  for (const id of ["inputs", "summary", "pricer"] as const) {
-    await nav.go(id);
-    found.push(...(await violations(page, `dark ${id}`)));
-  }
-  expect(found, found.join("\n")).toEqual([]);
-});

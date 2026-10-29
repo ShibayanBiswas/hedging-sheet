@@ -9,7 +9,6 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { DeskFooter } from "@/components/layout/desk-footer";
 import { SiteNav } from "@/components/layout/site-nav";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useDesk } from "@/lib/context/desk-provider";
 import { useSurfaceUpload } from "@/lib/context/surface-upload-provider";
 import { underlyingName } from "@/lib/inputs/draft";
@@ -17,10 +16,10 @@ import { useScrollRails } from "@/lib/hooks/use-scroll-rails";
 import { cn } from "@/lib/cn";
 
 function DownloadExcelButton() {
-  const { lastRun, stale } = useDesk();
+  const { lastRun, staleInputs } = useDesk();
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const disabled = !lastRun || busy;
+  const disabled = !lastRun || staleInputs || busy;
   return (
     <div className="flex items-center gap-2">
       <AnimatePresence>
@@ -34,14 +33,14 @@ function DownloadExcelButton() {
         type="button"
         data-testid="download-excel"
         disabled={disabled}
-        title={!lastRun ? "Run the simulation first" : stale ? "Downloads the last run; the inputs have changed since" : "Download the five sheet workbook"}
+        title={!lastRun ? "Run the simulation first" : staleInputs ? "The inputs have changed; run the simulation again" : "Download the five tab Excel file"}
         className={cn("btn-animated btn-motion btn-primary !px-3 !py-2 text-caption", disabled && "pointer-events-none opacity-50")}
         onClick={async () => {
           if (!lastRun) return;
           setBusy(true);
           setStatus(null);
           try {
-            const { downloadHedgingExcel } = await import("@/lib/workbook/excel-runtime");
+            const { downloadHedgingExcel } = await import("@/lib/excel/excel-runtime");
             setStatus(`Saved ${await downloadHedgingExcel(lastRun.result)}`);
           } catch {
             setStatus("Download Failed");
@@ -51,7 +50,6 @@ function DownloadExcelButton() {
           }
         }}
       >
-        <span className="btn-shine" aria-hidden />
         <span className="relative z-10 inline-flex items-center gap-2">
           {busy ? <Loader2 className="icon-xs animate-spin" /> : <Download className="icon-xs" />}
           Download Excel
@@ -78,7 +76,6 @@ function HeaderUploadShortcut() {
         disabled={busy}
         onClick={() => ref.current?.click()}
       >
-        <span className="btn-shine" aria-hidden />
         <span className="relative z-10 inline-flex items-center gap-2">
           <Upload className="icon-xs" />
           <FileSpreadsheet className="hidden icon-xs sm:inline" />
@@ -122,10 +119,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative flex min-h-dvh flex-col bg-mesh font-serif">
-      <div className="desk-ambient-orbs" aria-hidden>
-        <span className="desk-ambient-orb desk-ambient-orb--gold" />
-        <span className="desk-ambient-orb desk-ambient-orb--maroon" />
-      </div>
       <header className="brand-header sticky top-0 z-50 font-ui">
         <div className="brand-header-glow" />
         <div className="brand-header-row">
@@ -142,11 +135,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button className="btn-ghost btn-animated inline-flex items-center gap-2" type="button" onClick={() => setPaletteOpen(true)}>
               <Search className="icon-sm" aria-hidden />
               <span className="sr-only md:not-sr-only">Search</span>
-              <kbd className="hidden rounded border border-stone-200 bg-stone-50 px-2 py-1 font-mono text-caption text-stone-500 dark:border-stone-700 dark:bg-stone-900/80 lg:inline">
+              <kbd className="hidden rounded border border-stone-200 px-2 py-1 font-mono text-caption text-stone-600 lg:inline">
                 Ctrl K
               </kbd>
             </button>
-            <ThemeToggle />
             <HeaderUploadShortcut />
             <DownloadExcelButton />
           </div>

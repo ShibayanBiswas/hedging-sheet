@@ -17,8 +17,9 @@ import { anchoredCurve, rateCapSellingForward, resolvedRate } from "@/lib/engine
 import type { BidOffer, PricingParams, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fmtIstTime, fmtPercent } from "@/lib/format";
+import { QUOTE_UNDERLYING } from "@/lib/underlyings";
 import type { TableSpec } from "@/lib/tables";
-import { downloadSurfaceFile } from "@/lib/workbook/excel-runtime";
+import { downloadSurfaceFile } from "@/lib/excel/excel-runtime";
 
 const SAMPLE_FILE = "/samples/Hedging_Sheet_Vol_Surface_Sample.xlsx";
 const now = () => fmtIstTime(new Date().toISOString());
@@ -375,8 +376,8 @@ export default function MarketDataPage() {
   const [dividendHistory, setDividendHistory] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Market data shows Sensex terms until an underlying is chosen.
-  const u = inputs.underlying || "Sensex";
+  // Market data shows the quote underlying's terms until an underlying is chosen.
+  const u = inputs.underlying || QUOTE_UNDERLYING;
   const surface = market.surface;
   const live = useMemo(() => forwardMarket(market, inputs.valuationDate), [market, inputs.valuationDate]);
   const lastExpiry = surface.expiries[surface.expiries.length - 1];
@@ -473,8 +474,8 @@ export default function MarketDataPage() {
     id: "dividends",
     title: "Implied Dividends",
     note:
-      u === "Nifty"
-        ? "Points are in Sensex terms; Nifty scales them by the ratio of the reference prices."
+      u !== QUOTE_UNDERLYING
+        ? `Points are in ${QUOTE_UNDERLYING} terms; ${u} scales them by the ratio of the reference prices.`
         : dividendHistory
           ? "Every dividend in the surface file, history included."
           : "Future dates only. Show History lists the earlier dividends.",

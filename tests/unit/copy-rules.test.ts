@@ -4,10 +4,10 @@ import { copyViolations, type CopyKind } from "@/lib/format/copy-rules";
 import { isTitleCase } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { INPUT_SECTIONS, requiredFields, validateDeskInputs } from "@/lib/inputs/validate";
-import { COMPUTATION_PRIMITIVES, logicModules } from "@/lib/logic-atlas";
+import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { outputTables, specCells, specHeaders, specRowLabels } from "@/lib/tables";
-import { SHEET_NAMES } from "@/lib/workbook/build-hedging-excel";
+import { SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
 
 import invalid from "../fixtures/invalid-cases.json";
 import { blankFillInputs, mockDefaultInputs, priceLikeTheApp } from "../helpers/mock-market";
@@ -42,10 +42,10 @@ describe("copy rules on the label constants", () => {
       items.push([m.title, "label"], [m.subtitle, "label"], [m.description, "prose"]);
       for (const x of m.metrics) items.push([x.label, "label"], [x.value, "label"]);
       for (const n of m.nodes) items.push([n.label, "label"], [n.description, "prose"]);
-      for (const f of m.formulas) items.push([f.name, "label"]);
-      for (const text of [...m.insights, ...m.edgeCases, ...m.outputs]) items.push([text, "prose"]);
+      for (const f of m.formulas) items.push([f.name, "label"], [f.output, "label"], [f.words, "prose"], [f.value(r), "cell"]);
+      for (const o of m.outputs) items.push([o.label, "label"], [o.value(r), "cell"]);
+      for (const text of [...m.insights(null), ...m.insights(r), ...m.edgeCases]) items.push([text, "prose"]);
     }
-    for (const p of COMPUTATION_PRIMITIVES) items.push([p.name, "label"], [p.category, "label"]);
     expect(offenders(items)).toEqual([]);
   });
 

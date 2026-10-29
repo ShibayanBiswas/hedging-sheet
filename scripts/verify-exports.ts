@@ -6,14 +6,14 @@ import ExcelJS from "exceljs";
 
 import { defaultInputs, seedMarketData } from "../lib/engine/defaults";
 import { computeHedgingSheet } from "../lib/engine/hedging-sheet";
-import { buildHedgingWorkbook, SHEET_NAMES } from "../lib/workbook/build-hedging-excel";
-import { hedgingExportFilename } from "../lib/workbook/excel-runtime";
+import { buildHedgingExcel, SHEET_NAMES } from "../lib/excel/build-hedging-excel";
+import { hedgingExportFilename } from "../lib/excel/excel-runtime";
 
 async function main() {
   const r = computeHedgingSheet(defaultInputs({ valuationDate: "2026-10-27", spot: 82000, dailyVol: 0.009 }), seedMarketData());
   if (!r.ok) throw new Error(r.errors.map((e) => e.message).join("; "));
   const wb = new ExcelJS.Workbook();
-  buildHedgingWorkbook(wb, r, null);
+  buildHedgingExcel(wb, r, null);
   const buffer = await wb.xlsx.writeBuffer();
   const out = path.join(process.cwd(), "test-results", hedgingExportFilename(r));
   fs.mkdirSync(path.dirname(out), { recursive: true });

@@ -6,7 +6,9 @@ export type InputMode = "default" | "blank";
 
 /** Test ids of the fields rendered as select elements. */
 const SELECTS = new Set(["input-underlying", "input-expiryCount", "input-hedgeExpiryIndex"]);
-const isSelect = (id: string) => SELECTS.has(id) || id.startsWith("input-spreadOptionTypes-");
+const isSelect = (id: string) => SELECTS.has(id);
+/** Segmented controls: a value is picked by clicking its option. */
+const isSegmented = (id: string) => /^input-strike(OptionTypes|Sides)-\d+$/.test(id);
 
 /** The Inputs page: mode switch, every field by `input-<key>`, Run Simulation and its validation popup. */
 export class InputsPage {
@@ -53,6 +55,10 @@ export class InputsPage {
     const el = this.page.getByTestId(id);
     if (isSelect(id)) {
       await el.selectOption(value);
+      return;
+    }
+    if (isSegmented(id)) {
+      await this.page.getByTestId(`${id}-${value}`).click();
       return;
     }
     await el.fill(value);

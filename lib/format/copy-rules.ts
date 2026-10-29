@@ -6,6 +6,22 @@
 /** The only shortforms the desk keeps. Every other word in capitals is written out in full. */
 const ALLOWED_SHORTFORMS = new Set(["NBFC", "BSE", "NSE", "IST", "OK", "UTC"]);
 
+/**
+ * Wording that points at the spreadsheet the app replaced. "Hedging Sheet", "Summary Sheet", "Term Sheet" and
+ * "Excel" are the app's own names and stay allowed.
+ */
+const REFERENCE_WORDING = [
+  /\bwork ?books?\b/i,
+  /\bmacros?\b/i,
+  /\bxlsm\b/i,
+  /\bapproval\b/i,
+  /\bsource sheet\b/i,
+  /\bas the sheet\b/i,
+  /\bthe sheet\b/i,
+  /\bspreadsheet\b/i,
+  /[A-Za-z']+![A-Z]{1,3}\d+/,
+];
+
 /** Ways a missing value must not be shown; the desk shows "-". */
 const NOT_APPLICABLE_WORDS = /^(n\/?a|na|none|null|nil|—|–|--)$/i;
 
@@ -22,6 +38,10 @@ export function copyViolations(text: string, kind: CopyKind): string[] {
   const out: string[] = [];
   const t = text.trim();
   if (/\bper\s?cent(age)?s?\b/i.test(t)) out.push('uses the word "percent" instead of %');
+  for (const rule of REFERENCE_WORDING) {
+    const hit = rule.exec(t);
+    if (hit) out.push(`names the spreadsheet the app replaced: "${hit[0]}"`);
+  }
   if (/[()[\]{}]/.test(t)) out.push("has text in brackets");
   if (kind !== "prose" && t.includes("/")) out.push('uses "/"');
   if (kind === "prose" && (t.match(/\//g) ?? []).length > 1) out.push('uses "/" more than once');

@@ -10,7 +10,9 @@ test.use({ reducedMotion: "reduce" });
 
 const TODAY = "2026-10-28";
 const filled = blankFillInputs();
-const SELECTS = new Set(["underlying", "spreadOptionTypes.0", "spreadOptionTypes.1", "expiryCount"]);
+/** Choices rather than typed numbers: two selects and the per-strike segmented controls of the first and last strike. */
+const SELECTS = new Set(["underlying", "expiryCount", "strikeOptionTypes.0", "strikeSides.5"]);
+const isSegmented = (field: string) => /^strike(OptionTypes|Sides)\./.test(field);
 
 test.describe("B1 Empty state", () => {
   test("B1.1 every input is empty and every field shows a placeholder", async ({ inputs, page }) => {
@@ -29,7 +31,8 @@ test.describe("B1 Empty state", () => {
     expect(report.filter((r) => r.value !== "")).toEqual([]);
     expect(report.filter((r) => !/^Eg /.test(r.placeholder))).toEqual([]);
     for (const field of SELECTS) {
-      await expect(page.getByTestId(fieldTestId(field)).locator("option:checked")).toHaveText(/^Select/);
+      if (isSegmented(field)) await expect(page.getByTestId(fieldTestId(field))).toHaveAttribute("data-value", "");
+      else await expect(page.getByTestId(fieldTestId(field)).locator("option:checked")).toHaveText(/^Select/);
     }
   });
 
@@ -62,7 +65,7 @@ test.describe("B2 One required field missing", () => {
     chromiumOnly(testInfo);
     test.setTimeout(600_000);
     await fillBlank(inputs);
-    for (const f of required.filter((r) => !SELECTS.has(r.field))) {
+    for (const f of required.filter((r) => !SELECTS.has(r.field) && !isSegmented(r.field))) {
       const testId = fieldTestId(f.field);
       await test.step(`${f.field}`, async () => {
         const [base, index] = f.field.split(".");

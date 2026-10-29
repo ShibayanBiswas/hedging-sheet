@@ -9,7 +9,7 @@ import path from "node:path";
 import { istTodayYmd } from "../lib/engine/dates";
 import { seedMarketData } from "../lib/engine/defaults";
 import { labelSurfaceForDeskMonth } from "../lib/engine/vol-surface";
-import { buildSurfaceWorkbook } from "../lib/workbook/build-surface-file";
+import { buildSurfaceFile } from "../lib/excel/build-surface-file";
 
 export const SAMPLE_FILE = "Hedging_Sheet_Vol_Surface_Sample.xlsx";
 
@@ -23,7 +23,7 @@ export async function buildVolSurfaceSample(outDir = path.join(process.cwd(), "p
   });
   const logoPath = path.join(process.cwd(), "public/brand/arwl-logo.png");
   const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString("base64") : null;
-  const wb = buildSurfaceWorkbook(new ExcelJS.Workbook(), surface, market.params, { logoBase64, asOf: today });
+  const wb = buildSurfaceFile(new ExcelJS.Workbook(), surface, market.params, { logoBase64, asOf: today });
   const out = path.join(outDir, SAMPLE_FILE);
   await wb.xlsx.writeFile(out);
   return out;

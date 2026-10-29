@@ -1,6 +1,20 @@
 import type { FlowNodeSpec } from "@/components/atlas/logic-flow";
+import { formatDate } from "@/lib/engine/dates";
+import { deriveTerms } from "@/lib/engine/structure";
+import type { HedgingResult } from "@/lib/engine/types";
+import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
 
-type LogicFormula = { name: string; words: string; source: string };
+type LogicFormula = {
+  name: string;
+  /** The formula in words. */
+  words: string;
+  inputs: string;
+  output: string;
+  /** The value from the last run, or "-" before one. */
+  value: (r: HedgingResult) => string;
+};
+
+type LogicOutput = { label: string; href: string; value: (r: HedgingResult) => string };
 
 export type LogicModule = {
   id: string;
@@ -14,15 +28,16 @@ export type LogicModule = {
   nodes: FlowNodeSpec[];
   formulas: LogicFormula[];
   edgeCases: string[];
-  insights: string[];
-  outputs: string[];
+  /** Plain-language cards, filled with the last run's values when there is one. */
+  insights: (r: HedgingResult | null) => string[];
+  outputs: LogicOutput[];
 };
-
-export type ComputationPrimitive = { name: string; category: string; uses: string; role: string };
 
 function mod(m: Omit<LogicModule, "stageCount">): LogicModule {
   return { ...m, stageCount: m.nodes.length };
 }
+
+const cr = (inr: number) => fmtCrore(inr / 1e7);
 
 /** Descriptive copy only. `u` is the underlying name and `weekday` its expiry day, so no text hard-codes an index. */
 export function logicModules(u: string, weekday: string): LogicModule[] {
@@ -32,7 +47,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       title: "Inputs",
       subtitle: "Live Defaults And Product Terms",
       accent: "cyan",
-      description: `Inputs holds only inputs. Spot is the last completed ${u} close, the valuation date is today in India and the daily volatility is calculated from a year of closes. Product terms default to a 37% target, a 102.5% coupon, strikes of 137, 127, 125, 85, 84 and 70, decay 1.6 and a 1,940 day tenor. Nothing is saved: a refresh reloads the live defaults. Editing an input never reprices; Run Simulation does.`,
+      description: `Spot is the last completed ${u} close, the valuation date is today in India and the daily volatility is calculated from a year of closes. Product terms default to a 37% target, a 102.5% coupon, strikes of 137, 127, 125, 85, 84 and 70, decay 1.6 and a 1,940 day tenor. Nothing is saved: a refresh reloads the live defaults, and only Run Simulation prices.`,
       metrics: [
         { label: "Sections", value: "Eight" },
         { label: "Saved", value: "Never" },
@@ -44,47 +59,59 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "output", label: "Run Simulation", description: "Fetches market data, prices the legs, solves the Inbuilt and builds the stress grid." },
       ],
       formulas: [
-        { name: "Start Level", words: "Spot times one plus the uplift, rounded up to the next 100.", source: "Pricer B5" },
-        { name: "Annual Volatility", words: "Daily volatility times the square root of 365.", source: "Summary I26" },
-        { name: "Hedge Strike", words: "Spot rounded to the nearest 100 point listed strike.", source: "Day 1 Vega Hedge, hedge strike" },
+        { name: "Start Level", words: "Spot times one plus the uplift, rounded up to the next 100.", inputs: "Spot, Start Level Uplift", output: `Start ${u} Level`, value: (r) => fmtNumber(r.structure.startLevel, 0) },
+        { name: "Annual Volatility", words: "Daily volatility times the square root of 365.", inputs: "Daily Volatility", output: "Annual Volatility", value: (r) => fmtPercent(r.summary.annualVol) },
+        { name: "Hedge Strike", words: "Spot rounded to the nearest 100 point listed strike.", inputs: "Spot", output: "Hedge Strike", value: (r) => fmtNumber(r.summary.hedgeStrike, 0) },
       ],
       edgeCases: [
         "Spot stays blank when Yahoo does not answer; the run is blocked until it is above zero.",
         "Typing over the daily or annual volatility marks it Overridden; Reset recalculates it.",
         "Changing any input after a run marks the output tabs Inputs Changed.",
       ],
-      insights: ["Market Data and Logic Atlas never need a run.", "The Download Excel button uses the last run."],
-      outputs: ["Live spot", "Valuation date", "Daily volatility", "Product terms"],
+      insights: (r) =>
+        r
+          ? [`The last run priced ${r.inputs.underlying} at a spot of ${fmtNumber(r.inputs.spot)} on ${formatDate(r.inputs.valuationDate)}.`, "Download Excel uses the last run."]
+          : ["Market Data and Logic Atlas never need a run.", "Download Excel uses the last run."],
+      outputs: [
+        { label: "Spot", href: "/", value: (r) => fmtNumber(r.inputs.spot) },
+        { label: "Valuation Date", href: "/", value: (r) => formatDate(r.inputs.valuationDate) },
+        { label: "Daily Volatility", href: "/", value: (r) => fmtPercent(r.inputs.dailyVol, 3) },
+      ],
     }),
     mod({
       id: "expiries",
       title: "Expiries",
       subtitle: `${u} Expiries Fall On ${weekday}`,
       accent: "purple",
-      description: `Each observation expiry is a month number counted from the valuation date. The raw date is the valuation date plus the months times 30.5 days, rounded. The expiry is the ${weekday} nearest to that raw date, which is fixed by the exchange calendar for ${u}. The hedge uses the middle expiry, the lower one when the count is even.`,
+      description: `Each observation expiry is a month number counted from the valuation date and set on the ${weekday} the exchange calendar fixes for ${u}. Every expiry is observed by the payoff; the median one, the lower middle for an even count, is also the expiry of the listed hedge option.`,
       metrics: [
-        { label: "Count", value: "One To Eight" },
+        { label: "Count", value: "One To Twelve" },
         { label: "Weekday", value: weekday },
       ],
       nodes: [
         { kind: "input", label: "Month Numbers", description: "Strictly rising, such as 41, 44, 47, 50, 53 and 56." },
-        { kind: "process", label: "Raw Date", description: "Valuation date plus the months times 30.5 days, rounded." },
-        { kind: "process", label: "Nearest Weekday", description: `Up to three days forward to a ${weekday}, otherwise back.` },
-        { kind: "output", label: "Expiry Dates", description: "Pricer row 20, the Summary Final Expiries and the Option Expiry." },
+        { kind: "process", label: "Expiry Weekday", description: `Each month number lands on the nearest ${weekday}.` },
+        { kind: "output", label: "Expiry Dates", description: "Observation dates, with the hedge option expiry marked." },
       ],
       formulas: [
-        { name: "Raw Date", words: "Valuation date plus the month number times 30.5 days, rounded to whole days.", source: "Pricer row 20" },
-        { name: "Expiry", words: `The ${weekday} nearest to the raw date: forward when three days or fewer away, otherwise back.`, source: "Pricer row 20" },
-        { name: "Option Expiry", words: "The middle expiry; the lower middle for an even count.", source: "Pricer D5" },
-        { name: "Maturity", words: "Valuation date plus the tenor in days.", source: "Product Description D41" },
+        { name: "Expiry", words: `The ${weekday} nearest to the month number counted from the valuation date.`, inputs: "Valuation Date, Expiry Months", output: "Expiry Dates", value: (r) => r.schedule.expiries.map((d) => formatDate(d)).join(", ") },
+        { name: "Hedge Option Expiry", words: "The middle expiry; the lower middle for an even count.", inputs: "Expiry Dates", output: "Observation And Hedge Option Expiry", value: (r) => formatDate(r.schedule.hedgeExpiry) },
+        { name: "Maturity", words: "Valuation date plus the tenor in days.", inputs: "Valuation Date, Tenor In Days", output: "Maturity Date", value: (r) => formatDate(r.schedule.maturityDate) },
       ],
       edgeCases: [
         "Months that do not rise strictly block the run.",
         "An expiry after maturity blocks the run.",
-        "An expiry after the last surface row is allowed with a warning popup; it reads the last row.",
+        "An expiry after the last surface row is allowed with a warning; it reads the last row.",
       ],
-      insights: ["Sensex expiries are Thursdays and Nifty expiries are Tuesdays, per NSE and BSE notices from September 2025."],
-      outputs: ["Expiry dates", "Option Expiry", "Maturity date"],
+      insights: (r) => [
+        `${u} expiries are ${weekday}s, per the exchange notices from September 2025.`,
+        ...(r ? [`The last run observed ${r.schedule.expiries.length} dates and hedged at ${formatDate(r.schedule.hedgeExpiry)}.`] : []),
+      ],
+      outputs: [
+        { label: "Expiry Dates", href: "/summary", value: (r) => String(r.schedule.expiries.length) },
+        { label: "Hedge Option Expiry", href: "/vega-hedge", value: (r) => formatDate(r.schedule.hedgeExpiry) },
+        { label: "Maturity Date", href: "/product", value: (r) => formatDate(r.schedule.maturityDate) },
+      ],
     }),
     mod({
       id: "strikes",
@@ -92,7 +119,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Strikes Define The Payoff",
       accent: "amber",
       description:
-        "The strikes are the primary inputs, as a % of the start level, highest first. With n spreads there are n + 4 strikes: the spread levels, the protection strike, one point below it and the decay floor. Spreads are read from the strikes, so Spread 1 runs from Strike 3 to Strike 2 and Spread 2 from Strike 2 to Strike 1. The top participation is derived from the coupon and can be overridden. Units at each strike are the change in the payoff's slope across it.",
+        "The strikes are the primary inputs, as a % of the start level, highest first. With n spreads there are n + 4 strikes: the spread levels, the protection strike, one point below it and the decay floor. Each strike takes Put or Call and Buy or Sell; the side must match the payoff, and a call strike carries a futures leg so it replicates the put. The top participation is derived from the coupon and can be overridden.",
       metrics: [
         { label: "Strikes", value: "Spreads Plus Four" },
         { label: "Spreads", value: "One To Four" },
@@ -101,23 +128,30 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "input", label: "Strikes", description: "Strike 1 is the target; the last is the decay floor." },
         { kind: "process", label: "Spreads", description: "Buy and sell levels read from adjacent strikes. Editing a level writes its strike." },
         { kind: "process", label: "Participation", description: "The top spread takes the coupon left over by the lower spreads, divided by its width." },
-        { kind: "output", label: "Units", description: "Slope above less slope below at each rounded rupee strike." },
+        { kind: "output", label: "Quantity And Side", description: "The change in the payoff's slope at each strike: its size is the quantity, its sign Buy or Sell." },
       ],
       formulas: [
-        { name: "Top Participation", words: "Coupon less the payout of the lower spreads, divided by the top spread width.", source: "Summary L10" },
-        { name: "Spread Payout", words: "Spread width times its participation.", source: "Pricer C13 and C14" },
-        { name: "Rupee Strike", words: "Start level times the strike %, rounded to whole rupees.", source: "Pricer B19" },
-        { name: "Outflow Units", words: "Minus protection times decay times start level over the rupee width of the outflow step, less the slope below.", source: "Pricer Z47" },
-        { name: "Floor Units", words: "Decay less the Decay Reduction Below Floor sets the slope below the floor.", source: "Pricer row 47, the floor strike" },
+        { name: "Top Participation", words: "Coupon less the payout of the lower spreads, divided by the top spread width.", inputs: "Coupon, Strikes, Participation Rates", output: "Top Participation Rate", value: (r) => fmtNumber(r.structure.spreadParticipations[r.structure.spreadParticipations.length - 1], 3) },
+        { name: "Spread Payout", words: "Spread width times its participation.", inputs: "Buy Level, Sell Level, Participation Rate", output: "Maximum Upside", value: (r) => fmtPercent(r.structure.maxCoupon) },
+        { name: "Strike Level", words: "Start level times the strike %, rounded to whole points.", inputs: "Start Level, Strike %", output: "Strike Levels", value: (r) => r.structure.strikes.map((s) => fmtNumber(s.strike, 0)).join(", ") },
+        { name: "Quantity Per Strike", words: "Slope above less slope below the strike; negative is Sell.", inputs: "Strikes, Participation Rates, Decay", output: "Quantity And Side", value: (r) => r.structure.strikes.map((s) => `${fmtNumber(Math.abs(s.units))} ${s.side === "S" ? "Sell" : "Buy"}`).join(", ") },
+        { name: "Futures Adjustment", words: "For a call strike, quantity times discount times forward less strike, so the call and its futures leg value as the put.", inputs: "Option Type, Forward, Discount Yield", output: "Futures Adjustment For Call Strikes", value: (r) => fmtCrore(r.summary.futuresAdjustmentCr) },
       ],
       edgeCases: [
         "Strikes not strictly descending, or any strike at or below zero, block the run.",
+        "A side that does not match the payoff shows an error on that strike and keeps Run off.",
         "A participation at or below zero, or a coupon the spreads cannot reach, blocks the run.",
-        "Protection not below 100%, a floor not below protection less the step, or a Decay Reduction Below Floor above the Decay block the run.",
         "A typed top participation that pays more than the Coupon shows an error under the field and keeps Run off.",
       ],
-      insights: ["The option book matches the client payoff at every strike to about 5e-15."],
-      outputs: ["Derived spreads", "Participation rates", "Units per strike", "Buy and sell actions"],
+      insights: (r) =>
+        r
+          ? [`The book matches the client payoff to ${r.diagnostics.payoffBookGap.toExponential(1)} at every strike.`, `${r.structure.strikes.filter((s) => s.optionType === "C").length} of ${r.structure.strikes.length} strikes are calls.`]
+          : ["The book matches the client payoff at every strike to about 1e-15."],
+      outputs: [
+        { label: "Spreads", href: "/summary", value: (r) => String(deriveTerms(r.inputs).nSpreads) },
+        { label: "Maximum Upside", href: "/summary", value: (r) => fmtPercent(r.structure.maxCoupon) },
+        { label: "Strikes", href: "/pricer", value: (r) => String(r.structure.strikes.length) },
+      ],
     }),
     mod({
       id: "pricer",
@@ -125,32 +159,35 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Every Live Leg On The Surface",
       accent: "gold",
       description:
-        "Each live leg is one strike at one expiry, priced as a Black option on the forward. Volatility is a bilinear read of the surface plus the volatility bump, unless the leg is overridden. The rate curve is anchored at the valuation date and runs a year past the longest expiry, so Upper and Lower Maturity always resolve. Greeks come from bumping spot, time, volatility and rates and repricing. Contracts spread each strike's units across the expiries and the two halves of the book.",
+        "Each live leg is one strike at one expiry, priced as a Black option on the forward. Volatility is read from the surface between the two nearest strike columns and expiry rows, plus the volatility bump, unless the leg is overridden. The rate curve is anchored at the valuation date and runs a year past the longest expiry. Greeks come from bumping spot, time, volatility and rates and repricing.",
       metrics: [
         { label: "Model", value: "Black On The Forward" },
         { label: "Greeks", value: "Bump And Reprice" },
       ],
       nodes: [
-        { kind: "lookup", label: "Volatility", description: "A straight-line forecast across the two nearest strike columns, then linear in days between expiry rows." },
-        { kind: "lookup", label: "Rate Curve", description: "Upper and Lower Maturity bracket the expiry; the discount yield is the capped straight-line forecast." },
+        { kind: "lookup", label: "Volatility", description: "A straight line across the two nearest strike columns, then linear in days between expiry rows." },
+        { kind: "lookup", label: "Rate Curve", description: "The discount yield is the capped straight line between the bracketing curve points." },
         { kind: "engine", label: "Price", description: "The forward is spot times e to the growth times time; the option is discounted at the discount yield." },
         { kind: "output", label: "Greeks And Book", description: "Delta, gamma, theta, vega and rho per leg and in rupees for the book." },
       ],
       formulas: [
-        { name: "Forward", words: "Spot times e to the forward growth times days over 365.", source: "Pricer B31" },
-        { name: "Forward Growth", words: "The Forward Sell Rate of the valuation month row of Pricing Params.", source: "Pricer B28, Pricing Params H69" },
-        { name: "Discount Yield", words: "The smaller of the cap and the curve rate; the cap depends on the option type and Bid or Offer.", source: "Pricer B29" },
-        { name: "Dividends", words: "Sum of implied dividends before maturity over spot, times 365 over days, times the bid or offer factor.", source: "Pricer B30" },
-        { name: "Contracts", words: "Units times notional over the start level, over twice the live expiry count.", source: "Pricer B55" },
-        { name: "Incremental Margin", words: "Zero on Bid, otherwise the Pricing Params value by expiry.", source: "Pricer B38" },
+        { name: "Forward", words: "Spot times e to the forward growth times days over 365.", inputs: "Spot, Forward Growth, Days", output: "Forward", value: (r) => fmtNumber(r.pricer.legs[0]?.forward) },
+        { name: "Forward Growth", words: "The Forward Sell Rate of the valuation month.", inputs: "Pricing Parameters", output: "Forward Growth", value: (r) => fmtPercent(r.pricer.legs[0]?.forwardGrowth, 3) },
+        { name: "Discount Yield", words: "The smaller of the cap and the curve rate; the cap depends on the option type and Bid or Offer.", inputs: "Rate Curve, Option Type", output: "Discount Yield", value: (r) => fmtPercent(r.pricer.legs[0]?.discountYield, 3) },
+        { name: "Contracts", words: "Units times notional over the start level, over twice the live expiry count.", inputs: "Units, Notional, Start Level", output: "Contracts", value: (r) => fmtNumber(r.pricer.legs[0]?.contracts, 0) },
+        { name: "Book Premium", words: "Minus contracts times price over every leg, plus any futures adjustment.", inputs: "Contracts, Price", output: "Premium In Crore", value: (r) => cr(r.pricer.header.premium) },
       ],
       edgeCases: [
         "A leg past the last surface row reads the last row.",
-        "A leg override applies to that strike and expiry in both halves and is badged Overridden.",
-        "Each spread is a put spread plus its payout in cash, or a call spread with no cash; the downside legs and the hedge are puts.",
+        "A leg override applies to that strike and expiry and is badged Overridden.",
+        "The Deep column of the surface always equals the 55% column.",
       ],
-      insights: ["Rho bumps the forward growth and the discount yield together.", "Bid carries no incremental margin."],
-      outputs: ["Leg prices", "Leg Greeks", "Contracts", "Book premium"],
+      insights: (r) => (r ? [`${r.pricer.legs.length} live legs priced to a premium of ${cr(r.pricer.header.premium)} crore.`, "Rho bumps the forward growth and the discount yield together."] : ["Rho bumps the forward growth and the discount yield together.", "Bid carries no incremental margin."]),
+      outputs: [
+        { label: "Premium In Crore", href: "/pricer", value: (r) => cr(r.pricer.header.premium) },
+        { label: "Delta In Contracts", href: "/pricer", value: (r) => fmtNumber(r.pricer.header.delta, 0) },
+        { label: "Live Legs", href: "/pricer", value: (r) => String(r.pricer.legs.length) },
+      ],
     }),
     mod({
       id: "solver",
@@ -158,7 +195,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Goal Seek On The Inbuilt",
       accent: "rose",
       description:
-        "The mobilisation is split into the Inbuilt, costs, the NBFC deposit, the option premium and the margin. Each pot grows at its own rate to maturity, and the Inbuilt is solved so the total equals the notional times one plus the coupon. Brent's method with a bisection fallback replaces the sheet's goal seek macro and runs on every Run Simulation. The margin from the stress grid feeds the pots; the loop settles on the first pass because the margin does not depend on the Inbuilt.",
+        "The mobilisation is split into the Inbuilt, costs, the NBFC deposit, the option premium and the margin. Each pot grows at its own rate to maturity, and the Inbuilt is solved so the total equals the notional times one plus the coupon. Brent's method with a bisection fallback runs on every Run Simulation. The margin from the stress grid feeds the pots.",
       metrics: [
         { label: "Method", value: "Brent With Bisection" },
         { label: "Residual", value: "Below 1e-9" },
@@ -170,14 +207,18 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "output", label: "Actual Inbuilt", description: "The Inbuilt as a % of notional, with the payout and internal rate of return." },
       ],
       formulas: [
-        { name: "Maturity Payout", words: "NBFC amount grown at the NBFC rate, plus premium grown at the premium rate, plus margin grown at the margin rate, over the tenor.", source: "Pricer O5" },
-        { name: "Achieved Coupon", words: "Payout over mobilisation, less one.", source: "Pricer P5" },
-        { name: "Goal Seek", words: "Set the achieved coupon to the coupon by changing the Inbuilt in rupees.", source: "Macro2, Pricer H5" },
-        { name: "Margin", words: "The total requirement at the 0% move over notional.", source: "Summary Q10" },
+        { name: "Maturity Payout", words: "NBFC amount grown at the NBFC rate, plus premium grown at the premium rate, plus margin grown at the margin rate, over the tenor.", inputs: "Pots, Rates, Tenor", output: "Maturity Payout In Crore", value: (r) => cr(r.pricer.header.payout) },
+        { name: "Achieved Coupon", words: "Payout over mobilisation, less one.", inputs: "Maturity Payout, Mobilisation", output: "Achieved Coupon", value: (r) => fmtPercent(r.pricer.header.achievedCoupon) },
+        { name: "Goal Seek", words: "Set the achieved coupon to the coupon by changing the Inbuilt.", inputs: "Coupon, Pots", output: "Actual Inbuilt", value: (r) => fmtPercent(r.summary.actualInbuilt) },
+        { name: "Margin", words: "The total requirement at the 0% move over notional.", inputs: "Mark To Market At 0%", output: "Margin Requirement", value: (r) => fmtPercent(r.summary.margin) },
       ],
       edgeCases: ["If no Inbuilt reaches the coupon the run reports it rather than showing a stale value."],
-      insights: ["The Debug Drawer lists every goal seek step of the last run."],
-      outputs: ["Actual Inbuilt", "Maturity payout", "Internal rate of return"],
+      insights: (r) => (r ? [`The goal seek took ${r.diagnostics.solverIterations} steps to an Inbuilt of ${fmtPercent(r.summary.actualInbuilt)}.`] : ["The Debug Drawer lists every goal seek step of the last run."]),
+      outputs: [
+        { label: "Actual Inbuilt", href: "/summary", value: (r) => fmtPercent(r.summary.actualInbuilt) },
+        { label: "Maturity Payout In Crore", href: "/pricer", value: (r) => cr(r.pricer.header.payout) },
+        { label: "Internal Rate Of Return", href: "/summary", value: (r) => fmtPercent(r.summary.irr) },
+      ],
     }),
     mod({
       id: "summary",
@@ -185,10 +226,10 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "One Page Of The Book",
       accent: "green",
       description:
-        "The Summary Sheet collects the market and rates, the product specification, the final expiries, the Greeks, the costs, the options per strike and the vega hedge. Option details sum each strike's contracts across expiries and both halves and average its price. Weighted Average Volatility weights each leg by its signed vega, as the sheet does, so long and short legs offset; the absolute version sits beside it.",
+        "The Summary Sheet tab collects the market and rates, the product specification, the final expiries, the Greeks, the costs, the options per strike and the vega hedge. Option details sum each strike's contracts across expiries and average its price. Weighted Average Volatility weights each leg by its signed vega, so long and short legs offset; the absolute version sits beside it.",
       metrics: [
         { label: "Tables", value: "Eight" },
-        { label: "Totals", value: "Both Halves" },
+        { label: "Totals", value: "Every Leg" },
       ],
       nodes: [
         { kind: "input", label: "Priced Legs", description: "Every leg's contracts, price, vega and rho." },
@@ -196,14 +237,16 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "output", label: "Summary Tables", description: "The same tables are written to the Excel file." },
       ],
       formulas: [
-        { name: "Quantity", words: "Sum of a strike's contracts over 100,000.", source: "Summary D23" },
-        { name: "Premium", words: "Minus quantity times average price, in crore.", source: "Summary F23" },
-        { name: "Weighted Average Volatility", words: "Sum of volatility times vega in rupees over the sum of vega in rupees.", source: "Summary G15" },
-        { name: "Weighted Average Forward", words: "Sum of forward growth times rho in rupees over the sum of rho in rupees.", source: "Summary I15" },
+        { name: "Quantity", words: "Sum of a strike's contracts over 100,000.", inputs: "Contracts", output: "Quantity In Lakh", value: (r) => fmtNumber(r.summary.legs[0]?.quantityLakh) },
+        { name: "Premium", words: "Minus quantity times average price, in crore.", inputs: "Quantity, Average Price", output: "Premium In Crore", value: (r) => fmtCrore(r.summary.totalPremiumCr) },
+        { name: "Weighted Average Volatility", words: "Sum of volatility times vega in rupees over the sum of vega in rupees.", inputs: "Volatility, Vega", output: "Weighted Average Volatility", value: (r) => fmtPercent(r.summary.vegaWeightedVol) },
       ],
       edgeCases: ["When the book's vega sums to zero the weighted volatility shows a dash with the reason."],
-      insights: ["Delta % is book delta times spot over mobilisation."],
-      outputs: ["Product Greeks", "Options Details", "Day 1 Vega Hedge row"],
+      insights: (r) => (r ? [`Delta % is ${fmtPercent(r.summary.deltaPercent, 1)}: book delta times spot over mobilisation.`] : ["Delta % is book delta times spot over mobilisation."]),
+      outputs: [
+        { label: "Option Premium In Crore", href: "/summary", value: (r) => fmtCrore(r.summary.totalPremiumCr) },
+        { label: "Vega In Crore", href: "/summary", value: (r) => fmtCrore(r.summary.vegaCr) },
+      ],
     }),
     mod({
       id: "product",
@@ -211,7 +254,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Term Sheet And Payoff",
       accent: "amber",
       description:
-        "The Product Description re-proves the payout from the three pots and lists the Greek details the desk quotes. The payoff is generated from the inputs at every strike, the protection level and 0.01% below it, zero, and every 5% between. Above protection the client earns the spread ladder capped at the coupon; below it losses run at the decay rate, easing past the floor. The chart shows the payoff, the index level, the strikes and the protection band.",
+        "The Product Description re-proves the payout from the three pots and lists the Greek details the desk quotes. The payoff is generated from the inputs at every strike, the protection level and 0.01% below it, zero, and every 5% between. Above protection the client earns the spread ladder capped at the coupon; below it losses run at the decay rate, easing past the floor.",
       metrics: [
         { label: "Greek Rows", value: "Twelve" },
         { label: "Payoff", value: "From The Inputs" },
@@ -222,15 +265,17 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
         { kind: "output", label: "Payoff", description: "Scenario table and chart." },
       ],
       formulas: [
-        { name: "Options Delta", words: "Options quantity times the hedge option delta.", source: "Product Description H35" },
-        { name: "Residual Futures", words: "Total Delta Required less Options Delta.", source: "Product Description H36" },
-        { name: "Client Return Above Protection", words: "The smaller of the coupon and the sum of each spread's participation times the move inside it.", source: "Product Description K32" },
-        { name: "Client Return Below Protection", words: "The larger of −100% and the decayed loss, eased past the floor by the floor units.", source: "Product Description K32" },
-        { name: "Pre Tax Internal Rate Of Return", words: "One plus the return, raised to 365 over the tenor, less one.", source: "Product Description L32" },
+        { name: "Options Delta", words: "Options quantity times the hedge option delta.", inputs: "Hedge Quantity, Hedge Delta", output: "Options Delta", value: (r) => fmtNumber(r.productDescription.greeks.optionsDelta, 0) },
+        { name: "Residual Futures", words: "Total delta required less options delta.", inputs: "Total Delta, Options Delta", output: "Residual Futures", value: (r) => fmtNumber(r.productDescription.greeks.residualFutures, 0) },
+        { name: "Client Return", words: "Above protection, the smaller of the coupon and the spread ladder; below it, the decayed loss eased past the floor.", inputs: "Strikes, Coupon, Decay", output: "Client Return", value: (r) => fmtPercent(r.productDescription.payoff[0]?.clientReturn) },
+        { name: "Pre Tax Internal Rate Of Return", words: "One plus the return, raised to 365 over the tenor, less one.", inputs: "Client Return, Tenor", output: "Pre Tax Internal Rate Of Return", value: (r) => fmtPercent(r.productDescription.irr) },
       ],
       edgeCases: ["Below −90% the client return equals the index move."],
-      insights: ["The hedge quantity is negative because the listed options are sold."],
-      outputs: ["Term Sheet", "Greek Details", "Payoff scenarios", "Payoff chart"],
+      insights: (r) => (r ? [`At the target the client earns ${fmtPercent(r.inputs.coupon)}; the maturity value is ${fmtCrore(r.productDescription.maturityCr)} crore.`] : ["The hedge quantity is negative because the listed options are sold."]),
+      outputs: [
+        { label: "Maturity Value In Crore", href: "/product", value: (r) => fmtCrore(r.productDescription.maturityCr) },
+        { label: "Payoff Levels", href: "/product", value: (r) => String(r.productDescription.payoff.length) },
+      ],
     }),
     mod({
       id: "dayone",
@@ -238,7 +283,7 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Listed Options Against Book Vega",
       accent: "cyan",
       description:
-        "Listed options at the hedge strike and the Option Expiry are sold so their vega cancels the book's vega. Each is valued three ways for every move from −50% to +20%: fair from the surface, exchange at the flat annual volatility, and stressed after a sigma shock. The margin is the stressed less the exchange price, plus the change in fair value, plus an exposure charge on the level.",
+        "Listed puts at the hedge strike and the hedge option expiry are sold so their vega cancels the book's vega. Each is valued three ways for every move from −50% to +20%: fair from the surface, exchange at the flat annual volatility, and stressed after a sigma shock. The margin is the stressed less the exchange price, plus the change in fair value, plus an exposure charge on the level.",
       metrics: [
         { label: "Blocks", value: "Fair, Exchange, Stressed" },
         { label: "Moves", value: "Fifteen" },
@@ -246,19 +291,21 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       nodes: [
         { kind: "input", label: "Book Vega", description: "The vega of every leg in rupees." },
         { kind: "process", label: "Quantity", description: "Minus book vega over the vega of one hedge option at the 0% move." },
-        { kind: "engine", label: "Three Prices", description: "Fair, exchange and stressed, each on the Pricer row set." },
+        { kind: "engine", label: "Three Prices", description: "Fair, exchange and stressed." },
         { kind: "output", label: "Option Margin", description: "Initial plus exposure margin per move." },
       ],
       formulas: [
-        { name: "Quantity", words: "Product vega in crore times 1e7 over the hedge vega at 0%.", source: "Day 1 Vega Hedge K26" },
-        { name: "Stressed Level", words: "Level times one less sigmas times daily volatility times the root of the shock days.", source: "Day 1 Vega Hedge D62" },
-        { name: "Fair Growth", words: "On Bid, a Put takes the larger of the discount less dividends and the Forward Sell Rate.", source: "Day 1 Vega Hedge O26" },
-        { name: "Initial Margin", words: "Stressed less exchange price, plus fair less day 1 fair price, times quantity, in crore.", source: "Day 1 Vega Hedge L8" },
-        { name: "Exposure Margin", words: "Exposure rate times level times quantity, in crore.", source: "Day 1 Vega Hedge M8" },
+        { name: "Quantity", words: "Minus book vega over the hedge option's vega at 0%.", inputs: "Book Vega, Hedge Vega", output: "Hedge Quantity", value: (r) => fmtNumber(r.dayOneVegaHedge.quantity, 0) },
+        { name: "Stressed Level", words: "Level times one less sigmas times daily volatility times the root of the shock days.", inputs: "Level, Shock Sigmas, Shock Days, Daily Volatility", output: "Stressed Level", value: (r) => fmtNumber(r.dayOneVegaHedge.stressed[10]?.spot) },
+        { name: "Initial Margin", words: "Stressed less exchange price, plus fair less day 1 fair price, times quantity, in crore.", inputs: "Three Prices, Quantity", output: "Initial Margin In Crore", value: (r) => fmtCrore(r.dayOneVegaHedge.margin[10]?.initialMarginCr) },
+        { name: "Exposure Margin", words: "Exposure rate times level times quantity, in crore.", inputs: "Exposure Margin, Level, Quantity", output: "Exposure Margin In Crore", value: (r) => fmtCrore(r.dayOneVegaHedge.margin[10]?.exposureMarginCr) },
       ],
       edgeCases: ["The fair volatility can be overridden on the tab and is badged when it is."],
-      insights: ["Upper and Lower Maturity resolve on every row because the curve runs past the expiry."],
-      outputs: ["Hedge quantity", "Day 1 fair price", "Option margin per move"],
+      insights: (r) => (r ? [`${fmtNumber(Math.abs(r.dayOneVegaHedge.quantity), 0)} puts at ${fmtNumber(r.summary.hedgeStrike, 0)} cancel the book vega.`] : ["The hedge quantity is chosen so the book vega nets to zero."]),
+      outputs: [
+        { label: "Hedge Quantity", href: "/vega-hedge", value: (r) => fmtNumber(r.dayOneVegaHedge.quantity, 0) },
+        { label: "Day 1 Fair Price", href: "/vega-hedge", value: (r) => fmtNumber(r.summary.hedgePrice) },
+      ],
     }),
     mod({
       id: "mtm",
@@ -266,26 +313,28 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Cash Under Stress",
       accent: "rose",
       description:
-        "For each move the spot bump is set, the book delta is read and the bump is reset to zero, as the Mark To Market macro does. Book delta plus the hedge delta is the residual futures position. Futures margin is charged on its notional value, mark to market is built outward from the 0% row, and the option margin comes from the Day 1 Vega Hedge. The 0% total is the margin funded in the Pricer.",
+        "For each move the spot is shocked, the book delta is read and the shock is reset to zero. Book delta plus the hedge delta is the residual futures position. Futures margin is charged on its notional value, mark to market is built outward from the 0% row, and the option margin comes from the Day 1 Vega Hedge. The 0% total is the margin funded in the pots.",
       metrics: [
         { label: "Range", value: "−50% To +20%" },
         { label: "Funded Row", value: "0%" },
       ],
       nodes: [
-        { kind: "engine", label: "Set Bump", description: "Reprice every leg at the bumped spot." },
+        { kind: "engine", label: "Shock Spot", description: "Reprice every leg at the shocked spot." },
         { kind: "process", label: "Read Delta", description: "Product requirement in lakh." },
-        { kind: "process", label: "Reset Bump", description: "Back to zero after every move." },
-        { kind: "output", label: "Total Requirement", description: "Futures margin, mark to market and option margin." },
+        { kind: "process", label: "Reset Shock", description: "Back to zero after every move." },
+        { kind: "output", label: "Total Margin", description: "Futures margin, mark to market and option margin." },
       ],
       formulas: [
-        { name: "Residual Futures", words: "Product requirement plus option delta, in lakh.", source: "Mark To Market G6" },
-        { name: "Futures Margin", words: "Minus residual futures times the futures margin rate times the level, in crore.", source: "Mark To Market H6" },
-        { name: "Step Mark To Market", words: "Residual of the row nearer 0% times the level change, in crore.", source: "Mark To Market P6" },
-        { name: "Total", words: "Futures margin plus cumulative mark to market plus option margin.", source: "Mark To Market K6" },
+        { name: "Residual Futures", words: "Product requirement plus option delta, in lakh.", inputs: "Product Requirement, Option Delta", output: "Residual Futures In Lakh", value: (r) => fmtNumber(r.markToMarket.zeroRow.residualFuturesLakh, 3) },
+        { name: "Futures Margin", words: "Minus residual futures times the futures margin rate times the level, in crore.", inputs: "Residual Futures, Futures Margin, Level", output: "Futures Margin In Crore", value: (r) => fmtCrore(r.markToMarket.zeroRow.futuresMarginCr) },
+        { name: "Total Margin", words: "Futures margin plus cumulative mark to market plus option margin.", inputs: "Futures Margin, Mark To Market, Options Margin", output: "Total Margin In Crore", value: (r) => fmtCrore(r.markToMarket.zeroRow.totalRequirementCr) },
       ],
-      edgeCases: ["The spot bump is checked to be zero after every run."],
-      insights: ["The worst case is shown for reference; the funded margin is the 0% row, as the sheet does."],
-      outputs: ["Margin requirement", "Worst case requirement"],
+      edgeCases: ["The spot shock is checked to be zero after every run."],
+      insights: (r) => (r ? [`The funded margin is the 0% row, ${fmtCrore(r.markToMarket.zeroRow.totalRequirementCr)} crore; the worst row is ${fmtPercent(r.markToMarket.worstCase.move, 0)}.`] : ["The worst case is shown for reference; the funded margin is the 0% row."]),
+      outputs: [
+        { label: "Total Margin At 0% In Crore", href: "/margin", value: (r) => fmtCrore(r.markToMarket.zeroRow.totalRequirementCr) },
+        { label: "Worst Case In Crore", href: "/margin", value: (r) => fmtCrore(r.markToMarket.worstCase.totalRequirementCr) },
+      ],
     }),
     mod({
       id: "market",
@@ -293,80 +342,44 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
       subtitle: "Surface, Rates And Dividends",
       accent: "cyan",
       description:
-        "The latest monthly vol surface comes from the desk database; a month without an upload carries the last grid forward with that month's closes on the first session as the 100% anchors. The surface can be edited cell by cell, uploaded or downloaded in the upload layout. Only the forward Pricing Params grid and future dividends are shown, because older rows are never looked up by a live expiry.",
+        "The latest monthly volatility surface comes from the desk database; a month without an upload carries the last grid forward with that month's closes as the 100% anchors. The surface can be edited cell by cell, uploaded or downloaded. The Deep column always equals the 55% column. Only the forward pricing parameters and future dividends are shown.",
       metrics: [
         { label: "Sources", value: "Upload And Yahoo" },
         { label: "Fallback", value: "Built In Surface" },
       ],
       nodes: [
-        { kind: "input", label: "Surface File", description: "Vol Surface, Surface Parameters, Rate Curve and Dividends sheets." },
-        { kind: "lookup", label: "Anchors", description: "Reference prices turn Strike Change columns into rupee strikes." },
+        { kind: "input", label: "Surface File", description: "Volatility Surface, Surface Parameters, Rate Curve and Dividends tabs." },
+        { kind: "lookup", label: "Anchors", description: "Reference prices turn strike % columns into index points." },
         { kind: "output", label: "Active Dataset", description: "One dataset for every run." },
       ],
       formulas: [
-        { name: "Column Strike", words: "Reference price of the underlying times the Strike Change.", source: "Vol Surface strike rows" },
-        { name: "Nifty Dividends", words: "Sensex points times the Nifty over Sensex reference prices.", source: "Pricer B30" },
+        { name: "Column Strike", words: "Reference price of the underlying times the strike %.", inputs: "Reference Price, Strike %", output: "Column Strikes", value: () => "-" },
+        { name: "Nifty Dividends", words: "Sensex points times the Nifty over Sensex reference prices.", inputs: "Dividends, Reference Prices", output: "Dividend Yield", value: (r) => fmtPercent(r.pricer.legs[0]?.dividends, 3) },
       ],
       edgeCases: ["A failed database write still applies an upload to the session and says so.", "Uploads over 4.5 megabytes are refused before sending."],
-      insights: ["Download Surface writes a file that uploads back to the same surface."],
-      outputs: ["Vol surface", "Forward Pricing Params", "Future dividends"],
-    }),
-    mod({
-      id: "params",
-      title: "Surface Parameters",
-      subtitle: "Every Pricing Params Value The Pricer Reads",
-      accent: "purple",
-      description:
-        "Surface Parameters holds each value the Pricer reads from Pricing Params: Bid or Offer, the volatility bump, the incremental and full margins, the margin cost, the Forward Sell Rate, the dividend factor and the two rate caps. Defaults are this month's values; saving writes them to this month in the desk database and to every row of the forward grid. The rate curve is a list of tenors anchored at the valuation date, and linked points follow the Premium Growth Rate.",
-      metrics: [
-        { label: "Saved", value: "Per Month" },
-        { label: "Reset", value: "From The Database" },
-      ],
-      nodes: [
-        { kind: "input", label: "Parameters", description: "Edited in a Parameter and Value table." },
-        { kind: "process", label: "Forward Grid", description: "Scalars written to every row from the valuation month on." },
-        { kind: "output", label: "Pricer Inputs", description: "Rows 28, 29, 30, 33, 34, 38, 39, 43 and 44." },
-      ],
-      formulas: [
-        { name: "Rate Cap While Selling Forward", words: "The last rate curve point.", source: "Pricing Params O2 = MarketData D34 ÷ 100" },
-        { name: "Rate Cap While Buying Forward", words: "Typed, 6.80% by default.", source: "Pricing Params N2" },
-        { name: "Dividend Bid Or Offer Factor", words: "Applied to a Put on Offer and a Call on Bid.", source: "Pricing Params M2" },
-      ],
-      edgeCases: ["Tenors must rise strictly; values must sit between 0% and 100%."],
-      insights: ["The selling cap is shown for completeness; it is read from the curve, not typed."],
-      outputs: ["Bid or Offer", "Rate caps", "Forward grid", "Rate curve"],
+      insights: () => ["Download Current Surface writes a file that uploads back to the same surface."],
+      outputs: [{ label: "Volatility Surface", href: "/market-data", value: (r) => `${r.pricer.legs.length} Legs Read` }],
     }),
     mod({
       id: "export",
       title: "Export",
-      subtitle: "One File, Five Sheets",
+      subtitle: "One File, Five Tabs",
       accent: "gold",
       description:
-        "Download Excel writes the Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge and Mark To Market And Margin sheets from the last run. The tables are the ones on screen, so the headers match: % strikes over real expiry dates in the Pricer. There are no pivots, inputs, market data or helper columns, and every date is a real date.",
+        "Download Excel writes the Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge and Mark To Market And Margin tabs from the last run. The tables are the ones on screen, so the headers match. There are no pivots, inputs, market data or helper columns, and every date is a real date.",
       metrics: [
-        { label: "Sheets", value: "Five" },
+        { label: "Tabs", value: "Five" },
         { label: "Pivots", value: "None" },
       ],
       nodes: [
         { kind: "input", label: "Last Run", description: "The result of the last Run Simulation." },
-        { kind: "process", label: "Desk Styling", description: "Masthead, maroon headers, frozen panes and fitted columns." },
+        { kind: "process", label: "Desk Styling", description: "Masthead, headers, frozen panes and fitted columns." },
         { kind: "output", label: "Simulation File", description: "Named by underlying and valuation date." },
       ],
-      formulas: [{ name: "File Name", words: "SP Hedging Sheet, the underlying and the valuation date.", source: "Export" }],
-      edgeCases: ["Download Excel is disabled until the first run."],
-      insights: ["Download Surface on Market Data is the only other file the desk can fetch."],
-      outputs: ["Hedging Sheet simulation file"],
+      formulas: [{ name: "File Name", words: "Hedging Sheet, the underlying and the valuation date.", inputs: "Underlying, Valuation Date", output: "File Name", value: (r) => `${r.inputs.underlying} ${formatDate(r.inputs.valuationDate)}` }],
+      edgeCases: ["Download Excel is off until the first run."],
+      insights: () => ["Download Current Surface on Market Data is the only other file the desk can fetch."],
+      outputs: [{ label: "Simulation File", href: "/summary", value: () => "Five Tabs" }],
     }),
   ];
 }
-
-export const COMPUTATION_PRIMITIVES: ComputationPrimitive[] = [
-  { name: "Black Price On The Forward", category: "Pricing", uses: "Every leg and every hedge row", role: "Option price from forward, strike, volatility, time and discount." },
-  { name: "Bump And Reprice", category: "Greeks", uses: "Delta, gamma, theta, vega, rho", role: "Finite differences exactly as the sheet takes them." },
-  { name: "Bilinear Surface Read", category: "Market", uses: "Leg and fair volatility", role: "A straight-line forecast across strikes, then linear in days." },
-  { name: "Curve Forecast", category: "Market", uses: "Discount yield, Upper and Lower Forward", role: "Straight line between the bracketing curve dates." },
-  { name: "Nearest Weekday", category: "Schedule", uses: "Every expiry", role: "Snap the raw date to the underlying's expiry day." },
-  { name: "Slope Change", category: "Replication", uses: "Units per strike", role: "Turn the payoff into an option book." },
-  { name: "Brent Goal Seek", category: "Solver", uses: "Actual Inbuilt", role: "Replace Macro2 with a bracketed root find." },
-  { name: "Set, Read, Reset", category: "Stress", uses: "Fifteen moves", role: "Replace the Mark To Market macro without leaving the spot shocked." },
-];

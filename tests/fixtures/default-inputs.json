@@ -25,7 +25,22 @@
       null
     ],
     "floorUnits": 1,
-    "spreadOptionTypes": ["P", "P"],
+    "strikeOptionTypes": [
+      "P",
+      "P",
+      "P",
+      "P",
+      "P",
+      "P"
+    ],
+    "strikeSides": [
+      "S",
+      "B",
+      "B",
+      "S",
+      "B",
+      "B"
+    ],
     "expiryCount": 6,
     "expiryMonths": [
       41,

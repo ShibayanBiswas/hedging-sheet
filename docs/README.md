@@ -12,4 +12,8 @@
 | [08 Changelog](08-changelog.md) | Every round's changes, newest first |
 | [09 Deploy on Vercel](09-vercel-deploy.md) | Environment variables, deploy steps, clearing every cache, and checks |
 | [10 Edge Cases](10-edge-cases.md) | Every validation code, its popup and its fix |
+| [11 Workbook Mapping](11-workbook-mapping.md) | Every formula cell of the reference workbook, its meaning, the code and the test |
+| [12 Pipeline](12-pipeline.md) | Input to engine to tables and Excel, where every default comes from, and what happens when a source fails |
+| [13 Bug Log](13-bug-log.md) | Every defect found this round, its fix and its regression test |
+| [14 Sign Off](14-sign-off.md) | The release: commit, deployment, test counts, before and after |
 | [Database Audit Report](db-audit-report.md) | The inventory before and after the cleanup, the dry run and what was applied |

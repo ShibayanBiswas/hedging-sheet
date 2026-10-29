@@ -32,7 +32,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
           <div className="px-6 py-8">
             {staleInputs ? (
               <p
-                className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-ui text-caption font-bold text-amber-900 dark:text-amber-200"
+                className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/40 px-3 py-1 font-ui text-caption font-bold text-amber-900"
                 data-testid="stale-banner"
               >
                 <AlertTriangle className="icon-xs" aria-hidden />
@@ -40,7 +40,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
               </p>
             ) : null}
             <motion.span
-              className="mx-auto inline-flex rounded-2xl border border-gold/30 bg-gold/10 p-3 text-gold-dark"
+              className="mx-auto inline-flex rounded-2xl border border-gold/30 p-3 text-gold-dark"
               animate={reduce ? undefined : { rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -57,7 +57,6 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
                 <RunSimulationButton compact />
               </div>
               <Link href="/" className="btn-animated btn-motion btn-accent inline-flex flex-1 items-center justify-center gap-2 !py-3" data-testid="go-to-inputs">
-                <span className="btn-shine" aria-hidden />
                 <span className="relative z-10 inline-flex items-center gap-2">
                   <ArrowLeft className="icon-sm" />
                   Go To Inputs
@@ -77,12 +76,12 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
           <motion.div
             key="stale"
             data-testid="stale-banner"
-            className="mb-4 flex w-full flex-col items-start gap-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            className="mb-4 flex w-full flex-col items-start gap-3 rounded-2xl border border-amber-400/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
           >
-            <p className="flex items-center gap-2 font-ui text-body font-semibold text-amber-900 dark:text-amber-200">
+            <p className="flex items-center gap-2 font-ui text-body font-semibold text-amber-900">
               <AlertTriangle className="icon-sm" aria-hidden />
               Inputs Changed · These results use the last run. Run the simulation again to apply the overrides.
             </p>

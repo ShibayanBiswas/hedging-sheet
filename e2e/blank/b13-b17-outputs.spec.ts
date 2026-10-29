@@ -135,7 +135,7 @@ test.describe("B16 Fixed grids", () => {
     expect(rows(mtm, "Move").map((r) => Math.round(r.value * 100) / 100)).toEqual(moves);
     for (const { row } of rows(mtm, "Move")) {
       const v = (c: string) => mtm[`${row}::${c}`]!.value!;
-      expect(Math.abs(v("Futures Margin In Crore") + v("Mark To Market In Crore") + v("Options Margin In Crore") - v("Total Of Futures Margin, Mark To Market And Options Margin"))).toBeLessThan(1e-9);
+      expect(Math.abs(v("Futures Margin In Crore") + v("Mark To Market In Crore") + v("Options Margin In Crore") - v("Total Margin In Crore"))).toBeLessThan(1e-9);
     }
 
     await outputs.vegaHedge.open();

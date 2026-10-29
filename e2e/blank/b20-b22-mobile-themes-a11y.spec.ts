@@ -48,47 +48,29 @@ test.describe("B20 Mobile width, 390 px", () => {
   });
 });
 
-test.describe("B21 Themes", () => {
-  for (const theme of ["light", "dark"] as const) {
-    test(`B21.1 ${theme} theme: the valid fill matches the regression and every output tab passes the table checks`, async ({ page, inputs, nav }, testInfo) => {
-      chromiumOnly(testInfo);
-      await inputs.goto("blank");
-      if (theme === "dark") await nav.themeToggle.click();
-      await fillBlank(inputs);
-      await inputs.run();
-      const ib = Number(await page.locator('[data-testid="table-summary-headline"] [data-cell$="::Actual Inbuilt"]').getAttribute("data-value"));
-      expect(close(ib, regression.mock.blankFill.headline.actualInbuilt)).toBe(true);
-      for (const tab of OUTPUT_TAB_IDS) expect(await tabProblems(page, tab)).toEqual([]);
-    });
+test.describe("B21 White theme", () => {
+  test("B21.1 the valid fill matches the regression and every output tab passes the table checks", async ({ page, inputs }, testInfo) => {
+    chromiumOnly(testInfo);
+    await inputs.goto("blank");
+    await fillBlank(inputs);
+    await inputs.run();
+    const ib = Number(await page.locator('[data-testid="table-summary-headline"] [data-cell$="::Actual Inbuilt"]').getAttribute("data-value"));
+    expect(close(ib, regression.mock.blankFill.headline.actualInbuilt)).toBe(true);
+    for (const tab of OUTPUT_TAB_IDS) expect(await tabProblems(page, tab)).toEqual([]);
+  });
 
-    test(`visual baselines B21.1 ${theme} theme screenshots of every output tab`, async ({ page, inputs, nav }, testInfo) => {
-      chromiumOnly(testInfo);
-      await inputs.goto("blank");
-      if (theme === "dark") await nav.themeToggle.click();
-      await fillBlank(inputs);
-      await inputs.run();
-      for (const tab of OUTPUT_TAB_IDS) {
-        await nav.go(tab);
-        await settle(page);
-        await expect(page).toHaveScreenshot(`b21-${theme}-${tab}.png`, {
-          mask: [page.getByTestId("desk-footer"), page.getByTestId("market-strip")],
-        });
-      }
-    });
-
-    test(`B21.2 ${theme} theme: axe colour contrast passes on every page`, async ({ page, inputs, nav }) => {
-      await inputs.goto("blank");
-      if (theme === "dark") await nav.themeToggle.click();
-      await fillBlank(inputs);
-      await inputs.run();
-      const found: string[] = [];
-      for (const id of TAB_IDS) {
-        await nav.go(id);
-        found.push(...(await axe(page, `${theme} ${id}`, ["color-contrast"])));
-      }
-      expect(found, found.join("\n")).toEqual([]);
-    });
-  }
+  test("B21.2 axe colour contrast passes on every page, and there is no theme toggle", async ({ page, inputs, nav }) => {
+    await inputs.goto("blank");
+    await expect(page.getByTestId("theme-toggle")).toHaveCount(0);
+    await fillBlank(inputs);
+    await inputs.run();
+    const found: string[] = [];
+    for (const id of TAB_IDS) {
+      await nav.go(id);
+      found.push(...(await axe(page, id, ["color-contrast"])));
+    }
+    expect(found, found.join("\n")).toEqual([]);
+  });
 });
 
 test.describe("B22 Accessibility", () => {

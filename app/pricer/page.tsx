@@ -26,7 +26,7 @@ export default function PricerPage() {
                 <TableCard spec={pricerHeadline(r)} />
               </Panel>
               <Panel index={1}>
-                <SectionTitle icon={Calculator} subtitle="The top block of the Pricer sheet, row by row in sheet order.">
+                <SectionTitle icon={Calculator} subtitle="How the mobilisation is split into pots and grown to maturity.">
                   Pot Computation
                 </SectionTitle>
                 <KeyValueCard spec={pricerPotTable(r)} />

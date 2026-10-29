@@ -141,6 +141,7 @@
             "Strike",
             "Strike %",
             "Option Type",
+            "Buy Or Sell",
             "Units",
             "Quantity In Lakh",
             "Average Price",
@@ -154,15 +155,23 @@
           "65,705",
           "64,932",
           "54,110",
-          "-"
+          "Futures Adjustment For Call Strikes",
+          "Total"
         ],
-        "cellCount": 49,
+        "cellCount": 64,
         "notApplicable": [
-          "-::Strike",
-          "-::Strike %",
-          "-::Units",
-          "-::Quantity In Lakh",
-          "-::Average Price"
+          "Futures Adjustment For Call Strikes::Strike",
+          "Futures Adjustment For Call Strikes::Strike %",
+          "Futures Adjustment For Call Strikes::Buy Or Sell",
+          "Futures Adjustment For Call Strikes::Units",
+          "Futures Adjustment For Call Strikes::Quantity In Lakh",
+          "Futures Adjustment For Call Strikes::Average Price",
+          "Total::Strike",
+          "Total::Strike %",
+          "Total::Buy Or Sell",
+          "Total::Units",
+          "Total::Quantity In Lakh",
+          "Total::Average Price"
         ]
       },
       {
@@ -864,7 +873,7 @@
             "Futures Margin In Crore",
             "Mark To Market In Crore",
             "Options Margin In Crore",
-            "Total Of Futures Margin, Mark To Market And Options Margin"
+            "Total Margin In Crore"
           ]
         ],
         "rowLabels": [

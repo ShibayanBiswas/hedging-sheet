@@ -1,5 +1,7 @@
 export type Underlying = "Nifty" | "Sensex";
 export type OptionType = "P" | "C";
+/** Buy or Sell at a strike. */
+export type StrikeSide = "B" | "S";
 export type BidOffer = "B" | "O";
 type DailyVolSource = "calculated" | "overridden" | "fallback";
 
@@ -10,8 +12,6 @@ export type SpreadInput = {
   sell: number;
   /** Participation rate, 1 for 100 percent. */
   participation: number;
-  /** A put spread pays its payout in cash and is built from puts; a call spread is built from calls alone. */
-  optionType: OptionType;
 };
 
 export type HedgeInputs = {
@@ -41,8 +41,10 @@ export type HedgeInputs = {
   participations: Array<number | null>;
   /** Units bought at the floor strike. Slope below the floor is decay minus this. */
   floorUnits: number;
-  /** One per spread, bottom spread first. The protection, outflow and floor legs are always puts. */
-  spreadOptionTypes: OptionType[];
+  /** One per strike, highest first. A call strike carries a futures leg, so the book replicates the same payoff. */
+  strikeOptionTypes: OptionType[];
+  /** One per strike, highest first. It must match the sign of the derived units: Sell below zero, Buy above. */
+  strikeSides: StrikeSide[];
 
   expiryCount: number;
   /** Month numbers. NaN marks a blank field. */
@@ -162,8 +164,8 @@ export type StrikeSlot = {
   strike: number;
   roles: StrikeRole[];
   units: number;
-  /** A strike shared by a put spread and a call spread carries one leg of each type. */
   optionType: OptionType;
+  side: StrikeSide;
 };
 
 export type PricerLeg = OptionPricing & {
@@ -174,6 +176,8 @@ export type PricerLeg = OptionPricing & {
   action: "Buy" | "Sell";
   contracts: number;
   optionValue: number;
+  /** Call strikes only: the futures leg worth contracts × discount × (forward − strike), so the leg values as the put. */
+  futuresAdjustment: number;
   deltaInr: number;
   deltaContracts: number;
   gammaContracts: number;
@@ -244,6 +248,7 @@ export type SummaryLeg = {
   strikePercent: number;
   strike: number;
   optionType: OptionType;
+  side: StrikeSide;
   units: number;
   quantityLakh: number;
   averagePrice: number;
@@ -291,8 +296,8 @@ export type HedgingResult = {
       margin: number;
       deltaLakh: number;
       spreadPayouts: number[];
-      /** The put spreads' payouts, paid in cash at maturity; call spreads pay through their options. */
-      upsideCash: number;
+      /** The futures legs of the call strikes, in rupees; zero for an all-put book. */
+      futuresAdjustment: number;
       protectionLoss: number;
     };
     legs: PricerLeg[];
@@ -313,6 +318,8 @@ export type HedgingResult = {
     rhoWeightedForward: number;
     rhoCr: number;
     legs: SummaryLeg[];
+    /** The futures legs of the call strikes, in crore. */
+    futuresAdjustmentCr: number;
     totalPremiumCr: number;
     hedgeStrike: number;
     hedgeExpiry: string;
@@ -368,6 +375,8 @@ export type HedgingResult = {
   };
   markToMarket: { rows: MarginRow[]; zeroRow: MarginRow; worstCase: MarginRow };
   diagnostics: {
+    /** Milliseconds per engine stage, in order. */
+    timings: Record<string, number>;
     solverIterations: number;
     /** Every goal seek evaluation of the last margin loop pass: the Inbuilt tried and the coupon residual. */
     solverTrace: Array<{ inbuilt: number; residual: number }>;

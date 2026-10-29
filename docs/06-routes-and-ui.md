@@ -2,7 +2,7 @@
 
 ## Shell
 
-- **Header.** Logo, title, the underlying badge, Search with Ctrl K, the theme toggle, Upload Volatility Surface, and Download Excel. Download Excel is enabled after the first run and downloads the last run.
+- **Header.** Logo, title, the underlying badge, Search with Ctrl K, Upload Volatility Surface, and Download Excel. Download Excel is enabled after a run and turns off while the inputs differ from that run. Every surface is plain white.
 - **Strip.** The valuation date, the active surface month and the simulation status: Not Run, Running, Up To Date or Inputs Changed.
 - **Tabs.** One full-width pill bar. The tabs share the width, each with an icon, and the active pill slides between tabs on a spring. From 1024 px every tab is visible; where a font runs wide, a long label takes two lines rather than pushing the bar off screen. Below 1024 px the bar scrolls sideways with faded edges and keeps the active tab in view.
 - **Footer.** Nifty and Sensex closes, Fetched At in IST, the market status (Open, Pre Open, Closed, Holiday or Weekend), the data source, the Mongo status and the desk clock. On phones and short screens it keeps two lines: the closes, then Fetched At and the market status.
@@ -34,7 +34,7 @@
 
 ## Inputs
 
-Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads, Notional And Costs, and Volatility And Margin. Expiries and strikes are one full-width row each: Expiry n with its month number and date, and Strike n with an editable Strike % and an editable Strike Level in rupees. Each spread row holds its Buy Level, Sell Level, Participation Rate, a reset when the top participation is overridden, and its own Option Type, Put or Call. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
+Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads, Notional And Costs, and Volatility And Margin. Expiries and strikes are one full-width row each: Expiry n with its month number and date, and Strike n with Level %, Level In Points, Option Type, Buy Or Sell and Remove. A strike on the wrong side shows its error under the row and turns Run off. A strike can be added at any level between the target and the protection strike. Each spread row holds its Buy Level, Sell Level, Participation Rate and a reset when the top participation is overridden. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
 
 A pill at the top switches between two modes, after a confirm popup that also clears the results:
 
@@ -73,11 +73,11 @@ The payoff chart and scenario table follow the Primary SP Dashboard. The chart h
 
 ## Logic Atlas
 
-Twelve sections: Inputs, Expiries, Strikes and Spreads, Pricer, Solver, Summary, Product Description, Day 1 Vega Hedge, Mark to Market and Margin, Market Data, Surface Parameters and Export.
+Eleven sections: Inputs, Expiries, Strikes And Spreads, Pricer, Solver, Summary, Product Description, Day 1 Vega Hedge, Mark To Market And Margin, Market Data and Export.
 
-- **Section cards.** Each has a 3 to 6 sentence description, a flow diagram with selectable steps, a formulas table (formula, in words, source sheet and row), edge cases, insights and output chips.
-- **Computation Primitives.** A table of the shared building blocks.
-- **Debug Drawer.** Live values from the last run: diagnostics, the inputs, every goal-seek step, per-leg forward, discount yield, volatility and maturities, and the rate curve points used.
+- **Section cards.** Each has a description, a flow diagram with selectable steps, a formulas table with Formula, In Words, Inputs, Output and the value from the last run, edge cases, insights from the run, and outputs with their values and links to the tab.
+- **Debug Drawer.** Live values from the last run: stage timings, the input hash and Copy JSON, diagnostics, the inputs, every goal-seek step, per-leg forward, discount yield, volatility and maturities, and the rate curve points used.
+- **Stale runs.** A run made with other inputs is never shown; the Atlas waits for Run Simulation.
 
 ## Popups
 
