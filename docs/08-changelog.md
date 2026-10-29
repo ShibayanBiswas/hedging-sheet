@@ -17,6 +17,10 @@
 - **Equivalence.** Put-call parity holds on every leg, and a call book has the same delta and vega as the put book. Premium differs by the call spreads' payout discounted at the options' own rates, and Premium plus that discounted payout matches the put book exactly.
 - **Inbuilt.** The option legs settle at the observation expiries, 3.4 to 4.6 years out, while the pots grow premium at the Premium Growth Rate to maturity, 5.3 years out. A call spread pays its part of the coupon at expiry instead of from the pots, so the Inbuilt moves by payout × (1 − discount factor × premium growth) ÷ NBFC growth. On the fixture that is 8.38% for all Put and 3.35% for all Call. The tests assert this formula within 1e-6, not the 0.25% in the brief, as agreed.
 
+### Reduced motion
+
+- **Hidden pages.** With the system set to reduce motion, the page wrapper kept the server's hidden start, opacity 0, so every Inputs and output section was invisible in production. It now always renders the motion wrapper and jumps to the end state; S14 checks every section is visible.
+
 ### Tables and buttons
 
 - **Tables.** Copied from the Primary SP Dashboard DataTable: a `data-table-premium-wrap` box at most min(72 dvh, 780 px), headers 11 px bold upper case with 0.18 em tracking and 14 by 20 px padding, cells 14 px with 12 by 20 px padding, rows white and rgba 250 248 243 0.65, a gold hover and a thin gold scrollbar.

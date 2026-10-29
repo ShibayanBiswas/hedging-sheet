@@ -9,9 +9,9 @@ import { cn } from "@/lib/cn";
 /** Page-level entrance — wrap each route's main content once. */
 export function PageEnter({ children, className }: { children: ReactNode; className?: string }) {
   const reduce = useReducedMotion();
-  if (reduce) return <div className={className}>{children}</div>;
+  // The server cannot know the motion preference and renders the hidden start; the client must still write the end state.
   return (
-    <motion.div className={cn("desk-page-enter", className)} {...pageEnter}>
+    <motion.div className={cn("desk-page-enter", className)} {...pageEnter} transition={reduce ? { duration: 0 } : pageEnter.transition}>
       {children}
     </motion.div>
   );

@@ -65,9 +65,11 @@ test.describe("Strikes, spreads and per spread option type", () => {
   test("S4 a Nifty refetch moves every Strike Level and keeps every Strike %", async ({ page, inputs }) => {
     await inputs.goto();
     const before = await strikeState(page);
+    const sensexSpot = await inputs.field("spot").inputValue();
     await inputs.fill("underlying", "Nifty");
     await inputs.dialog.dismissAll(3_000);
-    await expect(inputs.field("spot")).not.toHaveValue("76835.78", { timeout: 30_000 });
+    await expect(inputs.field("spot")).not.toHaveValue(sensexSpot, { timeout: 30_000 });
+    await expect(inputs.field("spot")).not.toHaveValue("", { timeout: 30_000 });
     await expect.poll(async () => (await strikeState(page)).levels.every((l, i) => l !== before.levels[i])).toBe(true);
     expect((await strikeState(page)).percents).toEqual(before.percents);
   });
@@ -93,14 +95,17 @@ test.describe("Strikes, spreads and per spread option type", () => {
 
   test("S7 all Put matches main, all Call matches the engine, and the payoff at 0% is 0.00% in both", async ({ page, inputs, nav }) => {
     test.setTimeout(180_000);
+    const live = Boolean(process.env.BASE_URL);
     const engine = (types: OptionType[]) => priceLikeTheApp({ ...mockDefaultInputs(), spreadOptionTypes: types });
     const main = { premium: 51.12022123483423, inbuilt: 0.0835573934196645 };
 
     await inputs.goto();
     await inputs.run();
     const put = await readRun(page, nav);
-    expect(close(put.premium, main.premium, 1e-9), `put premium ${put.premium}`).toBe(true);
-    expect(close(put.inbuilt, main.inbuilt, 1e-9), `put inbuilt ${put.inbuilt}`).toBe(true);
+    if (!live) {
+      expect(close(put.premium, main.premium, 1e-9), `put premium ${put.premium}`).toBe(true);
+      expect(close(put.inbuilt, main.inbuilt, 1e-9), `put inbuilt ${put.inbuilt}`).toBe(true);
+    }
     expect(put.zero).toBe("0.00%");
 
     await nav.go("inputs");
@@ -108,10 +113,16 @@ test.describe("Strikes, spreads and per spread option type", () => {
     await inputs.fill("spreadOptionTypes-1", "C");
     await inputs.run();
     const call = await readRun(page, nav);
-    const want = engine(["C", "C"]);
-    expect(close(call.premium, want.pricer.header.premium / 1e7, 1e-9), `call premium ${call.premium}`).toBe(true);
-    expect(close(call.inbuilt, want.summary.actualInbuilt, 1e-9), `call inbuilt ${call.inbuilt}`).toBe(true);
-    expect(want.diagnostics.payoffBookGap).toBeLessThan(1e-6);
+    if (live) {
+      // Live data: the call book loses only the carry between expiry and maturity, never the put units' sign flip of SK5.
+      expect(call.inbuilt, "call Inbuilt below put").toBeLessThan(put.inbuilt);
+      expect(put.inbuilt - call.inbuilt, "call Inbuilt within 10 points of put").toBeLessThan(0.1);
+    } else {
+      const want = engine(["C", "C"]);
+      expect(close(call.premium, want.pricer.header.premium / 1e7, 1e-9), `call premium ${call.premium}`).toBe(true);
+      expect(close(call.inbuilt, want.summary.actualInbuilt, 1e-9), `call inbuilt ${call.inbuilt}`).toBe(true);
+      expect(want.diagnostics.payoffBookGap).toBeLessThan(1e-6);
+    }
     expect(call.zero).toBe("0.00%");
   });
 
@@ -203,6 +214,20 @@ test.describe("Strikes, spreads and per spread option type", () => {
         ).toEqual([]);
       }
     }
+  });
+
+  test("S14 with reduced motion every Inputs section is visible after hydration", async ({ page, inputs }) => {
+    await inputs.goto();
+    const hidden = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<HTMLElement>("main section")).flatMap((s) => {
+        const out: string[] = [];
+        for (let el: HTMLElement | null = s; el && el !== document.body; el = el.parentElement) {
+          if (Number(getComputedStyle(el).opacity) < 1) out.push(`${s.id || "section"} under ${el.className.toString().slice(0, 40)}`);
+        }
+        return out;
+      }),
+    );
+    expect(hidden).toEqual([]);
   });
 
   test("S13 Inputs carry none of the removed jargon", async ({ page, inputs }) => {
