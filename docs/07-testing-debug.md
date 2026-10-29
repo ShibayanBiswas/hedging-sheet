@@ -34,6 +34,7 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run e2e:perf` | Web vitals and the run time on Chromium |
 | `npm run e2e:responsive`, `e2e:responsive:update` | The responsive audit on Chromium, and rewriting its screenshot baselines |
 | `npm run e2e:prod` | The read-only production project; needs `BASE_URL` |
+| `npm run e2e:prod:responsive` | The responsive audit R1 to R7, R9, R10 and R11 against `BASE_URL`, read-only, with the real clock; the screenshots stay local |
 | `npm run lhci` | Lighthouse budgets against the mock server |
 | `npm run test:all` | Typecheck, lint, coverage and every Playwright project: everything except production |
 | `npm run report` | Opens the last Playwright HTML report |

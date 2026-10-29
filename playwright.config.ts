@@ -36,7 +36,11 @@ export default defineConfig({
     locale: "en-IN",
   },
   projects: external
-    ? [{ name: "prod", testMatch: /prod-smoke\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } }]
+    ? [
+        { name: "prod", testMatch: /prod-smoke\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        // Read-only layout checks on live data; the screenshots need the mock data, so R8 stays local.
+        { name: "prod-responsive", testMatch: /responsive[\\/]r(01|09|10|11)[^\\/]*\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+      ]
     : [
         { name: "chromium", testIgnore: /prod-smoke/, use: { ...devices["Desktop Chrome"], ...desktop } },
         { name: "firefox", testIgnore: [/prod-smoke/, ...CHROMIUM_ONLY], use: { ...devices["Desktop Firefox"], ...desktop } },

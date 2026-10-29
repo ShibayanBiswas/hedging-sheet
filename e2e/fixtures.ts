@@ -16,10 +16,13 @@ type DeskFixtures = {
   atlas: LogicAtlasPage;
 };
 
-/** Every spec gets a frozen browser clock, so dates, the market status and the footer clock are fixed. */
+/**
+ * Every spec on the mock server gets a frozen browser clock, so dates, the market status and the footer clock are fixed.
+ * Against a live deployment the clock stays real, to match the server.
+ */
 export const test = base.extend<DeskFixtures>({
   page: async ({ page }, use) => {
-    await page.clock.setFixedTime(new Date(FROZEN_NOW));
+    if (!process.env.BASE_URL) await page.clock.setFixedTime(new Date(FROZEN_NOW));
     await use(page);
   },
   consoleErrors: async ({ page }, use) => {
