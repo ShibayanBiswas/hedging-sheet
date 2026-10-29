@@ -206,7 +206,8 @@ test.describe("Market Data", () => {
     await expect(page.getByTestId("market-status")).toContainText("Saved To Desk Database", { timeout: 30_000 });
     await expect(preview).toHaveCount(0);
     await expect(dialog.root).toHaveCount(0);
-    await expect(marketData.volGrid).toContainText("24-Apr-2031");
+    // Phones show "Apr 31"; the full date is in the title at every width.
+    await expect(marketData.volGrid.locator('td[title="24-Apr-2031"]')).toHaveCount(1);
   });
 
   test("a save asks for the Desk Key, refuses a wrong one, and Cancel saves nothing", async ({ inputs, marketData, page }) => {
