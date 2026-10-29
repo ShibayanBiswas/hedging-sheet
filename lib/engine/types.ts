@@ -10,6 +10,8 @@ export type SpreadInput = {
   sell: number;
   /** Participation rate, 1 for 100 percent. */
   participation: number;
+  /** A put spread pays its payout in cash and is built from puts; a call spread is built from calls alone. */
+  optionType: OptionType;
 };
 
 export type HedgeInputs = {
@@ -39,7 +41,8 @@ export type HedgeInputs = {
   participations: Array<number | null>;
   /** Units bought at the floor strike. Slope below the floor is decay minus this. */
   floorUnits: number;
-  optionType: OptionType;
+  /** One per spread, bottom spread first. The protection, outflow and floor legs are always puts. */
+  spreadOptionTypes: OptionType[];
 
   expiryCount: number;
   /** Month numbers. NaN marks a blank field. */
@@ -159,6 +162,8 @@ export type StrikeSlot = {
   strike: number;
   roles: StrikeRole[];
   units: number;
+  /** A strike shared by a put spread and a call spread carries one leg of each type. */
+  optionType: OptionType;
 };
 
 export type PricerLeg = OptionPricing & {
@@ -286,6 +291,8 @@ export type HedgingResult = {
       margin: number;
       deltaLakh: number;
       spreadPayouts: number[];
+      /** The put spreads' payouts, paid in cash at maturity; call spreads pay through their options. */
+      upsideCash: number;
       protectionLoss: number;
     };
     legs: PricerLeg[];

@@ -1,5 +1,27 @@
 # 08 · Changelog
 
+## Round 9: Strikes, Spreads, Per Spread Option Type, Call Logic, Tables And Glass Buttons
+
+| ID | Before | After |
+|---|---|---|
+| SK1 | Strike and expiry cards in a grid, not full width | One full-width row per strike and per expiry, at least 95% of the panel at 1440 and 390 px |
+| SK2 | Strike % only; the rupee level not shown | Strike % and an editable Strike Level in rupees per row; a typed level sets % = level ÷ start × 100 to 4 decimals; % stays the source, so levels move with the spot and the underlying; "-" with no spot |
+| SK3 | Role labels, Units and Buy or Sell chips, "Units are the change in slope…", the outflow step and ROUNDUP hints, "Spread 1 · Strike 3 To Strike 2", the Maturity Date chip | All removed; units stay in the Pricer; Floor Units is now Decay Reduction Below Floor |
+| SK4 | Participation 12 gave "Maximum Upside 135.76%" with no error | Inline error under the field, "The Spreads Pay 122.00%, Above The Coupon Of 102.50%" on the fixture, Run disabled, no popup |
+| SK5 | Call reused the put units: Inbuilt −75.39%, Premium −₹ 39.25 Cr, NBFC ₹ 142.81 Cr, Delta 10,047 against the put book's 8.65%, ₹ 51.44 Cr, ₹ 56.46 Cr and 17,822 | Each spread takes Put or Call. A call spread buys u calls at its Buy Level and sells u at its Sell Level with no cash term; the downside and the Day 1 Vega Hedge stay puts. The book matches the payoff table within 1e-15 for every mix |
+| SK6 | `col-pinned` sticky first columns in every table | No pinned column anywhere; only the header row is sticky; every table scrolls inside its own box |
+| SK7 | Download Excel: a solid gold gradient from rgb 217 163 59, at opacity 0.5 when off. Active nav pill: a gradient from gold at 0.18 alpha to white. Search: solid white. Selects: a gradient from rgba 255 252 245 0.95 to white | Glass: gold fill at 0.14 alpha, 0.26 on hover, 0.34 pressed (0.16, 0.28, 0.36 in dark), a 0.35 gold border (0.4 in dark), text #5a1420 (#f3e6c4 in dark), blur 10 px with 140% saturation, a 2 px gold focus ring, scale 0.98 when pressed, opacity 0.5 when off |
+
+### Call spreads
+
+- **Equivalence.** Put-call parity holds on every leg, and a call book has the same delta and vega as the put book. Premium differs by the call spreads' payout discounted at the options' own rates, and Premium plus that discounted payout matches the put book exactly.
+- **Inbuilt.** The option legs settle at the observation expiries, 3.4 to 4.6 years out, while the pots grow premium at the Premium Growth Rate to maturity, 5.3 years out. A call spread pays its part of the coupon at expiry instead of from the pots, so the Inbuilt moves by payout × (1 − discount factor × premium growth) ÷ NBFC growth. On the fixture that is 8.38% for all Put and 3.35% for all Call. The tests assert this formula within 1e-6, not the 0.25% in the brief, as agreed.
+
+### Tables and buttons
+
+- **Tables.** Copied from the Primary SP Dashboard DataTable: a `data-table-premium-wrap` box at most min(72 dvh, 780 px), headers 11 px bold upper case with 0.18 em tracking and 14 by 20 px padding, cells 14 px with 12 by 20 px padding, rows white and rgba 250 248 243 0.65, a gold hover and a thin gold scrollbar.
+- **Run Simulation.** A maroon to gold glass at 0.55 and 0.45, 0.7 and 0.6 on hover, with a 0.5 gold border and a larger shadow. White text on that glass over the light page measures about 2 to 1, so the light theme keeps the glass text colour and only the dark theme uses white, to hold 4.5 to 1.
+
 ## Round 8: Market Data
 
 Before: production on 28 Oct 2026. After: the mock server on the same data, Chromium at 1440 by 900, 1024 by 768 and 390 by 844, light and dark.

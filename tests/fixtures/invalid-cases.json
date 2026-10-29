@@ -22,7 +22,7 @@
       "patch": { "floorUnits": 2 },
       "fill": [["input-floorUnits", "2"]],
       "field": "floorUnits",
-      "label": "Floor Units",
+      "label": "Decay Reduction Below Floor",
       "message": "Decay"
     },
     {

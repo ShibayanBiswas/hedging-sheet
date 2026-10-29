@@ -12,12 +12,12 @@
   --text-h2: clamp(1.25rem, calc(1.25rem + 6 * (100vw - 20rem) / 2240), 1.625rem);
   --text-h3: clamp(1.0625rem, calc(1.0625rem + 4 * (100vw - 20rem) / 2240), 1.3125rem);
   --text-body: clamp(0.875rem, calc(0.875rem + 2 * (100vw - 20rem) / 2240), 1rem);
-  --text-table: clamp(0.8125rem, calc(0.8125rem + 2 * (100vw - 20rem) / 2240), 0.9375rem);
-  --text-table-head: clamp(0.75rem, calc(0.75rem + 2 * (100vw - 20rem) / 2240), 0.875rem);
+  /* Primary SP Dashboard tables: 14 px cells under 11 px uppercase headers. */
+  --text-table: 0.875rem;
+  --text-table-head: 0.6875rem;
   --text-caption: clamp(0.75rem, calc(0.75rem + 1 * (100vw - 20rem) / 2240), 0.8125rem);
   --leading-heading: 1.15;
   --leading-body: 1.5;
-  --leading-table: 1.35;
   --leading-caption: 1.4;
   --icon-xs: 0.875rem;
   --icon-sm: 1rem;
@@ -49,10 +49,7 @@
   --ar-table-head-from: #faf8f3;
   --ar-table-head-to: #f5f0e6;
   --ar-table-row: #ffffff;
-  /* Opaque only — translucent fills make sticky Product Name columns bleed scroll. */
-  --ar-table-row-alt: #faf8f3;
-  --ar-table-row-alt-pinned: #faf8f3;
-  --ar-table-row-hover: #f6edd4;
+  --ar-table-row-alt: rgba(250, 248, 243, 0.65);
   --ar-table-row-selected: #f3e8c4;
   --ar-mesh-top: #ffffff;
   --ar-mesh-mid: #f7f7f7;
@@ -90,9 +87,7 @@ html.dark {
   --ar-table-head-from: #1a1612;
   --ar-table-head-to: #14100e;
   --ar-table-row: #110c0e;
-  --ar-table-row-alt: #1a1214;
-  --ar-table-row-alt-pinned: #1a1214;
-  --ar-table-row-hover: #2a2210;
+  --ar-table-row-alt: rgba(26, 18, 20, 0.92);
   --ar-table-row-selected: #33280f;
   --ar-mesh-top: #140e10;
   --ar-mesh-mid: #080605;
@@ -131,7 +126,7 @@ textarea {
     color: var(--ar-ink);
   }
 
-  .bg-mesh a:not([class*="btn"]) {
+  .bg-mesh a:not([class*="btn"]):not(.glass-control) {
     @apply text-maroon underline-offset-2 hover:text-gold-dark;
   }
 
@@ -258,12 +253,6 @@ textarea {
   .chart-tooltip-animated {
     animation: tooltip-pop 0.2s ease-out;
     box-shadow: 0 0 32px rgba(212, 178, 76, 0.2);
-  }
-
-  .btn-nav-active {
-    background: linear-gradient(135deg, rgba(212, 178, 76, 0.18) 0%, var(--ar-surface) 100%);
-    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.2);
-    color: var(--ar-ink);
   }
 
   /* Five Probability KPIs — equal columns across the full viewport width */
@@ -937,76 +926,62 @@ textarea {
     background: color-mix(in srgb, var(--ar-panel) 80%, transparent);
   }
 
-  /* Premium explorer tables — fit cell content, gold-maroon desk styling */
-  .desk-table-scroll {
+  /* Primary SP Dashboard DataTable: every table scrolls inside its own box, so the page never scrolls sideways. */
+  .data-table-premium-wrap {
     @apply rounded-2xl border border-gold/25 shadow-[0_8px_32px_-12px_rgba(122,30,44,0.12)];
     background: var(--ar-surface);
+    isolation: isolate;
+    -webkit-overflow-scrolling: touch;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Contained viewport: every column + every row via both scrollbars */
-  .desk-table-scroll {
-    max-height: min(58dvh, 34rem);
+    max-height: min(72dvh, 780px);
     overflow: auto;
     overscroll-behavior: contain;
-    overflow-anchor: none;
-    scroll-behavior: auto;
-    scrollbar-gutter: stable;
-    scrollbar-width: auto;
-    scrollbar-color: rgba(212, 178, 76, 0.65) rgba(212, 178, 76, 0.12);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 178, 76, 0.45) transparent;
   }
 
-  .desk-table-scroll--book {
-    max-height: min(78dvh, 52rem);
+  .data-table-premium-wrap::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
 
-  .desk-table-scroll::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-    display: block;
+  .data-table-premium-wrap::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  .desk-table-scroll::-webkit-scrollbar-track {
-    background: rgba(212, 178, 76, 0.12);
-    border-radius: 8px;
-  }
-
-  .desk-table-scroll::-webkit-scrollbar-thumb {
-    background: rgba(212, 178, 76, 0.65);
-    border-radius: 8px;
+  .data-table-premium-wrap::-webkit-scrollbar-thumb {
+    background: rgba(212, 178, 76, 0.45);
+    border-radius: 999px;
   }
 
   .data-table-premium {
-    width: 100%;
-    min-width: max(100%, max-content);
+    width: max-content;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
   }
 
-  .data-table-premium.data-table-fill {
-    width: 100%;
-    min-width: 100%;
-  }
-
   .data-table-premium thead th {
-    @apply sticky top-0 z-20 whitespace-nowrap border-b-2 border-gold/30 px-6 py-4 text-left text-caption font-semibold tracking-normal;
+    @apply sticky top-0 z-20 whitespace-nowrap border-b-2 border-gold/30 text-left font-bold uppercase tracking-[0.18em];
+    padding: 0.875rem 1.25rem;
+    font-size: var(--text-table-head);
+    line-height: 1rem;
     background: linear-gradient(180deg, var(--ar-table-head-from) 0%, var(--ar-table-head-to) 100%);
     color: var(--ar-maroon);
     box-shadow: 0 1px 0 rgba(212, 178, 76, 0.35);
   }
-
-  /* Observation schedule — full table body visible (not gold header strip alone) */
 
   .data-table-premium thead th.text-right {
     text-align: right;
   }
 
   .data-table-premium tbody td {
-    @apply whitespace-nowrap border-b border-stone-100 px-6 py-3 text-body text-ink dark:border-stone-800;
-    vertical-align: top;
+    @apply whitespace-nowrap border-b border-stone-100 text-ink dark:border-stone-800;
+    padding: 0.75rem 1.25rem;
+    font-size: var(--text-table);
+    line-height: 1.25rem;
   }
 
   .data-table-premium tbody td.text-right {
@@ -1029,48 +1004,12 @@ textarea {
   }
 
   .data-table-premium tbody tr:hover td {
-    background: var(--ar-table-row-hover);
-  }
-
-  .data-table-premium tbody td.col-pinned,
-  .data-table-premium thead th.col-pinned {
-    position: sticky;
-    left: 0;
-    z-index: 21;
-    background-clip: padding-box;
-    box-shadow: 4px 0 0 0 var(--ar-surface), 6px 0 10px -4px rgba(122, 30, 44, 0.18);
-  }
-
-  .data-table-premium thead th.col-pinned {
-    z-index: 40;
-    background: linear-gradient(180deg, var(--ar-table-head-from) 0%, var(--ar-table-head-to) 100%);
-    color: var(--ar-maroon);
-  }
-
-  .data-table-premium tbody tr.data-table-row-alt td.col-pinned {
-    background: var(--ar-table-row-alt-pinned);
-  }
-
-  .data-table-premium tbody tr:hover td.col-pinned {
-    background: var(--ar-table-row-hover);
-  }
-
-  /* Options Book: expired / display-only marks that do not enter Premium Outflow KPI */
-
-  /* Options Book: an expired row fades its Option Type too (Product Book identity cells stay dark). */
-
-  .vol-grid thead tr:nth-child(2) th {
-    top: 2.65rem;
+    background: rgba(212, 178, 76, 0.1);
   }
 
   .vol-grid thead th,
   .vol-grid tbody td {
     min-width: 4.75rem;
-  }
-
-  .vol-grid thead th.col-pinned,
-  .vol-grid tbody td.col-pinned {
-    min-width: 8.25rem;
   }
 
   .desk-alert {
@@ -1080,39 +1019,17 @@ textarea {
     color: #78350f;
   }
 
+  /* Fill, border and text come from the glass tokens at the end of this file. */
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl border-0 px-6 py-3 text-body font-bold text-white transition;
-    background: linear-gradient(135deg, #d9a33b 0%, #d4b24c 45%, #b8860b 100%);
-    box-shadow: 0 4px 16px -4px rgba(212, 178, 76, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  }
-
-  .btn-primary:hover {
-    @apply text-white;
-    background: linear-gradient(135deg, #e5cf94 0%, #d4b24c 50%, #d9a33b 100%);
-    box-shadow: 0 8px 24px -6px rgba(212, 178, 76, 0.65);
+    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold transition;
   }
 
   .btn-accent {
-    @apply relative overflow-hidden rounded-xl border border-maroon/25 bg-white px-6 py-3 text-body font-bold text-maroon transition;
-    box-shadow: var(--ar-shadow);
-  }
-
-  .btn-accent:hover {
-    @apply border-maroon/40 bg-maroon/5;
+    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold transition;
   }
 
   .btn-ghost {
-    @apply relative overflow-hidden rounded-xl border border-stone-200 bg-white px-4 py-3 text-body font-semibold text-stone-600;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-
-  .btn-ghost:hover {
-    @apply border-gold/50 text-ink;
-    background: rgba(212, 178, 76, 0.06);
-  }
-
-  select.input-glow option {
-    @apply bg-white text-ink;
+    @apply relative overflow-hidden rounded-xl px-4 py-3 text-body font-semibold transition;
   }
 
   .chart-shell {
@@ -1334,15 +1251,8 @@ textarea {
     color: var(--ar-accent);
   }
 
-  html.dark .data-table-premium thead th,
-  html.dark .data-table-premium thead th.col-pinned {
+  html.dark .data-table-premium thead th {
     color: var(--ar-gold-dark);
-  }
-
-  html.dark .btn-nav-active {
-    background: rgba(212, 178, 76, 0.05);
-    box-shadow: none;
-    color: #a8a29e;
   }
 
   html.dark .input-glow {
@@ -1353,43 +1263,6 @@ textarea {
   html.dark .input-glow:focus {
     border-color: rgba(212, 178, 76, 0.24);
     box-shadow: 0 0 0 2px rgba(212, 178, 76, 0.06);
-  }
-
-  html.dark .btn-primary {
-    background: linear-gradient(135deg, #2a2212 0%, #342a16 48%, #221c0e 100%);
-    color: #9a9078;
-    box-shadow: 0 1px 6px -2px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(212, 178, 76, 0.05);
-  }
-
-  html.dark .btn-primary:hover {
-    background: linear-gradient(135deg, #342a16 0%, #3e321a 50%, #2a2212 100%);
-    color: #b0a690;
-    box-shadow: 0 2px 8px -4px rgba(212, 178, 76, 0.08);
-    transform: none;
-  }
-
-  html.dark .btn-accent {
-    background: rgba(10, 8, 9, 0.95);
-    border-color: rgba(120, 110, 95, 0.22);
-    color: #8a8278;
-  }
-
-  html.dark .btn-accent:hover {
-    background: rgba(212, 178, 76, 0.04);
-    border-color: rgba(120, 110, 95, 0.3);
-    color: #a8a090;
-  }
-
-  html.dark .btn-ghost {
-    background: rgba(10, 8, 9, 0.85);
-    border-color: rgba(120, 110, 95, 0.2);
-    color: #a8a29e;
-  }
-
-  html.dark .btn-ghost:hover {
-    border-color: rgba(212, 178, 76, 0.14);
-    color: #d6d3d1;
-    background: rgba(212, 178, 76, 0.03);
   }
 
   html.dark .btn-animated:hover {
@@ -1545,7 +1418,7 @@ textarea {
 }
 
 .btn-motion:active {
-  transform: translateY(0) scale(0.97);
+  transform: scale(0.98);
 }
 
 html.dark .desk-ambient-orb--gold {
@@ -1654,52 +1527,32 @@ html.dark .desk-ambient-orb--maroon {
   }
 
   .data-table-premium tbody tr td {
-    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+    transition: background-color 0.18s ease;
   }
 
-  .data-table-premium tbody tr:hover td {
-    box-shadow:
-      inset 0 1px 0 rgba(212, 178, 76, 0.35),
-      inset 0 -1px 0 rgba(212, 178, 76, 0.35),
-      0 6px 14px -12px rgba(122, 30, 44, 0.45);
-  }
-
-  .data-table-premium tbody tr.hs-row-highlight td,
-  .data-table-premium tbody tr.hs-row-highlight td.col-pinned {
+  .data-table-premium tbody tr.hs-row-highlight td {
     background: var(--ar-table-row-selected);
     font-weight: 700;
   }
 
-  .data-table-premium tbody tr.hs-row-total td,
-  .data-table-premium tbody tr.hs-row-total td.col-pinned {
-    border-top: 2px solid rgba(212, 178, 76, 0.45);
-    font-weight: 700;
+  .data-table-premium tbody tr.hs-row-total td {
+    @apply border-t-2 border-gold/30 font-bold;
   }
 
   .data-table-premium thead tr.hs-group-row th {
     top: 0;
-    font-size: var(--text-table-head);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
     color: var(--ar-gold-dark);
     text-align: center;
     border-bottom: 1px solid rgba(212, 178, 76, 0.35);
   }
 
+  /* The group row is 14 + 16 + 14 px plus its 1 px rule. */
   .data-table-premium.hs-has-groups thead tr.hs-head-row th {
-    top: 2.35rem;
+    top: calc(2.75rem + 1px);
   }
 
   .hs-chip {
-    @apply inline-flex items-center gap-2 rounded-full border px-3 py-1 font-ui text-caption font-semibold tabular-nums;
-    border-color: rgba(212, 178, 76, 0.45);
-    background: color-mix(in srgb, var(--ar-gold) 12%, var(--ar-surface));
-    color: var(--ar-ink);
-  }
-
-  .hs-chip-maroon {
-    border-color: color-mix(in srgb, var(--ar-maroon) 40%, transparent);
-    background: color-mix(in srgb, var(--ar-maroon) 10%, var(--ar-surface));
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 font-ui text-caption font-semibold tabular-nums;
   }
 
   .hs-error {
@@ -1737,8 +1590,7 @@ html.dark .desk-ambient-orb--maroon {
 
   .hs-segment-glow {
     @apply absolute inset-0 rounded-xl;
-    background: linear-gradient(90deg, rgba(212, 178, 76, 0.35), rgba(122, 30, 44, 0.18));
-    box-shadow: 0 6px 18px -10px rgba(122, 30, 44, 0.5);
+    background: var(--glass-fill-pressed);
   }
 
   .hs-heat {
@@ -1781,10 +1633,7 @@ html.dark .desk-ambient-orb--maroon {
   }
 
   .hs-overridden-badge {
-    @apply rounded-full border px-2 py-1 font-ui text-caption font-bold uppercase tracking-wider;
-    border-color: rgba(212, 178, 76, 0.55);
-    background: rgba(212, 178, 76, 0.14);
-    color: var(--ar-gold-dark);
+    @apply rounded-full px-2 py-1 font-ui text-caption font-bold uppercase tracking-wider;
   }
 
   .nav-pill-shell {
@@ -1930,26 +1779,6 @@ li {
 
 svg.lucide {
   stroke-width: 1.75;
-}
-
-/* Tables: headers wrap onto at most two balanced lines, numbers never wrap and line up. */
-.data-table-premium thead th {
-  font-size: var(--text-table-head);
-  font-weight: 600;
-  line-height: var(--leading-table);
-  white-space: normal;
-  text-wrap: balance;
-  vertical-align: bottom;
-}
-
-.data-table-premium tbody td {
-  font-size: var(--text-table);
-  line-height: var(--leading-table);
-}
-
-.data-table-premium tbody td.text-right {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .field-label {
@@ -2122,17 +1951,6 @@ svg.lucide {
   padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }
 
-/* Text cells wrap at a readable width; number and date cells stay on one line. */
-.data-table-premium tbody td:not(.text-right) {
-  white-space: normal;
-  max-width: 60ch;
-  text-wrap: pretty;
-}
-
-.data-table-premium tbody td[data-kind="date"] {
-  white-space: nowrap;
-}
-
 /* Fields on dark: a flat dark box with light text, never the light gradient of the light theme. */
 html.dark .input-glow {
   background: var(--ar-input-bg);
@@ -2157,17 +1975,6 @@ html.dark {
   .md-page .section-pad {
     padding: 1rem;
   }
-}
-
-.md-page .data-table-premium thead th,
-.md-page .data-table-premium tbody td,
-.md-page .data-table-premium tbody th {
-  padding: 0.5rem 0.75rem;
-}
-
-.md-page .data-table-premium tbody td.md-param-label {
-  white-space: nowrap;
-  max-width: none;
 }
 
 .md-page .md-param-value {
@@ -2240,21 +2047,24 @@ html.dark {
   padding: 0.75rem;
 }
 
-/* Label and value pairs share the width and never scroll sideways. */
-.hs-pairs-frame {
-  border: 1px solid rgb(212 178 76 / 0.25);
-}
-
+/* Label and value pairs share the width and never scroll sideways, so their cells wrap. */
 .data-table-premium.hs-pairs {
   table-layout: fixed;
   width: 100%;
   min-width: 0;
 }
 
+.data-table-premium.hs-pairs tbody td {
+  white-space: normal;
+}
+
 .hs-pairs tbody th {
+  padding: 0.75rem 1.25rem;
   font-size: var(--text-table-head);
-  font-weight: 600;
-  line-height: var(--leading-table);
+  font-weight: 700;
+  line-height: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
   text-align: left;
   vertical-align: top;
   color: var(--ar-maroon);
@@ -2275,22 +2085,16 @@ html.dark {
   }
 }
 
-/* The volatility grid: rows 32 px, no striping, the heat colour is the only background. */
-.md-page .vol-grid tbody td {
-  padding-top: 0.375rem;
-  padding-bottom: 0.375rem;
-}
-
+/* The volatility grid: no striping, the heat colour is the only background. */
 .md-page .vol-grid--editing tbody td {
   padding: 0.25rem 0.5rem;
 }
 
 .vol-grid thead tr:first-child th.vol-grid-group {
-  height: 2.25rem;
   text-align: left;
 }
 
-/* The grid scrolls in a box shorter than the window, under its sticky header and beside its pinned column. */
+/* The grid scrolls in a box shorter than the window, under its sticky header. */
 .md-page .vol-grid-box {
   max-height: min(60dvh, 26rem);
 }
@@ -2300,8 +2104,9 @@ html.dark {
   max-height: min(50dvh, 22rem);
 }
 
+/* The first header row is 14 + 16 + 14 px plus its 2 px rule. */
 .vol-grid thead tr:nth-child(2) th {
-  top: 2.25rem;
+  top: calc(2.75rem + 2px);
 }
 
 .vol-grid tbody tr td {
@@ -2312,11 +2117,6 @@ html.dark {
   font-weight: 600;
   color: var(--ar-maroon);
   background-color: var(--ar-panel);
-}
-
-.vol-grid tr.vol-grid-label td span {
-  position: sticky;
-  left: 0.75rem;
 }
 
 .vol-grid td.vol-grid-note {
@@ -2391,12 +2191,130 @@ html.dark .vol-grid td.vol-grid-note--error {
   background: linear-gradient(90deg, rgb(var(--heat-rgb) / 0.05), rgb(var(--heat-rgb) / 0.45));
 }
 
-/* Phones: a narrow pinned column, so the volatilities get the width. */
-@media (max-width: 639px) {
-  .vol-grid thead th.col-pinned,
-  .vol-grid tbody td.col-pinned {
-    min-width: 0;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
+/* ------------------------------------------------------------------ Glass controls */
+:root {
+  --glass-fill: rgba(212, 178, 76, 0.14);
+  --glass-fill-hover: rgba(212, 178, 76, 0.26);
+  --glass-fill-pressed: rgba(212, 178, 76, 0.34);
+  --glass-border: rgba(212, 178, 76, 0.35);
+  --glass-text: #5a1420;
+  /* Over the 0.14 fill this makes the 0.34 pressed fill. */
+  --glass-pill: rgba(212, 178, 76, 0.23);
+}
+
+html.dark {
+  --glass-fill: rgba(212, 178, 76, 0.16);
+  --glass-fill-hover: rgba(212, 178, 76, 0.28);
+  --glass-fill-pressed: rgba(212, 178, 76, 0.36);
+  --glass-border: rgba(212, 178, 76, 0.4);
+  --glass-text: #f3e6c4;
+  --glass-pill: rgba(212, 178, 76, 0.24);
+}
+
+.btn-primary,
+.btn-accent,
+.btn-ghost,
+.glass-control,
+.glass-select,
+.hs-segment button,
+.hs-chip,
+.hs-overridden-badge {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--glass-text);
+  box-shadow: none;
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-accent:hover:not(:disabled),
+.btn-ghost:hover:not(:disabled),
+.glass-control:hover,
+.glass-select:hover:not(:disabled),
+.hs-segment button:hover,
+.hs-overridden-badge:hover {
+  background: var(--glass-fill-hover);
+  color: var(--glass-text);
+}
+
+.btn-primary:active:not(:disabled),
+.btn-accent:active:not(:disabled),
+.btn-ghost:active:not(:disabled),
+.glass-control:active,
+.hs-segment button:active,
+.hs-overridden-badge:active {
+  background: var(--glass-fill-pressed);
+  transform: scale(0.98);
+}
+
+.btn-primary:focus-visible,
+.btn-accent:focus-visible,
+.btn-ghost:focus-visible,
+.glass-control:focus-visible,
+.glass-select:focus-visible,
+.hs-segment button:focus-visible,
+.hs-overridden-badge:focus-visible {
+  outline: 2px solid rgba(212, 178, 76, 0.7);
+  outline-offset: 2px;
+}
+
+.btn-primary:disabled,
+.btn-accent:disabled,
+.btn-ghost:disabled,
+.glass-control:disabled,
+.glass-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The current tab or mode: the pressed fill slides under the label. */
+.glass-active-pill {
+  background: var(--glass-pill);
+  border-radius: inherit;
+}
+
+.hs-chip-maroon {
+  border-color: rgba(122, 30, 44, 0.4);
+}
+
+html.dark .hs-chip-maroon {
+  border-color: rgba(201, 168, 130, 0.5);
+}
+
+.glass-select {
+  outline: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-select--empty {
+  color: var(--ar-muted);
+}
+
+.glass-select[aria-invalid="true"] {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2px rgb(244 63 94 / 0.45);
+}
+
+.glass-select option {
+  background: var(--ar-surface);
+  color: var(--ar-ink);
+}
+
+/* Run Simulation stays the most prominent control: a maroon to gold glass, a stronger border and a larger shadow. */
+.btn-primary.hs-run-btn {
+  background: linear-gradient(135deg, rgba(122, 30, 44, 0.55) 0%, rgba(212, 178, 76, 0.45) 100%);
+  border: 1px solid rgba(212, 178, 76, 0.5);
+  box-shadow: 0 14px 36px -14px rgba(122, 30, 44, 0.6);
+  /* White on this glass over the light page is about 2 to 1, so light keeps the glass text for 4.5 to 1. */
+  color: var(--glass-text);
+}
+
+html.dark .btn-primary.hs-run-btn {
+  color: #ffffff;
+}
+
+.btn-primary.hs-run-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(122, 30, 44, 0.7) 0%, rgba(212, 178, 76, 0.6) 100%);
+  box-shadow: 0 18px 44px -14px rgba(122, 30, 44, 0.7);
 }

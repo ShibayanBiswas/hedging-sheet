@@ -8,18 +8,13 @@ import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { deskEase } from "@/lib/motion";
 import { cellKey, displayCell, gridColumnLabel, tableRowLabel, type CellKind, type CellValue, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
-/** A header at least half its text wide, so it wraps onto at most two balanced lines and is never cut. */
-export function headStyle(label: string): { minWidth: string } {
-  return { minWidth: `${Math.ceil(label.length / 2) + 2}ch` };
-}
-
 /** Raw number behind a cell, for tests that compare values beyond the shown digits. */
 function rawValue(value: CellValue): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-/** Primary dynamic-table frame: maroon band, horizontal scroll, animated reveal, full width. */
-function TableFrame({ children, testId, title, note, book }: { children: ReactNode; testId: string; title: string; note?: string; book?: boolean }) {
+/** The Primary SP Dashboard DataTable frame: the table scrolls inside it both ways, with an animated reveal. */
+function TableFrame({ children, testId, title, note }: { children: ReactNode; testId: string; title: string; note?: string }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -29,9 +24,8 @@ function TableFrame({ children, testId, title, note, book }: { children: ReactNo
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: deskEase }}
     >
-      <div className="overflow-hidden rounded-2xl">
-        <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className={cn("desk-table-scroll horizontal-rail !rounded-t-none", book && "desk-table-scroll--book")} tabIndex={0} role="region" aria-label={title}>
+      <div className="relative min-w-0">
+        <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label={title}>
           {children}
         </div>
       </div>
@@ -43,11 +37,11 @@ function TableFrame({ children, testId, title, note, book }: { children: ReactNo
 /** Numbers are right aligned; text and dates are left aligned. */
 const rightAligned = (kind: CellKind) => kind !== "text" && kind !== "date";
 
-function Cell({ value, kind, digits, pinned, cell }: { value: CellValue; kind: CellKind; digits?: number; pinned?: boolean; cell: string }) {
+function Cell({ value, kind, digits, label, cell }: { value: CellValue; kind: CellKind; digits?: number; label?: boolean; cell: string }) {
   const d = displayCell(value, kind, digits);
   return (
     <td
-      className={cn(rightAligned(kind) && "text-right", pinned && "col-pinned font-semibold")}
+      className={cn(rightAligned(kind) && "text-right", label && "font-semibold")}
       title={d.title}
       data-cell={cell}
       data-value={rawValue(value)}
@@ -69,8 +63,7 @@ export function PairsTable({ items, testId, title }: { items: PairItem[]; testId
   const perRow = wide ? 4 : 2;
   const rows = Array.from({ length: Math.ceil(items.length / perRow) }, (_, r) => items.slice(r * perRow, r * perRow + perRow));
   return (
-    <div className="hs-pairs-frame w-full min-w-0 overflow-hidden rounded-2xl" data-testid={testId} role="region" aria-label={title}>
-      <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
+    <div className="data-table-premium-wrap" data-testid={testId} role="region" aria-label={title}>
       <table className="data-table-premium hs-pairs">
         <colgroup>
           {Array.from({ length: perRow }, (_, i) => (
@@ -111,14 +104,14 @@ export function PairsTable({ items, testId, title }: { items: PairItem[]; testId
   );
 }
 
-export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; pinFirst?: boolean; testId?: string }) {
+export function TableCard({ spec, testId }: { spec: TableSpec; testId?: string }) {
   return (
     <TableFrame testId={testId ?? `table-${spec.id}`} title={spec.title} note={spec.note}>
-      <table className="data-table-premium data-table-fill">
+      <table className="data-table-premium min-w-full">
         <thead>
           <tr className="hs-head-row">
-            {spec.columns.map((c, i) => (
-              <th key={c.key} className={cn(rightAligned(c.kind) && "text-right", i === 0 && pinFirst && "col-pinned")} style={headStyle(c.label)}>
+            {spec.columns.map((c) => (
+              <th key={c.key} className={cn(rightAligned(c.kind) && "text-right")}>
                 {c.label}
               </th>
             ))}
@@ -134,7 +127,7 @@ export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; 
                 className={cn(r % 2 === 1 && "data-table-row-alt", spec.highlightRow === r && "hs-row-highlight", spec.totalRow === r && "hs-row-total")}
               >
                 {spec.columns.map((c, i) => (
-                  <Cell key={c.key} value={row[c.key] ?? null} kind={c.kind} digits={c.digits} pinned={i === 0 && pinFirst} cell={cellKey(label, c.label)} />
+                  <Cell key={c.key} value={row[c.key] ?? null} kind={c.kind} digits={c.digits} label={i === 0} cell={cellKey(label, c.label)} />
                 ))}
               </tr>
             );
@@ -158,12 +151,12 @@ export function KeyValueCard({ spec }: { spec: KeyValueSpec }) {
   const grouped = Array.from({ length: rows }, (_, r) => Array.from({ length: columns }, (_, c) => spec.items[c * rows + r]));
   return (
     <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note}>
-      <table className="data-table-premium data-table-fill">
+      <table className="data-table-premium min-w-full">
         <thead>
           <tr>
             {Array.from({ length: columns }, (_, c) => (
               <Fragment key={c}>
-                <th className={cn(c === 0 && "col-pinned")}>Item</th>
+                <th>Item</th>
                 <th className="text-right">Value</th>
               </Fragment>
             ))}
@@ -177,7 +170,7 @@ export function KeyValueCard({ spec }: { spec: KeyValueSpec }) {
                 const d = displayCell(item.value, item.kind, item.digits);
                 return (
                   <Fragment key={item.label}>
-                    <td className={cn("font-semibold", c === 0 && "col-pinned")} data-cell={cellKey(item.label, "Item")}>
+                    <td className="font-semibold" data-cell={cellKey(item.label, "Item")}>
                       {item.label}
                     </td>
                     <td className="text-right" title={d.title} data-cell={cellKey(item.label, "Value")} data-value={rawValue(item.value)}>
@@ -203,11 +196,11 @@ export type GridEdit = {
 
 export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
   return (
-    <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note} book>
-      <table className="data-table-premium hs-has-groups">
+    <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note}>
+      <table className="data-table-premium hs-has-groups min-w-full">
         <thead>
           <tr className="hs-group-row">
-            <th className="col-pinned">{spec.corner[0]}</th>
+            <th>{spec.corner[0]}</th>
             {spec.groups.map((g) => (
               <th key={g.label} colSpan={g.span} className="hs-strike-band">
                 {g.label}
@@ -215,7 +208,7 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
             ))}
           </tr>
           <tr className="hs-head-row">
-            <th className="col-pinned">{spec.corner[1]}</th>
+            <th>{spec.corner[1]}</th>
             {spec.columnLabels.map((label, i) => (
               <th key={i} className="text-right">
                 {label}
@@ -228,7 +221,7 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
             const editable = edit && row.label === edit.rowLabel && spec.columnKeys;
             return (
               <tr key={row.label} data-row={row.label} className={cn(r % 2 === 1 && "data-table-row-alt")}>
-                <td className="col-pinned font-semibold" data-cell={cellKey(row.label, spec.corner[1])}>
+                <td className="font-semibold" data-cell={cellKey(row.label, spec.corner[1])}>
                   {row.label}
                 </td>
                 {row.values.map((v, i) => {

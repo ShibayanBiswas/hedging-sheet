@@ -22,7 +22,7 @@ export function heatAlpha(value: number, min: number, max: number): number {
 
 const heat = (alpha: number) => (alpha > 0 ? `rgb(var(--heat-rgb) / ${alpha.toFixed(3)})` : undefined);
 
-/** "Jun 26" on phones, so the pinned column stays narrow. */
+/** "Jun 26" on phones, so the Expiry column stays narrow. */
 function shortDate(ymd: string): string {
   const [y, m] = ymd.slice(0, 10).split("-");
   return `${MONTHS[Number(m) - 1] ?? ""} ${y?.slice(2) ?? ""}`;
@@ -81,11 +81,11 @@ export function VolSurfaceGrid({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="desk-table-scroll desk-table-scroll--book vol-grid-box w-full" data-testid={testId} tabIndex={0} role="region" aria-label="Volatility Surface">
-        <table className={cn("data-table-premium data-table-fill vol-grid", editing && "vol-grid--editing")}>
+      <div className="data-table-premium-wrap desk-table-scroll vol-grid-box" data-testid={testId} tabIndex={0} role="region" aria-label="Volatility Surface">
+        <table className={cn("data-table-premium vol-grid min-w-full", editing && "vol-grid--editing")}>
           <thead>
             <tr>
-              <th className="col-pinned" rowSpan={2} scope="col">
+              <th rowSpan={2} scope="col">
                 Expiry
               </th>
               <th className="vol-grid-group text-center" colSpan={span - 1} scope="colgroup">
@@ -136,7 +136,7 @@ export function VolSurfaceGrid({
                   const ref = referencePriceForUnderlying(surface, u);
                   return (
                     <tr key={u} data-testid={`strike-row-${u.toLowerCase()}`}>
-                      <td className="col-pinned font-semibold">{u} Strikes</td>
+                      <td className="font-semibold">{u} Strikes</td>
                       <td className="text-right" data-kind="number" data-testid={`deep-strike-${u.toLowerCase()}`}>
                         {deep}
                       </td>
@@ -155,7 +155,7 @@ export function VolSurfaceGrid({
                 </tr>
                 {rows.map(({ expiry, r }) => (
                   <tr key={expiry}>
-                    <td className="col-pinned font-semibold" data-kind="date" title={formatDate(expiry)}>
+                    <td className="font-semibold" data-kind="date" title={formatDate(expiry)}>
                       {phone ? shortDate(expiry) : formatDate(expiry)}
                     </td>
                     {(editing ? (draft[r] ?? []) : (surface.volsPercent[r] ?? [])).map((v, c) => {

@@ -7,6 +7,12 @@ function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
 }
 
+/** "Put" or "Call" when every spread agrees, otherwise each spread: "Spread 1 Call, Spread 2 Put". */
+export function spreadTypesLabel(types: OptionType[]): string {
+  if (types.every((t) => t === types[0])) return optionTypeLabel(types[0] ?? "P");
+  return types.map((t, j) => `Spread ${j + 1} ${optionTypeLabel(t)}`).join(", ");
+}
+
 /** How a value is shown on screen and written to Excel. */
 export type CellKind = "crore" | "rupee" | "percent" | "number" | "integer" | "date" | "text" | "greek";
 
@@ -341,7 +347,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         {
           strike: s.hedgeStrike,
           expiry: s.hedgeExpiry,
-          option: optionTypeLabel(i.optionType),
+          option: optionTypeLabel(r.dayOneVegaHedge.fair[0]?.optionType ?? "P"),
           quantity: s.hedgeQuantityLakh,
           price: s.hedgePrice,
           premium: s.hedgePremiumCr,
@@ -522,7 +528,7 @@ function termSheet(r: HedgingResult): KeyValueSpec {
     { label: "Capital Protection", value: `Down To ${fmtPercent(-terms.protection, 0)}`, kind: "text" },
     { label: "Downside Decay", value: `${fmtNumber(i.decay, 2)} Times Below Protection`, kind: "text" },
     { label: "Decay Floor", value: `${fmtPercent(terms.floorLevel, 0)} Of Start Level`, kind: "text" },
-    { label: "Option Type", value: optionTypeLabel(i.optionType), kind: "text" },
+    { label: "Option Type", value: spreadTypesLabel(i.spreadOptionTypes), kind: "text" },
     { label: "Observation Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
     { label: "Client Internal Rate Of Return", value: r.productDescription.irr, kind: "percent" },
   );
@@ -633,7 +639,7 @@ export function vegaHedgeInputs(r: HedgingResult): KeyValueSpec {
       { label: `${u} Spot`, value: i.spot, kind: "number" },
       { label: "Hedge Strike", value: i.hedgeStrike, kind: "number", digits: 0 },
       { label: "Option Expiry", value: r.summary.hedgeExpiry, kind: "date" },
-      { label: "Option Type", value: optionTypeLabel(i.optionType), kind: "text" },
+      { label: "Option Type", value: optionTypeLabel(fair?.optionType ?? "P"), kind: "text" },
       { label: fair?.volOverridden ? "Fair Volatility · Overridden" : "Fair Volatility · Surface", value: fair?.volatility ?? null, kind: "percent" },
       { label: `${u} Daily Volatility`, value: i.dailyVol, kind: "percent", digits: 3 },
       { label: `${u} Annual Volatility`, value: r.summary.annualVol, kind: "percent" },

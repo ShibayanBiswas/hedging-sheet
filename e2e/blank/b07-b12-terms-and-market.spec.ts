@@ -91,7 +91,7 @@ test.describe("B7 Spreads", () => {
 });
 
 test.describe("B8 Option Type", () => {
-  test("B8.1 and B8.2 every Option Type cell follows the choice, and a call book prices differently", async ({ page, inputs, nav }, testInfo) => {
+  test("B8.1 and B8.2 each spread takes its own Option Type, the downside and hedge stay puts, and a call book prices differently", async ({ page, inputs, nav }, testInfo) => {
     chromiumOnly(testInfo);
     test.setTimeout(180_000);
     await fillBlank(inputs);
@@ -103,13 +103,20 @@ test.describe("B8 Option Type", () => {
     const putPremium = await pricerPremium(page);
 
     await nav.go("inputs");
-    await inputs.fill("optionType", "C");
+    await inputs.fill("spreadOptionTypes-0", "C");
+    await inputs.fill("spreadOptionTypes-1", "C");
     await inputs.run();
     const calls = await optionTypeCells(page, nav);
     expect(calls.length).toBe(puts.length);
-    expect(new Set(calls)).toEqual(new Set(["Call"]));
+    expect(new Set(calls)).toEqual(new Set(["Call", "Put"]));
     await nav.go("pricer");
     expect(await pricerPremium(page)).not.toBeCloseTo(putPremium, 6);
+
+    await nav.go("inputs");
+    await inputs.fill("spreadOptionTypes-1", "P");
+    await inputs.run();
+    await nav.go("product");
+    await expect(page.locator('[data-cell="Option Type::Value"]').first()).toHaveText("Spread 1 Call, Spread 2 Put");
   });
 });
 
@@ -156,10 +163,10 @@ test.describe("B10 Protection and floor", () => {
     await expect(inputs.field("strikePercents-5")).toHaveAttribute("aria-invalid", "true");
   });
 
-  test("B10.3 floor units above the Decay are rejected", async ({ inputs }) => {
+  test("B10.3 a Decay Reduction Below Floor above the Decay is rejected", async ({ inputs }) => {
     await inputs.fill("floorUnits", "2");
     await inputs.dialog.expectTitle("Please Fix This Input");
-    await expect(inputs.dialog.root).toContainText("exceed the Decay");
+    await expect(inputs.dialog.root).toContainText("A Decay Reduction Below Floor of 2 exceeds the Decay of 1.6");
     await inputs.dialog.close();
     await expect(inputs.field("floorUnits")).toHaveAttribute("aria-invalid", "true");
   });

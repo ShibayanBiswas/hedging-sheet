@@ -9,7 +9,9 @@ import { deskEase } from "@/lib/motion";
 
 /** Gradient run button with a step progress state, in the Primary and Unwinding run style. */
 export function RunSimulationButton({ className, compact, onDone }: { className?: string; compact?: boolean; onDone?: () => void }) {
-  const { simulation, runSimulation, lastRun, stale } = useDesk();
+  const { simulation, runSimulation, lastRun, stale, fieldErrors } = useDesk();
+  // Shown inline under the participation; Run stays off until it is fixed.
+  const blocked = fieldErrors.some((e) => e.code === "coupon-exceeded");
   const reduce = useReducedMotion();
   const running = simulation.running;
   const label = running ? SIMULATION_STEPS[Math.max(0, simulation.step)] : lastRun && !stale ? "Run Simulation Again" : "Run Simulation";
@@ -19,7 +21,7 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
     <motion.button
       type="button"
       data-testid={compact ? "run-simulation-compact" : "run-simulation"}
-      disabled={running}
+      disabled={running || blocked}
       onClick={async () => {
         const ok = await runSimulation();
         if (ok) onDone?.();
@@ -28,7 +30,7 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
       whileTap={reduce || running ? undefined : { scale: 0.985 }}
       transition={{ type: "spring", stiffness: 420, damping: 28 }}
       className={cn(
-        "btn-animated btn-motion btn-primary relative w-full overflow-hidden",
+        "btn-animated btn-motion btn-primary hs-run-btn relative w-full overflow-hidden",
         compact ? "!py-3" : "!py-4 text-body",
         running && "cursor-wait",
         className,

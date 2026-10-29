@@ -34,8 +34,7 @@ export function InputModeSwitch() {
             tabIndex={active ? 0 : -1}
             data-testid={`mode-${m.id}`}
             className={cn(
-              "relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-3 py-3 text-center transition-colors",
-              active ? "text-white" : "text-muted hover:bg-[color:var(--ar-panel)] hover:text-ink",
+              "glass-control relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-3 py-3 text-center transition-colors",
             )}
             whileTap={reduce ? undefined : { scale: 0.97 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
@@ -43,7 +42,7 @@ export function InputModeSwitch() {
           >
             {active ? (
               <motion.span
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-gold-dark via-[#9a4a2a] to-maroon shadow-lg shadow-maroon/20"
+                className="glass-active-pill absolute inset-0 rounded-xl"
                 layoutId={reduce ? undefined : "input-mode-active"}
                 transition={{ type: "spring", stiffness: 420, damping: 28 }}
                 data-testid="mode-active"
@@ -53,7 +52,7 @@ export function InputModeSwitch() {
               <Icon className="icon-nav" aria-hidden />
               {m.label}
             </span>
-            <span data-desc className={cn("relative hidden font-ui text-caption sm:block", active ? "text-white/85" : "text-muted")}>
+            <span data-desc className="relative hidden font-ui text-caption sm:block">
               {m.subtitle}
             </span>
           </motion.button>

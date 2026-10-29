@@ -10,21 +10,26 @@ test.use({ reducedMotion: "reduce" });
 
 const TODAY = "2026-10-28";
 const filled = blankFillInputs();
-const SELECTS = new Set(["underlying", "optionType", "expiryCount"]);
+const SELECTS = new Set(["underlying", "spreadOptionTypes.0", "spreadOptionTypes.1", "expiryCount"]);
 
 test.describe("B1 Empty state", () => {
   test("B1.1 every input is empty and every field shows a placeholder", async ({ inputs, page }) => {
     await inputs.goto("blank");
     // The Number Of Spreads stepper keeps its count of 2 so the six strike boxes can render; it is a control, not a value.
-    const fields = page.locator('main input[data-testid^="input-"]:not([type="checkbox"]):not([data-testid="input-spreadCount-input"])');
+    const fields = page.locator('main input[data-testid^="input-"]:not([type="checkbox"]):not([data-testid="input-spreadCount-input"]):not([disabled])');
+    // With no spot there is no start level, so each Strike Level is off and shows "-".
+    for (const level of await page.locator('[data-testid^="input-strikeLevel-"]').all()) {
+      await expect(level).toBeDisabled();
+      await expect(level).toHaveAttribute("placeholder", "-");
+    }
     expect(await fields.count()).toBeGreaterThan(30);
     const report = await fields.evaluateAll((els) =>
       els.map((e) => ({ id: (e as HTMLInputElement).dataset.testid, value: (e as HTMLInputElement).value, placeholder: (e as HTMLInputElement).placeholder })),
     );
     expect(report.filter((r) => r.value !== "")).toEqual([]);
     expect(report.filter((r) => !/^Eg /.test(r.placeholder))).toEqual([]);
-    for (const id of ["underlying", "optionType", "expiryCount"]) {
-      await expect(inputs.field(id).locator("option:checked")).toHaveText(/^Select/);
+    for (const field of SELECTS) {
+      await expect(page.getByTestId(fieldTestId(field)).locator("option:checked")).toHaveText(/^Select/);
     }
   });
 
@@ -84,14 +89,14 @@ test.describe("B2 One required field missing", () => {
   for (const select of SELECTS) {
     test(`B2.1 ${select} left unselected is the only field listed`, async ({ inputs, page }, testInfo) => {
       chromiumOnly(testInfo);
-      await fillBlank(inputs, [`input-${select}`]);
+      await fillBlank(inputs, [fieldTestId(select)]);
       await inputs.runButton.click();
       await inputs.dialog.expectTitle("Missing Or Invalid Inputs");
       const items = await dialogItems(page);
       expect(items).toHaveLength(1);
       expect(items[0]).toMatch(re(required.find((r) => r.field === select)!.label));
       await inputs.dialog.close();
-      await expect(inputs.field(select)).toHaveAttribute("aria-invalid", "true");
+      await expect(page.getByTestId(fieldTestId(select))).toHaveAttribute("aria-invalid", "true");
       await expectNotRun(page);
     });
   }

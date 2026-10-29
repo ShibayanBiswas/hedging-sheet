@@ -69,7 +69,7 @@ describe("Inputs modes", () => {
       expect(input.placeholder, id).toMatch(/^Eg /);
     }
     expect((screen.getByTestId("input-underlying") as HTMLSelectElement).value).toBe("");
-    expect((screen.getByTestId("input-optionType") as HTMLSelectElement).value).toBe("");
+    for (const j of [0, 1]) expect((screen.getByTestId(`input-spreadOptionTypes-${j}`) as HTMLSelectElement).value).toBe("");
     // No expiry count yet, so no month rows are asked for. Their exit animation is checked in the browser tests.
     expect((screen.getByTestId("input-expiryCount") as HTMLSelectElement).value).toBe("");
     expect(screen.getByTestId("fetch-live-spot")).toBeInTheDocument();

@@ -5,7 +5,8 @@ import { DeskDialog } from "./desk-dialog";
 export type InputMode = "default" | "blank";
 
 /** Test ids of the fields rendered as select elements. */
-const SELECTS = new Set(["input-underlying", "input-optionType", "input-expiryCount", "input-hedgeExpiryIndex"]);
+const SELECTS = new Set(["input-underlying", "input-expiryCount", "input-hedgeExpiryIndex"]);
+const isSelect = (id: string) => SELECTS.has(id) || id.startsWith("input-spreadOptionTypes-");
 
 /** The Inputs page: mode switch, every field by `input-<key>`, Run Simulation and its validation popup. */
 export class InputsPage {
@@ -50,7 +51,7 @@ export class InputsPage {
   async fill(testId: string, value: string) {
     const id = testId.startsWith("input-") ? testId : `input-${testId}`;
     const el = this.page.getByTestId(id);
-    if (SELECTS.has(id)) {
+    if (isSelect(id)) {
       await el.selectOption(value);
       return;
     }

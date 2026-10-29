@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, Download, FileSpreadsheet, Gauge, History, Pencil, Plus, RefreshCw, RotateCcw, Save, SlidersHorizontal, Trash2, TrendingDown, Upload, X } from "lucide-react";
 
 import { VolSurfaceGrid } from "@/components/market/vol-surface-grid";
-import { headStyle, PairsTable, TableCard } from "@/components/ui/desk-table";
+import { PairsTable, TableCard } from "@/components/ui/desk-table";
 import { NumberInput, Segmented } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
@@ -236,13 +236,12 @@ function SurfaceParamsEditor() {
       </SectionTitle>
       <StatusRow status={status} testId="params-status" />
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="min-w-0 overflow-hidden rounded-2xl">
-          <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-          <div className="desk-table-scroll horizontal-rail !rounded-t-none" tabIndex={0} role="region" aria-label="Surface Parameters">
-            <table className="data-table-premium data-table-fill" data-testid="surface-params-table">
+        <div className="relative min-w-0">
+          <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label="Surface Parameters">
+            <table className="data-table-premium min-w-full" data-testid="surface-params-table">
               <thead>
                 <tr>
-                  <th className="col-pinned">Parameter</th>
+                  <th>Parameter</th>
                   <th>Value</th>
                   <th>Used In</th>
                 </tr>
@@ -250,7 +249,7 @@ function SurfaceParamsEditor() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.label}>
-                    <td className="col-pinned md-param-label font-semibold">{row.label}</td>
+                    <td className="md-param-label font-semibold">{row.label}</td>
                     <td className="md-param-value">{row.value}</td>
                     <td className="font-ui text-muted">{row.note ?? "-"}</td>
                   </tr>
@@ -260,15 +259,14 @@ function SurfaceParamsEditor() {
           </div>
         </div>
         <div className="min-w-0">
-          <div className="overflow-hidden rounded-2xl">
-            <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-            <div className="desk-table-scroll horizontal-rail !rounded-t-none" tabIndex={0} role="region" aria-label="Rate Curve Points">
-              <table className="data-table-premium data-table-fill" data-testid="rate-curve-editor">
+          <div className="relative min-w-0">
+            <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label="Rate Curve Points">
+              <table className="data-table-premium min-w-full" data-testid="rate-curve-editor">
                 <thead>
                   <tr>
-                    <th className="col-pinned text-right">Tenor In Years</th>
+                    <th className="text-right">Tenor In Years</th>
                     <th className="text-right">Rate %</th>
-                    <th style={headStyle("Linked To Premium Growth Rate")}>Linked To Premium Growth Rate</th>
+                    <th>Linked To Premium Growth Rate</th>
                     <th className="text-right">Rate Used %</th>
                     {editing ? <th className="text-right">Remove</th> : null}
                   </tr>
@@ -276,7 +274,7 @@ function SurfaceParamsEditor() {
                 <tbody>
                   {params.rateCurve.map((p, i) => (
                     <tr key={i}>
-                      <td className="col-pinned text-right" data-kind="number">
+                      <td className="text-right" data-kind="number">
                         {editing ? (
                           <div className="md-cell-input">
                             <NumberInput digits={2} value={p.years} onChange={(v) => editPoint(i, { years: v })} testId={`curve-years-${i}`} ariaLabel={`Tenor In Years, Point ${i + 1}`} />

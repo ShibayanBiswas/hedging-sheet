@@ -12,6 +12,7 @@ import {
   payoffLevels,
   preTaxIrr,
   startLevel,
+  upsideCash,
   validateStructure,
 } from "@/lib/engine/structure";
 import type {
@@ -178,15 +179,6 @@ export function validateInputs(
       });
     }
   }
-  const terms = deriveTerms(inputs);
-  const reach = terms.spreads.reduce((a, s) => a + (s.sell - s.buy) * s.participation, 0);
-  if (Number.isFinite(reach) && reach > inputs.coupon + 1e-9) {
-    warnings.push({
-      field: "spreads",
-      code: "coupon-capped",
-      message: `The spreads pay up to ${(reach * 100).toFixed(2)}%; the payoff is capped at the Coupon of ${(inputs.coupon * 100).toFixed(2)}%.`,
-    });
-  }
   return { errors, warnings, dates: schedule.dates };
 }
 
@@ -205,8 +197,10 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
 
   const { surface, params } = market;
   const bidOffer: BidOffer = params.bidOffer ?? "B";
-  const optionType = inputs.optionType;
+  // The listed hedge option follows the downside legs, which are always puts.
+  const hedgeType: OptionType = "P";
   const terms = deriveTerms(inputs);
+  const cash = upsideCash(terms);
   const start = startLevel(inputs);
   const strikes = buildStrikes(inputs, start);
   const underlying = inputs.underlying;
@@ -245,21 +239,21 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       const slot = strikes[slotIndex]!;
       const spot = inputs.spot * (1 + spotBump);
       const curve = readRateCurve(curvePoints, maturity);
-      const discount = pricerDiscountYield(curve.rate, optionType, bidOffer, params, premiumRate);
+      const discount = pricerDiscountYield(curve.rate, slot.optionType, bidOffer, params, premiumRate);
       const dividends = dividendYield(
         params.dividends,
         maturity,
         inputs.valuationDate,
         spot,
         divScale,
-        dividendMultiplier(optionType, bidOffer, params.dividendBidOfferMultiplier),
+        dividendMultiplier(slot.optionType, bidOffer, params.dividendBidOfferMultiplier),
       );
       const priced = priceOption({
         valuationDate: inputs.valuationDate,
         spot,
         strike: slot.strike,
         maturity,
-        optionType,
+        optionType: slot.optionType,
         bidOffer,
         growth: pricerGrowth,
         discount,
@@ -339,7 +333,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     interpolateVolPercent(surface, inputs.hedgeStrike, hedgeExpiry, underlying, inputs.spot) / 100 + hedgeBidBump;
   const hedgeVolOverridden = inputs.hedgeVolOverride != null && Number.isFinite(inputs.hedgeVolOverride);
   const hedgeFairVol = hedgeVolOverridden ? inputs.hedgeVolOverride! : hedgeSurfaceVol;
-  const divMult = dividendMultiplier(optionType, hedgeBidOffer, params.dividendBidOfferMultiplier);
+  const divMult = dividendMultiplier(hedgeType, hedgeBidOffer, params.dividendBidOfferMultiplier);
 
   type Block = "fair" | "exchange" | "stressed";
   const hedgeRow = (move: number, block: Block): OptionPricing => {
@@ -356,7 +350,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       vol = hedgeFairVol;
       // Day1 P26 = FORECAST on the rate curve, no cap.
       discount = hedgeCurve.rate;
-      growth = hedgeGrowth(optionType, hedgeBidOffer, discount, dividends, hedgeFwdSell);
+      growth = hedgeGrowth(hedgeType, hedgeBidOffer, discount, dividends, hedgeFwdSell);
     } else if (block === "exchange") {
       // Day1 N44 = F3, O44 = I2, P44 = I3
       vol = annualVol;
@@ -373,7 +367,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       spot,
       strike: inputs.hedgeStrike,
       maturity: hedgeExpiry,
-      optionType,
+      optionType: hedgeType,
       bidOffer: hedgeBidOffer,
       growth,
       discount,
@@ -512,7 +506,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const nbfcGrowth = (1 + inputs.nbfcRate) ** (tenor / 365);
   const premiumGrowth = (1 + premiumRate) ** (tenor / 365);
   const marginGrowth = (1 + inputs.marginGrowthRate) ** (tenor / 365);
-  // Pricer O5 = (E5 − H5 − I5 − V5)(1 + L5)^(N5/365) + K5(1 + M5)^(N5/365) + V5(1 + Summary C6)^(N5/365)
+  // Pricer O5 = (E5 − H5 − I5 − V5)(1 + L5)^(N5/365) + K5(1 + M5)^(N5/365) + V5(1 + Summary C6)^(N5/365).
+  // The pots fund the principal and the put spreads' cash; call spreads pay their part of the coupon through the calls.
   const payoutFor = (inbuilt: number, marginInr: number) =>
     (notional - inbuilt - transactionCostInr - marginInr) * nbfcGrowth + premium * premiumGrowth + marginInr * marginGrowth;
 
@@ -536,7 +531,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     // Macro2: GoalSeek P5 = C5 by changing H5.
     const solved = brentSolve(
       (h) => {
-        const residual = payoutFor(h, marginInr) / notional - 1 - inputs.coupon;
+        const residual = payoutFor(h, marginInr) / notional - 1 - cash;
         trace.push({ inbuilt: h / notional, residual });
         return residual;
       },
@@ -554,8 +549,9 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   }
   const marginInr = notional * marginFraction;
   const payout = payoutFor(inbuilt, marginInr);
-  // Pricer P5 = O5 ÷ E5 − 1; U5 = (1 + P5)^(365/N5) − 1
-  const achievedCoupon = payout / notional - 1;
+  // Pricer P5 = O5 ÷ E5 − 1, plus what the call spreads pay at the Target; U5 = (1 + P5)^(365/N5) − 1
+  const callUpside = terms.spreads.reduce((acc, s) => acc + (s.optionType === "C" ? (s.sell - s.buy) * s.participation : 0), 0);
+  const achievedCoupon = payout / notional - 1 + callUpside;
   const irr = (1 + achievedCoupon) ** (365 / tenor) - 1;
   // Pricer J5 = E5 − H5 − I5 − V5; F5 = H5 ÷ E5
   const nbfcAmount = notional - inbuilt - transactionCostInr - marginInr;
@@ -571,7 +567,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     return {
       strikePercent: slot.percent,
       strike: slot.strike,
-      optionType,
+      optionType: slot.optionType,
       units: slot.units,
       quantityLakh,
       averagePrice: avgPrice,
@@ -652,6 +648,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         // Pricer K7 = SUM of every delta column ÷ 1e5, at bump 0.
         deltaLakh: bookDelta / LAKH,
         spreadPayouts,
+        upsideCash: cash,
         // Pricer E14 = E13 × E12
         protectionLoss: terms.protection * inputs.decay,
       },

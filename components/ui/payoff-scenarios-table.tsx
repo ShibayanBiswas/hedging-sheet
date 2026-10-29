@@ -7,7 +7,6 @@ import type { HedgingResult } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { fmtCrore, fmtPercent } from "@/lib/format";
 import { cellKey } from "@/lib/tables";
-import { headStyle } from "@/components/ui/desk-table";
 import { deskEase } from "@/lib/motion";
 
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
@@ -38,20 +37,15 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
       viewport={{ once: true, margin: "-20px" }}
       transition={{ duration: 0.4, ease: deskEase }}
     >
-      <div className="overflow-hidden rounded-2xl">
-        <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
-        <div className="desk-table-scroll horizontal-rail max-h-[min(56dvh,560px)] overflow-auto !rounded-t-none" tabIndex={0} role="region" aria-label="Payoff Scenarios">
-          <table className="data-table-premium data-table-fill payoff-scenarios-table">
+      <div className="relative min-w-0">
+        <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label="Payoff Scenarios">
+          <table className="data-table-premium payoff-scenarios-table min-w-full">
             <thead>
               <tr className="hs-head-row">
-                <th className="col-pinned">{u} Performance</th>
+                <th>{u} Performance</th>
                 <th className="text-right">Client Return</th>
-                <th className="text-right" style={headStyle("Maturity Value In Crore")}>
-                  Maturity Value In Crore
-                </th>
-                <th className="text-right" style={headStyle("Pre Tax Internal Rate Of Return")}>
-                  Pre Tax Internal Rate Of Return
-                </th>
+                <th className="text-right">Maturity Value In Crore</th>
+                <th className="text-right">Pre Tax Internal Rate Of Return</th>
               </tr>
             </thead>
             <tbody>
@@ -71,7 +65,7 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
                       target && "bg-violet-50/80 dark:bg-violet-950/30",
                     )}
                   >
-                    <td className="col-pinned font-semibold" data-cell={cellKey(row, `${u} Performance`)} data-value={p.performance}>
+                    <td className="font-semibold" data-cell={cellKey(row, `${u} Performance`)} data-value={p.performance}>
                       <span className="inline-flex flex-wrap items-center gap-2">
                         <span>{fmtPercent(p.performance, 2)}</span>
                         {initial ? <Badge tone="sky">Initial</Badge> : null}

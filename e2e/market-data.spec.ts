@@ -69,21 +69,20 @@ for (const view of VIEWS) {
         expect(headline, "Headline scrolls sideways").toBeLessThanOrEqual(1);
         await expect(page.getByTestId("table-market-headline")).toContainText("Fetched At");
 
-        // The header row and the pinned column stay put while the grid scrolls.
+        // The header row stays put while the grid scrolls; no column is pinned, so the Expiry column scrolls away.
         const grid = page.getByTestId("vol-grid");
-        const pinned = await grid.evaluate(async (box) => {
+        const scrolled = await grid.evaluate(async (box) => {
           box.scrollLeft = 400;
           box.scrollTop = 300;
           await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
           const b = box.getBoundingClientRect();
           const head = box.querySelector("thead th")!.getBoundingClientRect();
-          const rows = Array.from(box.querySelectorAll<HTMLElement>("tbody td.col-pinned"));
-          const visible = rows.find((td) => td.getBoundingClientRect().top >= head.bottom) ?? rows[rows.length - 1]!;
-          return { top: head.top - b.top, left: visible.getBoundingClientRect().left - b.left, scrolled: box.scrollLeft > 0 && box.scrollTop > 0 };
+          const firstCell = box.querySelector<HTMLElement>("tbody td[data-kind='date']")!.getBoundingClientRect();
+          return { top: head.top - b.top, left: firstCell.left - b.left, scrolled: box.scrollLeft > 0 && box.scrollTop > 0 };
         });
-        expect(pinned.scrolled).toBe(true);
-        expect(Math.abs(pinned.top), "sticky header").toBeLessThanOrEqual(2);
-        expect(Math.abs(pinned.left), "pinned first column").toBeLessThanOrEqual(2);
+        expect(scrolled.scrolled).toBe(true);
+        expect(Math.abs(scrolled.top), "sticky header").toBeLessThanOrEqual(2);
+        expect(scrolled.left, "first column scrolls with the grid").toBeLessThan(-100);
 
         // Numbers right aligned, dates left aligned.
         const misaligned = await page.locator("main [data-kind]").evaluateAll((cells) =>
@@ -101,7 +100,7 @@ for (const view of VIEWS) {
         expect(misaligned).toEqual([]);
 
         // Volatility headers carry %, and the Deep strike comes from the data.
-        const heads = await grid.locator("thead th").allInnerTexts();
+        const heads = await grid.locator("thead th").allTextContents();
         expect(heads).toContain("Volatility %");
         expect(heads.filter((h) => /^\d+%$/.test(h.trim())).length).toBeGreaterThan(5);
         const dataset = await (await page.request.get("/api/dataset")).json();
@@ -126,7 +125,7 @@ for (const view of VIEWS) {
         // Copy rules: no Vol, Params, percent or brackets anywhere, and no lowercase or, and, not in labels.
         const text = await page.locator("body").innerText();
         expect(text).not.toMatch(/\bVols?\b|\bParams\b|\bpercent\b|[()[\]{}]/);
-        const labels = await page.locator("main th, main button, main label, main h1, main h2, main h3, [data-testid='market-strip']").allInnerTexts();
+        const labels = await page.locator("main th, main button, main label, main h1, main h2, main h3, [data-testid='market-strip']").allTextContents();
         expect(labels.filter((l) => /\b(or|and|not)\b/.test(l))).toEqual([]);
 
         // History tables start on the valuation date by default.

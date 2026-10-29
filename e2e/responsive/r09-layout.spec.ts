@@ -9,7 +9,7 @@ for (const v of VIEWPORTS) {
   test.describe(`${v.name} ${v.width}x${v.height}`, () => {
     test.use(contextFor(v));
 
-    test("R9 and layout: mode switch, sticky run bar, field grid, section tabs, footer and the pinned table column", async ({ page, inputs, nav }) => {
+    test("R9 and layout: mode switch, sticky run bar, field grid, section tabs, footer and table scrolling", async ({ page, inputs, nav }) => {
       test.setTimeout(180_000);
       await inputs.goto();
       await settle(page);
@@ -58,7 +58,7 @@ for (const v of VIEWPORTS) {
       expect(footer.bottom, "footer ends inside the window").toBeLessThanOrEqual(v.height + 1);
       expect(footer.uncovered, "nothing covers the footer").toBe(true);
 
-      // R9: the first column stays pinned while a wide table scrolls sideways.
+      // R9: a wide table scrolls sideways inside its own box, whole; no column is pinned and the page never scrolls sideways.
       await inputs.run();
       await nav.go("pricer");
       const rails = page.locator('[data-testid="table-pricer-legs"] .desk-table-scroll');
@@ -66,11 +66,13 @@ for (const v of VIEWPORTS) {
         el.scrollLeft = el.scrollWidth;
       });
       await settle(page);
-      const pinned = await rails.evaluate((el) => {
-        const cell = el.querySelector<HTMLElement>("tbody td.col-pinned")!;
-        return { rail: el.getBoundingClientRect().left, cell: cell.getBoundingClientRect().left, scrolled: el.scrollLeft };
+      const scrolled = await rails.evaluate((el) => {
+        const cell = el.querySelector<HTMLElement>("tbody td")!;
+        return { rail: el.getBoundingClientRect().left, cell: cell.getBoundingClientRect().left, scrolled: el.scrollLeft, sticky: getComputedStyle(cell).position };
       });
-      if (pinned.scrolled > 0) expect(Math.abs(pinned.cell - pinned.rail), "first column pinned").toBeLessThan(2);
+      expect(scrolled.sticky, "first column is not pinned").not.toBe("sticky");
+      if (scrolled.scrolled > 0) expect(scrolled.cell, "first column scrolls away").toBeLessThan(scrolled.rail - 1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), "no page-level sideways scroll").toBeLessThanOrEqual(0);
     });
 
     test("popups are bottom sheets on phones and centred dialogs from 640 px", async ({ page, inputs }) => {

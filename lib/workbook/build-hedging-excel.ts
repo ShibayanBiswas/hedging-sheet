@@ -12,6 +12,7 @@ import {
   pricerPotTable,
   productHeadline,
   productTables,
+  spreadTypesLabel,
   summaryHeadline,
   summaryTables,
   vegaHeadline,
@@ -186,7 +187,7 @@ function startSheet(
   const row = addExcelMasthead(sheet, {
     title,
     subtitle: `${result.underlyingLabel} · Valuation Date ${formatDate(i.valuationDate)} · Spot ${fmtNumber(i.spot, 2)}`,
-    eyebrow: `Anand Rathi Wealth · Hedging Sheet · ${i.optionType === "C" ? "Call" : "Put"} Book · Generated ${formatDate(new Date().toISOString())}`,
+    eyebrow: `Anand Rathi Wealth · Hedging Sheet · ${spreadTypesLabel(i.spreadOptionTypes)} Spreads · Generated ${formatDate(new Date().toISOString())}`,
     toCol: width,
     rowOffset: offset,
   });

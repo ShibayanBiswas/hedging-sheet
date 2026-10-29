@@ -54,7 +54,7 @@ export function defaultInputs(options?: { valuationDate?: string; spot?: number;
     strikePercents: [...DEFAULT_TERMS.strikePercents],
     participations: [...DEFAULT_TERMS.participations],
     floorUnits: DEFAULT_TERMS.floorUnits,
-    optionType: "P",
+    spreadOptionTypes: DEFAULT_TERMS.participations.map(() => "P" as const),
     expiryCount: DEFAULT_TERMS.expiryMonths.length,
     expiryMonths: [...DEFAULT_TERMS.expiryMonths],
     hedgeExpiryIndex: null,

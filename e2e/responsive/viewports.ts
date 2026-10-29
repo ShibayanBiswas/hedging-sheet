@@ -31,8 +31,8 @@ export const TYPE_SCALE = {
   h2: [20, 26],
   h3: [17, 21],
   body: [14, 16],
-  table: [13, 15],
-  "table-head": [12, 14],
+  table: [14, 14],
+  "table-head": [11, 11],
   caption: [12, 13],
 } as const;
 

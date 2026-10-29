@@ -56,11 +56,11 @@ export function FieldRow({
 
 type NumberKind = "number" | "percent" | "integer";
 
-function toDraft(value: number, kind: NumberKind, digits: number): string {
+function toDraft(value: number, kind: NumberKind, digits: number, grouped = false, fixed = false): string {
   if (!Number.isFinite(value)) return "";
   const shown = kind === "percent" ? value * 100 : value;
   if (kind === "integer") return String(Math.round(shown));
-  return shown.toLocaleString("en-IN", { minimumFractionDigits: digits, maximumFractionDigits: Math.max(digits, 8), useGrouping: false });
+  return shown.toLocaleString("en-IN", { minimumFractionDigits: digits, maximumFractionDigits: fixed ? digits : Math.max(digits, 8), useGrouping: grouped });
 }
 
 function parseDraft(text: string, kind: NumberKind): number | null {
@@ -86,6 +86,8 @@ export function NumberInput({
   invalid,
   onBlankChange,
   ariaLabel,
+  grouped = false,
+  fixed = false,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -99,16 +101,20 @@ export function NumberInput({
   invalid?: boolean;
   onBlankChange?: () => void;
   ariaLabel?: string;
+  /** Show the value with Indian digit grouping, such as 1,05,901. */
+  grouped?: boolean;
+  /** Round the shown value to `digits`, for derived values; typed values otherwise show in full. */
+  fixed?: boolean;
 }) {
   const contextId = useContext(FieldIdContext);
-  const [draft, setDraft] = useState(() => toDraft(value, kind, digits));
+  const [draft, setDraft] = useState(() => toDraft(value, kind, digits, grouped, fixed));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle
-    if (!focused) setDraft(toDraft(value, kind, digits));
-  }, [value, kind, digits, focused]);
+    if (!focused) setDraft(toDraft(value, kind, digits, grouped, fixed));
+  }, [value, kind, digits, grouped, fixed, focused]);
 
   return (
     <div className="relative w-full">
@@ -125,7 +131,7 @@ export function NumberInput({
         onFocus={() => setFocused(true)}
         onBlur={() => {
           setFocused(false);
-          if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits));
+          if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, grouped, fixed));
         }}
         onChange={(e) => {
           const text = e.target.value;
@@ -188,6 +194,7 @@ export function ChoiceSelect<T extends string | number>({
   testId,
   invalid,
   placeholder = "Select …",
+  ariaLabel,
 }: {
   value: T | "";
   options: Array<{ value: T; label: string }>;
@@ -195,11 +202,13 @@ export function ChoiceSelect<T extends string | number>({
   testId?: string;
   invalid?: boolean;
   placeholder?: string;
+  ariaLabel?: string;
 }) {
   const contextId = useContext(FieldIdContext);
   return (
     <select
-      id={contextId}
+      id={ariaLabel ? undefined : contextId}
+      aria-label={ariaLabel}
       data-testid={testId}
       aria-invalid={invalid || undefined}
       value={value === "" || (typeof value === "number" && Number.isNaN(value)) ? "" : String(value)}
@@ -208,8 +217,8 @@ export function ChoiceSelect<T extends string | number>({
         if (picked) onChange(picked.value);
       }}
       className={cn(
-        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none transition focus:border-gold",
-        value === "" && "text-stone-500",
+        "glass-select w-full rounded-2xl px-4 py-3 font-ui text-body",
+        value === "" && "glass-select--empty",
         invalid && "border-rose-500 ring-2 ring-rose-400/60",
       )}
     >

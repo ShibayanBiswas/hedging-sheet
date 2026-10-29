@@ -24,7 +24,7 @@ describe("validateDeskInputs", () => {
     const errors = validateDeskInputs(blankInputs(), { today: TODAY });
     expect(errors.every((e) => e.kind === "required")).toBe(true);
     const fields = errors.map((e) => e.field);
-    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "optionType", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
+    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "spreadOptionTypes.0", "spreadOptionTypes.1", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
       expect(fields).toContain(key);
     }
     for (let i = 0; i < 6; i++) expect(fields).toContain(`strikePercents.${i}`);
@@ -71,14 +71,14 @@ describe("Blank Inputs suite, unit level", () => {
 
   it("B2.1 the required field list covers every field, month row, strike and typed participation", () => {
     const fields = requiredFields(6, 2).map((e) => e.field);
-    expect(fields).toEqual(expect.arrayContaining(["underlying", "valuationDate", "expiryCount", "optionType", "participations.0"]));
+    expect(fields).toEqual(expect.arrayContaining(["underlying", "valuationDate", "expiryCount", "spreadOptionTypes.0", "spreadOptionTypes.1", "participations.0"]));
     for (const r of numberFieldRules(filled)) expect(fields, r.field).toContain(r.field);
     expect(new Set(fields).size).toBe(fields.length);
   });
 
   it("B2.1 clearing any one required field leaves exactly that field in the list", () => {
     for (const { field } of requiredFields(6, 2)) {
-      if (["underlying", "optionType", "expiryCount"].includes(field)) continue;
+      if (["underlying", "expiryCount"].includes(field)) continue;
       const [base, index] = field.split(".");
       const patch: Record<string, unknown> =
         index != null

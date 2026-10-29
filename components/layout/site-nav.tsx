@@ -8,8 +8,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { MarketStrip } from "@/components/layout/market-strip";
 import { moveFocusWithArrows } from "@/lib/keyboard";
 import { activeNav, NAV_ITEMS } from "@/lib/navigation";
-import { cn } from "@/lib/cn";
-
 /** Primary SP Dashboard tab bar: pill shell, sliding active pill, icon hover. Tabs share the full width. */
 export function SiteNav() {
   const pathname = usePathname();
@@ -46,14 +44,11 @@ export function SiteNav() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
-                  className={cn(
-                    "relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:whitespace-normal lg:px-2 lg:text-center lg:text-caption lg:text-balance xl:gap-2 xl:px-3 xl:text-body",
-                    active ? "btn-nav-active text-ink" : "text-muted hover:bg-[color:var(--ar-panel)] hover:text-ink",
-                  )}
+                  className="glass-control relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:whitespace-normal lg:px-2 lg:text-center lg:text-caption lg:text-balance xl:gap-2 xl:px-3 xl:text-body"
                 >
                   {active ? (
                     <motion.span
-                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-gold/25 to-maroon/20 shadow-lg shadow-gold/10 dark:from-gold/6 dark:to-transparent dark:shadow-none"
+                      className="glass-active-pill absolute inset-0 rounded-xl"
                       layoutId={reduce ? undefined : "main-nav-active"}
                       transition={{ type: "spring", stiffness: 420, damping: 28 }}
                     />

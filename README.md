@@ -1,6 +1,6 @@
 # Hedging Sheet
 
-A desk web app for the five year accelerator hedge. It replicates the accelerator payoff with an option book, prices every leg on the vol surface, solves the Inbuilt, sizes the Day 1 vega hedge, stress-tests margin, and exports the five output sheets to Excel.
+A desk web app for the five year accelerator hedge. It replicates the accelerator payoff with an option book, each upside spread a put or a call spread, prices every leg on the vol surface, solves the Inbuilt, sizes the Day 1 vega hedge, stress-tests margin, and exports the five output sheets to Excel.
 
 Spot, the valuation date and daily volatility load live. Set the inputs, press **Run Simulation**, and the output tabs fill in.
 
@@ -83,6 +83,8 @@ npm run report              # the last Playwright HTML report
   - The Blank Inputs suite checks every required field, every number field and every output table against `tests/fixtures/table-schema.json`.
   - It also checks every headline number against `tests/fixtures/regression-expected.json` to 1e-6, and the Excel file.
   - It covers keyboard use, 390 px width, both themes and axe.
+  - `e2e/strikes.spec.ts` covers the full-width strike and expiry rows, Strike Level editing, the coupon-exceeded error, Put and Call runs, the Primary SP Dashboard tables and the glass controls.
+- **Structure and Call tests.** `tests/structure.test.ts` pins the start level, strikes, units and spread rules; `tests/call.test.ts` checks put-call parity on every leg, the all-Put figures from before per spread option types, and how an all-Call or mixed book differs.
 - **CI** runs it all on every push.
 - **Production smoke:** a read-only run against production after CI succeeds on `main`, and nightly.
 

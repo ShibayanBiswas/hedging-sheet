@@ -36,7 +36,11 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
   for (const [testId, text] of fill) {
     const key = testId.replace(/^input-/, "");
     if (key === "underlying") d = { ...d, underlying: text as Underlying };
-    else if (key === "optionType") d = { ...d, optionType: text as OptionType };
+    else if (key.startsWith("spreadOptionTypes-")) {
+      const types = [...d.spreadOptionTypes];
+      types[Number(key.split("-")[1])] = text as OptionType;
+      d = { ...d, spreadOptionTypes: types };
+    }
     else if (key === "valuationDate") d = { ...d, valuationDate: text };
     else if (key === "expiryCount") {
       const n = Number(text);

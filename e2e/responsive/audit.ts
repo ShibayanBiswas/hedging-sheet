@@ -119,7 +119,7 @@ export async function audit(page: Page, where: string, opts: AuditOptions): Prom
         }
       }
 
-      // R4: font sizes follow the type scale; nothing below 12 px.
+      // R4: font sizes follow the type scale; nothing below 12 px except the 11 px uppercase table headers of the Primary SP Dashboard.
       const expect = (el: Element, names: keyof typeof scale | Array<keyof typeof scale>) => {
         const size = parseFloat(getComputedStyle(el).fontSize);
         const list = Array.isArray(names) ? names : [names];
@@ -143,7 +143,7 @@ export async function audit(page: Page, where: string, opts: AuditOptions): Prom
       for (const el of Array.from(document.querySelectorAll<HTMLElement>("body *"))) {
         if (!shown(el) || el.closest("svg")) continue;
         const own = Array.from(el.childNodes).some((n) => n.nodeType === 3 && (n.textContent ?? "").trim());
-        if (own && parseFloat(getComputedStyle(el).fontSize) < 11.9) out.push(`R4 below 12px: ${getComputedStyle(el).fontSize} at ${sel(el)} "${textOf(el)}"`);
+        if (own && !el.closest("table th") && parseFloat(getComputedStyle(el).fontSize) < 11.9) out.push(`R4 below 12px: ${getComputedStyle(el).fontSize} at ${sel(el)} "${textOf(el)}"`);
       }
       for (const t of Array.from(document.querySelectorAll("svg text"))) {
         if (shown(t) && parseFloat(getComputedStyle(t).fontSize) < 11.9) out.push(`R4 chart text below 12px at "${textOf(t)}"`);

@@ -13,7 +13,8 @@
 - **Type and spacing.** One scale in `app/globals.css` and `tailwind.config.ts`. Font sizes grow smoothly from 320 px to 2560 px: Display 28 to 44 px, H1 24 to 34, H2 20 to 26, H3 17 to 21, Body 14 to 16, Table 13 to 15, Table Head 12 to 14 and Caption 12 to 13. Spacing uses 4, 8, 12, 16, 24, 32, 48 and 64 px; sections pad 16 px on phones, 24 on tablets and 32 on desktops. Icons are 14, 16, 20, 24 or 32 px with a 1.75 stroke; tab icons are 16 px on phones and 20 px from 768 px.
 - **Header.** Sticks to the top from 640 px wide and 500 px tall; on smaller screens it scrolls away so the form keeps its room.
 - **Inputs.** Fields sit in one column on phones, two from 640 px, three from 1280 px and four from 1920 px, with the label above the box and the hint below it. The Run Simulation bar stays pinned to the bottom edge and clears the phone home indicator.
-- **Tables.** Numbers are right aligned with tabular figures and never wrap; headers wrap to two balanced lines at most. A table wider than the screen scrolls inside its card with shadows at the edges, and the first column stays pinned.
+- **Tables.** The Primary SP Dashboard DataTable: 11 px bold upper case headers with 14 by 20 px padding, 14 px cells with 12 by 20 px padding, numbers right aligned with tabular figures, nothing wraps. Only the header row is sticky; no column is pinned. A table wider than the screen scrolls inside its own box, at most min(72 dvh, 780 px) tall, with shadows at the edges, so the page never scrolls sideways.
+- **Controls.** Buttons, nav pills, tabs, the mode switch, selects, steppers, segmented controls and chips are gold glass: a translucent fill, a gold border and a backdrop blur, with hover, pressed, focus and disabled states. Run Simulation is a stronger maroon to gold glass.
 - **Popups.** Full-height sheets from the bottom on phones, centred dialogs from 640 px; the content scrolls inside.
 - **Charts.** Fewer axis ticks and tighter margins on phones.
 - **Touch.** On touch screens every button, tab, select and checkbox is at least 44 by 44 px.
@@ -33,7 +34,7 @@
 
 ## Inputs
 
-Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads And Option Type, Notional And Costs, and Volatility And Margin. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
+Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads, Notional And Costs, and Volatility And Margin. Expiries and strikes are one full-width row each: Expiry n with its month number and date, and Strike n with an editable Strike % and an editable Strike Level in rupees. Each spread row holds its Buy Level, Sell Level, Participation Rate, a reset when the top participation is overridden, and its own Option Type, Put or Call. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
 
 A pill at the top switches between two modes, after a confirm popup that also clears the results:
 
@@ -46,7 +47,7 @@ Every popup takes keyboard focus and Escape closes it. Focus then returns to whe
 
 ## Output tabs
 
-Before the first run each output tab shows a centred popup, Run The Simulation To See Results, with Run Simulation and Go To Inputs. Changing any input brings that popup back with an Inputs Changed badge, so stale results are never shown. Pricer and hedge volatility overrides and market data changes keep the results and show an Inputs Changed banner instead. Every tab starts with a Headline table; every block is a full-width table with a sticky header, a maroon and gold band, zebra rows, right-aligned numbers, a pinned first column, sideways scrolling and a reveal animation.
+Before the first run each output tab shows a centred popup, Run The Simulation To See Results, with Run Simulation and Go To Inputs. Changing any input brings that popup back with an Inputs Changed badge, so stale results are never shown. Pricer and hedge volatility overrides and market data changes keep the results and show an Inputs Changed banner instead. Every tab starts with a Headline table; every block is a full-width table with a sticky header, zebra rows, right-aligned numbers, sideways scrolling inside its own box and a reveal animation.
 
 | Tab | Tables |
 |---|---|
@@ -64,7 +65,7 @@ The payoff chart and scenario table follow the Primary SP Dashboard. The chart h
 - **Volatility Surface.**
   - One toolbar above the grid, as in the Unwinding Calculator: Edit Surface, Upload Surface, Download Current Surface, Download Sample and Reload From Desk Database.
   - Every result shows in a status row under the toolbar, with a toast, and never in a blocking popup.
-  - The grid has an Expiry column, the Nifty and Sensex strike rows under Reference Strikes, a Volatility % header over the strike columns, one heat scale with a legend, and a sticky header and first column.
+  - The grid has an Expiry column, the Nifty and Sensex strike rows under Reference Strikes, a Volatility % header over the strike columns, one heat scale with a legend, and a sticky header.
   - While editing, each cell is checked as it is typed, and Save Surface stays off until every cell holds a volatility above 0 and at most 200.
   - An upload is checked in the browser, shown as a preview table and grid, and written only on Confirm Upload.
 - **Surface Parameters.** A Parameter, Value and Used In table beside the Rate Curve Points table from 1024 px, with Edit Parameters, Save and Reset, and its own status row.

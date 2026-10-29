@@ -25,7 +25,7 @@
       null
     ],
     "floorUnits": 1,
-    "optionType": "P",
+    "spreadOptionTypes": ["P", "P"],
     "expiryCount": 6,
     "expiryMonths": [
       41,

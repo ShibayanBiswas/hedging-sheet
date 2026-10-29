@@ -10,7 +10,7 @@ export const INPUT_SECTIONS = [
   "Product Terms",
   "Observation Expiries",
   "Strikes",
-  "Spreads And Option Type",
+  "Spreads",
   "Notional And Costs",
   "Volatility And Margin",
 ] as const;
@@ -49,7 +49,7 @@ const rules: NumberRule[] = [
   { key: "marginGrowthRate", label: () => "Margin Growth Rate", section: "Rates", min: 0, max: 0.5, minInclusive: true, percent: true },
   { key: "coupon", label: () => "Coupon", section: "Product Terms", min: 0, max: 10, percent: true },
   { key: "decay", label: () => "Decay", section: "Product Terms", min: 0, max: 10 },
-  { key: "floorUnits", label: () => "Floor Units", section: "Product Terms", min: 0, max: 10, minInclusive: true },
+  { key: "floorUnits", label: () => "Decay Reduction Below Floor", section: "Product Terms", min: 0, max: 10, minInclusive: true },
   { key: "tenorDays", label: () => "Tenor In Days", section: "Product Terms", min: 1, max: 3650, minInclusive: true, integer: true },
   { key: "startLevelUplift", label: () => "Start Level Uplift", section: "Product Terms", min: 0, max: 0.1, minInclusive: true, percent: true },
   { key: "notionalCr", label: () => "Notional In Crore", section: "Notional And Costs", min: 0, max: 100_000 },
@@ -109,7 +109,7 @@ export function numberFieldRules(inputs: DeskInputs): NumberFieldRule[] {
     out.push({
       field: `participations.${j}`,
       label: `Spread ${j + 1} Participation Rate`,
-      section: "Spreads And Option Type",
+      section: "Spreads",
       ...PARTICIPATION_RULE,
       minInclusive: false,
       integer: false,
@@ -159,15 +159,17 @@ function mapEngineField(field: string): { field: string; section: InputSection; 
   const strike = /^strikes\.(\d+)$/.exec(field);
   if (strike) return { field: `strikePercents.${strike[1]}`, section: "Strikes", label: `Strike ${Number(strike[1]) + 1}` };
   const spread = /^spreads\.(\d+)$/.exec(field);
-  if (spread) return { field, section: "Spreads And Option Type", label: `Spread ${Number(spread[1]) + 1}` };
+  if (spread) return { field, section: "Spreads", label: `Spread ${Number(spread[1]) + 1}` };
+  const participation = /^participations\.(\d+)$/.exec(field);
+  if (participation) return { field, section: "Spreads", label: `Spread ${Number(participation[1]) + 1} Participation Rate` };
   const month = /^expiryMonths\.(\d+)$/.exec(field);
   if (month) return { field, section: "Observation Expiries", label: `Expiry Month ${Number(month[1]) + 1}` };
   const map: Record<string, { section: InputSection; label: string; field?: string }> = {
-    spreads: { section: "Spreads And Option Type", label: "Number Of Spreads", field: "spreadCount" },
+    spreads: { section: "Spreads", label: "Number Of Spreads", field: "spreadCount" },
     coupon: { section: "Product Terms", label: "Coupon" },
     protection: { section: "Product Terms", label: "Protection" },
     floorLevel: { section: "Product Terms", label: "Decay Floor Level" },
-    floorUnits: { section: "Product Terms", label: "Floor Units" },
+    floorUnits: { section: "Product Terms", label: "Decay Reduction Below Floor" },
     tenorDays: { section: "Product Terms", label: "Tenor In Days" },
     expiryCount: { section: "Observation Expiries", label: "Number Of Expiry Dates" },
     expiryMonths: { section: "Observation Expiries", label: "Expiry Months" },
@@ -225,7 +227,7 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
   const k = inputs.strikePercents;
   const n = k.length - 4;
   if (n < MIN_SPREADS || n > MAX_SPREADS) {
-    push({ field: "spreadCount", label: "Number Of Spreads", section: "Spreads And Option Type", kind: "invalid", message: `Use ${MIN_SPREADS} to ${MAX_SPREADS} spreads.` });
+    push({ field: "spreadCount", label: "Number Of Spreads", section: "Spreads", kind: "invalid", message: `Use ${MIN_SPREADS} to ${MAX_SPREADS} spreads.` });
   }
   k.forEach((v, i) => {
     const label = `Strike ${i + 1}`;
@@ -234,12 +236,14 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
   });
 
   // Spreads and Option Type
-  if (!inputs.optionType) push({ field: "optionType", label: "Option Type", section: "Spreads And Option Type", kind: "required", message: "Select Put or Call." });
   inputs.participations.forEach((p, j) => {
+    if (!inputs.spreadOptionTypes[j]) {
+      push({ field: `spreadOptionTypes.${j}`, label: `Spread ${j + 1} Option Type`, section: "Spreads", kind: "required", message: "Select Put or Call." });
+    }
     if (p == null) return;
     const label = `Spread ${j + 1} Participation Rate`;
     const r = checkNumber(p, PARTICIPATION_RULE, label);
-    if (r) push({ field: `participations.${j}`, label, section: "Spreads And Option Type", ...r });
+    if (r) push({ field: `participations.${j}`, label, section: "Spreads", ...r });
   });
 
   // Rules across fields, once the fields they read are filled.

@@ -28,19 +28,8 @@ import { useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
 import { formatDate } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
-import {
-  DAYS_PER_MONTH,
-  EXPIRY_WEEKDAY,
-  expiryDates,
-  MAX_EXPIRIES,
-  maturityDate,
-  medianExpiryIndex,
-  MIN_EXPIRIES,
-  rawExpiryDate,
-  resizeList,
-  WEEKDAY_NAMES,
-} from "@/lib/engine/schedule";
-import { buildStrikes, deriveTerms, MAX_SPREADS, MIN_SPREADS, spreadCount, startLevel } from "@/lib/engine/structure";
+import { EXPIRY_WEEKDAY, expiryDates, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, resizeList, WEEKDAY_NAMES } from "@/lib/engine/schedule";
+import { deriveTerms, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, spreadCount, startLevel } from "@/lib/engine/structure";
 import type { HedgeInputs, OptionType, Underlying } from "@/lib/engine/types";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { fmtNumber, fmtPercent } from "@/lib/format";
@@ -78,7 +67,7 @@ function ResetIcon({ onClick, label, testId }: { onClick: () => void; label: str
       title={label}
       aria-label={label}
       data-testid={testId}
-      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-dark transition hover:rotate-[-30deg] hover:bg-gold/20"
+      className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition hover:rotate-[-30deg]"
     >
       <RotateCcw className="icon-sm" />
     </button>
@@ -165,16 +154,6 @@ function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskI
   next[index] = pct;
   return { strikePercents: next };
 }
-
-function roleLabel(n: number, i: number): string {
-  if (i === 0) return n === 1 ? "Target · Spread 1 Sell Level" : `Target · Spread ${n} Sell Level`;
-  if (i < n) return `Spread ${n - i} Sell Level · Spread ${n - i + 1} Buy Level`;
-  if (i === n) return "Spread 1 Buy Level";
-  if (i === n + 1) return "Protection Level";
-  if (i === n + 2) return "Protection Outflow Step";
-  return "Decay Floor Level";
-}
-
 // ------------------------------------------------------------------ Underlying and Market
 
 export function UnderlyingSection({ index }: { index: number }) {
@@ -353,18 +332,11 @@ export function ProductTermsSection({ index }: { index: number }) {
   const terms = deriveTerms(inputs);
   const n = terms.nSpreads;
   const u = underlyingName(inputs);
-  const hasMaturity = Number.isFinite(inputs.tenorDays) && inputs.tenorDays > 0 && Boolean(inputs.valuationDate);
   return (
     <Panel index={index} id="terms">
-      <SectionTitle
-        icon={ScrollText}
-        subtitle="Target, Protection and the Decay Floor Level are the strikes in another form; editing one moves its strike."
-        aside={<span className="hs-chip" data-testid="maturity-chip">Maturity Date {formatDate(hasMaturity ? maturityDate(inputs) : null)}</span>}
-      >
-        Product Terms
-      </SectionTitle>
+      <SectionTitle icon={ScrollText}>Product Terms</SectionTitle>
       <div className="field-grid">
-        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")} hint="Strike 1: the Sell Level of the top spread.">
+        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")}>
           <NumberInput
             kind="percent"
             value={terms.target}
@@ -378,7 +350,7 @@ export function ProductTermsSection({ index }: { index: number }) {
         <FieldRow label="Coupon" error={errorFor("coupon")} hint="The maximum coupon paid at or above the Target.">
           <KeyNumber k="coupon" kind="percent" suffix="%" eg="102.5" />
         </FieldRow>
-        <FieldRow label="Protection" error={errorFor("protection")} hint={`Strike ${n + 2}, with the one point outflow step below it as Strike ${n + 3}.`}>
+        <FieldRow label="Protection" error={errorFor("protection")}>
           <NumberInput
             kind="percent"
             value={terms.protection}
@@ -401,7 +373,7 @@ export function ProductTermsSection({ index }: { index: number }) {
         <FieldRow label="Decay" error={errorFor("decay")} hint="Downside participation below the protection level.">
           <KeyNumber k="decay" digits={2} eg="1.6" />
         </FieldRow>
-        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")} hint={`Strike ${n + 4}, as a % of the start level. Below it the slope is Decay less the Floor Units.`}>
+        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")}>
           <NumberInput
             kind="percent"
             digits={0}
@@ -414,13 +386,13 @@ export function ProductTermsSection({ index }: { index: number }) {
             placeholder="Eg 70 %"
           />
         </FieldRow>
-        <FieldRow label="Floor Units" error={errorFor("floorUnits")} hint={`Units bought at the floor. Slope below the floor: ${fmtNumber(inputs.decay - inputs.floorUnits, 2)}.`}>
+        <FieldRow label="Decay Reduction Below Floor" error={errorFor("floorUnits")}>
           <KeyNumber k="floorUnits" digits={2} eg="1" />
         </FieldRow>
         <FieldRow label="Tenor In Days" error={errorFor("tenorDays")}>
           <KeyNumber k="tenorDays" kind="integer" eg="1,940" />
         </FieldRow>
-        <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")} hint="Start level is the spot times one plus this uplift, rounded up to the next 100.">
+        <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")}>
           <KeyNumber k="startLevelUplift" kind="percent" suffix="%" eg="0.6" />
         </FieldRow>
       </div>
@@ -450,7 +422,6 @@ export function ExpiriesSection({ index }: { index: number }) {
     <Panel index={index} id="expiries">
       <SectionTitle
         icon={CalendarClock}
-        subtitle={`Each month number m gives a raw date of the valuation date plus m × ${DAYS_PER_MONTH} days, rounded. The expiry is the ${inputs.underlying ? weekday : "expiry weekday"} nearest to it, never more than 3 days away.`}
         aside={
           <span className="hs-chip hs-chip-maroon" data-testid="expiry-weekday">
             {underlyingName(inputs)} Expiry Weekday · {weekday}
@@ -469,30 +440,33 @@ export function ExpiriesSection({ index }: { index: number }) {
             options={Array.from({ length: MAX_EXPIRIES - MIN_EXPIRIES + 1 }, (_, i) => ({ value: MIN_EXPIRIES + i, label: String(MIN_EXPIRIES + i) }))}
           />
         </FieldRow>
-        <div className="field-wide grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="field-wide flex w-full flex-col gap-3">
           <AnimatePresence initial={false}>
             {Array.from({ length: count }, (_, i) => {
               const month = inputs.expiryMonths[i];
               const date = dates[i];
-              const raw = Number.isInteger(month) && month! > 0 && inputs.valuationDate ? rawExpiryDate(inputs.valuationDate, month!) : null;
               const error = errorFor(`expiryMonths.${i}`);
               return (
                 <motion.div
                   key={i}
                   layout={!reduce}
-                  className={cn("rounded-2xl border bg-[color:var(--ar-panel)] p-3", error ? "border-rose-400/60" : "border-[color:var(--ar-border)]")}
-                  initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={reduce ? undefined : { opacity: 0, scale: 0.96 }}
+                  data-testid={`expiry-row-${i}`}
+                  className={cn(
+                    "flex w-full flex-wrap items-center gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3",
+                    error ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
+                  )}
+                  initial={reduce ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -6 }}
                   transition={{ duration: 0.25, ease: deskEase }}
                 >
-                  <p className="label-chip">Expiry Month {i + 1}</p>
-                  <div className="mt-2">
+                  <span className="w-24 shrink-0 font-ui text-body font-bold text-ink">Expiry {i + 1}</span>
+                  <div className="min-w-0 flex-1 basis-40">
                     <NumberInput
                       kind="integer"
                       value={month ?? NaN}
-                      placeholder="Eg 41 Months"
-                      ariaLabel={`Expiry Month ${i + 1}`}
+                      placeholder="Eg 41"
+                      ariaLabel={`Expiry ${i + 1} Month Number`}
                       testId={`input-expiryMonths-${i}`}
                       invalid={Boolean(error)}
                       onChange={(v) =>
@@ -511,24 +485,11 @@ export function ExpiriesSection({ index }: { index: number }) {
                       }
                     />
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={date ?? "none"}
-                        className="hs-chip"
-                        data-testid={`expiry-date-${i}`}
-                        initial={reduce ? false : { opacity: 0, scale: 0.92 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.92 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {date ? formatDate(date) : "-"}
-                      </motion.span>
-                    </AnimatePresence>
-                    {raw ? <span className="font-ui text-caption text-muted">Raw {formatDate(raw)}</span> : null}
-                    {i === (inputs.hedgeExpiryIndex ?? median) ? <span className="font-ui text-caption font-bold text-gold-dark">Option Expiry</span> : null}
-                  </div>
-                  {error ? <p className="hs-error mt-2">{error}</p> : null}
+                  <span className="hs-chip min-w-[8.5rem] justify-center" data-testid={`expiry-date-${i}`}>
+                    {date ? formatDate(date) : "-"}
+                  </span>
+                  <span className="w-24 shrink-0 font-ui text-caption font-bold text-gold-dark">{i === (inputs.hedgeExpiryIndex ?? median) ? "Option Expiry" : null}</span>
+                  {error ? <p className="hs-error w-full">{error}</p> : null}
                 </motion.div>
               );
             })}
@@ -536,7 +497,7 @@ export function ExpiriesSection({ index }: { index: number }) {
         </div>
         <FieldRow label="Option Expiry" hint="The expiry of the listed hedge option: the median expiry, the lower middle one for an even count.">
           <select
-            className="input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none focus:border-gold"
+            className="glass-select w-full rounded-2xl px-4 py-3 font-ui text-body"
             value={inputs.hedgeExpiryIndex ?? "median"}
             data-testid="input-hedgeExpiryIndex"
             aria-label="Option Expiry"
@@ -561,56 +522,65 @@ export function StrikesSection({ index }: { index: number }) {
   const { inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
   const reduce = useReducedMotion();
-  const n = spreadCount(inputs);
+  // The start level moves with the spot, the underlying, the uplift and the rounding; the % stays put.
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  const ordered = inputs.strikePercents.every((v, i, a) => Number.isFinite(v) && v > 0 && (i === 0 || v < a[i - 1]!));
-  const slots = Number.isFinite(start) && ordered && Number.isFinite(inputs.coupon) ? buildStrikes(inputs as HedgeInputs, start) : null;
   return (
     <Panel index={index} id="strikes">
-      <SectionTitle
-        icon={Layers}
-        subtitle="Strikes as a % of the start level, highest first. Units are the change in slope of the payoff across each strike."
-        aside={<span className="hs-chip">{inputs.strikePercents.length} Strikes</span>}
-      >
+      <SectionTitle icon={Layers} aside={<span className="hs-chip">{inputs.strikePercents.length} Strikes</span>}>
         Strikes
       </SectionTitle>
-      <div className="grid w-full gap-3" style={{ gridTemplateColumns: `repeat(${inputs.strikePercents.length}, minmax(9.5rem, 1fr))`, overflowX: "auto" }}>
+      <div className="flex w-full flex-col gap-3">
         <AnimatePresence initial={false}>
           {inputs.strikePercents.map((pct, i) => {
-            const slot = slots?.[i];
             const error = errorFor(`strikePercents.${i}`);
-            const units = slot && Number.isFinite(slot.units) ? slot.units : null;
+            const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
             return (
               <motion.div
                 key={i}
                 layout={!reduce}
-                data-testid={`strike-card-${i}`}
-                className={cn("rounded-2xl border bg-[color:var(--ar-panel)] p-3", error ? "border-rose-400/60" : "border-[color:var(--ar-border)]")}
-                initial={reduce ? false : { opacity: 0, y: 8 }}
+                data-testid={`strike-row-${i}`}
+                className={cn(
+                  "grid w-full items-center gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3 sm:grid-cols-[6rem_1fr_1fr]",
+                  error ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
+                )}
+                initial={reduce ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -8 }}
+                exit={reduce ? undefined : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.25, ease: deskEase }}
               >
-                <p className="font-ui text-body font-bold text-ink">Strike {i + 1}</p>
-                <p className="mb-2 min-h-[2rem] font-ui text-caption font-semibold uppercase tracking-wider text-gold-dark">{roleLabel(n, i)}</p>
-                <NumberInput
-                  value={pct}
-                  digits={2}
-                  suffix="%"
-                  ariaLabel={`Strike ${i + 1}`}
-                  testId={`input-strikePercents-${i}`}
-                  invalid={Boolean(error)}
-                  placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
-                  onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
-                  onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
-                />
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="hs-chip" data-testid={`strike-units-${i}`}>
-                    Units {units != null ? fmtNumber(units, 2) : "-"}
-                  </span>
-                  <span className={cn("hs-chip", units != null && units < 0 && "hs-chip-maroon")}>{units != null ? (units < 0 ? "Sell" : "Buy") : "-"}</span>
+                <span className="font-ui text-body font-bold text-ink">Strike {i + 1}</span>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <label className="field-label font-ui" htmlFor={`strike-percent-${i}`}>
+                    Strike %
+                  </label>
+                  <NumberInput
+                    id={`strike-percent-${i}`}
+                    value={pct}
+                    digits={2}
+                    suffix="%"
+                    testId={`input-strikePercents-${i}`}
+                    invalid={Boolean(error)}
+                    placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
+                    onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
+                    onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
+                  />
                 </div>
-                {error ? <p className="hs-error mt-2">{error}</p> : null}
+                <div className="flex min-w-0 flex-col gap-1">
+                  <label className="field-label font-ui" htmlFor={`strike-level-${i}`}>
+                    Strike Level
+                  </label>
+                  <NumberInput
+                    id={`strike-level-${i}`}
+                    value={level}
+                    digits={0}
+                    grouped
+                    disabled={!Number.isFinite(start)}
+                    testId={`input-strikeLevel-${i}`}
+                    placeholder={Number.isFinite(start) ? "Eg 1,05,901" : "-"}
+                    onChange={(v) => setInputs((prev) => withStrike(prev, i, percentFromLevel(v, start)))}
+                  />
+                </div>
+                {error ? <p className="hs-error sm:col-span-3">{error}</p> : null}
               </motion.div>
             );
           })}
@@ -623,7 +593,7 @@ export function StrikesSection({ index }: { index: number }) {
 // ------------------------------------------------------------------ Spreads and Option Type
 
 export function SpreadsSection({ index }: { index: number }) {
-  const { inputs, setInputs } = useDesk();
+  const { mode, inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
   const reduce = useReducedMotion();
   const terms = deriveTerms(inputs);
@@ -636,19 +606,22 @@ export function SpreadsSection({ index }: { index: number }) {
       const cur = spreadCount(prev);
       const k = [...prev.strikePercents];
       let parts = [...prev.participations];
+      let types = [...prev.spreadOptionTypes];
       if (count > cur) {
         // New spreads go on top of the old target, five points apart; the old top spread falls back to 1.
         parts = parts.map((p, j) => (j === parts.length - 1 ? 1 : p));
         for (let a = 0; a < count - cur; a++) {
           k.unshift(k[0]! + 5);
           parts.push(a === count - cur - 1 ? null : 1);
+          types.push(mode === "blank" ? "" : "P");
         }
       } else if (count < cur) {
         k.splice(0, cur - count);
         parts = parts.slice(0, count);
         parts[parts.length - 1] = null;
+        types = types.slice(0, count);
       }
-      return { strikePercents: k, participations: parts };
+      return { strikePercents: k, participations: parts, spreadOptionTypes: types };
     });
 
   const setLevel = (strikeIndex: number, fraction: number) => setInputs((prev) => withStrike(prev, strikeIndex, 100 * (1 + fraction)));
@@ -657,28 +630,15 @@ export function SpreadsSection({ index }: { index: number }) {
     <Panel index={index} id="spreads">
       <SectionTitle
         icon={TrendingUp}
-        subtitle="Spreads are derived from the strikes. Editing a level moves its strike; participation is derived from the Coupon at the top spread."
         aside={
           <span className={Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 ? "hs-chip hs-chip-maroon" : "hs-chip"} data-testid="max-coupon">
             Maximum Upside {Number.isFinite(total) ? fmtPercent(total) : "-"}
           </span>
         }
       >
-        Spreads And Option Type
+        Spreads
       </SectionTitle>
       <div className="field-grid">
-        <FieldRow label="Option Type" error={errorFor("optionType")} hint="Every leg, the hedge and every Option Type column use it. A call book replicates the same payoff up to futures and cash.">
-          <ChoiceSelect<OptionType>
-            value={inputs.optionType}
-            testId="input-optionType"
-            invalid={Boolean(errorFor("optionType"))}
-            onChange={(v) => setInputs({ optionType: v })}
-            options={[
-              { value: "P", label: "Put" },
-              { value: "C", label: "Call" },
-            ]}
-          />
-        </FieldRow>
         <FieldRow label="Number Of Spreads" error={errorFor("spreadCount")} hint={`From ${MIN_SPREADS} to ${MAX_SPREADS}. Adding a spread adds a strike on top.`}>
           <Stepper label="Number Of Spreads" value={n} min={MIN_SPREADS} max={MAX_SPREADS} onChange={setCount} testId="input-spreadCount" />
         </FieldRow>
@@ -688,12 +648,16 @@ export function SpreadsSection({ index }: { index: number }) {
             const isTop = j === n - 1;
             const buyStrike = n - j;
             const sellStrike = n - j - 1;
-            const error = errorFor(`spreads.${j}`) ?? errorFor(`participations.${j}`);
+            const error = errorFor(`spreads.${j}`);
+            const participationError = errorFor(`participations.${j}`);
             return (
               <motion.div
                 key={j}
                 layout={!reduce}
-                className={cn("field-wide w-full rounded-2xl border bg-[color:var(--ar-panel)] p-4", error ? "border-rose-400/60" : "border-[color:var(--ar-border)]")}
+                className={cn(
+                  "field-wide w-full rounded-2xl border bg-[color:var(--ar-panel)] p-4",
+                  error || participationError ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
+                )}
                 data-testid={`spread-card-${j}`}
                 initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -701,12 +665,10 @@ export function SpreadsSection({ index }: { index: number }) {
                 transition={{ duration: 0.3, ease: deskEase }}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="label-chip">
-                    Spread {j + 1} · Strike {buyStrike + 1} To Strike {sellStrike + 1}
-                  </p>
+                  <p className="font-ui text-body font-bold text-ink">Spread {j + 1}</p>
                   <span className="hs-chip">Pays {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]) : "-"}</span>
                 </div>
-                <div className="grid gap-3 md:grid-cols-3">
+                <div className="grid w-full items-start gap-3 md:grid-cols-[1fr_1fr_1.4fr_minmax(9rem,0.8fr)]">
                   <div>
                     <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Buy Level</p>
                     <NumberInput
@@ -746,6 +708,7 @@ export function SpreadsSection({ index }: { index: number }) {
                         <NumberInput
                           value={s.participation}
                           digits={2}
+                          fixed={derived}
                           ariaLabel={`Spread ${j + 1} Participation Rate`}
                           placeholder={isTop ? "Eg 10.05" : "Eg 1"}
                           invalid={Boolean(errorFor(`participations.${j}`))}
@@ -780,9 +743,35 @@ export function SpreadsSection({ index }: { index: number }) {
                         />
                       ) : null}
                     </div>
+                    {participationError ? (
+                      <p className="hs-error mt-1" role="alert" data-testid={`participation-error-${j}`}>
+                        {participationError}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div>
+                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Option Type</p>
+                    <ChoiceSelect<OptionType>
+                      value={inputs.spreadOptionTypes[j] ?? ""}
+                      testId={`input-spreadOptionTypes-${j}`}
+                      ariaLabel={`Spread ${j + 1} Option Type`}
+                      invalid={Boolean(errorFor(`spreadOptionTypes.${j}`))}
+                      onChange={(v) =>
+                        setInputs((prev) => {
+                          const types = [...prev.spreadOptionTypes];
+                          types[j] = v;
+                          return { spreadOptionTypes: types };
+                        })
+                      }
+                      options={[
+                        { value: "P", label: "Put" },
+                        { value: "C", label: "Call" },
+                      ]}
+                    />
                   </div>
                 </div>
                 {error ? <p className="hs-error mt-2">{error}</p> : null}
+                {errorFor(`spreadOptionTypes.${j}`) ? <p className="hs-error mt-2">{errorFor(`spreadOptionTypes.${j}`)}</p> : null}
               </motion.div>
             );
           })}
@@ -889,7 +878,7 @@ export function VolatilitySection({ index }: { index: number }) {
           >
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="input-glow flex-1 rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none focus:border-gold"
+                className="glass-select flex-1 rounded-2xl px-4 py-3 font-ui text-body"
                 value={inputs.historyWindowDays}
                 data-testid="input-historyWindowDays"
                 aria-label="History Window"

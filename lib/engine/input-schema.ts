@@ -21,8 +21,9 @@ const hedgeInputSchema = z.object({
   tenorDays: z.union([z.number(), z.nan()]),
   strikePercents: z.array(z.union([z.number(), z.nan()])),
   participations: z.array(z.union([z.number(), z.nan(), z.null()])),
-  floorUnits: finite("Floor Units"),
-  optionType: z.enum(["P", "C"]),
+  floorUnits: finite("Decay Reduction Below Floor"),
+  // A spread without an entry is a put spread.
+  spreadOptionTypes: z.array(z.enum(["P", "C"])),
   expiryCount: z.number().int(),
   expiryMonths: z.array(z.union([z.number(), z.nan()])),
   hedgeExpiryIndex: z.number().int().min(0).nullable(),

@@ -20,6 +20,9 @@ import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
 
+/** Errors that only show inline, with Run Simulation turned off, never as a popup. */
+const INLINE_ONLY = new Set(["coupon-exceeded"]);
+
 /** Rules across fields open a popup the moment a typed value breaks them. Empty fields wait for Run Simulation. */
 function useEdgeCasePopups() {
   const { fieldErrors } = useDesk();
@@ -27,7 +30,7 @@ function useEdgeCasePopups() {
   const shown = useRef(new Set<string>());
 
   useEffect(() => {
-    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code);
+    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code && !INLINE_ONLY.has(e.code));
     const keys = new Set(current.map((e) => `${e.code}:${e.field}`));
     // Forget fixed issues so they can pop again if they come back.
     for (const k of [...shown.current]) if (!keys.has(k)) shown.current.delete(k);

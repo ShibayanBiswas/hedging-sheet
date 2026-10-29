@@ -39,7 +39,9 @@ The strikes are the primary inputs. With `n` spreads there are `n + 4` strikes, 
 With the defaults, Spread 1 runs from Strike 3 at 125 to Strike 2 at 127 and Spread 2 from Strike 2 at 127 to Strike 1 at 137.
 
 - **Participation.** Every spread but the top takes its typed participation, 1 by default. The top spread is derived from the coupon: `Summary L10 = (D10 − (H10 − G10) × K10) ÷ (J10 − I10)`, that is the coupon left over after the lower spreads, divided by the top spread width. With the defaults that is (1.025 − 0.02) ÷ 0.10 = 10.05. Any participation can be overridden; Reset To Derived returns it to null, which means derived.
-- **Spread edits write back to strikes.** Typing a Buy Level or Sell Level on a spread card writes the strike it is read from, so the strikes and spreads never disagree.
+- **Spread edits write back to strikes.** Typing a Buy Level or Sell Level on a spread row writes the strike it is read from, so the strikes and spreads never disagree. Adjacent spreads share a strike, so they can neither overlap nor leave a gap.
+- **Strike Level.** Each strike also shows its rupee level, `rupeeStrike(start, %)`. Typing a level sets the % to level ÷ start × 100, rounded to 4 decimals (`percentFromLevel`); the % stays the source, so a new spot or underlying moves every level and keeps every %.
+- **Coupon exceeded.** When the top participation is typed and the spreads pay more than the Coupon, `coupon-exceeded` shows under the field and Run stays off until it is lowered or reset to derived.
 - **Start level.** `Pricer!B5 = ROUNDUP(spot × (1 + uplift), −2)`. The uplift defaults to 0.6%. `startLevel` in `structure.ts`.
 - **Rupee strike.** `Pricer!B19 = ROUND(B5 × B17 ÷ 100, 0)`. `rupeeStrike`.
 
@@ -71,7 +73,12 @@ The client receives the coupon plus a book of options `V(s) = Σ uᵢ · (kᵢ �
 
 With the defaults the units are −10.05, +9.05, +1, −25.6, +24 and +1.
 
-**Option Type.** One Option Type input, Put by default, feeds every Option Type column on the Summary Sheet, Pricer, Day 1 Vega Hedge and in the Excel file. A Call book keeps the same units. By put-call parity the difference is linear in the level and is carried by the futures position. With these strikes a Call book is deep in the money and the Inbuilt goes strongly negative, which is what the sheet gives too.
+**Option Type.** Each spread has its own Option Type, Put by default; the protection, outflow and floor legs and the Day 1 Vega Hedge are always puts.
+
+- **Put spread.** It pays `participation × min(max(p − b, 0), s − b)` as the cash `participation × (s − b)` at maturity, less a put spread: sell `u` puts at the Sell Level strike and buy `u` at the Buy Level strike, with `u = participation × (s − b) × start ÷ rupee width`. `upsideCash` sums that cash, and the goal seek targets payout ÷ notional − 1 − cash.
+- **Call spread.** Buy `u` calls at the Buy Level strike and sell `u` at the Sell Level strike, with no cash term; the achieved coupon adds what the call spreads pay at the Target.
+- **Mixed books.** A strike shared by a put spread and a call spread carries two legs, one per type, in the Pricer, Greeks, Vega Hedge, margin and Excel.
+- **Put and Call compared.** Parity holds on every leg, so a call book has the put book's delta and vega, and its Premium is the put book's less each call spread's payout × notional × the average discount factor of the expiries. The pots grow premium at the Premium Growth Rate to maturity while the legs settle at the expiries, so the Inbuilt moves by payout × (1 − discount factor × premium growth) ÷ NBFC growth: 8.38% for all Put and 3.35% for all Call on the fixture. `tests/call.test.ts` asserts both.
 
 **Payoff and book agree.** `payoffBookGap` evaluates the book and the payoff at every strike, half a point either side, and every 1% from −89% to 20 points past the target, skipping only the one point outflow band where the book spreads the protection drop. The largest gap is about 5e-15 for one, two and three spreads.
 
@@ -95,7 +102,7 @@ The leg grid shows these rows in Pricer column A order. The strike % and rupee s
 | 21 | Upper Maturity | last curve date on or before maturity | `readRateCurve` |
 | 22 | Lower Maturity | next curve date | `readRateCurve` |
 | 23, 24 | Upper and Lower Forward | curve rates at rows 21 and 22 | `readRateCurve` |
-| 25 | Option Type | the Option Type input | `inputs.optionType` |
+| 25 | Option Type | the leg's type: its spread's Option Type, or Put below the spreads | `StrikeSlot.optionType` |
 | 26 | Valuation Date | the valuation date | `inputs.valuationDate` |
 | 27 | Spot Price | spot, plus the stress bump in the Mark to Market loop | `priceBook(spotBump)` |
 | 28 | Forward Growth | `'Pricing Params'!H69`: the Forward Sell Rate of the valuation month row | `forwardSellRateForMonth` |

@@ -15,7 +15,7 @@ import { EXPIRY_WEEKDAY, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { underlyingName } from "@/lib/inputs/draft";
 import { COMPUTATION_PRIMITIVES, logicModules } from "@/lib/logic-atlas";
 import { deskEase } from "@/lib/motion";
-import { headlineTable, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
+import { headlineTable, spreadTypesLabel, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
 const SHELL_TONES = {
   amber: "intel-pipeline-shell--amber",
@@ -271,7 +271,7 @@ function DebugValues({ result: r }: { result: NonNullable<ReturnType<typeof useD
       { label: "Strikes", value: i.strikePercents.map((k) => `${k}%`).join(", "), kind: "text" },
       { label: "Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
       { label: "Daily Volatility", value: i.dailyVol, kind: "percent", digits: 4 },
-      { label: "Option Type", value: i.optionType === "C" ? "Call" : "Put", kind: "text" },
+      { label: "Option Type", value: spreadTypesLabel(i.spreadOptionTypes), kind: "text" },
     ],
   };
   const diagnostics = headlineTable("debug-diagnostics", "Diagnostics", [
