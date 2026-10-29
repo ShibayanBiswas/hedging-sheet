@@ -17,9 +17,9 @@ import {
   RotateCcw,
   ScrollText,
   ShieldAlert,
-  Sigma,
   TrendingUp,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 
 import { ChoiceSelect, FieldRow, NumberInput, Stepper, TextInput, Toggle } from "@/components/ui/fields";
@@ -116,7 +116,8 @@ function FetchButton({
   label: string;
   busyLabel: string;
   doneLabel: string;
-  icon: typeof Sigma;
+  /** Without an icon the button is the standard text button. */
+  icon?: LucideIcon;
   testId: string;
 }) {
   const [done, setDone] = useState(false);
@@ -133,21 +134,25 @@ function FetchButton({
       disabled={loading}
       whileHover={reduce ? undefined : { y: -1, scale: 1.02 }}
       whileTap={reduce ? undefined : { scale: 0.97 }}
-      className="btn-animated btn-motion btn-accent group inline-flex shrink-0 items-center gap-3"
+      className={cn("btn-animated btn-motion group inline-flex shrink-0 items-center gap-3", Icon ? "btn-accent" : "btn-ghost")}
       onClick={async () => {
         const v = await onClick();
         if (v != null) setDone(true);
       }}
     >
-      <span className="btn-shine" aria-hidden />
-      <span className="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gold-light via-gold to-gold-dark text-white shadow-sm">
-        {loading ? <span className="absolute inset-0 animate-spin rounded-lg border-2 border-white/30 border-t-white" aria-hidden /> : null}
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span key={done ? "done" : "idle"} className="inline-flex" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}>
-            {done ? <Check className="icon-sm" data-testid={`${testId}-done`} /> : <Icon className="icon-sm" />}
-          </motion.span>
-        </AnimatePresence>
-      </span>
+      {Icon ? (
+        <>
+          <span className="btn-shine" aria-hidden />
+          <span className="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gold-light via-gold to-gold-dark text-white shadow-sm">
+            {loading ? <span className="absolute inset-0 animate-spin rounded-lg border-2 border-white/30 border-t-white" aria-hidden /> : null}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span key={done ? "done" : "idle"} className="inline-flex" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}>
+                {done ? <Check className="icon-sm" data-testid={`${testId}-done`} aria-hidden /> : <Icon className="icon-sm" aria-hidden />}
+              </motion.span>
+            </AnimatePresence>
+          </span>
+        </>
+      ) : null}
       <span className="relative z-10 font-semibold">{loading ? busyLabel : done ? doneLabel : label}</span>
     </motion.button>
   );
@@ -394,7 +399,7 @@ export function ProductTermsSection({ index }: { index: number }) {
           />
         </FieldRow>
         <FieldRow label="Decay" error={errorFor("decay")} hint="Downside participation below the protection level.">
-          <KeyNumber k="decay" digits={2} suffix="Times" eg="1.6" />
+          <KeyNumber k="decay" digits={2} eg="1.6" />
         </FieldRow>
         <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")} hint={`Strike ${n + 4}, as a % of the start level. Below it the slope is Decay less the Floor Units.`}>
           <NumberInput
@@ -413,7 +418,7 @@ export function ProductTermsSection({ index }: { index: number }) {
           <KeyNumber k="floorUnits" digits={2} eg="1" />
         </FieldRow>
         <FieldRow label="Tenor In Days" error={errorFor("tenorDays")}>
-          <KeyNumber k="tenorDays" kind="integer" suffix="Days" eg="1,940" />
+          <KeyNumber k="tenorDays" kind="integer" eg="1,940" />
         </FieldRow>
         <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")} hint="Start level is the spot times one plus this uplift, rounded up to the next 100.">
           <KeyNumber k="startLevelUplift" kind="percent" suffix="%" eg="0.6" />
@@ -796,7 +801,7 @@ export function CostsSection({ index }: { index: number }) {
       <SectionTitle icon={Coins}>Notional And Costs</SectionTitle>
       <div className="field-grid">
         <FieldRow label="Notional In Crore" error={errorFor("notionalCr")}>
-          <KeyNumber k="notionalCr" digits={2} suffix="₹ Cr" eg="100" />
+          <KeyNumber k="notionalCr" digits={2} eg="100" />
         </FieldRow>
         <FieldRow label="Transaction Cost" error={errorFor("transactionCost")}>
           <KeyNumber k="transactionCost" kind="percent" suffix="%" eg="2.25" />
@@ -822,7 +827,6 @@ export function VolatilitySection({ index }: { index: number }) {
   const compute = (
     <FetchButton
       testId={mode === "blank" ? "compute-volatility" : "compute-history"}
-      icon={Sigma}
       label={mode === "blank" ? "Compute Volatility" : "Compute From History"}
       busyLabel="Computing From History"
       doneLabel="Computed"
@@ -925,13 +929,13 @@ export function VolatilitySection({ index }: { index: number }) {
 
         <SubSection title="Stress Shock" icon={Zap} subtitle="Spot is shocked down by the sigmas over the days, and volatility is scaled by the multiplier.">
           <FieldRow label="Shock Sigmas" error={errorFor("stressSigmas")}>
-            <KeyNumber k="stressSigmas" digits={0} suffix="Sigmas" eg="6" />
+            <KeyNumber k="stressSigmas" digits={0} eg="6" />
           </FieldRow>
           <FieldRow label="Shock Days" error={errorFor("stressDays")}>
-            <KeyNumber k="stressDays" kind="integer" suffix="Days" eg="2" />
+            <KeyNumber k="stressDays" kind="integer" eg="2" />
           </FieldRow>
           <FieldRow label="Volatility Multiplier" error={errorFor("stressVolMultiplier")}>
-            <KeyNumber k="stressVolMultiplier" digits={2} suffix="Times" eg="1.25" />
+            <KeyNumber k="stressVolMultiplier" digits={2} eg="1.25" />
           </FieldRow>
         </SubSection>
 
