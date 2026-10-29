@@ -43,3 +43,21 @@ test("read-only APIs answer", async ({ request }) => {
   const dataset = await (await request.get("/api/dataset")).json();
   expect(dataset.surface?.expiries?.length ?? 0).toBeGreaterThan(0);
 });
+
+test("health: the database is connected and holds only the reference collections", async ({ request }) => {
+  const res = await request.get("/api/health");
+  const text = await res.text();
+  expect(res.status(), text).toBe(200);
+  const health = JSON.parse(text);
+  expect(health.database.connected).toBe(true);
+  expect(Object.keys(health.database.collections).sort()).toEqual(["pricing_params", "vol_surfaces"]);
+  expect(health.database.collections.vol_surfaces).toBeGreaterThan(0);
+  expect(health.market.latestCloseDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  if (/hedging-sheet\.vercel\.app/.test(process.env.BASE_URL ?? "")) expect(health.database.name).toBe("hedging_sheet");
+  expect(text).not.toMatch(/mongodb(\+srv)?:\/\//);
+});
+
+test("writes without the Desk Key are refused", async ({ request }) => {
+  expect((await request.post("/api/surface", { data: {} })).status()).toBe(401);
+  expect((await request.post("/api/params", { data: {} })).status()).toBe(401);
+});

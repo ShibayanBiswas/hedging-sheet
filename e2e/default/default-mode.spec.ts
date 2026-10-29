@@ -184,6 +184,7 @@ test.describe("Market Data", () => {
     await marketData.param("param-cap-buying").fill("6.9");
     await marketData.param("param-cap-buying").blur();
     await marketData.saveParams.click();
+    await marketData.enterDeskKey();
     await expect(page.getByTestId("desk-toast").or(dialog.root).first()).toContainText(/Saved/);
     await dialog.dismissAll();
     await expect(marketData.paramsTable).toContainText("6.900%");
@@ -197,8 +198,26 @@ test.describe("Market Data", () => {
     await inputs.goto();
     await marketData.open();
     await marketData.surfaceFile.setInputFiles(path.join(process.cwd(), "public", "samples", "Hedging_Sheet_Vol_Surface_Sample.xlsx"));
+    await marketData.enterDeskKey();
     await expect(dialog.root).toContainText(/replaced the active surface/, { timeout: 30_000 });
     await dialog.dismissAll();
     await expect(marketData.volGrid).toContainText("24-Apr-2031");
+  });
+
+  test("a save asks for the Desk Key, refuses a wrong one, and Cancel saves nothing", async ({ inputs, marketData, page }) => {
+    await inputs.goto();
+    await marketData.open();
+    await marketData.editParams.click();
+    await marketData.param("param-cap-buying").fill("7.1");
+    await marketData.param("param-cap-buying").blur();
+    await marketData.saveParams.click();
+    await page.getByTestId("desk-key-input").fill("wrong key");
+    await page.getByTestId("desk-key-submit").click();
+    await expect(page.getByTestId("desk-key-dialog")).toContainText("That Desk Key is not right");
+    await page.getByTestId("desk-key-cancel").click();
+    await expect(page.getByTestId("desk-key-dialog")).toBeHidden();
+    await expect(page.getByTestId("desk-toast")).toHaveCount(0);
+    const stored = await (await page.request.get("/api/params")).json();
+    expect(stored.params.rateCapBuyingForward).not.toBeCloseTo(0.071, 6);
   });
 });

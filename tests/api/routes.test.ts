@@ -14,6 +14,7 @@ import { MOCK_NOW_ISO } from "@/lib/test/mocks/yahoo";
 
 import defaults from "../fixtures/default-inputs.json";
 import { startApiHarness } from "../helpers/api-harness";
+import { TEST_DESK_KEY } from "../helpers/test-database";
 
 let harness: Awaited<ReturnType<typeof startApiHarness>>;
 
@@ -29,6 +30,7 @@ afterAll(async () => {
 });
 
 const req = (url: string, init?: RequestInit) => new Request(`http://localhost${url}`, init);
+const writeReq = (url: string, init: RequestInit) => req(url, { ...init, headers: { ...(init.headers as Record<string, string>), "x-desk-key": TEST_DESK_KEY } });
 
 describe("market routes with Yahoo mocked by MSW", () => {
   it("levels: the last completed closes and the session status", async () => {
@@ -65,8 +67,7 @@ describe("data routes on an in-memory Mongo", () => {
     const current = await (await getParams()).json();
     expect(current.monthKey).toBe("2026-10");
     const grid = { volBump: 0.001, incMargin: 0.06, fullMargin: 0.12, marginCost: 0.03, fwdSellRate: 0.056 };
-    const res = await postParams(
-      req("/api/params", { method: "POST", body: JSON.stringify({ params: { ...current.params, rateCapBuyingForward: 0.069 }, grid }) }),
+    const res = await postParams(writeReq("/api/params", { method: "POST", body: JSON.stringify({ params: { ...current.params, rateCapBuyingForward: 0.069 }, grid }) }),
     );
     const saved = await res.json();
     expect(res.status).toBe(200);
@@ -78,17 +79,17 @@ describe("data routes on an in-memory Mongo", () => {
     expect(october).toMatchObject(grid);
     const history = surface.pricingParams.find((p: { date: string }) => p.date.startsWith("2026-08"));
     expect(history.fwdSellRate).not.toBe(0.056);
-    expect((await postParams(req("/api/params", { method: "POST", body: "{}" }))).status).toBe(400);
-    expect((await postParams(req("/api/params", { method: "POST", body: JSON.stringify({ params: current.params, grid: { volBump: 2 } }) }))).status).toBe(400);
+    expect((await postParams(writeReq("/api/params", { method: "POST", body: "{}" }))).status).toBe(400);
+    expect((await postParams(writeReq("/api/params", { method: "POST", body: JSON.stringify({ params: current.params, grid: { volBump: 2 } }) }))).status).toBe(400);
   });
 
   it("surface: saves an edited grid and rejects an empty one", async () => {
     const surface = (await (await getSurface()).json()).surface;
     surface.volsPercent[0][1] = 42.42;
-    const saved = await (await postSurface(req("/api/surface", { method: "POST", body: JSON.stringify(surface) }))).json();
+    const saved = await (await postSurface(writeReq("/api/surface", { method: "POST", body: JSON.stringify(surface) }))).json();
     expect(saved.persisted).toBe(true);
     expect((await (await getSurface()).json()).surface.volsPercent[0][1]).toBe(42.42);
-    expect((await postSurface(req("/api/surface", { method: "POST", body: JSON.stringify({ expiries: [] }) }))).status).toBe(400);
+    expect((await postSurface(writeReq("/api/surface", { method: "POST", body: JSON.stringify({ expiries: [] }) }))).status).toBe(400);
   });
 
   it("upload: reads the sample file and replaces the surface; refuses text", async () => {
@@ -96,13 +97,13 @@ describe("data routes on an in-memory Mongo", () => {
     const form = new FormData();
     form.append("file", new File([sample], "sample.xlsx"));
     form.append("monthKey", "2026-10");
-    const res = await postUpload(req("/api/uploads/vol-surface", { method: "POST", body: form }));
+    const res = await postUpload(writeReq("/api/uploads/vol-surface", { method: "POST", body: form }));
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.summary).toEqual({ expiries: 18, strikePercents: 20 });
     expect(body.persisted).toBe(true);
     const bad = new FormData();
     bad.append("file", new File(["not a workbook"], "notes.txt"));
-    expect((await postUpload(req("/api/uploads/vol-surface", { method: "POST", body: bad }))).status).toBe(400);
+    expect((await postUpload(writeReq("/api/uploads/vol-surface", { method: "POST", body: bad }))).status).toBe(400);
   });
 });

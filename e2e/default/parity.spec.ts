@@ -96,6 +96,7 @@ test.describe("Default Values parity", () => {
       await vol.fill("2");
       await vol.blur();
       await marketData.saveParams.click();
+      await marketData.enterDeskKey();
       await inputs.dialog.dismissAll();
       await expect(page.getByTestId("strip-simulation")).toHaveText("Inputs Changed");
 

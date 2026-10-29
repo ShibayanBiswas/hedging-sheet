@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { E2E_DESK_KEY } from "../support/desk-key";
 import { NavBar } from "./nav-bar";
 
 /** Market Data: the vol surface toolbar and grid, surface parameters and the rate curve. */
@@ -39,5 +40,14 @@ export class MarketDataPage {
 
   param(testId: string): Locator {
     return this.page.getByTestId(testId);
+  }
+
+  /** The first save of a page load asks for the Desk Key. */
+  async enterDeskKey(key = E2E_DESK_KEY) {
+    const dialog = this.page.getByTestId("desk-key-dialog");
+    await expect(dialog).toBeVisible();
+    await this.page.getByTestId("desk-key-input").fill(key);
+    await this.page.getByTestId("desk-key-submit").click();
+    await expect(dialog).toBeHidden();
   }
 }
