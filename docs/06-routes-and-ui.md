@@ -4,7 +4,7 @@
 
 - **Header.** Logo, title, the underlying badge, Search with Ctrl K, the theme toggle, Upload Volatility Surface, and Download Excel. Download Excel is enabled after the first run and downloads the last run.
 - **Strip.** The valuation date, the active surface month and the simulation status: Not Run, Running, Up To Date or Inputs Changed.
-- **Tabs.** One full-width pill bar. Each tab takes an equal share of the width, with an icon, and the active pill slides between tabs on a spring. Below 1024 px the bar scrolls sideways with faded edges and keeps the active tab in view.
+- **Tabs.** One full-width pill bar. The tabs share the width, each with an icon, and the active pill slides between tabs on a spring. From 1024 px every tab is visible; where a font runs wide, a long label takes two lines rather than pushing the bar off screen. Below 1024 px the bar scrolls sideways with faded edges and keeps the active tab in view.
 - **Footer.** Nifty and Sensex closes, Fetched At in IST, the market status (Open, Pre Open, Closed, Holiday or Weekend), the data source, the Mongo status and the desk clock. On phones and short screens it keeps two lines: the closes, then Fetched At and the market status.
 - **Rendering.** Every page renders per request, because Inputs opens on today's date in India; a page built ahead of time would carry the build date.
 

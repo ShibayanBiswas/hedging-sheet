@@ -61,11 +61,11 @@ export function DeskFooter() {
             <Server className="icon-xs text-gold" />
             Anand Rathi Wealth · Hedging Sheet
           </span>
-          <span className="inline-flex items-center gap-2" data-testid="footer-nifty">
+          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-nifty">
             <Zap className="icon-xs text-gold" />
             Nifty <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.niftyLevel != null ? fmtNumber(levels.niftyLevel, 2) : "-"}</strong>
           </span>
-          <span className="inline-flex items-center gap-2" data-testid="footer-sensex">
+          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-sensex">
             <TrendingUp className="icon-xs text-emerald-700 dark:text-emerald-400" />
             Sensex <strong className="inline-block min-w-[9ch] tabular-nums text-ink">{levels?.sensexLevel != null ? fmtNumber(levels.sensexLevel, 2) : "-"}</strong>
           </span>
@@ -73,7 +73,7 @@ export function DeskFooter() {
             <Clock className="icon-xs text-violet-700 dark:text-violet-300" />
             Fetched At <span className="inline-block min-w-[12ch]">{fetched ? `${fetched} IST` : "-"}</span>
           </span>
-          <span className="inline-flex items-center gap-2" data-testid="footer-market-status">
+          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-market-status">
             <span className={cn("hs-status-dot", STATUS_TONE[status])} aria-hidden />
             Market <span className="inline-block min-w-[8ch]">{status}</span>
           </span>

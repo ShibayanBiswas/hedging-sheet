@@ -41,13 +41,13 @@ export function SiteNav() {
             const active = section.id === item.id;
             const Icon = item.icon;
             return (
-              <motion.div key={item.id} className="flex min-w-max flex-1" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
+              <motion.div key={item.id} className="flex min-w-max flex-1 lg:min-w-min lg:flex-auto" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
                   className={cn(
-                    "relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body",
+                    "relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:whitespace-normal lg:px-2 lg:text-center lg:text-caption lg:text-balance xl:gap-2 xl:px-3 xl:text-body",
                     active ? "btn-nav-active text-ink" : "text-muted hover:bg-[color:var(--ar-panel)] hover:text-ink",
                   )}
                 >
