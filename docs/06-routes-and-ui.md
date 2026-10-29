@@ -60,9 +60,15 @@ The payoff chart and scenario table follow the Primary SP Dashboard. The chart h
 
 ## Market Data
 
-- **Volatility Surface.** A full-width grid with a toolbar on the right: Edit Surface, Upload Surface, Download Surface. While editing, each cell is validated on leaving it; Save Surface and Cancel replace Edit Surface.
-- **Surface Parameters.** A Parameter, Value and Used In table with Edit Parameters, Save and Reset. A rate curve table sits underneath.
-- **Pricing Params Forward Grid**, **Rate Curve As Read** and **Implied Dividends** from the valuation date on.
+- **Headline.** Label and value pairs across the full width, four a row from 1024 px and two below: Surface, Source, Fetched At, Bid Or Offer, Expiry Rows, Strike Columns, the reference price and this month's Forward Sell Rate.
+- **Volatility Surface.**
+  - One toolbar above the grid, as in the Unwinding Calculator: Edit Surface, Upload Surface, Download Current Surface, Download Sample and Reload From Desk Database.
+  - Every result shows in a status row under the toolbar, with a toast, and never in a blocking popup.
+  - The grid has an Expiry column, the Nifty and Sensex strike rows under Reference Strikes, a Volatility % header over the strike columns, one heat scale with a legend, and a sticky header and first column.
+  - While editing, each cell is checked as it is typed, and Save Surface stays off until every cell holds a volatility above 0 and at most 200.
+  - An upload is checked in the browser, shown as a preview table and grid, and written only on Confirm Upload.
+- **Surface Parameters.** A Parameter, Value and Used In table beside the Rate Curve Points table from 1024 px, with Edit Parameters, Save and Reset, and its own status row.
+- **Pricing Parameters By Expiry**, **Rate Curve As Read** and **Implied Dividends.** From the valuation date on; Show History lists the earlier rows.
 
 ## Logic Atlas
 

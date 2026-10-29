@@ -1,5 +1,50 @@
 # 08 · Changelog
 
+## Round 8: Market Data
+
+Before: production on 28 Oct 2026. After: the mock server on the same data, Chromium at 1440 by 900, 1024 by 768 and 390 by 844, light and dark.
+
+| ID | Before | After |
+|---|---|---|
+| MD1 | Cards 20 px, 16 px on phones; cells 12 by 20 px; rows 45 px; page 3483 px at 1440 and 4184 px at 390 | Cards 16 px, 12 px on phones; cells 8 by 12 px; grid rows 32 px, table rows 36 px; gaps 16 px; page 3290 px at 1440 and 4152 px at 390 |
+| MD2 | Buttons 44, 46, 38 and 52 px in one row; Edit Surface stacked; remove buttons 36 by 48 px with no name | Every toolbar and section button 44 px with the icon beside the text; remove buttons 44 by 44 px named "Remove Tenor 1 Years" |
+| MD3 | Upper case labels with 2.5 px spacing, wrapping to 30 px; one column; 1104 px tall at 390 | Title Case labels at the table size, normal spacing, one line; parameters and rate curve side by side from 1024 px; values to 2 decimals |
+| MD4 | Rate curve cells 1 px padding, inputs 260 px wide, silver gradient inputs in dark | Cells 8 by 12 px, inputs 112 px, sticky header; dark inputs are flat dark boxes with light text, contrast above 4.5 to 1 |
+| MD5 | One row of 8 columns, 1223 px wide: 917 px visible at 1024, 307 px at 390 | Pairs table: 4 pairs a row from 1024 px, 2 below; 1340 of 1340 px visible at 1440, 940 of 940 at 1024, 330 of 330 at 390 |
+| MD6 | "Source Desk Database" three times | Once, in the Headline |
+| MD7 | Grid 2160 px wide; pinned column about 134 px of 307 px on a phone | Grid 1849 px wide in a 26 rem box; pinned column 57 px on a phone with dates as "Dec 26"; header and column hold within 2 px after scrolling 400 across and 300 down |
+| MD8 | First header "Strike Change" over dates and strike rows | First column "Expiry"; strike rows under "Reference Strikes", volatilities under "Volatility By Expiry" |
+| MD9 | Deep strike hardcoded 500 for one underlying | Nifty and Sensex rows read the Deep strike from the surface, or "-" |
+| MD10 | No unit on volatilities; "Vols are in percent points" | "Volatility %" group header; subtitle "Volatility In %" |
+| MD11 | Gold then maroon bands from alpha 0.08 to 0.40, with row striping | One sequential scale from alpha 0.05 to 0.45, maroon in light and gold in dark, with a Low and High legend; no striping |
+| MD12 | Indian grouping beside plain grouping | Indian grouping and tabular figures in every cell |
+| MD13 | 378 inputs of 80 px, rows 51 px; text ignored; zero and negatives accepted | Inputs 72 px in 4 by 8 px cells; each cell checked as typed, red border and a count; Save off until every cell is valid |
+| MD14 | Blocking alerts after a save or a local save | A toast and a status row: "Saved To Desk Database" or "Applied For This Session" |
+| MD15 | Edit, upload and download split between two places | One toolbar above the grid, as in the Unwinding Calculator: Edit Surface, Upload Surface, Download Current Surface, Download Sample, Reload From Desk Database |
+| MD16 | 4.5 megabytes in the browser, 8 on the server | One shared 4.5 megabyte limit in `lib/upload-limits.ts` |
+| MD17 | Extension and type checked by the file picker only | The server checks the name and the file signature |
+| MD18 | No secret and no rate limit on writes; no preview | Desk Key and rate limit on every write, Round 7; uploads now show a preview table and grid and write only on Confirm Upload |
+| MD19 | Blocking "Upload Complete" alert | A toast and a status row with the file, expiry rows, strike columns and time |
+| MD20 | Reload with no feedback; no Fetched At | Fetched At in the Headline; Reload spins and reports in the status row |
+| MD21 | About 124 and 120 rows from 2020 and 2019 in 520 px boxes | 56 and 34 rows from 29-Oct-2026 and 31-Oct-2026 in 22 rem boxes; Show History lists every row |
+| MD22 | Dates right aligned | Dates left aligned in every table on every page, numbers right aligned |
+| MD23 | "Pricing Params", "Upload Vol Surface", "Vol Surface sheet", "Rate In Percent", "Rate Used" to 3 decimals | "Pricing Parameters By Expiry", "Upload Surface", "Volatility Surface Sheet", "Rate %", "Rate Used %" to 2 decimals |
+| MD24 | "Simulation not run" | "Simulation Not Run" |
+| MD25 | Headers only with no surface | One empty row, eight skeleton rows while loading, an inline error row |
+| MD26 | Sections invisible until scrolled into view; with reduced motion, a direct load left them invisible | Sections and tables animate on mount and are visible at once with reduced motion |
+| MD27 | Summation icon on Compute From History | Text only, in the standard button style |
+| MD28 | "Sigmas", "Days" and "Times" after Shock Sigmas, Shock Days and Volatility Multiplier | Plain numbers; the same for Decay, Tenor In Days and Notional In Crore, whose labels already name the unit |
+
+### Decisions
+
+- **Button name.** "Reload From Desk Database" keeps the four words the brief names; the responsive audit lists it as the one exception to the three word rule.
+- **Header upload.** The header Upload Surface button opens Market Data, where the preview and the outcome show.
+- **Admin secret.** The Desk Key from Round 7, `DESK_WRITE_KEY`, is the server-side secret; it is set on Vercel for production and preview.
+
+### Tests
+
+`e2e/market-data.spec.ts` checks every finding at the three widths in both themes. It is read-only, so it also runs against production in the `prod` project.
+
 ## Round 7
 
 ### Database audit and cleanup
