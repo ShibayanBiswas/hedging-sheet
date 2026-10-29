@@ -50,3 +50,8 @@ export function fmtPercent(v: unknown, digits = 2): string {
 export function fmtCrore(v: unknown, digits = 2): string {
   return croreText(v, digits).text;
 }
+
+/** "10:00 am IST": the time format of the footer and the Market Data status row. */
+export function fmtIstTime(iso: string): string {
+  return `${new Date(iso).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })} IST`;
+}

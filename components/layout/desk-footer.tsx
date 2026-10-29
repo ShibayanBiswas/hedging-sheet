@@ -5,7 +5,7 @@ import { Activity, CircleDot, Clock, Database, Server, TrendingUp, Zap } from "l
 
 import { useDesk } from "@/lib/context/desk-provider";
 import { cn } from "@/lib/cn";
-import { fmtNumber } from "@/lib/format";
+import { fmtIstTime, fmtNumber } from "@/lib/format";
 import type { SessionPhase } from "@/lib/market-data";
 
 const IST = "Asia/Kolkata";
@@ -45,9 +45,7 @@ export function DeskFooter() {
   const now = useNow();
   const status = marketStatusLabel(levels?.sessionPhase, now);
   const mongo = datasetLoading ? "Checking" : datasetSource === "database" ? "Connected" : "Unavailable";
-  const fetched = levels?.fetchedAt
-    ? new Date(levels.fetchedAt).toLocaleTimeString("en-IN", { timeZone: IST, hour: "2-digit", minute: "2-digit" })
-    : null;
+  const fetched = levels?.fetchedAt ? fmtIstTime(levels.fetchedAt) : null;
 
   return (
     <footer
@@ -71,7 +69,7 @@ export function DeskFooter() {
           </span>
           <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-fetched">
             <Clock className="icon-xs text-violet-700 dark:text-violet-300" />
-            Fetched At <span className="inline-block min-w-[12ch]">{fetched ? `${fetched} IST` : "-"}</span>
+            Fetched At <span className="inline-block min-w-[12ch]">{fetched ?? "-"}</span>
           </span>
           <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2" data-testid="footer-market-status">
             <span className={cn("hs-status-dot", STATUS_TONE[status])} aria-hidden />

@@ -26,8 +26,7 @@ function TableFrame({ children, testId, title, note, book }: { children: ReactNo
       className="w-full min-w-0"
       data-testid={testId}
       initial={reduce ? false : { opacity: 0, y: 10 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: deskEase }}
     >
       <div className="overflow-hidden rounded-2xl">
@@ -41,12 +40,74 @@ function TableFrame({ children, testId, title, note, book }: { children: ReactNo
   );
 }
 
+/** Numbers are right aligned; text and dates are left aligned. */
+const rightAligned = (kind: CellKind) => kind !== "text" && kind !== "date";
+
 function Cell({ value, kind, digits, pinned, cell }: { value: CellValue; kind: CellKind; digits?: number; pinned?: boolean; cell: string }) {
   const d = displayCell(value, kind, digits);
   return (
-    <td className={cn(kind !== "text" && "text-right", pinned && "col-pinned font-semibold")} title={d.title} data-cell={cell} data-value={rawValue(value)}>
+    <td
+      className={cn(rightAligned(kind) && "text-right", pinned && "col-pinned font-semibold")}
+      title={d.title}
+      data-cell={cell}
+      data-value={rawValue(value)}
+      data-kind={kind}
+    >
       {d.text}
     </td>
+  );
+}
+
+export type PairItem = { label: string; value: CellValue; kind: CellKind; digits?: number };
+
+/**
+ * Label and value pairs laid out across the full width: four pairs a row from 1024 px, two below.
+ * The columns share the width, so the table never scrolls sideways.
+ */
+export function PairsTable({ items, testId, title }: { items: PairItem[]; testId: string; title: string }) {
+  const wide = useMediaQuery("(min-width: 1024px)");
+  const perRow = wide ? 4 : 2;
+  const rows = Array.from({ length: Math.ceil(items.length / perRow) }, (_, r) => items.slice(r * perRow, r * perRow + perRow));
+  return (
+    <div className="hs-pairs-frame w-full min-w-0 overflow-hidden rounded-2xl" data-testid={testId} role="region" aria-label={title}>
+      <div className="h-1 w-full bg-gradient-to-r from-maroon via-gold to-maroon/70" aria-hidden />
+      <table className="data-table-premium hs-pairs">
+        <colgroup>
+          {Array.from({ length: perRow }, (_, i) => (
+            <Fragment key={i}>
+              <col style={{ width: `${42 / perRow}%` }} />
+              <col style={{ width: `${58 / perRow}%` }} />
+            </Fragment>
+          ))}
+        </colgroup>
+        <tbody>
+          {rows.map((pairs, r) => (
+            <tr key={r}>
+              {pairs.map((item) => {
+                const d = displayCell(item.value, item.kind, item.digits);
+                return (
+                  <Fragment key={item.label}>
+                    <th scope="row" data-cell={cellKey(item.label, "Item")}>
+                      {item.label}
+                    </th>
+                    <td
+                      className={cn(rightAligned(item.kind) && "text-right")}
+                      title={d.title}
+                      data-cell={cellKey(item.label, "Value")}
+                      data-value={rawValue(item.value)}
+                      data-kind={item.kind}
+                    >
+                      {d.text}
+                    </td>
+                  </Fragment>
+                );
+              })}
+              {pairs.length < perRow ? <td colSpan={(perRow - pairs.length) * 2} aria-hidden /> : null}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -57,7 +118,7 @@ export function TableCard({ spec, pinFirst = true, testId }: { spec: TableSpec; 
         <thead>
           <tr className="hs-head-row">
             {spec.columns.map((c, i) => (
-              <th key={c.key} className={cn(c.kind !== "text" && "text-right", i === 0 && pinFirst && "col-pinned")} style={headStyle(c.label)}>
+              <th key={c.key} className={cn(rightAligned(c.kind) && "text-right", i === 0 && pinFirst && "col-pinned")} style={headStyle(c.label)}>
                 {c.label}
               </th>
             ))}

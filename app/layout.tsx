@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { AppShell } from "@/components/layout/app-shell";
 import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
 import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
+import { SurfaceUploadProvider } from "@/lib/context/surface-upload-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
 import { ThemeProvider } from "@/lib/context/theme-provider";
 
@@ -40,7 +41,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <DeskDialogProvider>
             <DeskKeyProvider>
               <DeskProvider>
-                <AppShell>{children}</AppShell>
+                <SurfaceUploadProvider>
+                  <AppShell>{children}</AppShell>
+                </SurfaceUploadProvider>
               </DeskProvider>
             </DeskKeyProvider>
           </DeskDialogProvider>

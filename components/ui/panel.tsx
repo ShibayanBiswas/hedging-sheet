@@ -26,8 +26,7 @@ export function Panel({
       id={id}
       className={cn("glass section-pad w-full min-w-0 rounded-2xl", recalculating && "hs-recalc", className)}
       initial={reduce ? false : { opacity: 0, y: 14 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-30px" }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: deskEase, delay: Math.min(index, 8) * 0.05 }}
     >
       {children}

@@ -245,7 +245,7 @@ export function parseVolSurfaceWorkbook(buffer: ArrayBuffer, monthKey: string = 
       break;
     }
   }
-  if (headerRow < 0) throw new Error("The Strike Change header row was not found on the Vol Surface sheet.");
+  if (headerRow < 0) throw new Error("The Strike Change header row was not found on the Volatility Surface Sheet.");
 
   const headRow = grid[headerRow] ?? [];
   const moneyness: number[] = [];
@@ -307,7 +307,7 @@ export function parseVolSurfaceWorkbook(buffer: ArrayBuffer, monthKey: string = 
     }
     volsPercent.push(vols);
   }
-  if (!expiries.length) throw new Error("No expiry rows were found on the Vol Surface sheet.");
+  if (!expiries.length) throw new Error("No expiry rows were found on the Volatility Surface Sheet.");
 
   const paramName =
     wb.SheetNames.find((n) => /param/i.test(n) && n !== surfaceName) ?? wb.SheetNames.find((n) => n !== surfaceName);

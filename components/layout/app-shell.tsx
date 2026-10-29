@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Download, FileSpreadsheet, Loader2, Search, Upload } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { CommandPalette } from "@/components/layout/command-palette";
@@ -10,9 +11,9 @@ import { DeskFooter } from "@/components/layout/desk-footer";
 import { SiteNav } from "@/components/layout/site-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useDesk } from "@/lib/context/desk-provider";
+import { useSurfaceUpload } from "@/lib/context/surface-upload-provider";
 import { underlyingName } from "@/lib/inputs/draft";
 import { useScrollRails } from "@/lib/hooks/use-scroll-rails";
-import { useSurfaceUpload } from "@/lib/hooks/use-surface-upload";
 import { cn } from "@/lib/cn";
 
 function DownloadExcelButton() {
@@ -63,14 +64,16 @@ function DownloadExcelButton() {
 /** Unwinding style header upload shortcut. */
 function HeaderUploadShortcut() {
   const ref = useRef<HTMLInputElement>(null);
-  const { upload, busy } = useSurfaceUpload();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { choose, busy } = useSurfaceUpload();
   return (
     <>
       <button
         type="button"
         className="btn-animated btn-motion btn-accent !px-3 !py-2"
-        title="Upload Volatility Surface"
-        aria-label="Upload Volatility Surface"
+        title="Upload Surface"
+        aria-label="Upload Surface"
         data-testid="header-upload"
         disabled={busy}
         onClick={() => ref.current?.click()}
@@ -79,7 +82,7 @@ function HeaderUploadShortcut() {
         <span className="relative z-10 inline-flex items-center gap-2">
           <Upload className="icon-xs" />
           <FileSpreadsheet className="hidden icon-xs sm:inline" />
-          <span className="hidden lg:inline">{busy ? "Uploading" : "Upload Volatility Surface"}</span>
+          <span className="hidden lg:inline">{busy ? "Uploading" : "Upload Surface"}</span>
         </span>
       </button>
       <input
@@ -90,8 +93,11 @@ function HeaderUploadShortcut() {
         data-testid="header-upload-file"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) void upload(file);
           e.target.value = "";
+          if (!file) return;
+          // The preview and the outcome show on Market Data.
+          if (pathname !== "/market-data") router.push("/market-data");
+          void choose(file);
         }}
       />
     </>

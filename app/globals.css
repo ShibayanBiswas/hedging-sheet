@@ -2128,3 +2128,275 @@ svg.lucide {
   max-width: 60ch;
   text-wrap: pretty;
 }
+
+.data-table-premium tbody td[data-kind="date"] {
+  white-space: nowrap;
+}
+
+/* Fields on dark: a flat dark box with light text, never the light gradient of the light theme. */
+html.dark .input-glow {
+  background: var(--ar-input-bg);
+  color: var(--ar-ink);
+}
+
+/* ------------------------------------------------------------------ Market Data */
+:root {
+  --heat-rgb: 122 30 44;
+}
+
+html.dark {
+  --heat-rgb: 212 178 76;
+}
+
+/* Cards 12 px on phones and 16 px above; cells 8 by 12 px. */
+.md-page .section-pad {
+  padding: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .md-page .section-pad {
+    padding: 1rem;
+  }
+}
+
+.md-page .data-table-premium thead th,
+.md-page .data-table-premium tbody td,
+.md-page .data-table-premium tbody th {
+  padding: 0.5rem 0.75rem;
+}
+
+.md-page .data-table-premium tbody td.md-param-label {
+  white-space: nowrap;
+  max-width: none;
+}
+
+.md-page .md-param-value {
+  min-width: 9rem;
+}
+
+.md-cell-input {
+  width: 7rem;
+  margin-left: auto;
+}
+
+.md-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.md-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  white-space: nowrap;
+}
+
+.md-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+}
+
+.md-status {
+  margin: 0 0 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ar-border);
+  border-left-width: 4px;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-body);
+  color: var(--ar-ink);
+  background: var(--ar-panel);
+}
+
+.md-status--ok {
+  border-left-color: #047857;
+}
+
+.md-status--warn {
+  border-left-color: #b45309;
+}
+
+.md-status--error {
+  border-left-color: #be123c;
+}
+
+.md-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgb(212 178 76 / 0.4);
+  border-radius: 1rem;
+  padding: 0.75rem;
+}
+
+/* Label and value pairs share the width and never scroll sideways. */
+.hs-pairs-frame {
+  border: 1px solid rgb(212 178 76 / 0.25);
+}
+
+.data-table-premium.hs-pairs {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 0;
+}
+
+.hs-pairs tbody th {
+  font-size: var(--text-table-head);
+  font-weight: 600;
+  line-height: var(--leading-table);
+  text-align: left;
+  vertical-align: top;
+  color: var(--ar-maroon);
+  background: var(--ar-table-head-from);
+  border-bottom: 1px solid var(--ar-border);
+  overflow-wrap: anywhere;
+}
+
+.hs-pairs tbody td:not(.text-right) {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 639px) {
+  .md-page .hs-pairs tbody th,
+  .md-page .hs-pairs tbody td {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* The volatility grid: rows 32 px, no striping, the heat colour is the only background. */
+.md-page .vol-grid tbody td {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+.md-page .vol-grid--editing tbody td {
+  padding: 0.25rem 0.5rem;
+}
+
+.vol-grid thead tr:first-child th.vol-grid-group {
+  height: 2.25rem;
+  text-align: left;
+}
+
+/* The grid scrolls in a box shorter than the window, under its sticky header and beside its pinned column. */
+.md-page .vol-grid-box {
+  max-height: min(60dvh, 26rem);
+}
+
+/* The history tables list upcoming rows by default, so a shorter box shows them without a long scroll. */
+.md-page .md-history .desk-table-scroll {
+  max-height: min(50dvh, 22rem);
+}
+
+.vol-grid thead tr:nth-child(2) th {
+  top: 2.25rem;
+}
+
+.vol-grid tbody tr td {
+  background-color: var(--ar-table-row);
+}
+
+.vol-grid tr.vol-grid-label td {
+  font-weight: 600;
+  color: var(--ar-maroon);
+  background-color: var(--ar-panel);
+}
+
+.vol-grid tr.vol-grid-label td span {
+  position: sticky;
+  left: 0.75rem;
+}
+
+.vol-grid td.vol-grid-note {
+  white-space: normal;
+  max-width: none;
+  font-style: italic;
+  color: var(--ar-muted);
+}
+
+.vol-grid td.vol-grid-note--error {
+  font-style: normal;
+  font-weight: 600;
+  color: #be123c;
+}
+
+html.dark .vol-grid td.vol-grid-note--error {
+  color: #fda4af;
+}
+
+.vol-grid-skeleton {
+  display: block;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ar-panel), rgb(212 178 76 / 0.18), var(--ar-panel));
+  background-size: 200% 100%;
+  animation: vol-skeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes vol-skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vol-grid-skeleton {
+    animation: none;
+  }
+}
+
+.vol-grid-input {
+  width: 4.5rem;
+  border: 1px solid var(--ar-border);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--ar-input-bg);
+  color: var(--ar-ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.vol-grid-input:focus {
+  border-color: var(--ar-gold);
+}
+
+.vol-grid-input--invalid,
+.vol-grid-input--invalid:focus {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2px rgb(225 29 72 / 0.3);
+}
+
+.vol-grid-legend-bar {
+  display: inline-block;
+  width: 8rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--ar-border);
+  background: linear-gradient(90deg, rgb(var(--heat-rgb) / 0.05), rgb(var(--heat-rgb) / 0.45));
+}
+
+/* Phones: a narrow pinned column, so the volatilities get the width. */
+@media (max-width: 639px) {
+  .vol-grid thead th.col-pinned,
+  .vol-grid tbody td.col-pinned {
+    min-width: 0;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

@@ -41,6 +41,10 @@ export type DeskContextValue = {
   market: MarketData;
   datasetSource: string;
   datasetLoading: boolean;
+  /** When the surface and parameters last arrived from the server. */
+  datasetFetchedAt: string | null;
+  /** Why the last load failed; the built in surface is shown meanwhile. */
+  datasetError: string | null;
   refreshDataset: () => Promise<MarketData | null>;
   applyMarket: (next: { surface?: VolSurface; params?: PricingParams | null }) => void;
   /** Field errors from lib/inputs/validate. Inline display shows invalid values at once and empty fields after a run attempt. */
@@ -92,6 +96,8 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const [marketVersion, setMarketVersion] = useState(0);
   const [datasetSource, setDatasetSource] = useState("seed");
   const [datasetLoading, setDatasetLoading] = useState(true);
+  const [datasetFetchedAt, setDatasetFetchedAt] = useState<string | null>(null);
+  const [datasetError, setDatasetError] = useState<string | null>(null);
   const [dailyVolStatus, setDailyVolStatus] = useState<DailyVolStatus>({ loading: true, error: null, observations: null, from: null, to: null });
   const [simulation, setSimulation] = useState<SimulationState>({ running: false, step: -1 });
   const [lastRun, setLastRun] = useState<LastRun | null>(null);
@@ -213,13 +219,17 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const loadDataset = useCallback(async (): Promise<MarketData | null> => {
     try {
       const res = await fetch("/api/dataset", { cache: "no-store" });
+      if (!res.ok) throw new Error(`The desk database answered ${res.status}`);
       const data = (await res.json()) as { surface: VolSurface; params: PricingParams; surfaceSource: string };
       const next = { surface: normalizeVolSurface(data.surface), params: data.params };
       setMarket(next);
       bumpMarketVersion();
       setDatasetSource(data.surfaceSource);
+      setDatasetFetchedAt(new Date().toISOString());
+      setDatasetError(null);
       return next;
     } catch {
+      setDatasetError("The Surface Could Not Be Loaded - Showing The Built In Surface");
       return null;
     } finally {
       setDatasetLoading(false);
@@ -374,6 +384,8 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       market,
       datasetSource,
       datasetLoading,
+      datasetFetchedAt,
+      datasetError,
       refreshDataset,
       applyMarket,
       fieldErrors,
@@ -401,6 +413,8 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       market,
       datasetSource,
       datasetLoading,
+      datasetFetchedAt,
+      datasetError,
       refreshDataset,
       applyMarket,
       fieldErrors,
