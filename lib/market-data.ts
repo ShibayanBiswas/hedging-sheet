@@ -1,3 +1,4 @@
+import { CACHE_TAGS, HISTORY_REVALIDATE_SECONDS, historyTag } from "@/lib/cache";
 import { deskNow, istTodayYmd as deskTodayISO } from "@/lib/engine/dates";
 import { yahooFetch } from "@/lib/test/mocks/yahoo";
 
@@ -244,7 +245,10 @@ function readDatedCloses(json: YahooChart): DatedClose[] {
   return bars;
 }
 
-/** `live`: the range reaches today, whose bar is still changing, so nothing is cached. */
+/**
+ * Daily history, cached by Next.js for a few hours under a tag per underlying.
+ * `live`: the range reaches today, whose bar is still changing, so this instance keeps no copy of its own.
+ */
 async function fetchYahooBars(
   symbol: string,
   period1: number,
@@ -260,7 +264,7 @@ async function fetchYahooBars(
         `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&period1=${period1}&period2=${period2}`,
         {
           headers: { "User-Agent": "Mozilla/5.0 Hedging-Sheet/1.0" },
-          ...(live ? { cache: "no-store" as const } : { next: { revalidate: 86_400 } }),
+          next: { revalidate: HISTORY_REVALIDATE_SECONDS, tags: [CACHE_TAGS.history, historyTag(symbol === "^BSESN" ? "sensex" : "nifty")] },
         },
       );
       if (!res.ok) continue;
