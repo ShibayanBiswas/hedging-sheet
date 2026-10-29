@@ -9,6 +9,9 @@ import { bookPayoff, numbersIn, termSheetPayoff, thirtyLevels } from "./independ
 
 const RUNS = 200;
 
+/** Each case prices whole books; yielding between cases keeps the test worker responsive to the runner. */
+const yieldToRunner = () => new Promise<void>((resolve) => setImmediate(resolve));
+
 /** A random valid product: 1 to 4 spreads above the start, a protection strike at or below 100, any option types. */
 const products = fc
   .record({
@@ -44,9 +47,10 @@ const products = fc
   });
 
 describe("invariants on random products", () => {
-  it(`the option book gives the product payoff, gap below 1e-6, over ${RUNS} products`, () => {
-    fc.assert(
-      fc.property(products, (inputs) => {
+  it(`the option book gives the product payoff, gap below 1e-6, over ${RUNS} products`, async () => {
+    await fc.assert(
+      fc.asyncProperty(products, async (inputs) => {
+        await yieldToRunner();
         const r = run(inputs, undefined, G0_OPTIONS);
         const fall = totalLossFall(inputs);
         expect(r.warnings.some((w) => w.code === "loss-cap")).toBe(fall != null);
@@ -59,9 +63,10 @@ describe("invariants on random products", () => {
     );
   });
 
-  it(`the solver converges on every one of ${RUNS} products`, () => {
-    fc.assert(
-      fc.property(products, (inputs) => {
+  it(`the solver converges on every one of ${RUNS} products`, async () => {
+    await fc.assert(
+      fc.asyncProperty(products, async (inputs) => {
+        await yieldToRunner();
         const r = run(inputs, undefined, G0_OPTIONS);
         expect(Math.abs(r.diagnostics.goalSeekResidual)).toBeLessThan(1e-6);
       }),
@@ -69,9 +74,10 @@ describe("invariants on random products", () => {
     );
   });
 
-  it(`Inbuilt falls as the coupon rises, over ${RUNS} products`, () => {
-    fc.assert(
-      fc.property(products, fc.double({ min: 0.01, max: 0.5, noNaN: true }), (inputs, step) => {
+  it(`Inbuilt falls as the coupon rises, over ${RUNS} products`, async () => {
+    await fc.assert(
+      fc.asyncProperty(products, fc.double({ min: 0.01, max: 0.5, noNaN: true }), async (inputs, step) => {
+        await yieldToRunner();
         const lower = run(inputs, undefined, G0_OPTIONS);
         const higher = run(product({ ...inputs, coupon: inputs.coupon + step, strikeSides: undefined }), undefined, G0_OPTIONS);
         expect(higher.summary.actualInbuilt).toBeLessThan(lower.summary.actualInbuilt);
@@ -80,9 +86,10 @@ describe("invariants on random products", () => {
     );
   });
 
-  it(`no NaN and no Infinity reach the result, over ${RUNS} products`, () => {
-    fc.assert(
-      fc.property(products, (inputs) => {
+  it(`no NaN and no Infinity reach the result, over ${RUNS} products`, async () => {
+    await fc.assert(
+      fc.asyncProperty(products, async (inputs) => {
+        await yieldToRunner();
         const r = run(inputs, undefined, G0_OPTIONS);
         expect(numbersIn(r).filter(([, n]) => !Number.isFinite(n)).map(([p]) => p)).toEqual([]);
       }),
