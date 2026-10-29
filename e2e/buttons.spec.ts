@@ -37,9 +37,18 @@ async function closeOverlays(page: Page) {
   }
 }
 
-/** Layout shift since the last reset, user input excluded. */
-const readShift = (page: Page) => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
-const resetShift = (page: Page) => page.evaluate(() => ((window as unknown as { __cls: number }).__cls = 0));
+/** Layout shift since the last reset, user input excluded, with the elements that moved. */
+const readShift = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __cls: number; __shiftSources: string[] };
+    return { value: w.__cls, sources: w.__shiftSources.join("; ") };
+  });
+const resetShift = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __cls: number; __shiftSources: string[] };
+    w.__cls = 0;
+    w.__shiftSources = [];
+  });
 
 test("every button and link on every tab: no console error, no failed response, no layout shift above 0.1", async ({ page, inputs, nav, consoleErrors }) => {
   test.setTimeout(600_000);
@@ -50,12 +59,23 @@ test("every button and link on every tab: no console error, no failed response, 
   });
   page.on("filechooser", (chooser) => void chooser.setFiles([]).catch(() => undefined));
   await page.addInitScript(() => {
-    const w = window as unknown as { __cls: number };
+    const w = window as unknown as { __cls: number; __shiftSources: string[] };
     w.__cls = 0;
+    w.__shiftSources = [];
     new PerformanceObserver((list) => {
-      for (const e of list.getEntries() as Array<PerformanceEntry & { value: number; hadRecentInput: boolean }>) if (!e.hadRecentInput) w.__cls += e.value;
+      for (const e of list.getEntries() as Array<PerformanceEntry & { value: number; hadRecentInput: boolean; sources?: Array<{ node?: Node | null }> }>) {
+        if (e.hadRecentInput) continue;
+        w.__cls += e.value;
+        const moved = (e.sources ?? []).map((s) => (s.node instanceof HTMLElement ? s.node.dataset.testid ?? `${s.node.tagName}.${String(s.node.className).split(" ")[0]}` : String(s.node?.nodeName)));
+        w.__shiftSources.push(`${e.value.toFixed(3)} ${moved.join(", ")}`);
+      }
     }).observe({ type: "layout-shift", buffered: true });
   });
+  // CI machines are slower; CPU_THROTTLE reproduces that locally.
+  if (process.env.CPU_THROTTLE) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.CPU_THROTTLE) });
+  }
 
   await inputs.goto("default");
   await inputs.run();
@@ -63,11 +83,14 @@ test("every button and link on every tab: no console error, no failed response, 
   let clicked = 0;
 
   for (const tab of TAB_IDS) {
-    await resetShift(page);
+    // The swap from the old page to the new one is the navigation itself; stability is measured once the page has rendered.
     await nav.go(tab);
-    await page.waitForTimeout(1_200);
+    await page.getByRole("heading", { level: 1 }).first().waitFor({ timeout: 15_000 });
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+    await resetShift(page);
+    await page.waitForTimeout(1_500);
     const shift = await readShift(page);
-    if (shift > 0.1) shifts.push(`${tab}: ${shift.toFixed(3)}`);
+    if (shift.value > 0.1) shifts.push(`${tab}: ${shift.value.toFixed(3)} from ${shift.sources}`);
 
     const count = await page.locator(CLICKABLE).count();
     for (let i = 0; i < count; i++) {

@@ -28,6 +28,7 @@ Every defect found by the live audit of 29-Oct-2026 and by the crawls, golden te
 | BL-07 | Product | Open the payoff at 390 px | Each level on one line | "37.00% Target" on 3 lines | The badges no longer wrap | `e2e/layout.spec.ts` single line |
 | BL-08 | Every page | axe colour contrast | At least 4.5 to 1 | Gold text 3.25 to 1, the Ctrl K hint 4.43 to 1 | Darker gold and hint text | `e2e/a11y.spec.ts` |
 | BL-09 | Market Data | axe, keyboard | A scrolling table can take focus | The headline table scrolled with no focus | The pairs table frame takes focus | `e2e/a11y.spec.ts` |
+| BL-10 | Logic Atlas | Read the page outline | One level 1 heading, as every other page has | The title "Logic Atlas" was a level 2 heading, so the page had none | The title is the level 1 heading | `e2e/buttons.spec.ts` waits for each page's level 1 heading |
 
 ## Deviations Kept On Purpose
 
