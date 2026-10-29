@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev --port 3005",
     "build": "next build",
+    "vercel-build": "tsx scripts/db-deploy-setup.ts && next build",
     "start": "next start --port 3005",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -43,6 +44,11 @@
     "verify:mongo": "npx tsx scripts/verify-mongo.ts",
     "verify": "npm run verify:calculations && npm run verify:pricer && npm run verify:exports && npm run verify:vol-upload && npm run verify:edge-cases",
     "seed:mongo": "npx tsx scripts/seed-mongo.ts",
+    "db:audit": "tsx scripts/db-audit.ts",
+    "db:cleanup": "tsx scripts/db-cleanup.ts",
+    "db:apply-validators": "tsx scripts/db-apply-validators.ts",
+    "db:ensure-indexes": "tsx scripts/db-ensure-indexes.ts",
+    "cache:clear": "tsx scripts/clear-caches.ts",
     "bake:vol-surface": "npx tsx scripts/bake-vol-surface.ts",
     "e2e:local": "npx tsx scripts/e2e-local.ts"
   },

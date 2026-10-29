@@ -4,7 +4,7 @@ import { loadEnv } from "./load-env";
 loadEnv();
 
 async function main() {
-  const { closeDb, getDb } = await import("../lib/db/mongo");
+  const { closeDb, getDb } = await import("../lib/db/client");
   const db = await getDb();
   if (!db) {
     console.log("Mongo unavailable: check MONGODB_URI or MONGODB_HOST in .env.local");

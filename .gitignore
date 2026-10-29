@@ -27,6 +27,9 @@ coverage/
 hedging_sheet_cursor_prompt.md
 hedging_sheet_walkthrough.md
 
+# database backups from scripts/db-cleanup.ts: production data, never committed
+backups/
+
 # misc
 .DS_Store
 *.log
