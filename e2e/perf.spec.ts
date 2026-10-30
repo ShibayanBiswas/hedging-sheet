@@ -56,11 +56,11 @@ test.describe("performance budgets", () => {
     }
   });
 
-  test("a run completes in under 3 s with mocked market data", async ({ page, inputs }) => {
+  test("a run completes in under 2 s with mocked market data", async ({ page, inputs }) => {
     await inputs.goto();
     const start = Date.now();
     await inputs.runButton.click();
     await expect(page).toHaveURL(/\/summary$/, { timeout: 10_000 });
-    expect(Date.now() - start).toBeLessThan(3_000);
+    expect(Date.now() - start).toBeLessThan(prod ? 2_000 : 3_000);
   });
 });

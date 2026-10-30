@@ -1,0 +1,32 @@
+name: Vercel Preview
+
+on:
+  # Vercel reports each deployment to GitHub; this runs once a preview is live.
+  deployment_status:
+
+jobs:
+  test-vercel:
+    name: Read-Only Tests Against The Preview
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment != 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Sent as a header so the protected preview answers; never printed.
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:vercel -- --url "${{ github.event.deployment_status.environment_url }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports-preview
+          path: reports
+          if-no-files-found: ignore

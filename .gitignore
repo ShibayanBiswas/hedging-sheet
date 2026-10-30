@@ -16,6 +16,7 @@ next-env.d.ts
 .vercel
 
 # testing
+reports/
 test-results/
 playwright-report/
 blob-report/

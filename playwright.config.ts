@@ -9,6 +9,8 @@ const external = process.env.BASE_URL;
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
+/** scripts/test-run.ts points this at reports/<timestamp>; plain runs keep the usual folders. */
+const reports = process.env.REPORT_DIR;
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
 const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/, /layout\.spec/, /numbers\.spec/, /buttons\.spec/, /pipeline\//];
@@ -17,16 +19,16 @@ const desktop = { viewport: { width: 1440, height: 900 } };
 export default defineConfig({
   testDir: "e2e",
   timeout: 90_000,
-  expect: { timeout: 20_000, toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: "disabled", caret: "hide" } },
+  expect: { timeout: 20_000, toHaveScreenshot: { maxDiffPixelRatio: 0.001, animations: "disabled", caret: "hide" } },
   fullyParallel: false,
   workers: 1,
   retries: ci ? 1 : 0,
   reporter: [
     ["list"],
-    ["html", { outputFolder: "playwright-report", open: "never" }],
-    ["junit", { outputFile: "test-results/junit-e2e.xml" }],
+    ["html", { outputFolder: reports ? `${reports}/playwright-html` : "playwright-report", open: "never" }],
+    ["junit", { outputFile: reports ? `${reports}/junit-e2e.xml` : "test-results/junit-e2e.xml" }],
   ],
-  outputDir: "test-results/playwright",
+  outputDir: reports ? `${reports}/traces` : "test-results/playwright",
   snapshotPathTemplate: "e2e/visual/__screenshots__/{projectName}/{platform}/{arg}{ext}",
   // Baselines are Linux only, made and compared in CI, so font rendering on other systems never fails them.
   ignoreSnapshots: process.platform !== "linux",
@@ -42,7 +44,9 @@ export default defineConfig({
   },
   projects: external
     ? [
-        { name: "prod", testMatch: /(prod-smoke|market-data|strikes)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        { name: "prod", testMatch: /(prod-smoke|market-data|strikes|crawl)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        { name: "prod-firefox", testMatch: /crawl\.spec\.ts/, use: { ...devices["Desktop Firefox"], ...desktop } },
+        { name: "prod-webkit", testMatch: /crawl\.spec\.ts/, use: { ...devices["Desktop Safari"], ...desktop } },
         // Read-only layout checks on live data; the screenshots need the mock data, so R8 stays local.
         { name: "prod-responsive", testMatch: /responsive[\\/]r(01|09|10|11)[^\\/]*\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
       ]

@@ -1,0 +1,50 @@
+name: Production Smoke
+
+on:
+  # After each production deployment, and every 6 hours in case Yahoo, the database or Vercel change underneath.
+  deployment_status:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke:
+    name: Read-Only Tests Against Production
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      URL: ${{ github.event.deployment_status.environment_url || 'https://hedging-sheet.vercel.app' }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:vercel -- --url "$URL"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports-production
+          path: reports
+          if-no-files-found: ignore
+      - name: Open an issue when production fails
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue create \
+            --title "Production Smoke Failed · $(TZ=Asia/Kolkata date '+%d-%b-%Y %H:%M IST')" \
+            --body "The read-only production tests failed against $URL. Run, reports and traces: $RUN_URL"
