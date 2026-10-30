@@ -65,32 +65,16 @@ function istMinutesSinceMidnight(now: Date): number {
     minute: "2-digit",
     hour12: false,
   }).formatToParts(now);
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  const hour = Number(parts.find((p) => p.type === "hour")!.value);
+  const minute = Number(parts.find((p) => p.type === "minute")!.value);
   return hour * 60 + minute;
 }
 
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** 0 = Sunday … 6 = Saturday in IST. */
 function istWeekday(now: Date): number {
-  // 0 = Sunday … 6 = Saturday in IST
-  const w = new Intl.DateTimeFormat("en-US", { timeZone: IST, weekday: "short" }).format(now);
-  switch (w) {
-    case "Sun":
-      return 0;
-    case "Mon":
-      return 1;
-    case "Tue":
-      return 2;
-    case "Wed":
-      return 3;
-    case "Thu":
-      return 4;
-    case "Fri":
-      return 5;
-    case "Sat":
-      return 6;
-    default:
-      return now.getUTCDay();
-  }
+  return WEEKDAYS.indexOf(new Intl.DateTimeFormat("en-US", { timeZone: IST, weekday: "short" }).format(now));
 }
 
 /**
