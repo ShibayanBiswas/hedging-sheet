@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { quarterlyExpiries } from "@/lib/engine/schedule";
-import { blankInputs, isPriceable } from "@/lib/inputs/draft";
+import { blankInputs, isPriceable, type DeskInputs } from "@/lib/inputs/draft";
+import { setSpreadCount } from "@/lib/inputs/strikes";
 import type { HedgeInputs, HedgingResult, OptionType } from "@/lib/engine/types";
 
 import { G0_OPTIONS, g0Inputs, product, run } from "./cases";
@@ -93,6 +94,25 @@ independentlyChecked("G4: no protection", { underlying: "Sensex", strikes: 6, ca
 independentlyChecked("G5: a 3 year tenor with 10 quarterly observations", { underlying: "Sensex", strikes: 6, calls: 0, expiries: 10 }, () => ({
   inputs: product({ tenorDays: 1095, expiryCount: 10, expiryDates: quarterlyExpiries("2026-11-26", 10, "Sensex") }),
 }));
+
+independentlyChecked("Golden · One Call: Strike 1 A Call, The Rest Puts", { underlying: "Sensex", strikes: 6, calls: 1, expiries: 6 }, () => ({
+  inputs: product({ strikeOptionTypes: ["C", "P", "P", "P", "P", "P"] }),
+  options: G0_OPTIONS,
+}));
+
+independentlyChecked("Golden · 1 × 1 × 1: One Expiry, One Spread, One Hedge Expiry", { underlying: "Sensex", strikes: 5, calls: 0, expiries: 1 }, () => ({
+  inputs: product({ strikePercents: [125, 105, 85, 84, 70], participations: [null], expiryCount: 1, expiryDates: [g0Inputs().expiryDates[2]!], hedgeExpiryIndex: null }),
+  options: G0_OPTIONS,
+}));
+
+independentlyChecked("Golden · Maximum: 10 Expiries, 6 Spreads, 10 Strikes", { underlying: "Sensex", strikes: 10, calls: 0, expiries: 10 }, () => {
+  const base = g0Inputs();
+  const strikes = setSpreadCount(base as DeskInputs, 6, "default");
+  return {
+    inputs: product({ strikePercents: strikes.strikePercents, participations: strikes.participations, expiryCount: 10, expiryDates: quarterlyExpiries("2029-05-31", 10, "Sensex"), hedgeExpiryIndex: null }),
+    options: G0_OPTIONS,
+  };
+});
 
 describe("G3: an all Call book against the all Put book", () => {
   const puts = run(g0Inputs(), undefined, G0_OPTIONS);
