@@ -1,12 +1,33 @@
+import type { Page } from "@playwright/test";
+
 import { formatDate } from "../../lib/engine/dates";
 import { expect, test } from "../fixtures";
 import { readShape } from "../support/tables";
-import { chromiumOnly, dialogItems, fillBlank, fillValue } from "./helpers";
+import { chromiumOnly, expectFlagged, fillBlank, fillValue } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
 
 const STRIKES = [0, 1, 2, 3, 4, 5].map((i) => Number(fillValue(`input-strikePercents-${i}`)));
+
+/** Independent of the engine: the last given weekday of a date's month. */
+function lastWeekday(ymd: string, weekday: number): string {
+  const [y, m] = ymd.split("-").map(Number) as [number, number];
+  const d = new Date(Date.UTC(y, m, 0));
+  while (d.getUTCDay() !== weekday) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Ten quarterly expiries from Jul 2029, each the last Thursday of its month and all before the 09-Feb-2032 maturity. */
+const QUARTERLY = ["2029-07-26", "2029-10-25", "2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24", "2031-07-31", "2031-10-30"];
+
+/** Set the expiries in one go through Bulk Edit, so the order rule never sees a half-typed list. */
+async function pasteExpiries(page: Page, dates: string[]) {
+  await page.getByTestId("expiries-bulk").click();
+  await page.getByTestId("bulk-expiries-text").fill(dates.join("\n"));
+  await page.getByTestId("bulk-expiries-apply").click();
+  await expect(page.getByTestId("input-expiryCount")).toHaveValue(String(dates.length));
+}
 
 test.describe("B4 Strikes", () => {
   test.beforeEach(async ({ inputs }) => {
@@ -36,14 +57,9 @@ test.describe("B4 Strikes", () => {
     await expect(inputs.field("strikePercents-3")).toHaveAttribute("aria-invalid", "true");
   });
 
-  test("B4.3 a strike of zero or below is rejected", async ({ page, inputs }) => {
-    for (const v of ["0", "-5"]) {
-      await inputs.fill("strikePercents-5", v);
-      await expect(inputs.field("strikePercents-5")).toHaveAttribute("aria-invalid", "true");
-    }
-    await inputs.runButton.click();
-    expect((await dialogItems(page)).join("\n")).toMatch(/Strike 6: Strike 6 must be above 0/);
-    await inputs.dialog.close();
+  test("B4.3 a strike of zero or below reverts with a popup", async ({ page }) => {
+    for (const v of ["0", "-5"]) await expectFlagged(page, "input-strikePercents-5", v);
+    await expect(page.getByTestId("input-strikePercents-5")).toHaveAttribute("data-value", String(STRIKES[5]));
   });
 
   test("B4.4 fixing the order clears the error and the run goes ahead", async ({ inputs, outputs }) => {
@@ -58,55 +74,53 @@ test.describe("B4 Strikes", () => {
 });
 
 test.describe("B5 Expiries", () => {
-  const MONTHS = [41, 44, 47, 50, 53, 56, 59, 62];
-
-  test("B5.1 the count runs from 1 to 12 and that many month rows render", async ({ page, inputs }) => {
+  test("B5.1 the count runs from 1 to 10 and that many date rows render", async ({ page, inputs }) => {
     await inputs.goto("blank");
+    await inputs.fill("underlying", "Sensex");
+    await inputs.fill("valuationDate", "2026-10-28");
     const options = await inputs.field("expiryCount").locator("option:not([disabled])").allTextContents();
-    expect(options).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]);
-    for (const n of [1, 6, 12, 3]) {
+    expect(options).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
+    for (const n of [1, 6, 10, 3]) {
       await inputs.fill("expiryCount", String(n));
-      await expect(page.locator('[data-testid^="input-expiryMonths-"]')).toHaveCount(n);
-      await expect(page.locator('[data-testid^="expiry-date-"]')).toHaveCount(n);
+      await expect(page.locator('[data-testid^="input-expiryDates-"]')).toHaveCount(n);
     }
   });
 
-  test("B5.2 months that do not increase or repeat are rejected", async ({ inputs }) => {
+  test("B5.2 a date that does not fall after the one before reverts with a popup", async ({ page, inputs }) => {
     await fillBlank(inputs);
-    for (const v of ["44", "43"]) {
-      await inputs.fill("expiryMonths-2", v);
-      await inputs.dialog.expectTitle("Please Fix This Input");
-      await expect(inputs.dialog.root).toContainText("strictly increase");
+    const before = await page.getByTestId("input-expiryDates-2").inputValue();
+    // 01-Jun-2030 moves to 27-Jun-2030, before Expiry 2; 10-Jul-2030 moves to 25-Jul-2030, equal to it.
+    for (const v of ["2030-06-01", "2030-07-10"]) {
+      await inputs.fill("expiryDates-2", v);
+      await inputs.dialog.expectTitle("Expiry 3 Reverted");
+      await expect(inputs.dialog.root).toContainText("Expiry 3 must fall after Expiry 2.");
       await inputs.dialog.close();
-      await expect(inputs.field("expiryMonths-2")).toHaveAttribute("aria-invalid", "true");
-      await inputs.fill("expiryMonths-2", "47");
-      await inputs.dialog.dismissAll();
+      await expect(page.getByTestId("input-expiryDates-2")).toHaveValue(before);
     }
   });
 
-  test("B5.3 a month beyond the surface runs with a warning; months inside it run without one", async ({ page, inputs, nav }) => {
+  test("B5.3 an expiry beyond the surface runs with a warning; expiries inside it run without one", async ({ page, inputs, nav }) => {
     await fillBlank(inputs);
     await inputs.runButton.click();
     await inputs.dialog.expectTitle("Expiries Beyond The Surface");
     await inputs.dialog.dismissAll();
     await expect(page).toHaveURL(/\/summary$/);
     await nav.go("inputs");
-    for (const [i, m] of [12, 18, 24, 30, 36, 42].entries()) await inputs.fill(`expiryMonths-${i}`, String(m));
+    await pasteExpiries(page, ["2027-01-28", "2027-04-29", "2027-07-29", "2027-10-28", "2028-01-27", "2028-04-27"]);
     await inputs.runButton.click();
     await expect(page).toHaveURL(/\/summary$/);
-    await expect(page.getByTestId("desk-toast")).toContainText("Simulation Complete");
+    await expect(page.getByTestId("desk-toast")).toHaveText("Simulation Completed");
     await expect(inputs.dialog.root).toHaveCount(0);
   });
 
   test("B5.4 for each count the Pricer shows one column per strike and expiry", async ({ page, inputs, nav }, testInfo) => {
     chromiumOnly(testInfo);
-    test.setTimeout(300_000);
+    test.setTimeout(400_000);
     await fillBlank(inputs);
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= 10; n++) {
       await test.step(`${n} expiries`, async () => {
         await nav.go("inputs");
-        await inputs.fill("expiryCount", String(n));
-        for (let i = 0; i < n; i++) await inputs.fill(`expiryMonths-${i}`, String(MONTHS[i]));
+        await pasteExpiries(page, QUARTERLY.slice(0, n));
         await inputs.run();
         await nav.go("pricer");
         const { headers } = await readShape(page, "pricer-legs");
@@ -115,70 +129,54 @@ test.describe("B5 Expiries", () => {
     }
   });
 
-  test("B5.5 the option expiry is the median expiry, the lower middle one for an even count", async ({ page, inputs, nav }) => {
+  test("B5.5 the hedge option expiry is the median expiry, the lower middle one for an even count", async ({ page, inputs, nav }) => {
     await fillBlank(inputs);
     for (const [n, median] of [
       [5, 2],
       [6, 2],
       [8, 3],
     ] as const) {
-      await inputs.fill("expiryCount", String(n));
-      for (let i = 0; i < n; i++) await inputs.fill(`expiryMonths-${i}`, String(MONTHS[i]));
-      const date = (await page.getByTestId(`expiry-date-${median}`).textContent())!.trim();
-      await expect(inputs.field("hedgeExpiryIndex").locator("option:checked")).toHaveText(`Median Expiry · ${date}`);
+      await pasteExpiries(page, QUARTERLY.slice(0, n));
+      await expect(inputs.field("hedgeExpiryIndex").locator("option:checked")).toHaveText(`Median · Expiry ${median + 1}`);
+      await expect(page.getByTestId(`expiry-note-${median}`)).toHaveText("Observation And Hedge Option Expiry");
     }
-    await inputs.fill("expiryCount", "6");
-    const median = (await page.getByTestId("expiry-date-2").textContent())!.trim();
+    await pasteExpiries(page, QUARTERLY.slice(0, 6));
     await inputs.run();
     await nav.go("vega-hedge");
-    await expect(page.locator('[data-cell$="::Option Expiry"]').first()).toHaveText(median);
+    await expect(page.locator('[data-cell$="::Option Expiry"]').first()).toHaveText(formatDate(QUARTERLY[2]));
   });
 });
 
 test.describe("B6 Weekday rule", () => {
-  const MONTHS = [1, 3, 6, 12, 24, 36, 48, 60];
-  /** Independent of the engine: search the seven days around valuation date + round(m × 30.5) for the weekday. */
-  const expected = (valuation: string, month: number, weekday: number) => {
-    const raw = new Date(`${valuation}T00:00:00Z`);
-    raw.setUTCDate(raw.getUTCDate() + Math.round(month * 30.5));
-    for (let shift = -3; shift <= 3; shift++) {
-      const d = new Date(raw);
-      d.setUTCDate(d.getUTCDate() + shift);
-      if (d.getUTCDay() === weekday) return formatDate(d.toISOString().slice(0, 10));
-    }
-    throw new Error("no weekday within 3 days");
-  };
+  /** A date in each of twelve months, none of them an expiry day. */
+  const TYPED = ["2030-01-03", "2030-02-12", "2030-03-09", "2030-04-01", "2030-05-15", "2030-06-02", "2030-07-07", "2030-08-19", "2030-09-04", "2030-10-10"];
 
-  async function setUp(inputs: Parameters<typeof fillBlank>[0], underlying: string) {
-    await inputs.goto("blank");
-    await inputs.fill("underlying", underlying);
-    await inputs.fill("expiryCount", "8");
-    for (const [i, m] of MONTHS.entries()) await inputs.fill(`expiryMonths-${i}`, String(m));
-  }
-
-  test("B6.1 dates on screen match the weekday rule for Sensex and Nifty across a week of valuation dates", async ({ page, inputs }, testInfo) => {
+  test("B6.1 a typed date moves to the last Thursday for Sensex and the last Tuesday for Nifty", async ({ page, inputs }, testInfo) => {
     chromiumOnly(testInfo);
     for (const [underlying, weekday, name] of [
       ["Sensex", 4, "Thursday"],
       ["Nifty", 2, "Tuesday"],
     ] as const) {
-      await setUp(inputs, underlying);
-      await expect(page.getByTestId("expiry-weekday")).toContainText(name);
-      for (const valuation of ["2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28"]) {
-        await inputs.fill("valuationDate", valuation);
-        for (const [i, m] of MONTHS.entries()) {
-          await expect(page.getByTestId(`expiry-date-${i}`), `${underlying} ${valuation} month ${m}`).toHaveText(expected(valuation, m, weekday));
-        }
+      await inputs.goto("blank");
+      await inputs.fill("underlying", underlying);
+      await inputs.fill("valuationDate", "2026-10-28");
+      await inputs.fill("expiryCount", String(TYPED.length));
+      await expect(page.getByTestId("expiry-weekday")).toHaveText(`Last ${name} Of The Month`);
+      for (const [i, typed] of TYPED.entries()) {
+        await inputs.fill(`expiryDates-${i}`, typed);
+        const snapped = lastWeekday(typed, weekday);
+        await expect(page.getByTestId(`input-expiryDates-${i}`), `${underlying} ${typed}`).toHaveValue(snapped);
+        await expect(page.getByTestId(`expiry-note-${i}`)).toHaveText(`Moved To The Last ${name}, ${formatDate(snapped)}`);
       }
     }
   });
 
-  test("B6.2 switching the underlying re-derives every date", async ({ page, inputs }) => {
-    await setUp(inputs, "Sensex");
-    await inputs.fill("valuationDate", "2026-10-28");
-    for (const [i, m] of MONTHS.entries()) await expect(page.getByTestId(`expiry-date-${i}`)).toHaveText(expected("2026-10-28", m, 4));
+  test("B6.2 switching the underlying moves every date to the new expiry day", async ({ page, inputs }) => {
+    await fillBlank(inputs);
+    const sensex = await Promise.all([0, 1, 2, 3, 4, 5].map((i) => page.getByTestId(`input-expiryDates-${i}`).inputValue()));
+    for (const d of sensex) expect(d).toBe(lastWeekday(d, 4));
     await inputs.fill("underlying", "Nifty");
-    await expect(page.getByTestId("expiry-weekday")).toContainText("Tuesday");
-    for (const [i, m] of MONTHS.entries()) await expect(page.getByTestId(`expiry-date-${i}`)).toHaveText(expected("2026-10-28", m, 2));
+    await expect(page.getByTestId("expiry-weekday")).toHaveText("Last Tuesday Of The Month");
+    for (const [i, d] of sensex.entries()) await expect(page.getByTestId(`input-expiryDates-${i}`)).toHaveValue(lastWeekday(d, 2));
   });
 });

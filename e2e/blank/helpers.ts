@@ -21,7 +21,22 @@ export function chromiumOnly(testInfo: TestInfo) {
 /** Blank Inputs with the valid fill typed in, except the given test ids. */
 export async function fillBlank(inputs: InputsPage, except: string[] = []) {
   await inputs.goto("blank");
-  await inputs.fillAll(FILL.filter(([id]) => !except.includes(id) && !(except.includes("input-expiryCount") && id.startsWith("input-expiryMonths-"))));
+  // Rows a count creates cannot be filled while the count is left unpicked, and a step stays locked until the ones before it are complete.
+  const rowsOf = (id: string) =>
+    (except.includes("input-expiryCount") && id.startsWith("input-expiryDates-")) ||
+    (except.includes("input-spreadCount") && /^input-(strikePercents|strikeOptionTypes|strikeSides|participations)-/.test(id));
+  for (const [id, value] of FILL.filter(([id]) => !except.includes(id) && !rowsOf(id))) {
+    if (except.length) {
+      // With a choice left out, later steps stay locked and the rows of an unpicked count never appear.
+      const shown = await inputs.page
+        .getByTestId(id)
+        .waitFor({ state: "attached", timeout: 1_500 })
+        .then(() => true)
+        .catch(() => false);
+      if (!shown || (await inputs.page.locator(`[data-locked] [data-testid="${id}"]`).count())) continue;
+    }
+    await inputs.fill(id, value);
+  }
   await inputs.dialog.dismissAll();
 }
 
@@ -38,7 +53,7 @@ export async function restoreField(page: Page, inputs: InputsPage, testId: strin
 
 /** The items of the validation popup, as "Label: message". */
 export async function dialogItems(page: Page): Promise<string[]> {
-  return page.getByTestId("desk-dialog-groups").locator("li").allTextContents().then((t) => t.map((x) => x.trim()));
+  return page.getByTestId("desk-dialog-groups").locator("li > span.flex-1").allTextContents().then((t) => t.map((x) => x.trim()));
 }
 
 export async function expectNotRun(page: Page) {
@@ -46,12 +61,19 @@ export async function expectNotRun(page: Page) {
   await expect(page).toHaveURL(/\/$/);
 }
 
-/** The engine flags an invalid number at once; a bad parse flags the field itself. */
+/** An invalid value never sticks: leaving the field opens a "Reverted" popup and puts the last valid value back. */
 export async function expectFlagged(page: Page, testId: string, text: string) {
   const field = page.getByTestId(testId);
+  const before = await field.getAttribute("data-value");
   await field.fill(text);
   await field.blur();
-  await expect(field, `${testId} = ${text}`).toHaveAttribute("aria-invalid", "true");
+  const dialog = page.getByTestId("desk-dialog");
+  await expect(dialog, `${testId} = ${text}`).toBeVisible();
+  await expect(dialog.locator("#desk-dialog-title")).toHaveText(/ Reverted$/);
+  await page.getByTestId("desk-dialog-ok").click();
+  await expect(dialog).toHaveCount(0);
+  expect(await field.getAttribute("data-value"), `${testId} = ${text}`).toBe(before);
+  await expect(field).not.toHaveAttribute("aria-invalid", "true");
 }
 
 export async function expectAccepted(page: Page, testId: string, text: string) {

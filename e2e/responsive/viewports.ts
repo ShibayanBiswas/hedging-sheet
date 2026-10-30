@@ -1,4 +1,4 @@
-export type DeviceKind = "phone" | "tablet" | "desktop";
+type DeviceKind = "phone" | "tablet" | "desktop";
 
 export type Viewport = { name: string; width: number; height: number; kind: DeviceKind };
 
@@ -34,6 +34,7 @@ export const TYPE_SCALE = {
   table: [14, 14],
   "table-head": [11, 11],
   caption: [12, 13],
+  hint: [12, 12],
 } as const;
 
 export const ICON_SIZES = { xs: 14, sm: 16, md: 20, lg: 24, xl: 32 } as const;

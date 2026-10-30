@@ -1,5 +1,5 @@
 import { blankInputs } from "../../lib/inputs/draft";
-import { fieldTestId, numberFieldRules, requiredFields, validateDeskInputs, type NumberFieldRule } from "../../lib/validation/inputRules";
+import { fieldTestId, INPUT_SECTIONS, numberFieldRules, requiredFields, validateDeskInputs, type NumberFieldRule } from "../../lib/validation/inputRules";
 import { blankFillInputs } from "../../tests/helpers/mock-market";
 import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS } from "../support/tables";
@@ -10,28 +10,26 @@ test.use({ reducedMotion: "reduce" });
 
 const TODAY = "2026-10-28";
 const filled = blankFillInputs();
-/** Choices rather than typed numbers: two selects and the per-strike segmented controls of the first and last strike. */
-const SELECTS = new Set(["underlying", "expiryCount", "strikeOptionTypes.0", "strikeSides.5"]);
+/** Choices rather than typed numbers: three selects and the per-strike segmented controls of the first and last strike. */
+const SELECTS = new Set(["underlying", "expiryCount", "spreadCount", "strikeOptionTypes.0", "strikeSides.5"]);
 const isSegmented = (field: string) => /^strike(OptionTypes|Sides)\./.test(field);
 
 test.describe("B1 Empty state", () => {
   test("B1.1 every input is empty and every field shows a placeholder", async ({ inputs, page }) => {
     await inputs.goto("blank");
-    // The Number Of Spreads stepper keeps its count of 2 so the six strike boxes can render; it is a control, not a value.
-    const fields = page.locator('main input[data-testid^="input-"]:not([type="checkbox"]):not([data-testid="input-spreadCount-input"]):not([disabled])');
-    // With no spot there is no start level, so each Strike Level is off and shows "-".
-    for (const level of await page.locator('[data-testid^="input-strikeLevel-"]').all()) {
-      await expect(level).toBeDisabled();
-      await expect(level).toHaveAttribute("placeholder", "-");
-    }
-    expect(await fields.count()).toBeGreaterThan(30);
+    // No counts are picked yet, so no expiry or strike rows exist; every other field is empty with a placeholder.
+    const fields = page.locator('main input[data-testid^="input-"]:not([type="checkbox"]):not([disabled])');
+    await expect(page.locator('[data-testid^="input-strikePercents-"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="input-expiryDates-"]')).toHaveCount(0);
+    expect(await fields.count()).toBeGreaterThan(20);
     const report = await fields.evaluateAll((els) =>
       els.map((e) => ({ id: (e as HTMLInputElement).dataset.testid, value: (e as HTMLInputElement).value, placeholder: (e as HTMLInputElement).placeholder })),
     );
     expect(report.filter((r) => r.value !== "")).toEqual([]);
     expect(report.filter((r) => !/^Eg /.test(r.placeholder))).toEqual([]);
     for (const field of SELECTS) {
-      if (isSegmented(field)) await expect(page.getByTestId(fieldTestId(field))).toHaveAttribute("data-value", "");
+      // The strike choices appear once the Number Of Spreads is picked.
+      if (isSegmented(field)) await expect(page.getByTestId(fieldTestId(field))).toHaveCount(0);
       else await expect(page.getByTestId(fieldTestId(field)).locator("option:checked")).toHaveText(/^Select/);
     }
   });
@@ -89,15 +87,30 @@ test.describe("B2 One required field missing", () => {
     expect(required.length).toBeGreaterThan(35);
   });
 
+  /** The step each choice completes: until it is made, the next group says "Complete Step N First". */
+  const STEP: Record<string, number> = { underlying: 1, expiryCount: 2, spreadCount: 3, "strikeOptionTypes.0": 3, "strikeSides.5": 3 };
+
   for (const select of SELECTS) {
-    test(`B2.1 ${select} left unselected is the only field listed`, async ({ inputs, page }, testInfo) => {
+    test(`B2.1 ${select} left unselected keeps the later steps locked and is listed first`, async ({ inputs, page }, testInfo) => {
       chromiumOnly(testInfo);
       await fillBlank(inputs, [fieldTestId(select)]);
+      const step = STEP[select]!;
+      await expect(page.getByTestId(`group-${step + 1}-locked`)).toHaveText(`Complete Step ${step} First`);
       await inputs.runButton.click();
       await inputs.dialog.expectTitle("Missing Or Invalid Inputs");
-      const items = await dialogItems(page);
-      expect(items).toHaveLength(1);
-      expect(items[0]).toMatch(re(required.find((r) => r.field === select)!.label));
+      const label = required.find((r) => r.field === select)!.label;
+      // In the steps that were open, this choice is the only thing missing.
+      const groups = await page.getByTestId("desk-dialog-groups").locator(":scope > div").evaluateAll((divs) =>
+        divs.map((d) => ({ title: d.querySelector("p")?.textContent ?? "", items: Array.from(d.querySelectorAll("li > span.flex-1")).map((s) => s.textContent?.trim() ?? "") })),
+      );
+      // The auto hedge strike follows the underlying, so without one it is missing too.
+      const follows = select === "underlying" ? /^Hedge Strike:/ : null;
+      const open = groups
+        .filter((g) => INPUT_SECTIONS.indexOf(g.title as (typeof INPUT_SECTIONS)[number]) < step)
+        .flatMap((g) => g.items)
+        .filter((i) => !follows?.test(i));
+      expect(open, JSON.stringify(groups)).toHaveLength(1);
+      expect(open[0]).toMatch(re(label));
       await inputs.dialog.close();
       await expect(page.getByTestId(fieldTestId(select))).toHaveAttribute("aria-invalid", "true");
       await expectNotRun(page);
@@ -160,7 +173,7 @@ test.describe("B3 Invalid values in every number field", () => {
     await each(page, inputs, () => true, async (r, id) => {
       const base = fillValue(id) ?? "76800";
       const decimal = base.includes(".") ? `${base}5` : `${base}.25`;
-      if (r.integer) await expectFlagged(page, id, decimal);
+      if (r.integer || r.step) await expectFlagged(page, id, decimal);
       else {
         await expectAccepted(page, id, decimal);
         const expected = Number(decimal) / (r.percent ? 100 : 1);

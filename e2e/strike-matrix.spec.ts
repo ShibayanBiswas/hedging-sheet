@@ -42,18 +42,18 @@ test.describe("per strike Option Type and Buy Or Sell", () => {
     await expect(page.locator("main th", { hasText: "Buy Or Sell" }).first()).toBeVisible();
   });
 
-  test("removing a strike and adding one at 100% keep the payoff priceable", async ({ page, inputs }) => {
-    test.setTimeout(180_000);
+  test("every Number Of Spreads from 1 to 6 keeps the payoff priceable, with the sides following the payoff", async ({ page, inputs }) => {
+    test.setTimeout(300_000);
     await inputs.goto("default");
-    await page.getByTestId("remove-strike-1").click();
-    await expect(page.locator('[data-testid^="strike-row-"]')).toHaveCount(5);
-    await page.getByTestId("input-newStrike").fill("100");
-    await page.getByTestId("add-strike").click();
-    await expect(page.locator('[data-testid^="strike-row-"]')).toHaveCount(6);
-    await expect(page.locator('[data-testid^="strike-error-"]')).toHaveCount(0);
-    await inputs.run();
-    const r = (await hook(page)).result as HedgingResult;
-    expect(r.structure.strikes.map((s) => s.percent)).toContain(100);
-    expect(r.structure.strikes.every((s, i) => s.side === r.inputs.strikeSides[i])).toBe(true);
+    for (const n of [1, 3, 6]) {
+      await inputs.fill("input-spreadCount", String(n));
+      await expect(page.locator('[data-testid^="strike-row-"]')).toHaveCount(n + 4);
+      await expect(page.locator('[data-testid^="strike-error-"]')).toHaveCount(0);
+      await inputs.run();
+      const r = (await hook(page)).result as HedgingResult;
+      expect(r.structure.strikes).toHaveLength(n + 4);
+      expect(r.structure.strikes.every((s, i) => s.side === r.inputs.strikeSides[i])).toBe(true);
+      await page.getByTestId("nav-inputs").click();
+    }
   });
 });

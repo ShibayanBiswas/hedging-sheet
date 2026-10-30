@@ -1,5 +1,5 @@
 {
-  "note": "Each case breaks one rule from Default Values. patch is applied to the default inputs in unit tests; fill is typed into the field in the browser tests, and is empty when the field cannot hold the value (whole-number fields round what is typed). field is the validation key and label the text the dialog shows.",
+  "note": "Each case breaks one rule from Default Values. patch is applied to the default inputs in unit tests; fill is typed into the field in the browser tests, and is empty when the field cannot hold the value (whole-number fields round what is typed). reverts marks a value the field check refuses as it is typed: the browser shows a popup and puts the last valid value back, so only the unit tests see the rule fire. field is the validation key and label the text the dialog shows.",
   "cases": [
     {
       "name": "strikes not strictly descending",
@@ -80,7 +80,8 @@
       ],
       "field": "expiryDates.2",
       "label": "Expiry 3",
-      "message": "Expiry 2"
+      "message": "Expiry 2",
+      "reverts": true
     },
     {
       "name": "valuation date in the future",
@@ -110,7 +111,8 @@
       ],
       "field": "coupon",
       "label": "Coupon",
-      "message": "at most"
+      "message": "at most",
+      "reverts": true
     },
     {
       "name": "participation at zero",
@@ -128,7 +130,8 @@
       ],
       "field": "participations.0",
       "label": "Spread 1 Participation Rate",
-      "message": "above 0"
+      "message": "above 0",
+      "reverts": true
     },
     {
       "name": "coupon unreachable",

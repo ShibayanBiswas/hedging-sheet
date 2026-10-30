@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS, readCells, schema } from "../support/tables";
-import { chromiumOnly, dialogItems, fillBlank } from "./helpers";
+import { chromiumOnly, expectFlagged, fillBlank } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
@@ -38,32 +38,33 @@ test.describe("B7 Spreads", () => {
     await fillBlank(inputs);
   });
 
-  test("B7.1 spread levels are derived from the strikes", async ({ page }) => {
-    expect(await value(page, "input-spreads-0-buy")).toBeCloseTo(0.25, 12);
-    expect(await value(page, "input-spreads-0-sell")).toBeCloseTo(0.27, 12);
-    expect(await value(page, "input-spreads-1-buy")).toBeCloseTo(0.27, 12);
-    expect(await value(page, "input-spreads-1-sell")).toBeCloseTo(0.37, 12);
-    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Derived");
+  test("B7.1 spread levels are read from the strikes and shown read-only", async ({ page }) => {
+    await expect(page.getByTestId("input-spreads-0-buy")).toHaveText("25.00%");
+    await expect(page.getByTestId("input-spreads-0-sell")).toHaveText("27.00%");
+    await expect(page.getByTestId("input-spreads-1-buy")).toHaveText("27.00%");
+    await expect(page.getByTestId("input-spreads-1-sell")).toHaveText("37.00%");
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
   });
 
-  test("B7.2 editing a spread moves its strike, and a typed participation shows Overridden", async ({ page, inputs }) => {
-    await inputs.fill("spreads-1-sell", "40");
-    expect(await value(page, "input-strikePercents-0")).toBeCloseTo(140, 9);
+  test("B7.2 editing a strike moves its spread, and a typed participation shows Edited", async ({ page, inputs }) => {
+    await inputs.fill("strikePercents-0", "140");
+    await expect(page.getByTestId("input-spreads-1-sell")).toHaveText("40.00%");
     expect(await value(page, "input-target")).toBeCloseTo(0.4, 12);
     await inputs.fill("participations-1", "8");
-    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Overridden");
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Edited");
   });
 
-  test("B7.3 Reset To Derived puts the top participation back", async ({ page, inputs }) => {
+  test("B7.3 Reset To Calculated puts the top participation back", async ({ page, inputs }) => {
     await inputs.fill("participations-1", "8");
     await inputs.dialog.dismissAll(3_000);
     await page.getByTestId("spread-1-reset").click();
-    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Derived");
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
     expect(await value(page, "input-participations-1")).toBeCloseTo((1.025 - 0.02) / 0.1, 9);
   });
 
   test("B7.4 a sell level not above its buy level is rejected", async ({ page, inputs }) => {
-    await inputs.fill("spreads-0-sell", "25");
+    // Spread 1 sells at Strike 2 and buys at Strike 3: equal strikes leave it no width.
+    await inputs.fill("strikePercents-1", "125");
     await inputs.dialog.expectTitle("Please Fix This Input");
     await expect(inputs.dialog.root).toContainText("strictly descending");
     await inputs.dialog.close();
@@ -74,22 +75,14 @@ test.describe("B7 Spreads", () => {
   });
 
   test("B7.5 spreads share their boundary strike, so they can neither overlap nor leave a gap", async ({ page, inputs }) => {
-    await inputs.fill("spreads-1-buy", "28");
-    expect(await value(page, "input-spreads-0-sell")).toBeCloseTo(0.28, 12);
-    await inputs.fill("spreads-0-sell", "29");
-    expect(await value(page, "input-spreads-1-buy")).toBeCloseTo(0.29, 12);
+    await inputs.fill("strikePercents-1", "128");
+    await expect(page.getByTestId("input-spreads-0-sell")).toHaveText("28.00%");
+    await expect(page.getByTestId("input-spreads-1-buy")).toHaveText("28.00%");
   });
 
-  test("B7.6 a participation of zero or below is rejected", async ({ page, inputs }) => {
-    for (const v of ["0", "-1"]) {
-      await inputs.fill("participations-0", v);
-      await expect(inputs.field("participations-0")).toHaveAttribute("aria-invalid", "true");
-    }
-    // A negative participation also breaks the spread rule, which opens its popup after the 900 ms pause.
-    await inputs.dialog.dismissAll(3_000);
-    await inputs.runButton.click();
-    expect((await dialogItems(page)).join("\n")).toContain("Spread 1 Participation Rate: Spread 1 Participation Rate must be above 0");
-    await inputs.dialog.close();
+  test("B7.6 a participation of zero or below reverts with a popup", async ({ page }) => {
+    for (const v of ["0", "-1"]) await expectFlagged(page, "input-participations-0", v);
+    expect(await value(page, "input-participations-0")).toBe(1);
   });
 });
 
@@ -180,29 +173,31 @@ test.describe("B10 Protection and floor", () => {
     expect(await value(page, "input-floorLevel")).toBeCloseTo(0.72, 12);
   });
 
-  test("B10.5 a start level uplift of zero is accepted and a negative one is rejected", async ({ inputs }) => {
+  test("B10.5 a start level uplift of zero is accepted and a negative one reverts", async ({ page, inputs }) => {
     await inputs.fill("startLevelUplift", "0");
     await expect(inputs.field("startLevelUplift")).not.toHaveAttribute("aria-invalid", "true");
-    await inputs.fill("startLevelUplift", "-1");
-    await expect(inputs.field("startLevelUplift")).toHaveAttribute("aria-invalid", "true");
+    await expectFlagged(page, "input-startLevelUplift", "-1");
+    expect(await value(page, "input-startLevelUplift")).toBe(0);
   });
 });
 
 test.describe("B11 Volatility", () => {
-  test("B11.1 to B11.3 Compute From History fills both volatilities; editing either moves the other and shows Overridden", async ({ page, inputs }) => {
-    await inputs.goto("blank");
-    await inputs.fill("underlying", "Sensex");
+  test("B11.1 to B11.3 Compute From History fills both volatilities; editing either moves the other and tags both Edited", async ({ page, inputs }) => {
+    // Volatility is step 6, open once the strikes are in.
+    await fillBlank(inputs);
     await page.getByTestId("compute-volatility").click();
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Calculated");
+    await expect(page.getByTestId("annual-vol-status")).toHaveText("Calculated");
     const daily = await value(page, "input-dailyVol");
     expect(daily).toBeGreaterThan(0);
     expect(Math.abs((await value(page, "input-annualVol")) - daily * Math.sqrt(365))).toBeLessThan(1e-9);
     await inputs.fill("annualVol", "20");
     expect(Math.abs((await value(page, "input-dailyVol")) - 0.2 / Math.sqrt(365))).toBeLessThan(1e-12);
-    await expect(page.getByTestId("daily-vol-status")).toHaveText("Overridden");
+    await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
+    await expect(page.getByTestId("annual-vol-status")).toHaveText("Edited");
     await inputs.fill("dailyVol", "1");
     expect(Math.abs((await value(page, "input-annualVol")) - 0.01 * Math.sqrt(365))).toBeLessThan(1e-12);
-    await expect(page.getByTestId("daily-vol-status")).toHaveText("Overridden");
+    await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
   });
 
   test("B11.4 the Day 1 fair volatility and a leg volatility override flow into the outputs", async ({ page, inputs, outputs }) => {

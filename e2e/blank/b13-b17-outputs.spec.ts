@@ -149,7 +149,7 @@ test.describe("B16 Fixed grids", () => {
 });
 
 test.describe("B17 Excel", () => {
-  test("B17.1 to B17.6 name, five sheets, no pivots, headers and values match the page, no Workbook text, capitals", async ({ page, inputs }, testInfo) => {
+  test("B17.1 to B17.6 name, one sheet per tab, no pivots, headers and values match the page, no Workbook text, capitals", async ({ page, inputs }, testInfo) => {
     chromiumOnly(testInfo);
     await fillBlank(inputs);
     await inputs.run();

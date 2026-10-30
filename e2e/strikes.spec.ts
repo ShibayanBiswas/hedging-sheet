@@ -28,21 +28,16 @@ async function readRun(page: Page, nav: { go: (id: "pricer" | "product") => Prom
 }
 
 test.describe("Strikes, spreads and per spread option type", () => {
-  test("S1 strike and expiry rows fill at least 95% of their panel at 1440 and 390 px", async ({ page, inputs }) => {
+  test("S1 strike rows fill at least 95% of their group at 1440 and 390 px", async ({ page, inputs }) => {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 900 });
       await inputs.goto();
-      for (const [panel, prefix] of [
-        ["strikes", "strike-row-"],
-        ["expiries", "expiry-row-"],
-      ] as const) {
-        const ratios = await page.locator(`#${panel}`).evaluate((section, p) => {
-          const inner = section.getBoundingClientRect().width - parseFloat(getComputedStyle(section).paddingLeft) - parseFloat(getComputedStyle(section).paddingRight);
-          return Array.from(section.querySelectorAll<HTMLElement>(`[data-testid^="${p}"]`)).map((row) => row.getBoundingClientRect().width / inner);
-        }, prefix);
-        expect(ratios.length, `${panel} rows at ${width}`).toBeGreaterThan(0);
-        for (const r of ratios) expect(r, `${panel} at ${width}`).toBeGreaterThanOrEqual(0.95);
-      }
+      const ratios = await page.locator("#group-3").evaluate((section) => {
+        const inner = section.getBoundingClientRect().width - parseFloat(getComputedStyle(section).paddingLeft) - parseFloat(getComputedStyle(section).paddingRight);
+        return Array.from(section.querySelectorAll<HTMLElement>('[data-testid^="strike-row-"]')).map((row) => row.getBoundingClientRect().width / inner);
+      });
+      expect(ratios.length, `strike rows at ${width}`).toBe(6);
+      for (const r of ratios) expect(r, `strike rows at ${width}`).toBeGreaterThanOrEqual(0.95);
     }
   });
 
@@ -75,8 +70,8 @@ test.describe("Strikes, spreads and per spread option type", () => {
   test("S5 Strike 2 at 128 makes the Spread 1 Sell Level 28.00 and the top participation 11.06", async ({ inputs }) => {
     await inputs.goto();
     await inputs.fill("strikePercents-1", "128");
-    await expect(inputs.field("spreads-0-sell")).toHaveValue("28.00");
-    await expect(inputs.field("spreads-1-buy")).toHaveValue("28.00");
+    await expect(inputs.field("spreads-0-sell")).toHaveText("28.00%");
+    await expect(inputs.field("spreads-1-buy")).toHaveText("28.00%");
     await expect(inputs.field("participations-1")).toHaveValue("11.06");
   });
 
@@ -94,7 +89,8 @@ test.describe("Strikes, spreads and per spread option type", () => {
   test("S7 all Put matches main, all Call gives the same Premium and Inbuilt, and the payoff at 0% is 0.00% in both", async ({ page, inputs, nav }) => {
     test.setTimeout(180_000);
     const live = Boolean(process.env.BASE_URL);
-    const main = { premium: 51.12022123483423, inbuilt: 0.0835573934196645 };
+    // The all Put book at the mock close: the premium tests/call.test.ts pins, and the Pricer headline's Actual Inbuilt.
+    const main = { premium: 50.60749366293384, inbuilt: 0.0787780261525389 };
 
     await inputs.goto();
     await inputs.run();
@@ -162,7 +158,7 @@ test.describe("Strikes, spreads and per spread option type", () => {
         expect(report.pageWidth, at).toBeLessThanOrEqual(report.windowWidth);
         expect(report.headPadding, at).toBe("14px 20px");
         expect(report.headFont, at).toBe("11px");
-        expect(report.cellPadding, at).toBe("12px 20px");
+        expect(report.cellPadding, at).toBe("11px 20px");
       }
     }
   });
@@ -220,6 +216,7 @@ test.describe("Strikes, spreads and per spread option type", () => {
   test("S13 Inputs carry none of the removed jargon", async ({ page, inputs }) => {
     await inputs.goto();
     const text = await page.locator("main").innerText();
-    for (const re of [/\bUnits\b/, /Outflow Step/, /ROUNDUP/, /slope/i, /Maturity Date/, /Strike \d+ To Strike \d+/]) expect(text, String(re)).not.toMatch(re);
+    // Units is shown on purpose: each strike row carries its units, read-only.
+    for (const re of [/Outflow Step/, /ROUNDUP/, /slope/i, /Maturity Date/, /Strike \d+ To Strike \d+/]) expect(text, String(re)).not.toMatch(re);
   });
 });

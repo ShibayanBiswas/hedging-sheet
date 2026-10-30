@@ -5,7 +5,7 @@ import { DeskDialog } from "./desk-dialog";
 export type InputMode = "default" | "blank";
 
 /** Test ids of the fields rendered as select elements. */
-const SELECTS = new Set(["input-underlying", "input-expiryCount", "input-hedgeExpiryIndex"]);
+const SELECTS = new Set(["input-underlying", "input-expiryCount", "input-spreadCount", "input-hedgeExpiryIndex"]);
 const isSelect = (id: string) => SELECTS.has(id);
 /** Segmented controls: a value is picked by clicking its option. */
 const isSegmented = (id: string) => /^input-strike(OptionTypes|Sides)-\d+$/.test(id);
@@ -19,7 +19,7 @@ export class InputsPage {
   readonly runButton: Locator;
   readonly resetButton: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(readonly page: Page) {
     this.dialog = new DeskDialog(page);
     this.heading = page.getByRole("heading", { level: 1, name: "Inputs" });
     this.modeSwitch = page.getByTestId("mode-switch");

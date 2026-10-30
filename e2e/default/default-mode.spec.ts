@@ -84,7 +84,20 @@ test.describe("Default Values mode", () => {
     }
   });
 
-  for (const c of invalidCases.cases.filter((c) => c.fill.length)) {
+  for (const c of invalidCases.cases.filter((c) => c.fill.length && "reverts" in c)) {
+    test(`invalid input reverts with a popup: ${c.name}`, async ({ inputs, page }) => {
+      await inputs.goto();
+      const [id, value] = c.fill[0]!;
+      const field = page.getByTestId(id!);
+      const before = (await field.getAttribute("data-value")) ?? (await field.inputValue());
+      await inputs.fill(id!, value!);
+      await inputs.dialog.expectTitle(/ Reverted$/);
+      await inputs.dialog.close();
+      expect((await field.getAttribute("data-value")) ?? (await field.inputValue())).toBe(before);
+    });
+  }
+
+  for (const c of invalidCases.cases.filter((c) => c.fill.length && !("reverts" in c))) {
     test(`invalid input blocks the run: ${c.name}`, async ({ inputs, page }) => {
       await inputs.goto();
       const target = c.field.startsWith("coupon") ? "input-coupon" : `input-${c.field.replace(".", "-")}`;
@@ -100,22 +113,22 @@ test.describe("Default Values mode", () => {
     });
   }
 
-  test("spreads follow the strikes and participation resets to derived", async ({ inputs, page }) => {
+  test("spreads follow the strikes and participation resets to calculated", async ({ inputs, page }) => {
     await inputs.goto();
     await expect(page.getByTestId("max-coupon")).toContainText("102.50%");
-    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Derived");
+    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Calculated");
     await inputs.fill("participations-1", "12");
     await inputs.dialog.dismissAll();
-    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Overridden");
+    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Edited");
     await page.getByTestId("spread-1-reset").click();
-    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Derived");
+    await expect(page.getByTestId("spread-1-participation-status")).toContainText("Calculated");
     await page.getByTestId("input-spreadCount-plus").click();
     await expect(page.getByTestId("spread-card-2")).toBeVisible();
     await page.getByTestId("input-spreadCount-minus").click();
     await expect(page.getByTestId("spread-card-2")).toHaveCount(0);
   });
 
-  test("Excel download after a run has the five title-case sheets and no pivots", async ({ inputs, nav }) => {
+  test("Excel download after a run has one title-case sheet per tab, the Audit sheet and no pivots", async ({ inputs, nav }) => {
     await inputs.goto();
     await expect(nav.downloadExcel).toBeDisabled();
     await inputs.run();
@@ -126,7 +139,7 @@ test.describe("Default Values mode", () => {
     expect(fs.readFileSync(file).toString("latin1").includes("pivotTable")).toBe(false);
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.readFile(file);
-    expect(wb.worksheets.map((s) => s.name)).toEqual(["Summary Sheet", "Pricer", "Product Description", "Day 1 Vega Hedge", "Mark To Market And Margin"]);
+    expect(wb.worksheets.map((s) => s.name)).toEqual(["Inputs", "Summary Sheet", "Pricer", "Product Description", "Day 1 Vega Hedge", "Mark To Market", "Market Data", "Logic Atlas", "Audit"]);
   });
 
   test("Product payoff reads the client return at a typed move", async ({ inputs, outputs }) => {

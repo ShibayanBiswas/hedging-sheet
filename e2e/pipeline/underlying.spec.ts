@@ -30,7 +30,8 @@ for (const u of UNDERLYINGS) {
     expect(r.underlyingLabel).toBe(u);
     expect(r.inputs.spot).toBeCloseTo(SPOT[u], 6);
     expect(r.structure.startLevel).toBe(start);
-    expect(r.inputs.hedgeStrike).toBe(Math.round(SPOT[u] / 100) * 100);
+    // The auto hedge strike: Sensex spot × 1.006, Nifty spot + 150, rounded up to the next 100.
+    expect(r.inputs.hedgeStrike).toBe(roundUp(u === UNDERLYINGS[1] ? SPOT[u] * 1.006 : SPOT[u] + 150, 100));
     for (const d of r.schedule.expiries) expect(new Date(`${d}T00:00:00Z`).getUTCDay(), d).toBe(EXPIRY_WEEKDAY[u]);
     // Strikes in points.
     expect(r.structure.strikes[0]!.strike).toBe(Math.round(start * 1.37));

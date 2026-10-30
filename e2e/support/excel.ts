@@ -6,17 +6,12 @@ import { expect, type Page } from "@playwright/test";
 
 import { titleCaseViolations } from "../../lib/format/title-case";
 import { SHEET_NAMES } from "../../lib/excel/build-hedging-excel";
+import { EXPORT_TABS } from "../../lib/exports/tab-specs";
 import { close, schema, type CellRead, type TabId } from "./tables";
 
 const OUT = path.join("test-results", "downloads");
 
-const SHEET_FOR_TAB: Record<TabId, string> = {
-  summary: SHEET_NAMES[0],
-  pricer: SHEET_NAMES[1],
-  product: SHEET_NAMES[2],
-  "vega-hedge": SHEET_NAMES[3],
-  margin: SHEET_NAMES[4],
-};
+const SHEET_FOR_TAB = Object.fromEntries(EXPORT_TABS.map((t) => [t.id, t.name])) as Record<TabId, string>;
 
 /** Download Excel from the header and return the saved path. */
 export async function downloadExcel(page: Page): Promise<{ file: string; name: string }> {

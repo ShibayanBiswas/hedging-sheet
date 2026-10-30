@@ -57,32 +57,34 @@ test.describe("B18 Mode switching", () => {
 });
 
 test.describe("B19 Keyboard", () => {
-  test("B19.1 Tab order follows the visual order down the Inputs page", async ({ page, inputs }) => {
-    await inputs.goto("blank");
-    await page.getByTestId("mode-blank").focus();
-    const seen: Array<{ id: string; top: number; left: number }> = [];
-    for (let i = 0; i < 60; i++) {
+  test("B19.1 Tab order follows the numbered groups, and the visual order inside each", async ({ page, inputs }) => {
+    await inputs.goto();
+    await page.getByTestId("reset-inputs").focus();
+    const seen: Array<{ id: string; group: number; top: number; left: number }> = [];
+    for (let i = 0; i < 90; i++) {
       await page.keyboard.press("Tab");
       const at = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement | null;
-        if (!el || !el.closest("main")) return null;
-        // The Run Simulation bar is pinned to the bottom edge, so it always reads as the last stop.
-        if (el.closest(".hs-run-bar")) return { id: el.dataset.testid ?? "run", top: document.documentElement.scrollHeight, left: 0 };
+        const group = el?.closest<HTMLElement>('section[id^="group-"]');
+        if (!el || !group) return null;
         const r = el.getBoundingClientRect();
         // Position within the content: sideways rails scroll as focus moves, so add their scroll back.
         let scrolled = 0;
         for (let p = el.parentElement; p; p = p.parentElement) if (p.scrollWidth > p.clientWidth) scrolled += p.scrollLeft;
-        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, top: r.top + window.scrollY, left: r.left + scrolled };
+        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, group: Number(group.id.slice(6)), top: r.top + window.scrollY, left: r.left + scrolled };
       });
       if (at) seen.push(at);
     }
     expect(seen.length).toBeGreaterThan(30);
+    const trail = JSON.stringify(seen.map((s) => `${s.group}:${s.id}`));
     const backwards = seen.slice(1).filter((cur, k) => {
       const prev = seen[k]!;
+      if (cur.group !== prev.group) return cur.group < prev.group;
       const sameRow = Math.abs(cur.top - prev.top) < 24;
       return sameRow ? cur.left < prev.left - 2 : cur.top < prev.top;
     });
-    expect(backwards, JSON.stringify(seen.map((s) => s.id))).toEqual([]);
+    expect(backwards, trail).toEqual([]);
+    expect(new Set(seen.map((s) => s.group)).size, trail).toBeGreaterThan(2);
   });
 
   test("B19.2 Enter on Run Simulation runs it", async ({ page, inputs }) => {

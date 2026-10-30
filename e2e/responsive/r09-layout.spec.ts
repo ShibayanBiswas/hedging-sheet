@@ -3,7 +3,8 @@ import { expect, test } from "../fixtures";
 import { settle } from "./helpers";
 import { contextFor, VIEWPORTS } from "./viewports";
 
-const expectedColumns = (width: number) => (width >= 1920 ? 4 : width >= 1280 ? 3 : width >= 640 ? 2 : 1);
+/** Input fields: 4 across from 1440 px, 3 from 1024, 2 from 640, 1 on phones. */
+const expectedColumns = (width: number) => (width >= 1440 ? 4 : width >= 1024 ? 3 : width >= 640 ? 2 : 1);
 
 for (const v of VIEWPORTS) {
   test.describe(`${v.name} ${v.width}x${v.height}`, () => {
@@ -23,8 +24,8 @@ for (const v of VIEWPORTS) {
       await settle(page);
       expect(inView(await inputs.runButton.boundingBox()), "Run Simulation in view halfway down").toBe(true);
 
-      // Input sections: one column on phones, two on tablets, three on desktop, four on wide screens.
-      const columns = await page.locator(".field-grid").first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+      // Input fields: one column on phones, two on tablets, three from 1024 px, four from 1440 px.
+      const columns = await page.locator(".inputs-grid").first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
       expect(columns, "field grid columns").toBe(expectedColumns(v.width));
 
       // Section tabs: the full pill bar from 1024 px; below that the bar scrolls sideways.

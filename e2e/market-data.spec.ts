@@ -86,11 +86,15 @@ for (const view of VIEWS) {
         );
         expect(misaligned).toEqual([]);
 
-        // Volatility headers carry %; the Deep strike shows as Deep, never 500, and its volatility is the 55% one.
+        // Volatility headers carry %; the Deep strike shows the 55% strike as a number, never 500, and its volatility is the 55% one.
         const heads = await grid.locator("thead th").allTextContents();
         expect(heads).toContain("Volatility %");
         expect(heads.filter((h) => /^\d+%$/.test(h.trim())).length).toBeGreaterThan(5);
-        for (const u of ["nifty", "sensex"]) await expect(page.getByTestId(`deep-strike-${u}`)).toHaveText("Deep");
+        for (const u of ["nifty", "sensex"]) {
+          const row = page.getByTestId(`strike-row-${u}`).locator("td");
+          await expect(page.getByTestId(`deep-strike-${u}`)).toHaveText(/^[\d,]+\.\d{2}$/);
+          expect(await row.nth(1).textContent()).toBe(await row.nth(2).textContent());
+        }
         await expect(grid).not.toContainText("500.00");
         const pairs = await grid.locator("tbody tr").evaluateAll((rows) =>
           rows
