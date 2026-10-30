@@ -9,11 +9,11 @@ import { buildHedgingExcel, SHEET_NAMES } from "@/lib/excel/build-hedging-excel"
 import { copyViolations } from "@/lib/format/copy-rules";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { INPUT_SECTIONS, requiredFields } from "@/lib/validation/inputRules";
-import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { outputTables, specCells, specHeaders, specRowLabels } from "@/lib/tables";
 
 import { priced } from "../helpers/fixture";
+import { atlasCopy } from "../helpers/atlas-copy";
 
 /** The rule under test: copy never names the spreadsheet the app replaced. */
 const referenceHits = (texts: string[]) =>
@@ -77,19 +77,9 @@ describe("no copy names the spreadsheet the app replaced", () => {
     expect(referenceHits(texts)).toEqual([]);
   });
 
-  it("Logic Atlas: every title, description, formula, insight, output and edge case", () => {
-    const texts = logicModules("Sensex", "Thursday").flatMap((m) => [
-      m.title,
-      m.subtitle,
-      m.description,
-      ...m.metrics.flatMap((x) => [x.label, x.value]),
-      ...m.nodes.flatMap((n) => [n.label, n.description]),
-      ...m.formulas.flatMap((f) => [f.name, f.words, f.inputs, f.output, f.value(r)]),
-      ...m.outputs.flatMap((o) => [o.label, o.value(r)]),
-      ...m.insights(null),
-      ...m.insights(r),
-      ...m.edgeCases,
-    ]);
+  it("Logic Atlas: every stage, rule, insight and output", () => {
+    const copy = atlasCopy(r);
+    const texts = [...copy.labels, ...copy.prose, ...copy.cells];
     expect(referenceHits(texts)).toEqual([]);
   });
 
@@ -127,7 +117,8 @@ describe("no copy names the spreadsheet the app replaced", () => {
       "Workbook Seed",
       "Workbook Defaults",
     ];
-    const atlas = logicModules("Sensex", "Thursday").flatMap((m) => [m.title, m.subtitle, m.description, ...m.nodes.map((n) => n.description), ...m.formulas.map((f) => f.words), ...m.edgeCases]);
+    const copy = atlasCopy(priced());
+    const atlas = [...copy.labels, ...copy.prose];
     const texts = [...sourceCopy(), ...atlas];
     expect(removed.filter((phrase) => texts.some((t) => t.includes(phrase)))).toEqual([]);
   });

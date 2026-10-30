@@ -215,77 +215,6 @@ textarea {
     min-width: 0;
   }
 
-  .logic-module-rail {
-    --logic-module-card-width: min(46rem, 88vw);
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 0.55rem;
-    width: 100%;
-    scrollbar-gutter: stable;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: auto;
-    scrollbar-color: rgba(212, 178, 76, 0.65) rgba(212, 178, 76, 0.12);
-  }
-
-  .logic-module-rail::-webkit-scrollbar {
-    height: 10px;
-    display: block;
-  }
-
-  .logic-module-rail::-webkit-scrollbar-track {
-    background: rgba(212, 178, 76, 0.12);
-    border-radius: 999px;
-  }
-
-  .logic-module-rail::-webkit-scrollbar-thumb {
-    background: rgba(212, 178, 76, 0.65);
-    border-radius: 999px;
-  }
-
-  .logic-module-rail > div,
-  .logic-module-rail .horizontal-rail-fill-inner {
-    width: max-content !important;
-    min-width: 100%;
-    flex-wrap: nowrap !important;
-    align-items: stretch;
-  }
-
-  .logic-module-rail-item {
-    flex: 0 0 var(--logic-module-card-width) !important;
-    width: var(--logic-module-card-width) !important;
-    min-width: var(--logic-module-card-width) !important;
-    max-width: var(--logic-module-card-width) !important;
-  }
-
-  .logic-module-rail-item .logic-module-card {
-    min-width: 100%;
-  }
-
-  .logic-pipeline-rail {
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 0.55rem;
-    scrollbar-gutter: stable;
-    scrollbar-width: auto;
-    scrollbar-color: rgba(212, 178, 76, 0.65) rgba(212, 178, 76, 0.12);
-  }
-
-  .logic-pipeline-rail::-webkit-scrollbar {
-    height: 10px;
-    display: block;
-  }
-
-  .logic-pipeline-rail::-webkit-scrollbar-track {
-    background: rgba(212, 178, 76, 0.12);
-    border-radius: 999px;
-  }
-
-  .logic-pipeline-rail::-webkit-scrollbar-thumb {
-    background: rgba(212, 178, 76, 0.65);
-    border-radius: 999px;
-  }
-
   /* â”€â”€ Intel Â· Logic Atlas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .intel-page {
     @apply min-w-0 space-y-6;
@@ -327,217 +256,6 @@ textarea {
   .intel-hero-sub {
     @apply mt-2 max-w-2xl text-body leading-relaxed;
     color: var(--ar-muted);
-  }
-
-  .intel-hero-meta {
-    @apply mt-4 flex flex-wrap items-center gap-2;
-  }
-
-  .intel-hero-badge {
-    @apply font-ui inline-flex items-center gap-2 rounded-full border px-3 py-1 text-caption font-bold uppercase tracking-[0.18em];
-    border-color: rgba(212, 178, 76, 0.42);
-    background: rgba(255, 255, 255, 0.82);
-    color: var(--ar-maroon);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
-  }
-
-  .intel-section-head {
-    @apply flex flex-wrap items-end justify-between gap-3 border-b pb-3;
-    border-color: rgba(212, 178, 76, 0.18);
-  }
-
-  .logic-module-card {
-    @apply relative flex h-full w-full min-h-[12.5rem] flex-col overflow-hidden rounded-2xl border p-4 text-left transition-colors duration-300 md:min-h-[13.5rem] md:p-6;
-    min-width: 0;
-    --logic-orb: rgba(212, 178, 76, 0.35);
-    border-color: var(--ar-border);
-    background: linear-gradient(155deg, #fffefb 0%, var(--ar-panel) 62%, #faf7ef 100%);
-    color: var(--ar-ink);
-    isolation: isolate;
-  }
-
-  @keyframes logic-module-sheen {
-    0% { transform: translateX(-120%); opacity: 0; }
-    18% { opacity: 0.55; }
-    45% { transform: translateX(120%); opacity: 0; }
-    100% { transform: translateX(120%); opacity: 0; }
-  }
-
-  .logic-module-card::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    border-radius: 3px 0 0 3px;
-    background: var(--ar-gold);
-    opacity: 0.4;
-    transition: opacity 0.25s ease, width 0.25s ease, box-shadow 0.25s ease;
-    z-index: 2;
-  }
-
-  .logic-module-card::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
-    z-index: 1;
-  }
-
-  .logic-module-card:hover {
-    border-color: rgba(212, 178, 76, 0.4);
-  }
-
-  .logic-module-card--selected {
-    border-color: rgba(212, 178, 76, 0.55);
-  }
-
-  .logic-module-card--selected::before {
-    opacity: 1;
-    width: 5px;
-    box-shadow: 0 0 14px rgba(212, 178, 76, 0.55);
-  }
-
-  .logic-module-card__kicker {
-    @apply text-caption font-bold uppercase tracking-[0.22em];
-    color: var(--ar-gold-dark);
-  }
-
-  .logic-module-card__title {
-    letter-spacing: -0.01em;
-    color: var(--ar-ink);
-  }
-
-  .logic-module-card--amber {
-    --logic-orb: rgba(251, 191, 36, 0.45);
-    background: linear-gradient(155deg, #fff8ef 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--amber::before { background: #d97706; }
-  .logic-module-card--amber .logic-module-card__kicker { color: #b45309; }
-
-  .logic-module-card--cyan {
-    --logic-orb: rgba(56, 189, 248, 0.4);
-    background: linear-gradient(155deg, #f0f9ff 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--cyan::before { background: #0ea5e9; }
-  .logic-module-card--cyan .logic-module-card__kicker { color: #0369a1; }
-
-  .logic-module-card--purple {
-    --logic-orb: rgba(244, 114, 140, 0.38);
-    background: linear-gradient(155deg, #fdf4f5 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--purple::before { background: var(--ar-maroon); }
-  .logic-module-card--purple .logic-module-card__kicker { color: var(--ar-maroon); }
-
-  .logic-module-card--green {
-    --logic-orb: rgba(52, 211, 153, 0.4);
-    background: linear-gradient(155deg, #ecfdf5 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--green::before { background: #059669; }
-  .logic-module-card--green .logic-module-card__kicker { color: #047857; }
-
-  .logic-module-card--rose {
-    --logic-orb: rgba(251, 113, 133, 0.4);
-    background: linear-gradient(155deg, #fff1f3 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--rose::before { background: #e11d48; }
-  .logic-module-card--rose .logic-module-card__kicker { color: #be123c; }
-
-  .logic-module-card--gold {
-    --logic-orb: rgba(212, 178, 76, 0.45);
-    background: linear-gradient(155deg, #fff8e8 0%, #fffefb 48%, var(--ar-panel) 100%);
-  }
-  .logic-module-card--gold::before { background: #d4b24c; }
-  .logic-module-card--gold .logic-module-card__kicker { color: #92400e; }
-
-  .logic-module-card__footer {
-    margin-top: auto;
-    padding-top: 0.65rem;
-    border-top: 1px solid rgba(212, 178, 76, 0.14);
-  }
-
-  .logic-module-metric {
-    @apply rounded-full border px-3 py-1 text-caption font-semibold tabular-nums;
-    border-color: rgba(120, 113, 108, 0.18);
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--ar-ink);
-    backdrop-filter: blur(6px);
-    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
-  }
-
-  .logic-module-card:hover .logic-module-metric {
-    border-color: rgba(212, 178, 76, 0.28);
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  .logic-module-metric__label {
-    color: #78716c;
-  }
-
-  @keyframes logic-module-sheen-dark {
-    0% { transform: translateX(-120%); opacity: 0; }
-    18% { opacity: 0.22; }
-    45% { transform: translateX(120%); opacity: 0; }
-    100% { transform: translateX(120%); opacity: 0; }
-  }
-
-  .intel-pipeline-shell {
-    @apply rounded-xl border p-2 md:p-3;
-    border-color: rgba(212, 178, 76, 0.2);
-    background:
-      linear-gradient(180deg, rgba(14, 165, 233, 0.04) 0%, transparent 38%),
-      linear-gradient(90deg, rgba(16, 185, 129, 0.03), transparent 40%),
-      var(--ar-panel);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .intel-pipeline-shell--amber {
-    border-color: rgba(217, 119, 6, 0.28);
-    background: linear-gradient(180deg, rgba(217, 119, 6, 0.06) 0%, transparent 42%), var(--ar-panel);
-  }
-  .intel-pipeline-shell--cyan {
-    border-color: rgba(14, 165, 233, 0.28);
-    background: linear-gradient(180deg, rgba(14, 165, 233, 0.06) 0%, transparent 42%), var(--ar-panel);
-  }
-  .intel-pipeline-shell--purple {
-    border-color: rgba(139, 92, 246, 0.28);
-    background: linear-gradient(180deg, rgba(139, 92, 246, 0.06) 0%, transparent 42%), var(--ar-panel);
-  }
-  .intel-pipeline-shell--green {
-    border-color: rgba(5, 150, 105, 0.28);
-    background: linear-gradient(180deg, rgba(5, 150, 105, 0.06) 0%, transparent 42%), var(--ar-panel);
-  }
-  .intel-pipeline-shell--rose {
-    border-color: rgba(225, 29, 72, 0.25);
-    background: linear-gradient(180deg, rgba(225, 29, 72, 0.05) 0%, transparent 42%), var(--ar-panel);
-  }
-  .intel-pipeline-shell--gold {
-    border-color: rgba(212, 178, 76, 0.32);
-    background: linear-gradient(180deg, rgba(212, 178, 76, 0.08) 0%, transparent 42%), var(--ar-panel);
-  }
-
-  .intel-insight-list {
-    @apply mt-3 space-y-3;
-  }
-
-  .intel-insight-list li {
-    @apply relative pl-4 text-body leading-relaxed;
-    color: var(--ar-muted);
-  }
-
-  .intel-insight-list li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    height: 6px;
-    width: 6px;
-    border-radius: 999px;
-    background: var(--ar-gold);
-    box-shadow: 0 0 8px rgba(212, 178, 76, 0.55);
   }
 
   .rail-card-fill {
@@ -899,14 +617,6 @@ textarea {
   .glass {
     border-radius: 0.85rem;
   }
-
-  .logic-module-rail-item {
-    flex: 0 0 min(46rem, 88vw) !important;
-    width: min(46rem, 88vw) !important;
-    min-width: min(46rem, 88vw) !important;
-    max-width: min(46rem, 88vw) !important;
-  }
-
   .market-strip {
     font-size: var(--text-caption);
   }
@@ -1886,9 +1596,8 @@ svg.lucide {
 .md-preview,
 .hs-output,
 .hs-input,
-.logic-module-card,
 .intel-hero,
-.intel-pipeline-shell {
+.atlas-card {
   background-color: #ffffff !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
@@ -1898,10 +1607,206 @@ svg.lucide {
 .glass,
 .data-table-premium-wrap,
 .nav-pill-shell,
-.logic-module-card,
-.intel-hero,
-.intel-pipeline-shell {
+.intel-hero {
   border: 1px solid var(--ar-border);
+}
+
+/* Logic Atlas: stage cards in a connected flow, 3 a row from 1440 px, 2 from 1024 px, 1 below. */
+.atlas-flow,
+.atlas-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem 2rem;
+}
+
+.atlas-grid {
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .atlas-flow,
+  .atlas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1440px) {
+  .atlas-flow,
+  .atlas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.atlas-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.625rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ar-border);
+  border-left-width: 4px;
+  padding: 0.875rem 1rem;
+  scroll-margin-top: 9rem;
+  outline: none;
+}
+
+.atlas-card:focus-visible,
+.atlas-card:target {
+  box-shadow: 0 0 0 2px rgba(212, 178, 76, 0.55) !important;
+}
+
+.atlas-card--input { border-left-color: #0284c7; }
+.atlas-card--calculation { border-left-color: #7c3aed; }
+.atlas-card--check { border-left-color: #d97706; }
+.atlas-card--output { border-left-color: #059669; }
+.atlas-card--insight { border-left-color: var(--ar-gold); }
+
+.atlas-card__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ar-border);
+  padding: 0.5rem;
+}
+
+.atlas-card--input .atlas-card__icon, .atlas-card--input .atlas-chip { color: #075985; }
+.atlas-card--calculation .atlas-card__icon, .atlas-card--calculation .atlas-chip { color: #5b21b6; }
+.atlas-card--check .atlas-card__icon, .atlas-card--check .atlas-chip { color: #92400e; }
+.atlas-card--output .atlas-card__icon, .atlas-card--output .atlas-chip { color: #065f46; }
+
+.atlas-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid currentColor;
+  padding: 0 0.5rem;
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.atlas-card__step,
+.atlas-card__label {
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--ar-muted);
+}
+
+.atlas-card__label {
+  min-width: 4.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.atlas-card__text {
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: #44403c;
+}
+
+.atlas-card__links,
+.atlas-card__rule,
+.atlas-card__last {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-caption);
+  color: var(--ar-ink);
+}
+
+.atlas-card__last {
+  margin-top: auto;
+  border-top: 1px solid var(--ar-border);
+  padding-top: 0.5rem;
+}
+
+.atlas-link {
+  border-radius: 9999px;
+  border: 1px solid var(--ar-border);
+  padding: 0 0.5rem;
+  line-height: 1.375rem;
+  color: #7a1e2c;
+  background: rgba(15, 23, 42, 0.03);
+  text-decoration: none;
+}
+
+.atlas-link:hover,
+.atlas-link:focus-visible {
+  border-color: #7a1e2c;
+}
+
+.atlas-values {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  gap: 0.25rem 0.75rem;
+}
+
+.atlas-value {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.atlas-value dt {
+  color: var(--ar-muted);
+  white-space: nowrap;
+}
+
+.atlas-value dd {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.atlas-empty {
+  border-radius: 1rem;
+  border: 1px dashed var(--ar-border);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--ar-muted);
+}
+
+/* Connectors: an arrow in the gap before each card; it points down where a new row starts. */
+.atlas-arrow {
+  position: absolute;
+  display: inline-flex;
+  color: var(--ar-gold-dark);
+  top: -1.625rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(90deg);
+}
+
+@media (min-width: 1024px) {
+  .atlas-flow > .atlas-card:nth-child(2n) .atlas-arrow {
+    top: 50%;
+    left: -1.625rem;
+    transform: translateY(-50%);
+  }
+}
+
+@media (min-width: 1440px) {
+  .atlas-flow > .atlas-card:nth-child(2n) .atlas-arrow {
+    top: -1.625rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+  }
+  .atlas-flow > .atlas-card:not(:nth-child(3n + 1)) .atlas-arrow {
+    top: 50%;
+    left: -1.625rem;
+    transform: translateY(-50%);
+  }
 }
 
 .data-table-premium thead th,

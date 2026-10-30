@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures";
+import { hook } from "../pipeline/helpers";
 import { OUTPUT_TAB_IDS, readCells, schema } from "../support/tables";
 import { chromiumOnly, expectFlagged, fillBlank } from "./helpers";
 
@@ -122,7 +123,7 @@ test.describe("B9 Coupon and solver", () => {
     await expect(inputs.field("coupon")).toHaveAttribute("aria-invalid", "true");
   });
 
-  test("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9", async ({ page, inputs, atlas }) => {
+  test("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9", async ({ page, inputs }) => {
     await fillBlank(inputs);
     await inputs.fill("coupon", "2.01");
     // Just above the 2% the lower spread pays, the top participation is 0.001, so Strike 2 must now be sold.
@@ -130,10 +131,8 @@ test.describe("B9 Coupon and solver", () => {
     await expect(inputs.runButton).toBeDisabled();
     await inputs.fill("input-strikeSides-1", "S");
     await inputs.run();
-    await atlas.open();
-    await atlas.debugDrawer.click();
-    const residual = await page.locator('[data-cell$="::Goal Seek Residual"]').textContent();
-    expect(Number(residual)).toBeLessThan(1e-9);
+    const r = (await hook(page)).result!;
+    expect(Math.abs(r.diagnostics.goalSeekResidual)).toBeLessThan(1e-9);
   });
 });
 

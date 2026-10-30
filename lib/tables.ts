@@ -150,7 +150,7 @@ export function specRowLabels(spec: AnySpec): string[] {
 }
 
 /** A one-row headline table that replaces a card rail. */
-export function headlineTable(id: string, title: string, items: Item[]): TableSpec {
+function headlineTable(id: string, title: string, items: Item[]): TableSpec {
   return {
     id,
     title,

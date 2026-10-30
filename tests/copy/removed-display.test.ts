@@ -2,10 +2,10 @@ import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 
 import { buildHedgingExcel } from "@/lib/excel/build-hedging-excel";
-import { logicModules } from "@/lib/logic-atlas";
 import { outputTables, specCells, specHeaders } from "@/lib/tables";
 
 import { priced } from "../helpers/fixture";
+import { atlasCopy } from "../helpers/atlas-copy";
 
 /** Columns and tables taken off the display. */
 const REMOVED = ["Used In", "Linked To Premium Growth Rate", "Rate Used", "Pricing Params Forward Grid", "Pricing Parameters By Expiry", "Rate Curve As Read", "Implied Dividends"];
@@ -35,18 +35,9 @@ describe("the removed columns and tables appear nowhere", () => {
     expect(hits(texts)).toEqual([]);
   });
 
-  it("not in the Logic Atlas: no card, step, formula, output or row", () => {
-    const texts = logicModules("Sensex", "Thursday").flatMap((m) => [
-      m.title,
-      m.subtitle,
-      m.description,
-      ...m.nodes.flatMap((n) => [n.label, n.description]),
-      ...m.formulas.flatMap((f) => [f.name, f.words, f.inputs, f.output]),
-      ...m.outputs.map((o) => o.label),
-      ...m.insights(r),
-      ...m.edgeCases,
-    ]);
-    expect(hits(texts)).toEqual([]);
+  it("not in the Logic Atlas: no stage, insight or output", () => {
+    const copy = atlasCopy(r);
+    expect(hits([...copy.labels, ...copy.prose])).toEqual([]);
   });
 
   it("not in the output tables", () => {

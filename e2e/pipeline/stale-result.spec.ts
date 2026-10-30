@@ -36,7 +36,9 @@ test.describe("no stale result after a mode or underlying switch", () => {
     }
     await expect(nav.downloadExcel).toBeDisabled();
     await nav.go("logic-atlas");
-    await expect(page.getByTestId("atlas-status")).toContainText("Waiting For Run Simulation");
+    await expect(page.getByTestId("atlas-status")).toHaveText("Inputs Changed · Run Again");
+    await expect(page.getByTestId("stage-goal-seek-last")).toContainText("Inputs Changed · Run Again");
+    await expect(page.getByTestId("insights-empty")).toHaveText("Run Simulation To See Insights");
 
     await nav.go("inputs");
     await expect(inputs.field("spot")).not.toHaveValue("", { timeout: 30_000 });

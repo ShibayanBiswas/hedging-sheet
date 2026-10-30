@@ -4,13 +4,13 @@ import { copyViolations, type CopyKind } from "@/lib/format/copy-rules";
 import { isTitleCase } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { INPUT_SECTIONS, requiredFields, validateDeskInputs } from "@/lib/validation/inputRules";
-import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { outputTables, specCells, specHeaders, specRowLabels } from "@/lib/tables";
 import { SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
 
 import invalid from "../fixtures/invalid-cases.json";
 import { blankFillInputs, mockDefaultInputs, priceLikeTheApp } from "../helpers/mock-market";
+import { atlasCopy } from "../helpers/atlas-copy";
 
 function offenders(items: Array<[string, CopyKind]>): string[] {
   return items.flatMap(([text, kind]) => copyViolations(text, kind).map((v) => `${kind} "${text}": ${v}`));
@@ -36,16 +36,13 @@ describe("copy rules on the label constants", () => {
     expect(offenders(items)).toEqual([]);
   });
 
-  it("Logic Atlas: titles, metrics and steps are labels; descriptions, insights and edge cases are prose", () => {
-    const items: Array<[string, CopyKind]> = [];
-    for (const m of logicModules("Sensex", "Thursday")) {
-      items.push([m.title, "label"], [m.subtitle, "label"], [m.description, "prose"]);
-      for (const x of m.metrics) items.push([x.label, "label"], [x.value, "label"]);
-      for (const n of m.nodes) items.push([n.label, "label"], [n.description, "prose"]);
-      for (const f of m.formulas) items.push([f.name, "label"], [f.output, "label"], [f.words, "prose"], [f.value(r), "cell"]);
-      for (const o of m.outputs) items.push([o.label, "label"], [o.value(r), "cell"]);
-      for (const text of [...m.insights(null), ...m.insights(r), ...m.edgeCases]) items.push([text, "prose"]);
-    }
+  it("Logic Atlas: titles, types, rules and labels are labels; descriptions and insights are prose; values are cells", () => {
+    const copy = atlasCopy(r);
+    const items: Array<[string, CopyKind]> = [
+      ...copy.labels.map((t): [string, CopyKind] => [t, "label"]),
+      ...copy.prose.map((t): [string, CopyKind] => [t, "prose"]),
+      ...copy.cells.map((t): [string, CopyKind] => [t, "cell"]),
+    ];
     expect(offenders(items)).toEqual([]);
   });
 

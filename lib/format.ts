@@ -84,6 +84,12 @@ export function fmtIstTime(iso: string): string {
   return `${p.hour}:${p.minute} ${p.dayPeriod!.toLowerCase()} IST`;
 }
 
+/** 30-Oct-2026 · 2:10 pm IST, when a run was made. */
+export function fmtRunStamp(iso: string): string {
+  const p = istParts(new Date(iso));
+  return `${p.day}-${p.month}-${p.year} · ${p.hour}:${p.minute} ${p.dayPeriod!.toLowerCase()} IST`;
+}
+
 /** 30-Oct-2026 · 12:11:30 pm IST, the footer's Desk Clock. */
 export function fmtDeskClock(d: Date): string {
   const p = istParts(d);

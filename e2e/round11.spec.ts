@@ -231,16 +231,12 @@ test.describe("Round 11 · Layout", () => {
     await expect(page.getByText("Every Value The Pricer Reads From The Pricing Parameters. Saving Writes Them To This Month In The Desk Database.")).toBeVisible();
   });
 
-  test("Vega Hedge shows no 30.5 and titles its three price tables; Logic Atlas has one row per stage", async ({ page, inputs, nav }) => {
+  test("Vega Hedge shows no 30.5 and titles its three price tables", async ({ page, inputs, nav }) => {
     await runDefault(page, inputs);
     await nav.go("vega-hedge");
     const cells = await page.locator("td, th, p, span").allTextContents();
     expect(cells.filter((t) => /^\s*30\.50?\s*$/.test(t))).toEqual([]);
     for (const t of ["Fair Price Computation", "Exchange Price Computation", "Stressed Price Computation"]) await expect(page.getByRole("heading", { name: t })).toBeVisible();
-    await nav.go("logic-atlas");
-    const stages = await page.locator('[data-testid="table-atlas-pipeline"] tbody tr td:first-child').allTextContents();
-    expect(stages.map((s) => s.trim())).toEqual(["Inputs", "Expiries", "Strikes", "Surface Lookup", "Forwards", "Black Formula", "Goal Seek Inbuilt", "Pots", "Vega Hedge", "Margin Grid", "Payoff"]);
-    await expect(page.locator('[data-testid="table-atlas-pipeline"] tbody tr').first()).not.toContainText(/^-$/);
   });
 });
 

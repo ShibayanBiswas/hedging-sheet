@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 import { isTitleCase, titleCase, titleCaseViolations } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
 import { INPUT_SECTIONS } from "@/lib/validation/inputRules";
-import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import {
   marginHeadline,
@@ -30,6 +29,7 @@ import {
 import { SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
 
 import { priced } from "../helpers/fixture";
+import { atlasCopy } from "../helpers/atlas-copy";
 
 function expectAll(labels: string[]) {
   const offenders = labels.filter((l) => !isTitleCase(l)).map((l) => `${l} (${titleCaseViolations(l).join(", ")})`);
@@ -72,13 +72,8 @@ describe("label constants", () => {
     expectAll(labels);
   });
 
-  it("Logic Atlas: section titles, card kickers and metrics, flow steps, formula names, inputs, outputs and output links", () => {
-    const labels: string[] = [];
-    for (const m of logicModules("Sensex", "Thursday")) {
-      labels.push(m.title, m.subtitle, ...m.metrics.flatMap((x) => [x.label, x.value]), ...m.nodes.map((n) => n.label));
-      labels.push(...m.formulas.flatMap((f) => [f.name, f.inputs, f.output]), ...m.outputs.map((o) => o.label));
-    }
-    expectAll(labels);
+  it("Logic Atlas: stage titles, types, rules, last run labels, output and insight titles", () => {
+    expectAll(atlasCopy(priced()).labels);
   });
 
   it("tabs, modes, input sections and Excel sheet names", () => {

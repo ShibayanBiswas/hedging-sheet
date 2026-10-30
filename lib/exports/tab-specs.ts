@@ -7,7 +7,7 @@ import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { inputHash } from "@/lib/input-hash";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
-import { logicModules, pipelineStages } from "@/lib/logic-atlas";
+import { atlasInsights, atlasOutputs, atlasStages } from "@/lib/logic-atlas";
 import { outputTables, type AnySpec, type CellValue, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 import { UNDERLYINGS } from "@/lib/underlyings";
 
@@ -204,21 +204,49 @@ function marketDataSpecs(market: MarketData, i: Pick<DeskInputs, "valuationDate"
   ];
 }
 
-/** The Logic Atlas tab: the pipeline, then each section's formulas with the last run's values. */
-function logicAtlasSpecs(r: HedgingResult | null, i: Pick<DeskInputs, "underlying">): AnySpec[] {
-  const u = underlyingName(i);
-  const weekday = i.underlying ? WEEKDAY_NAMES[EXPIRY_WEEKDAY[i.underlying]]! : "Expiry Weekday";
-  const columns: TableSpec["columns"] = [
-    { key: "name", label: "Stage", kind: "text" },
-    { key: "words", label: "Formula In Words", kind: "text" },
-    { key: "inputs", label: "Inputs", kind: "text" },
-    { key: "output", label: "Output", kind: "text" },
-    { key: "value", label: "Value From The Last Run", kind: "text" },
-  ];
-  const rows = (list: ReturnType<typeof pipelineStages>) => list.map((f) => ({ name: f.name, words: f.words, inputs: f.inputs, output: f.output, value: r ? f.value(r) : null }));
+/** The Logic Atlas tab: Flows, Insights and Outputs, as the page shows them. */
+function logicAtlasSpecs(ctx: ExportContext): AnySpec[] {
+  const run = ctx.result ? { result: ctx.result, market: ctx.market } : null;
+  const stages = atlasStages(ctx.inputs, run, { market: ctx.market });
+  const titles = Object.fromEntries(stages.map((s) => [s.id, s.title]));
+  const names = (ids: string[]) => (ids.length ? ids.map((id) => titles[id]).join(", ") : null);
+  const pending = "Waiting For Run Simulation";
+  const insights = atlasInsights(run);
   return [
-    { id: "atlas-pipeline", title: "Pipeline", columns, rows: rows(pipelineStages(u, weekday)) },
-    ...logicModules(u, weekday).map((m): TableSpec => ({ id: `atlas-${m.id}`, title: m.title, columns: [{ ...columns[0]!, label: "Formula" }, ...columns.slice(1)], rows: rows(m.formulas) })),
+    {
+      id: "atlas-flows",
+      title: "Flows",
+      columns: [
+        { key: "title", label: "Stage", kind: "text" },
+        { key: "kind", label: "Type", kind: "text" },
+        { key: "description", label: "Description", kind: "text" },
+        { key: "uses", label: "Uses", kind: "text" },
+        { key: "feeds", label: "Feeds", kind: "text" },
+        { key: "rule", label: "Rule", kind: "text" },
+        { key: "last", label: "Last Run", kind: "text" },
+      ],
+      rows: stages.map((s) => ({
+        title: s.title,
+        kind: s.kind,
+        description: s.description,
+        uses: names(s.uses),
+        feeds: names(s.feeds),
+        rule: s.rule,
+        last: s.lastRun ? s.lastRun.map((v) => `${v.label} ${v.value}`).join(" · ") : pending,
+      })),
+    },
+    insights.length
+      ? { id: "atlas-insights", title: "Insights", items: insights.map((x) => ({ label: x.title, value: x.text, kind: "text" as const })) }
+      : { id: "atlas-insights", title: "Insights", items: [{ label: "Insights", value: "Run Simulation To See Insights", kind: "text" as const }] },
+    {
+      id: "atlas-outputs",
+      title: "Outputs",
+      columns: [
+        { key: "tab", label: "Tab", kind: "text" },
+        { key: "values", label: "Headline", kind: "text" },
+      ],
+      rows: atlasOutputs(ctx.result).map((o) => ({ tab: o.title, values: o.values.length ? o.values.map((v) => `${v.label} ${v.value}`).join(" · ") : pending })),
+    },
   ];
 }
 
@@ -226,7 +254,7 @@ function logicAtlasSpecs(r: HedgingResult | null, i: Pick<DeskInputs, "underlyin
 export function tabSpecs(tab: ExportTab, ctx: ExportContext): AnySpec[] {
   if (tab === "inputs") return inputsSpecs(ctx.inputs);
   if (tab === "market-data") return marketDataSpecs(ctx.market, ctx.inputs);
-  if (tab === "logic-atlas") return logicAtlasSpecs(ctx.result, ctx.inputs);
+  if (tab === "logic-atlas") return logicAtlasSpecs(ctx);
   return ctx.result ? outputTables(ctx.result)[tab] : [];
 }
 
