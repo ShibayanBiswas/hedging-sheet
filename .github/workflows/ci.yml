@@ -29,6 +29,8 @@ jobs:
       - name: Unit, golden and API tests, with coverage
         run: npm run test:coverage
       - run: npm run verify:mapping
+      - name: Workbook audit, fails on any Mismatch or unmapped cell
+        run: npm run audit:workbook && git diff --exit-code docs/workbook-audit.md
       - run: npm run verify:copy
       - run: npm run build
       - uses: actions/upload-artifact@v4
