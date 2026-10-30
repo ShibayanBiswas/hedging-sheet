@@ -51,7 +51,10 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run test:prod` | The read-only production project; needs `BASE_URL` |
 | `npm run test:prod:responsive` | The responsive audit against `BASE_URL`, read-only, with the real clock |
 | `npm run lhci` | Lighthouse budgets against the mock server |
-| `npm run test:all` | Typecheck, lint, unit, golden, API, mapping, copy and the Chromium end to end suite |
+| `npm run test:all` | Typecheck, lint, knip, the copy rules, the workbook mapping and audit, then everything `test:local` runs |
+| `npm run test:local` | A production build on port 3000 with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage, Playwright on Chromium, Firefox, WebKit and mobile, and Lighthouse |
+| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects on three browsers. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed |
+| `npm run verify:yahoo` | Live Yahoo with no mock: both closes, the session status and a year of daily volatility |
 | `npm run report` | Opens the last Playwright HTML report |
 | `npm run fixtures:build` | Rebuilds the generated fixtures; review the diff before committing |
 | `npm run fixtures:workbook` | Freezes the reference workbook's saved values for G0 |
@@ -98,28 +101,29 @@ A failed test keeps its trace, video and screenshot in `test-results/playwright/
 
 ## Reports
 
-- Playwright: HTML in `playwright-report`, JUnit in `test-results/junit-e2e.xml`, with trace, video and screenshot kept on failure.
-- Vitest: JUnit in `test-results/vitest-junit.xml` on CI, coverage in `test-results/coverage`.
+`test:all`, `test:local` and `test:vercel` each write `reports/<run>-<timestamp>/`, which git ignores:
+
+- `summary.md`: every step with Pass or Fail, its time and a link to its report;
+- `coverage/`: the Vitest coverage, with 95% lines and branches enforced on `lib/` in `vitest.config.ts`;
+- `junit-vitest.xml` and `junit-e2e.xml`;
+- `playwright-html/` and `traces/`, with trace, video and screenshot kept on failure;
+- `lighthouse/`.
+
+Plain `npx playwright test` and `npx vitest` keep writing to `playwright-report` and `test-results`.
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every push and pull request:
+| Workflow | When | What |
+|---|---|---|
+| `ci.yml` | Every push and pull request | `npm run test:all` in the Playwright Linux image, so the visual baselines compare like for like; uploads `reports/` |
+| `vercel-preview.yml` | Each successful preview deployment | `npm run test:vercel` against the preview |
+| `production-smoke.yml` | Each successful production deployment, every 6 hours, on demand | `npm run test:vercel` against production; opens a GitHub issue when it fails |
+| `nightly.yml` | 02:00 IST | `npm run test:local` on every browser, and `npm run verify:yahoo` against live Yahoo |
 
-1. Typecheck, lint, Vitest with coverage (unit, golden and API), the mapping check, the copy check and the build.
-2. Playwright in mock mode against the production build, across 4 shards and all four projects: the flows, accessibility, the crawls, the pipeline and the responsive audit.
-3. Visual baselines on Linux.
-4. Lighthouse budgets.
-5. Artifact upload for each job.
+## Edge cases
 
-`.github/workflows/prod-smoke.yml` runs the read-only production project after CI succeeds on `main`, after each successful deployment, preview ones included, nightly, and on demand, and uploads the `prod-smoke-report` artifact.
+Every case in the Round 12 edge case table has a named test: `tests/edge/` for the engine, market data, uploads and the database, and `e2e/edge-cases.spec.ts` for Run, Goal Seek, the hedge strike, volatility edits, expiry counts and downloads. Each is named "Edge · Area · Case". The bugs they found are in [the Round 12 bug log](bug-log-round-12.md).
 
-## Debug Drawer
+## Pipeline trace
 
-Logic Atlas has a Debug Drawer with the last run's live values:
-
-- the stage timings and the input hash, with Copy JSON;
-- the diagnostics: goal-seek iterations and residual, margin loop passes, the spot bump after the stress grid, and the largest gap between the payoff and the book;
-- the inputs;
-- every goal-seek step;
-- per-leg forward growth, forward, discount yield, volatility and maturities;
-- the rate curve points used.
+In development, open any page with `?trace=1` and run: the console shows one collapsed group per stage, from the inputs to the stage timings. Production builds never print it.

@@ -8,7 +8,7 @@
 | [04 Input Files](04-input-files.md) | The vol surface upload layout and the surface parameters |
 | [05 MongoDB and Seed](05-mongodb-and-seed.md) | What is stored, the seed fallback and the database scripts |
 | [06 Routes and UI](06-routes-and-ui.md) | Shell, tabs, Inputs sections, popups, output tabs and API routes |
-| [07 Testing and Debug](07-testing-debug.md) | Test commands, what each suite pins down, the Debug Drawer |
+| [07 Testing and Debug](07-testing-debug.md) | Test commands, reports, CI, the edge case tests and the pipeline trace |
 | [08 Changelog](08-changelog.md) | Every round's changes, newest first |
 | [09 Deploy on Vercel](09-vercel-deploy.md) | Environment variables, deploy steps, clearing every cache, and checks |
 | [10 Edge Cases](10-edge-cases.md) | Every validation code, its popup and its fix |

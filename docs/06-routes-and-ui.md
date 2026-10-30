@@ -80,11 +80,13 @@ The payoff chart and scenario table follow the Primary SP Dashboard. The chart h
 
 ## Logic Atlas
 
-Eleven sections: Inputs, Expiries, Strikes And Spreads, Pricer, Solver, Summary, Product Description, Day 1 Vega Hedge, Mark To Market And Margin, Market Data and Export.
+Three sections, laid out as in the Primary SP Dashboard: Flows, Insights and Outputs. The status chip at the top right reads "Waiting For Run Simulation", "Last Run · 30-Oct-2026 · 2:10 pm IST" from the real run time, or "Inputs Changed · Run Again".
 
-- **Section cards.** Each has a description, a flow diagram with selectable steps, a formulas table with Formula, In Words, Inputs, Output and the value from the last run, edge cases, insights from the run, and outputs with their values and links to the tab.
-- **Debug Drawer.** Live values from the last run: stage timings, the input hash and Copy JSON, diagnostics, the inputs, every goal-seek step, per-leg forward, discount yield, volatility and maturities, and the rate curve points used.
+- **Flows.** 13 stage cards in a connected flow, 3 a row at 1440 px, 2 at 1024 px and 1 on phones: Inputs, Live Close, Expiries, Strikes And Spreads, Volatility, Surface Lookup, Forwards, Option Pricing, Goal Seek Inbuilt, Pots, Day 1 Vega Hedge, Mark To Market And Margin, and Payoff. Each card has a type chip (Input, Calculation, Output or Check), a description built from the live inputs with "-" for anything missing, Uses and Feeds as links that move to that card, the rule in words, and Last Run values with at most 3 decimals.
+- **Insights.** What drives the Inbuilt, the strike carrying the most premium, the hedge strike against spot, the volatility against the surface, and the margin peak, all from the last run. Before a run: "Run Simulation To See Insights".
+- **Outputs.** One card per result tab with its headline numbers and an Open link.
 - **Stale runs.** A run made with other inputs is never shown; the Atlas waits for Run Simulation.
+- **Trace.** In development only, `?trace=1` prints each pipeline stage of a run to the browser console.
 
 ## Popups
 
