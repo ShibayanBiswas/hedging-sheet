@@ -21,9 +21,11 @@ GitHub Actions has not run since the billing block ("recent account payments hav
 | Typecheck, lint, knip | Clean |
 | Vitest: unit, golden, API, component, export | 31 files, 340 tests, all pass |
 | Workbook audit | 10,802 cells: 7,221 Match, 6 Mismatch Fixed, 3,575 Not Applicable, 0 Mismatch |
-| Playwright Chromium, mock server | E2E_RESULT |
+| Playwright Chromium, mock server | Full run: 236 tests, 234 passed; the two failures, the phone header at 124 px, were fixed and the 76 header, R1 to R7 and R9 tests rerun green |
 | Linux visual baselines | 24 rewritten in `mcr.microsoft.com/playwright:v1.63.0-noble` |
-| Production | PROD_RESULT |
+| Vercel | Production deployment of `e785b40` Ready on hedging-sheet.vercel.app |
+| Production Smoke, prod and prod-responsive projects | 81 tests against the live site: 76 passed first time, and the 5 that timed out loading the page passed on a rerun |
+| `npm run verify:db` | Read only: validators strict, unique month indexes, no invalid documents |
 
 ## Bugs B1 To B17
 
