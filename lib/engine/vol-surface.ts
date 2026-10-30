@@ -19,10 +19,10 @@ function monthKey(ymd: string = istTodayYmd()): string {
   return ymd.slice(0, 7);
 }
 
-/** "October 2026 Volatility Surface" for a YYYY-MM key. */
+/** "October 2026 Volatility Surface" for a YYYY-MM key; every caller checks the key first. */
 export function surfaceMonthLabel(key: string): string {
-  const [year, month] = key.split("-").map(Number);
-  const name = new Date(Date.UTC(year || 2026, (month || 1) - 1, 1)).toLocaleString("en-IN", {
+  const [year, month] = key.split("-").map(Number) as [number, number];
+  const name = new Date(Date.UTC(year, month - 1, 1)).toLocaleString("en-IN", {
     month: "long",
     timeZone: "UTC",
   });
@@ -79,7 +79,7 @@ function interp1(xs: number[], ys: number[], x: number): number {
   const a = Number(ys[i]);
   const b = Number(ys[i + 1]);
   if (!Number.isFinite(a)) return Number.isFinite(b) ? b : 0;
-  if (!Number.isFinite(b) || x1 === x0) return a;
+  if (!Number.isFinite(b)) return a;
   // FORECAST through two points, the workbook's strike interpolation.
   const slope = (b - a) / (x1 - x0);
   const intercept = (a + b) / 2 - (slope * (x0 + x1)) / 2;
@@ -174,7 +174,7 @@ function expiryBracket(times: number[], t: number): [number, number, number] {
   while (i < last && times[i + 1]! <= t) i += 1;
   const t0 = times[i]!;
   const t1 = times[i + 1]!;
-  return [i, i + 1, t1 === t0 ? 0 : (t - t0) / (t1 - t0)];
+  return [i, i + 1, (t - t0) / (t1 - t0)];
 }
 
 /**
@@ -207,7 +207,7 @@ export function pricingParamOnOrBefore(params: PricingParamPoint[], date: string
     if (parseYmd(p.date).getTime() <= t) chosen = p;
     else break;
   }
-  return chosen ?? params[0] ?? null;
+  return chosen ?? params[0]!;
 }
 
 export function lookupVolBump(params: PricingParamPoint[], date: string): number {

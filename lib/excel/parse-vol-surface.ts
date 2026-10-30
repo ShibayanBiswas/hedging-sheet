@@ -321,8 +321,8 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
   const pricingParams = parsed?.pricingParams.length
     ? parsed.pricingParams
     : (() => {
-        const [y, m] = monthKey.split("-").map(Number);
-        const end = new Date(Date.UTC(y || 2026, m || 1, 0));
+        const [y, m] = monthKey.split("-").map(Number) as [number, number];
+        const end = new Date(Date.UTC(y, m, 0));
         return [{ date: utcMidnightIso(end), volBump: parsed?.volBump ?? 0, fwdSellRate: parsed?.fwdSellRate ?? DEFAULT_FWD_SELL_RATE }];
       })();
 
