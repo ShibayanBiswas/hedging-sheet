@@ -4,7 +4,7 @@
  */
 
 /** The only shortforms the desk keeps. Every other word in capitals is written out in full. */
-const ALLOWED_SHORTFORMS = new Set(["NBFC", "BSE", "NSE", "IST", "OK", "UTC"]);
+const ALLOWED_SHORTFORMS = new Set(["NBFC", "BSE", "NSE", "IST", "OK", "UTC", "PDF"]);
 
 /**
  * Wording that points at the spreadsheet the app replaced. "Hedging Sheet", "Summary Sheet", "Term Sheet" and

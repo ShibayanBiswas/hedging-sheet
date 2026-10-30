@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 
+import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
+import type { ExportTab } from "@/lib/exports/tab-specs";
 import { cn } from "@/lib/cn";
 import { deskEase } from "@/lib/motion";
 
@@ -54,12 +56,12 @@ export function SectionTitle({
         </h2>
         {subtitle ? <p data-desc className="mt-1 font-ui text-caption text-muted">{subtitle}</p> : null}
       </div>
-      {aside ? <div className="flex flex-wrap items-center gap-2">{aside}</div> : null}
+      {aside ? <div className="ml-auto flex flex-wrap items-center justify-end gap-2">{aside}</div> : null}
     </div>
   );
 }
 
-export function PageIntro({ title, subtitle, aside }: { title: string; subtitle?: string; aside?: ReactNode }) {
+export function PageIntro({ title, subtitle, aside, tab }: { title: string; subtitle?: string; aside?: ReactNode; tab?: ExportTab }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -73,7 +75,12 @@ export function PageIntro({ title, subtitle, aside }: { title: string; subtitle?
         <h1 className="mt-1 font-bold tracking-tight text-ink text-h1">{title}</h1>
         {subtitle ? <p className="mt-1 max-w-3xl font-ui text-body text-muted">{subtitle}</p> : null}
       </div>
-      {aside}
+      {aside || tab ? (
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          {aside}
+          {tab ? <DownloadPdfButton tab={tab} /> : null}
+        </div>
+      ) : null}
     </motion.div>
   );
 }

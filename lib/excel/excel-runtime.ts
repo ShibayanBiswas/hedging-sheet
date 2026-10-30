@@ -33,15 +33,15 @@ export function hedgingExportFilename(result: HedgingResult): string {
   });
 }
 
-/** Build the five sheet workbook in the browser and start the download. */
-export async function downloadHedgingExcel(result: HedgingResult): Promise<string> {
+/** Build the workbook, one sheet per tab and the Audit sheet, in the browser and start the download. */
+export async function downloadHedgingExcel(result: HedgingResult, extra: { market: MarketData; runAt: string }): Promise<string> {
   const [{ buildHedgingExcel }, { fetchBrandLogoBase64 }] = await Promise.all([
     import("@/lib/excel/build-hedging-excel"),
     import("@/lib/excel/export-branding"),
   ]);
   const wb = await createWorkbook();
   const logo = await fetchBrandLogoBase64();
-  buildHedgingExcel(wb, result, logo);
+  buildHedgingExcel(wb, result, logo, extra);
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   const name = hedgingExportFilename(result);
