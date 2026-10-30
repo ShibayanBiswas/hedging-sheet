@@ -47,8 +47,8 @@ export type HedgeInputs = {
   strikeSides: StrikeSide[];
 
   expiryCount: number;
-  /** Month numbers. NaN marks a blank field. */
-  expiryMonths: number[];
+  /** Observation expiries, YYYY-MM-DD, each the last expiry weekday of its month. "" marks a blank field. */
+  expiryDates: string[];
   /** Index into the expiry list, or null for the median. */
   hedgeExpiryIndex: number | null;
 

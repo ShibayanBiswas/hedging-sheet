@@ -4,22 +4,12 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Eraser, RotateCcw } from "lucide-react";
 
-import {
-  CostsSection,
-  ExpiriesSection,
-  ProductTermsSection,
-  RatesSection,
-  SpreadsSection,
-  StrikesSection,
-  UnderlyingSection,
-  VolatilitySection,
-} from "@/components/inputs/input-sections";
+import { InputGroups } from "@/components/inputs/input-sections";
 import { InputModeSwitch } from "@/components/inputs/input-mode-switch";
-import { PageIntro } from "@/components/ui/panel";
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
-import { INLINE_ONLY_CODES } from "@/lib/inputs/validate";
+import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
 
 /** Rules across fields open a popup the moment a typed value breaks them. Empty fields wait for Run Simulation. */
 function useEdgeCasePopups() {
@@ -45,34 +35,34 @@ function useEdgeCasePopups() {
 }
 
 export default function InputsPage() {
-  const { mode, resetInputs } = useDesk();
+  const { mode, resetInputs, staleInputs } = useDesk();
   const router = useRouter();
   useEdgeCasePopups();
 
   return (
-    <div className="-mb-3 flex w-full flex-col gap-4">
-      <PageIntro
-        title="Inputs"
-        aside={
-          <button type="button" className="btn-animated btn-motion btn-accent" onClick={resetInputs} data-testid="reset-inputs">
-            <span className="relative z-10 inline-flex items-center gap-2">
-              {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}
-              {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
-            </span>
-          </button>
-        }
-      />
-      <InputModeSwitch />
-      <UnderlyingSection index={0} />
-      <RatesSection index={1} />
-      <ProductTermsSection index={2} />
-      <ExpiriesSection index={3} />
-      <StrikesSection index={4} />
-      <SpreadsSection index={5} />
-      <CostsSection index={6} />
-      <VolatilitySection index={7} />
+    <div className="flex w-full flex-col gap-2">
+      <div className="inputs-intro">
+        <h1 className="font-bold tracking-tight text-ink text-h1">Inputs</h1>
+        <div className="min-w-0 flex-1 sm:max-w-md">
+          <InputModeSwitch />
+        </div>
+        <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" onClick={resetInputs} data-testid="reset-inputs">
+          <span className="relative z-10 inline-flex items-center gap-2">
+            {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}
+            {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
+          </span>
+        </button>
+      </div>
+      <InputGroups />
       <div className="hs-run-bar">
-        <RunSimulationButton onDone={() => router.push("/summary")} />
+        {staleInputs ? (
+          <span className="hs-chip hs-chip-maroon shrink-0" data-testid="stale-chip">
+            Inputs Changed · Run Again
+          </span>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <RunSimulationButton slim onDone={() => router.push("/summary")} />
+        </div>
       </div>
     </div>
   );

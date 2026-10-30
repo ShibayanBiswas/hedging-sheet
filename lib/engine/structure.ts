@@ -1,7 +1,8 @@
 import type { HedgeInputs, SpreadInput, StrikeRole, StrikeSide, StrikeSlot, ValidationIssue } from "@/lib/engine/types";
 
 export const MIN_SPREADS = 1;
-export const MAX_SPREADS = 4;
+/** Up to 6 spreads, so the product has 5 to 10 strikes. */
+export const MAX_SPREADS = 6;
 
 /** Excel ROUNDUP(x, -2) for a positive step such as 100. */
 function roundUpTo(x: number, step: number): number {
@@ -108,6 +109,11 @@ function unitsAt(inputs: Pick<HedgeInputs, "strikePercents" | "participations" |
   return units;
 }
 
+/** Pricer row 47: units per strike at the rounded rupee strikes, negative where the book sells. */
+export function strikeUnits(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon" | "decay" | "floorUnits">, start: number): number[] {
+  return unitsAt(inputs, start, (i) => rupeeStrike(start, inputs.strikePercents[i]!));
+}
+
 /** The side each strike must take for the book to give the payoff: Sell where units are negative, Buy where positive. */
 export function derivedSides(inputs: Pick<HedgeInputs, "strikePercents" | "participations" | "coupon" | "decay" | "floorUnits">): StrikeSide[] {
   return unitsAt(inputs, 100, (i) => inputs.strikePercents[i]!).map((u) => (u < 0 ? "S" : "B"));
@@ -120,7 +126,7 @@ export function derivedSides(inputs: Pick<HedgeInputs, "strikePercents" | "parti
 export function buildStrikes(inputs: HedgeInputs, start: number): StrikeSlot[] {
   const n = deriveTerms(inputs).nSpreads;
   const kOf = (i: number) => rupeeStrike(start, inputs.strikePercents[i]!);
-  const units = unitsAt(inputs, start, kOf);
+  const units = strikeUnits(inputs, start);
   return inputs.strikePercents.map((pct, i) => ({
     percent: pct,
     strike: kOf(i),

@@ -1,7 +1,7 @@
 import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 
-import { medianExpiryIndex } from "@/lib/engine/schedule";
+import { medianExpiryIndex, quarterlyExpiries } from "@/lib/engine/schedule";
 import { buildHedgingExcel } from "@/lib/excel/build-hedging-excel";
 import { outputTables, type TableSpec } from "@/lib/tables";
 
@@ -26,11 +26,11 @@ describe("the expiry role follows the chosen Option Expiry", () => {
     });
   }
 
-  it("lists all 12 dates when there are 12 expiries", () => {
-    const r = priced({ expiryCount: 12, expiryMonths: [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36], hedgeExpiryIndex: 11 });
+  it("lists all 10 dates when there are 10 expiries", () => {
+    const r = priced({ expiryCount: 10, expiryDates: quarterlyExpiries("2027-01-28", 10, "Sensex"), hedgeExpiryIndex: 9 });
     const rows = expiryTable(r).rows;
-    expect(rows).toHaveLength(12);
-    expect(rows[11]!.role).toBe(ROLE);
+    expect(rows).toHaveLength(10);
+    expect(rows[9]!.role).toBe(ROLE);
   });
 
   it("writes the same role to the Summary Sheet of the Excel file", () => {

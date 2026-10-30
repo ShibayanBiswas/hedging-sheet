@@ -4,12 +4,12 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2, Play } from "lucide-react";
 
 import { SIMULATION_STEPS, useDesk } from "@/lib/context/desk-provider";
-import { INLINE_ONLY_CODES } from "@/lib/inputs/validate";
+import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
 import { cn } from "@/lib/cn";
 import { deskEase } from "@/lib/motion";
 
 /** Gradient run button with a step progress state, in the Primary and Unwinding run style. */
-export function RunSimulationButton({ className, compact, onDone }: { className?: string; compact?: boolean; onDone?: () => void }) {
+export function RunSimulationButton({ className, compact, slim, onDone }: { className?: string; compact?: boolean; slim?: boolean; onDone?: () => void }) {
   const { simulation, runSimulation, lastRun, stale, fieldErrors } = useDesk();
   // Shown inline under the participation; Run stays off until it is fixed.
   const blocked = fieldErrors.some((e) => e.code != null && INLINE_ONLY_CODES.has(e.code));
@@ -32,7 +32,7 @@ export function RunSimulationButton({ className, compact, onDone }: { className?
       transition={{ type: "spring", stiffness: 420, damping: 28 }}
       className={cn(
         "btn-animated btn-motion btn-primary hs-run-btn relative w-full overflow-hidden",
-        compact ? "!py-3" : "!py-4 text-body",
+        compact ? "!py-3" : slim ? "!py-2 text-body" : "!py-4 text-body",
         running && "cursor-wait",
         className,
       )}

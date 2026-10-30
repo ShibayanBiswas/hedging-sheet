@@ -14,7 +14,7 @@ import {
 } from "@/lib/engine/structure";
 import type { HedgeInputs, OptionType } from "@/lib/engine/types";
 import { canRemoveStrike, insertStrike, removeStrike } from "@/lib/inputs/strikes";
-import { INLINE_ONLY_CODES } from "@/lib/inputs/validate";
+import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
 
 const base = (overrides: Partial<HedgeInputs> = {}): HedgeInputs => ({
   ...defaultInputs({ valuationDate: "2026-10-28", spot: 73598.67, dailyVol: 0.009 }),

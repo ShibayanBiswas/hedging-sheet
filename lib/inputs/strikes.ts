@@ -49,6 +49,55 @@ export function insertStrike(inputs: StrikeEdit & Terms, percent: number, mode: 
   return withSides(next, inputs, mode);
 }
 
+/**
+ * The Number Of Spreads drives the strikes: n spreads make n + 4 strikes. With every strike filled, new spreads go on
+ * top of the target five points apart and fewer drop the top ones, so the payoff below stays put. Otherwise empty rows
+ * are added or dropped at the top.
+ */
+export function setSpreadCount(inputs: StrikeEdit & Terms, count: number, mode: InputMode): StrikeEdit {
+  const n = spreadCount(inputs);
+  const filled = inputs.strikePercents.length > 0 && inputs.strikePercents.every(Number.isFinite);
+  if (filled) {
+    let next: StrikeEdit & Terms = inputs;
+    while (spreadCount(next) < count) {
+      const added = insertStrike(next, next.strikePercents[0]! + 5, mode);
+      if (!added) break;
+      next = { ...next, ...added };
+    }
+    while (spreadCount(next) > count) {
+      const removed = removeStrike(next, 0, mode);
+      if (!removed) break;
+      next = { ...next, ...removed };
+    }
+    if (spreadCount(next) === count) return pick(next);
+  }
+  const strikes = count + 4;
+  if (inputs.strikePercents.length === 0) {
+    return {
+      strikePercents: Array.from({ length: strikes }, () => NaN),
+      participations: [...Array.from({ length: count - 1 }, () => NaN), null],
+      strikeOptionTypes: Array.from({ length: strikes }, () => (mode === "blank" ? "" : "P")),
+      strikeSides: Array.from({ length: strikes }, () => ""),
+    };
+  }
+  const extra = count - n;
+  const top = <T,>(list: T[], fill: T) => (extra >= 0 ? [...Array.from({ length: extra }, () => fill), ...list] : list.slice(-extra));
+  // Participations run bottom spread first; the top one is derived.
+  const parts: Array<number | null> = inputs.participations.slice(0, Math.max(0, Math.min(n, count))).map((p) => p ?? NaN);
+  while (parts.length < count) parts.push(NaN);
+  parts[count - 1] = null;
+  return {
+    strikePercents: top(inputs.strikePercents, NaN),
+    participations: parts,
+    strikeOptionTypes: top(inputs.strikeOptionTypes, mode === "blank" ? "" : "P"),
+    strikeSides: top(inputs.strikeSides, ""),
+  };
+}
+
+function pick(x: StrikeEdit): StrikeEdit {
+  return { strikePercents: x.strikePercents, participations: x.participations, strikeOptionTypes: x.strikeOptionTypes, strikeSides: x.strikeSides };
+}
+
 /** Whether strike i can go: only a spread level, and only while more than one spread remains. */
 export function canRemoveStrike(inputs: Pick<DeskInputs, "strikePercents">, i: number): boolean {
   return i <= spreadCount(inputs) && spreadCount(inputs) > MIN_SPREADS;

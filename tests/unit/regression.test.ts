@@ -14,15 +14,16 @@ function run(...args: Parameters<typeof computeHedgingSheet>): HedgingResult {
 }
 
 /**
- * Frozen regression fixture, hand-checked against the approved desk numbers. The saved sheet typed its
- * expiries and pinned the Pricer forward growth to 'Pricing Params'!H69 (5.5%), so both are explicit here.
- * The expiry rule of the app gives different dates, so the app's live run is not expected to match these.
+ * Frozen regression fixture, hand-checked against the approved desk numbers. The saved sheet pinned the Pricer
+ * forward growth to 'Pricing Params'!H69 (5.5%), so it is explicit here. Its typed expiries are the app's own
+ * last-Thursday dates for 04-Aug-2026.
  */
 describe("frozen regression at spot 76,799 and the 76,835.78 surface anchor", () => {
   const inputs = { ...defaultInputs({ valuationDate: "2026-08-04", spot: 76799, dailyVol: 0.00895071 }), hedgeStrike: 76800 };
-  const r = run(inputs, seedMarketData(), {
-    expiryDates: ["2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24"],
-    forwardGrowth: 0.055,
+  const r = run(inputs, seedMarketData(), { forwardGrowth: 0.055 });
+
+  it("uses the workbook's typed expiries, each the last Thursday of its month", () => {
+    expect(r.schedule.expiries).toEqual(["2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24"]);
   });
   const g = r.productDescription.greeks;
 
@@ -52,7 +53,11 @@ describe("frozen regression at spot 76,799 and the 76,835.78 surface anchor", ()
 
 describe("frozen regression fixture file", () => {
   const { inputs, options, expected } = frozen;
-  const r = run({ ...defaultInputs({ valuationDate: inputs.valuationDate, spot: inputs.spot, dailyVol: inputs.dailyVol }), hedgeStrike: inputs.hedgeStrike }, seedMarketData(), options);
+  const r = run(
+    { ...defaultInputs({ valuationDate: inputs.valuationDate, spot: inputs.spot, dailyVol: inputs.dailyVol }), hedgeStrike: inputs.hedgeStrike, expiryDates: inputs.expiryDates },
+    seedMarketData(),
+    options,
+  );
   const g = r.productDescription.greeks;
 
   it("reproduces every frozen value to its stored precision", () => {
@@ -91,16 +96,18 @@ describe("live spot chain at 73,598.67", () => {
   const roundOneDates = ["2030-03-28", "2030-06-27", "2030-09-26", "2030-12-26", "2031-03-27", "2031-06-26"];
 
   it("reproduces the Round 1 figures with Round 1 dates and the full dividend list", () => {
-    const r = run(inputs, october, { expiryDates: roundOneDates });
+    // Round 1 also took the nearest 100 point hedge strike, 73,600.
+    const r = run({ ...inputs, expiryDates: roundOneDates, hedgeStrike: 73600 }, october);
     expect(r.dayOneVegaHedge.quantity).toBeCloseTo(12320.29, 2);
     expect(r.summary.actualInbuilt).toBeCloseTo(0.088564, 6);
   });
 
-  it("moves with the expiry rule and future dividends, as the app runs it", () => {
+  it("uses future dividends only, as the app runs it", () => {
     const r = run(inputs, forwardMarket(october, "2026-10-28"));
-    expect(r.summary.hedgeExpiry).toBe("2030-10-03");
-    expect(r.dayOneVegaHedge.quantity).toBeCloseTo(12863.31, 2);
-    expect(r.summary.actualInbuilt).toBeCloseTo(0.08648, 5);
+    expect(r.schedule.expiries).toEqual(["2030-04-25", "2030-07-25", "2030-10-31", "2030-12-26", "2031-04-24", "2031-07-31"]);
+    expect(r.summary.hedgeExpiry).toBe("2030-10-31");
+    expect(r.dayOneVegaHedge.quantity).toBeCloseTo(13258.58, 2);
+    expect(r.summary.actualInbuilt).toBeCloseTo(0.081669, 5);
   });
 
   it("re-derives vega, quantity, premium, option delta and residual futures by hand", () => {

@@ -197,10 +197,10 @@ export function validateInputs(
     const beyond = schedule.dates.filter((d) => parseYmd(d).getTime() > parseYmd(lastSurface).getTime());
     if (beyond.length) {
       warnings.push({
-        field: "expiryMonths",
+        field: "expiryDates",
         code: "expiry-surface",
         message: `${beyond.length} expiry ${beyond.length === 1 ? "date falls" : "dates fall"} after the last surface row on ${formatDate(lastSurface)}. Their volatility is read from that last row.`,
-        fix: "Upload a surface with longer expiries, or lower the month numbers.",
+        fix: "Upload a surface with longer expiries, or pick earlier expiries.",
       });
     }
   }
@@ -208,17 +208,16 @@ export function validateInputs(
 }
 
 /**
- * Regression fixtures can pin the observation expiries and the Pricer forward growth, as a saved
- * sheet does with typed dates and a fixed 'Pricing Params'!H69. The app always uses the expiry rule
- * and the valuation month row.
+ * Regression fixtures can pin the Pricer forward growth, as a saved sheet does with a fixed 'Pricing Params'!H69.
+ * The app always uses the valuation month row.
  */
-export type ComputeOptions = { expiryDates?: string[]; forwardGrowth?: number };
+export type ComputeOptions = { forwardGrowth?: number };
 
 export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, options?: ComputeOptions): HedgingResult | HedgingFailure {
   const validated = validateInputs(inputs, market);
   const { errors, warnings } = validated;
   if (errors.length) return { ok: false, errors, warnings };
-  const dates = options?.expiryDates?.length === validated.dates.length ? options.expiryDates : validated.dates;
+  const dates = validated.dates;
   // Milliseconds per stage, for the Logic Atlas Debug Drawer.
   const timings: Record<string, number> = {};
   let mark = performance.now();

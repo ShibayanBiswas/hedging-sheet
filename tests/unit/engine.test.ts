@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { seedMarketData } from "@/lib/engine/defaults";
-import { daysBetween } from "@/lib/engine/dates";
+import { defaultExpiryDates, seedMarketData } from "@/lib/engine/defaults";
+import { addDays } from "@/lib/engine/dates";
 import { computeHedgingSheet, legKey } from "@/lib/engine/hedging-sheet";
-import { EXPIRY_WEEKDAY, expiryDates, medianExpiryIndex, nearestWeekday, rawExpiryDate } from "@/lib/engine/schedule";
+import { EXPIRY_WEEKDAY, medianExpiryIndex } from "@/lib/engine/schedule";
 import { bookReturn, clientReturn, deriveTerms, startLevel } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
 
@@ -119,27 +119,13 @@ describe("simulation invariants", () => {
 });
 
 describe("expiry schedule", () => {
-  it("lands every Sensex expiry on a Thursday and every Nifty expiry on a Tuesday", () => {
+  it("lands every default Sensex expiry on its month's last Thursday and every Nifty one on its last Tuesday", () => {
     for (const underlying of ["Sensex", "Nifty"] as const) {
-      const i = fixtureInputs({ underlying });
-      const dates = expiryDates(i);
-      expect(dates.length).toBe(i.expiryCount);
-      dates.forEach((date, k) => {
-        expect(date).not.toBeNull();
-        const d = date!;
+      const dates = defaultExpiryDates(FIXTURE_DATE, underlying);
+      expect(dates.length).toBe(6);
+      for (const d of dates) {
         expect(weekdayOf(d)).toBe(EXPIRY_WEEKDAY[underlying]);
-        expect(Math.abs(daysBetween(rawExpiryDate(FIXTURE_DATE, i.expiryMonths[k]!), d))).toBeLessThanOrEqual(3);
-      });
-    }
-  });
-
-  it("picks the nearest weekday within three days", () => {
-    for (let d = 1; d <= 28; d++) {
-      const ymd = `2027-02-${String(d).padStart(2, "0")}`;
-      for (const wd of [2, 4]) {
-        const out = nearestWeekday(ymd, wd);
-        expect(weekdayOf(out)).toBe(wd);
-        expect(Math.abs(daysBetween(ymd, out))).toBeLessThanOrEqual(3);
+        expect(addDays(d, 7).slice(0, 7)).not.toBe(d.slice(0, 7));
       }
     }
   });
@@ -161,8 +147,8 @@ describe("edge case validation", () => {
     ["protection", { strikePercents: [137, 127, 125, 101, 100, 70] }],
     ["floor-units", { floorUnits: 2 }],
     ["spread-count", { strikePercents: [137, 85, 84], participations: [] }],
-    ["expiry-order", { expiryMonths: [41, 44, 44, 50, 53, 56] }],
-    ["expiry-maturity", { expiryMonths: [41, 44, 47, 50, 53, 70] }],
+    ["expiry-order", { expiryDates: ["2030-04-25", "2030-07-25", "2030-07-25", "2030-12-26", "2031-04-24", "2031-07-31"] }],
+    ["expiry-maturity", { expiryDates: ["2030-04-25", "2030-07-25", "2030-10-31", "2030-12-26", "2031-04-24", "2032-07-29"] }],
     ["tenor", { tenorDays: 0 }],
   ];
   for (const [code, overrides] of cases) {

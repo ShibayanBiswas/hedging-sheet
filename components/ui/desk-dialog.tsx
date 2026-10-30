@@ -105,12 +105,29 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                     <div key={g.title}>
                       <p className="font-ui text-caption font-bold uppercase tracking-[0.18em] text-gold-dark">{g.title}</p>
                       <ul className="mt-1 space-y-1">
-                        {g.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" aria-hidden />
-                            {item}
-                          </li>
-                        ))}
+                        {g.items.map((item) => {
+                          const text = typeof item === "string" ? item : item.text;
+                          return (
+                            <li key={text} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700">
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" aria-hidden />
+                              {typeof item === "string" ? (
+                                text
+                              ) : (
+                                <button
+                                  type="button"
+                                  data-testid={item.testId}
+                                  className="text-left text-maroon underline decoration-gold/50 underline-offset-2 hover:decoration-maroon"
+                                  onClick={() => {
+                                    onClose();
+                                    item.onClick();
+                                  }}
+                                >
+                                  {text}
+                                </button>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   ))}

@@ -1,5 +1,7 @@
 export type DeskAlertVariant = "info" | "warning" | "error";
 
+export type DeskAlertLink = { text: string; onClick: () => void; testId?: string };
+
 export type DeskAlertOptions = {
   title?: string;
   variant?: DeskAlertVariant;
@@ -7,8 +9,8 @@ export type DeskAlertOptions = {
   fix?: string;
   /** Extra buttons beside OK. */
   actions?: Array<{ label: string; onClick: () => void; testId?: string }>;
-  /** Grouped lines under the message, such as invalid fields by section. */
-  groups?: Array<{ title: string; items: string[] }>;
+  /** Grouped lines under the message, such as invalid fields by section. A line with onClick is a link that closes the popup first. */
+  groups?: Array<{ title: string; items: Array<string | DeskAlertLink> }>;
   /** Label of the closing button, OK by default. */
   okLabel?: string;
   /** Runs whenever the dialog closes, by any button or Escape. */

@@ -26,7 +26,7 @@ const hedgeInputSchema = z.object({
   strikeOptionTypes: z.array(z.enum(["P", "C"])),
   strikeSides: z.array(z.enum(["B", "S"])),
   expiryCount: z.number().int(),
-  expiryMonths: z.array(z.union([z.number(), z.nan()])),
+  expiryDates: z.array(z.string()),
   hedgeExpiryIndex: z.number().int().min(0).nullable(),
   notionalCr: z.union([z.number(), z.nan()]),
   transactionCost: rate("Transaction Cost"),

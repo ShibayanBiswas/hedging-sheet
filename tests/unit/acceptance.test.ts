@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { bsGreeks, bsPrice } from "@/lib/engine/black-scholes";
 import { normCdf } from "@/lib/engine/normal";
-import { EXPIRY_WEEKDAY, expiryForMonth, nearestWeekday, rawExpiryDate } from "@/lib/engine/schedule";
+import { expiryForMonth } from "@/lib/engine/schedule";
 import { pickDeskClose } from "@/lib/market-data";
 
 import { priced } from "../helpers/fixture";
@@ -99,26 +99,10 @@ describe("solver and book", () => {
 });
 
 describe("expiry rule", () => {
-  it("adds months times 30.5 days, rounded", () => {
-    // 28-Oct-2026 + 1,251 days = 01-Apr-2030, a Monday.
-    expect(rawExpiryDate("2026-10-28", 41)).toBe("2030-04-01");
-    expect(expiryForMonth("2026-10-28", 41, EXPIRY_WEEKDAY.Sensex)).toBe("2030-04-04");
-    expect(expiryForMonth("2026-10-28", 41, EXPIRY_WEEKDAY.Nifty)).toBe("2030-04-02");
-  });
-
-  it("snaps to the nearest weekday: up to three days forward, otherwise back", () => {
-    // Monday 01-Feb-2027 to Thursday 04-Feb: three forward.
-    expect(nearestWeekday("2027-02-01", 4)).toBe("2027-02-04");
-    // Friday 05-Feb: six forward or one back, so back.
-    expect(nearestWeekday("2027-02-05", 4)).toBe("2027-02-04");
-    // Sunday 07-Feb: four forward or three back, so back.
-    expect(nearestWeekday("2027-02-07", 4)).toBe("2027-02-04");
-    // Thursday stays put.
-    expect(nearestWeekday("2027-02-04", 4)).toBe("2027-02-04");
-    // Nifty Tuesday from Saturday 06-Feb: three forward.
-    expect(nearestWeekday("2027-02-06", 2)).toBe("2027-02-09");
-    // Nifty Tuesday from Thursday 04-Feb: five forward or two back, so back.
-    expect(nearestWeekday("2027-02-04", 2)).toBe("2027-02-02");
+  it("takes the last expiry weekday of the month that valuation date plus months times 30.5 days falls in", () => {
+    // 28-Oct-2026 + 1,251 days = 01-Apr-2030: the last Thursday of April 2030 is the 25th, the last Tuesday the 30th.
+    expect(expiryForMonth("2026-10-28", 41, "Sensex")).toBe("2030-04-25");
+    expect(expiryForMonth("2026-10-28", 41, "Nifty")).toBe("2030-04-30");
   });
 });
 

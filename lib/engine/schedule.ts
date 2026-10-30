@@ -1,16 +1,17 @@
-import { addDays, parseYmd, toYmd } from "@/lib/engine/dates";
+import { lastWeekdayOfMonth, snapToLastWeekday } from "@/lib/dates";
+import { addDays, isValidYmd, parseYmd } from "@/lib/engine/dates";
 import type { HedgeInputs, Underlying, ValidationIssue } from "@/lib/engine/types";
 
 export const MIN_EXPIRIES = 1;
-export const MAX_EXPIRIES = 12;
+export const MAX_EXPIRIES = 10;
 
-/** Days per month number. Summary G3:M3 = n × 30.5. */
-export const DAYS_PER_MONTH = 30.5;
+/** Days per month number, the Summary Sheet's G3 to M3 helper: n × 30.5. Internal only. */
+const DAYS_PER_MONTH = 30.5;
 
 /**
- * Expiry weekday per index, for contracts expiring on or after 1 September 2025:
- * Nifty on Tuesday (NSE circular FAOP 68747, 25 June 2025) and Sensex on Thursday
- * (BSE notice 20250623-59, 23 June 2025).
+ * Expiry weekday per index: every expiry is the last one of its month. Sensex expires on the last Thursday,
+ * as every typed expiry in the reference workbook does; Nifty on the last Tuesday, under NSE circular
+ * FAOP 68747 of 25 June 2025.
  */
 export const EXPIRY_WEEKDAY: Record<Underlying, number> = { Sensex: 4, Nifty: 2 };
 export const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -24,32 +25,24 @@ export function maturityDate(inputs: Pick<HedgeInputs, "valuationDate" | "tenorD
   return addDays(inputs.valuationDate, Math.round(inputs.tenorDays));
 }
 
-/** The given weekday nearest to a date, in either direction. At most 3 days away, so there is no tie. */
-export function nearestWeekday(ymd: string, weekday: number): string {
-  const d = parseYmd(ymd);
-  const forward = (weekday - d.getUTCDay() + 7) % 7;
-  const shift = forward <= 3 ? forward : forward - 7;
-  return toYmd(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + shift)));
+/** The expiry for a month number: the last expiry weekday of the month that valuation date + round(m × 30.5) days falls in. */
+export function expiryForMonth(valuationDate: string, monthNumber: number, underlying: Underlying): string {
+  const raw = addDays(valuationDate, Math.round(monthNumber * DAYS_PER_MONTH));
+  const d = parseYmd(raw);
+  return lastWeekdayOfMonth(d.getUTCFullYear(), d.getUTCMonth() + 1, EXPIRY_WEEKDAY[underlying]);
 }
 
-/** Raw date: valuation date plus round(m × 30.5) days. Summary G4 = G2 + G3. */
-export function rawExpiryDate(valuationDate: string, monthNumber: number): string {
-  return addDays(valuationDate, Math.round(monthNumber * DAYS_PER_MONTH));
+/** Moves any typed date to its month's last expiry weekday for the underlying. */
+export function snapExpiry(ymd: string, underlying: Underlying): string {
+  return snapToLastWeekday(ymd, EXPIRY_WEEKDAY[underlying]);
 }
 
-/** Expiry for a month number: the expiry weekday nearest to the raw date. */
-export function expiryForMonth(valuationDate: string, monthNumber: number, weekday: number): string {
-  return nearestWeekday(rawExpiryDate(valuationDate, monthNumber), weekday);
-}
-
-export function expiryDates(
-  inputs: Pick<HedgeInputs, "valuationDate" | "expiryMonths" | "expiryCount" | "underlying">,
-): Array<string | null> {
-  const weekday = EXPIRY_WEEKDAY[inputs.underlying];
-  return Array.from({ length: inputs.expiryCount }, (_, i) => {
-    const n = inputs.expiryMonths[i];
-    if (n == null || !Number.isInteger(n) || n < 1) return null;
-    return expiryForMonth(inputs.valuationDate, n, weekday);
+/** N expiries 3 months apart from the first one's month, each its month's last expiry weekday: Jan, Apr, Jul, Oct. */
+export function quarterlyExpiries(first: string, count: number, underlying: Underlying): string[] {
+  const d = parseYmd(first);
+  return Array.from({ length: count }, (_, i) => {
+    const m = d.getUTCMonth() + 3 * i;
+    return lastWeekdayOfMonth(d.getUTCFullYear() + Math.floor(m / 12), (m % 12) + 1, EXPIRY_WEEKDAY[underlying]);
   });
 }
 
@@ -73,48 +66,37 @@ export function validateSchedule(inputs: HedgeInputs): { dates: string[]; errors
       field: "expiryCount",
       code: "expiry-count",
       message: `The Number Of Expiry Dates must be a whole number from ${MIN_EXPIRIES} to ${MAX_EXPIRIES}.`,
-      fix: `Use the stepper to pick a count from ${MIN_EXPIRIES} to ${MAX_EXPIRIES}.`,
+      fix: `Pick a count from ${MIN_EXPIRIES} to ${MAX_EXPIRIES}.`,
     });
     return { dates: [], errors };
   }
-  const months = inputs.expiryMonths.slice(0, inputs.expiryCount);
-  months.forEach((n, i) => {
-    if (n == null || Number.isNaN(n)) {
-      errors.push({ field: `expiryMonths.${i}`, code: "expiry-blank", message: `Enter Expiry Month ${i + 1}.`, fix: "Type a whole month number such as 41." });
-    } else if (!Number.isInteger(n) || n < 1) {
-      errors.push({
-        field: `expiryMonths.${i}`,
-        code: "expiry-blank",
-        message: `Expiry Month ${i + 1} must be a whole number of at least 1.`,
-        fix: "Type a whole month number such as 41.",
-      });
+  const dates = inputs.expiryDates.slice(0, inputs.expiryCount);
+  dates.forEach((d, i) => {
+    if (!d || !isValidYmd(d)) {
+      errors.push({ field: `expiryDates.${i}`, code: "expiry-blank", message: `Enter Expiry ${i + 1}.`, fix: "Type a date; it moves to the last expiry day of its month." });
+    } else if (!(d > inputs.valuationDate)) {
+      errors.push({ field: `expiryDates.${i}`, code: "expiry-past", message: `Expiry ${i + 1} must fall after the Valuation Date.`, fix: "Pick a later month." });
     }
   });
-  for (let i = 1; i < months.length; i++) {
-    const prev = months[i - 1];
-    const cur = months[i];
-    if (Number.isInteger(prev) && Number.isInteger(cur) && !(cur! > prev!)) {
+  for (let i = 1; i < dates.length; i++) {
+    const prev = dates[i - 1];
+    const cur = dates[i];
+    if (prev && cur && isValidYmd(prev) && isValidYmd(cur) && !(cur > prev)) {
       errors.push({
-        field: `expiryMonths.${i}`,
+        field: `expiryDates.${i}`,
         code: "expiry-order",
-        message: `Expiry Month ${i + 1} is ${cur}, which is not above Expiry Month ${i} at ${prev}. Month numbers must strictly increase.`,
-        fix: `Enter a month number above ${prev} for Expiry Month ${i + 1}.`,
+        message: `Expiry ${i + 1} does not fall after Expiry ${i}. Expiries must be in strictly ascending order.`,
+        fix: `Pick a month after Expiry ${i}.`,
       });
     }
   }
-  const dates = expiryDates(inputs);
   if (inputs.tenorDays > 0) {
     const maturity = maturityDate(inputs);
     dates.forEach((d, i) => {
-      if (d && parseYmd(d).getTime() > parseYmd(maturity).getTime()) {
-        errors.push({
-          field: `expiryMonths.${i}`,
-          code: "expiry-maturity",
-          message: `Expiry ${i + 1} falls after the maturity date.`,
-          fix: "Lower the month number or lengthen the tenor.",
-        });
+      if (d && isValidYmd(d) && d > maturity) {
+        errors.push({ field: `expiryDates.${i}`, code: "expiry-maturity", message: `Expiry ${i + 1} falls after the maturity date.`, fix: "Pick an earlier month or lengthen the tenor." });
       }
     });
   }
-  return { dates: dates.filter((d): d is string => Boolean(d)), errors };
+  return { dates: dates.filter((d) => isValidYmd(d)), errors };
 }

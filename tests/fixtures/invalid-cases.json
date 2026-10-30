@@ -3,71 +3,156 @@
   "cases": [
     {
       "name": "strikes not strictly descending",
-      "patch": { "strikePercents": [137, 127, 128, 85, 84, 70] },
-      "fill": [["input-strikePercents-2", "128"]],
+      "patch": {
+        "strikePercents": [
+          137,
+          127,
+          128,
+          85,
+          84,
+          70
+        ]
+      },
+      "fill": [
+        [
+          "input-strikePercents-2",
+          "128"
+        ]
+      ],
       "field": "strikePercents.2",
       "label": "Strike 3",
       "message": "strictly descending"
     },
     {
       "name": "protection not below 100%",
-      "patch": { "strikePercents": [137, 127, 125, 101, 100, 70] },
-      "fill": [["input-protection", "-1"]],
+      "patch": {
+        "strikePercents": [
+          137,
+          127,
+          125,
+          101,
+          100,
+          70
+        ]
+      },
+      "fill": [
+        [
+          "input-protection",
+          "-1"
+        ]
+      ],
       "field": "protection",
       "label": "Protection",
       "message": "below 100%"
     },
     {
       "name": "floor units above the decay",
-      "patch": { "floorUnits": 2 },
-      "fill": [["input-floorUnits", "2"]],
+      "patch": {
+        "floorUnits": 2
+      },
+      "fill": [
+        [
+          "input-floorUnits",
+          "2"
+        ]
+      ],
       "field": "floorUnits",
       "label": "Decay Reduction Below Floor",
       "message": "Decay"
     },
     {
-      "name": "months not strictly increasing",
-      "patch": { "expiryMonths": [41, 44, 44, 50, 53, 56] },
-      "fill": [["input-expiryMonths-2", "44"]],
-      "field": "expiryMonths.2",
-      "label": "Expiry Month 3",
-      "message": "strictly increase"
+      "name": "expiries not strictly ascending",
+      "patch": {
+        "expiryDates": [
+          "2030-04-25",
+          "2030-07-25",
+          "2030-07-25",
+          "2030-12-26",
+          "2031-04-24",
+          "2031-07-31"
+        ]
+      },
+      "fill": [
+        [
+          "input-expiryDates-2",
+          "2030-07-25"
+        ]
+      ],
+      "field": "expiryDates.2",
+      "label": "Expiry 3",
+      "message": "Expiry 2"
     },
     {
       "name": "valuation date in the future",
-      "patch": { "valuationDate": "2027-01-04" },
-      "fill": [["input-valuationDate", "2027-01-04"]],
+      "patch": {
+        "valuationDate": "2027-01-04"
+      },
+      "fill": [
+        [
+          "input-valuationDate",
+          "2027-01-04"
+        ]
+      ],
       "field": "valuationDate",
       "label": "Valuation Date",
       "message": "future"
     },
     {
       "name": "coupon out of range",
-      "patch": { "coupon": 20 },
-      "fill": [["input-coupon", "2000"]],
+      "patch": {
+        "coupon": 20
+      },
+      "fill": [
+        [
+          "input-coupon",
+          "2000"
+        ]
+      ],
       "field": "coupon",
       "label": "Coupon",
       "message": "at most"
     },
     {
       "name": "participation at zero",
-      "patch": { "participations": [0, null] },
-      "fill": [["input-participations-0", "0"]],
+      "patch": {
+        "participations": [
+          0,
+          null
+        ]
+      },
+      "fill": [
+        [
+          "input-participations-0",
+          "0"
+        ]
+      ],
       "field": "participations.0",
       "label": "Spread 1 Participation Rate",
       "message": "above 0"
     },
     {
       "name": "coupon unreachable",
-      "patch": { "participations": [1, 2] },
-      "fill": [["input-participations-1", "2"]],
+      "patch": {
+        "participations": [
+          1,
+          2
+        ]
+      },
+      "fill": [
+        [
+          "input-participations-1",
+          "2"
+        ]
+      ],
       "field": "coupon",
       "label": "Coupon",
       "message": "cannot be reached"
     },
     {
       "name": "shock days not whole",
-      "patch": { "stressDays": 2.5 },
+      "patch": {
+        "stressDays": 2.5
+      },
       "fill": [],
       "field": "stressDays",
       "label": "Shock Days",

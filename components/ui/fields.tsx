@@ -7,6 +7,8 @@ import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { MAX_DECIMALS } from "@/lib/format";
 
+export type FieldCheck = { label: string; message: string; range?: string };
+
 /** FieldRow shares its id with the input inside, so the label names the input. */
 const FieldIdContext = createContext<string | undefined>(undefined);
 
@@ -18,19 +20,22 @@ export function FieldRow({
   hint,
   error,
   htmlFor,
+  wide,
 }: {
   label: ReactNode;
   children: ReactNode;
   hint?: ReactNode;
   error?: string | null;
   htmlFor?: string;
+  /** Span the whole row of the grid. */
+  wide?: boolean;
 }) {
   const labelId = useId();
   const inputId = useId();
   const forId = htmlFor ?? inputId;
   return (
-    <div className="flex w-full min-w-0 flex-col gap-2">
-      <label className="field-label font-ui" htmlFor={forId} id={labelId}>
+    <div className={cn("flex w-full min-w-0 flex-col gap-1", wide && "field-wide")}>
+      <label className="field-label truncate font-ui" htmlFor={forId} id={labelId} title={typeof label === "string" ? label : undefined}>
         {label}
       </label>
       <div className="min-w-0" role="group" aria-labelledby={labelId}>
@@ -40,7 +45,7 @@ export function FieldRow({
           {error ? (
             <motion.p
               key={error}
-              className="hs-error mt-2"
+              className="hs-error mt-1"
               role="alert"
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -90,7 +95,13 @@ export function NumberInput({
   ariaLabel,
   grouped = false,
   fixed = false,
+  check,
+  onReject,
 }: {
+  /** The rule check of a typed value: a result keeps the value out of the inputs, and on leaving the field it reverts. */
+  check?: (v: number) => FieldCheck | null;
+  /** Told why a typed value was reverted, to open the popup. */
+  onReject?: (result: FieldCheck) => void;
   value: number;
   onChange: (v: number) => void;
   kind?: NumberKind;
@@ -112,6 +123,7 @@ export function NumberInput({
   const [draft, setDraft] = useState(() => toDraft(value, kind, digits, grouped, fixed));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
+  const [rejected, setRejected] = useState<FieldCheck | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle
@@ -129,10 +141,20 @@ export function NumberInput({
         disabled={disabled}
         placeholder={placeholder}
         value={draft}
-        aria-invalid={bad || invalid || undefined}
+        aria-invalid={bad || invalid || rejected != null || undefined}
         onFocus={() => setFocused(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
         onBlur={() => {
           setFocused(false);
+          if (rejected) {
+            setRejected(null);
+            setBad(false);
+            setDraft(toDraft(value, kind, digits, grouped, fixed));
+            onReject?.(rejected);
+            return;
+          }
           if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, grouped, fixed));
         }}
         onChange={(e) => {
@@ -140,28 +162,32 @@ export function NumberInput({
           setDraft(text);
           if (!text.trim()) {
             setBad(false);
+            setRejected(null);
             onBlankChange?.();
             return;
           }
           const parsed = parseDraft(text, kind);
           setBad(parsed == null);
-          if (parsed != null) onChange(parsed);
+          if (parsed == null) return;
+          const result = check?.(parsed) ?? null;
+          setRejected(result);
+          if (!result) onChange(parsed);
         }}
         className={cn(
-          "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
+          "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
           PLACEHOLDER,
-          suffix && "pr-16",
-          (bad || invalid) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
+          suffix && "pr-12",
+          (bad || invalid || rejected) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
           disabled && "cursor-not-allowed opacity-60",
         )}
       />
       {suffix ? (
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-ui text-caption font-bold tracking-wide text-gold-dark">
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-ui text-caption font-bold tracking-wide text-gold-dark">
           {suffix}
         </span>
       ) : null}
       {bad ? (
-        <p className="hs-error mt-2" role="alert">
+        <p className="hs-error mt-1" role="alert">
           {kind === "integer" ? "Enter a whole number." : "Enter a number."}
         </p>
       ) : null}
@@ -179,7 +205,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & {
       data-testid={testId}
       aria-invalid={invalid || undefined}
       className={cn(
-        "input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none transition focus:border-gold",
+        "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body outline-none transition focus:border-gold",
         PLACEHOLDER,
         invalid && "border-rose-500 ring-2 ring-rose-400/60",
         className,
@@ -219,7 +245,7 @@ export function ChoiceSelect<T extends string | number>({
         if (picked) onChange(picked.value);
       }}
       className={cn(
-        "glass-select w-full rounded-2xl px-4 py-3 font-ui text-body",
+        "glass-select h-9 w-full rounded-xl px-3 font-ui text-body",
         value === "" && "glass-select--empty",
         invalid && "border-rose-500 ring-2 ring-rose-400/60",
       )}
@@ -283,46 +309,43 @@ export function Segmented<T extends string>({
   );
 }
 
-export function Stepper({
+/** A count as a dropdown with a stepper either side. Empty shows "Select …"; the plus button then picks the least. */
+export function CountPicker({
   value,
   onChange,
   min,
   max,
   testId,
   label,
+  invalid,
 }: {
+  /** NaN while no count is picked. */
   value: number;
   onChange: (v: number) => void;
   min: number;
   max: number;
-  testId?: string;
+  testId: string;
   label: string;
+  invalid?: boolean;
 }) {
-  const clamp = (n: number) => Math.min(max, Math.max(min, n));
+  const picked = Number.isInteger(value);
+  const step = "glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl disabled:cursor-not-allowed disabled:opacity-40";
   return (
-    <div className="flex items-center gap-2" data-testid={testId}>
-      <button
-        type="button"
-        aria-label={`Decrease ${label}`}
-        className="btn-ghost btn-animated inline-flex h-11 w-11 items-center justify-center"
-        onClick={() => onChange(clamp(value - 1))}
-        disabled={value <= min}
-        data-testid={testId ? `${testId}-minus` : undefined}
-      >
-        <Minus className="icon-sm" />
+    <div className="flex w-full items-center gap-1">
+      <button type="button" aria-label={`Decrease ${label}`} className={step} onClick={() => onChange(value - 1)} disabled={!picked || value <= min} data-testid={`${testId}-minus`}>
+        <Minus className="icon-sm" aria-hidden />
       </button>
-      <div className="w-28">
-        <NumberInput value={value} kind="integer" ariaLabel={label} onChange={(v) => onChange(clamp(v))} testId={testId ? `${testId}-input` : undefined} />
+      <div className="min-w-0 flex-1">
+        <ChoiceSelect<number>
+          value={picked ? value : ""}
+          testId={testId}
+          invalid={invalid}
+          onChange={onChange}
+          options={Array.from({ length: max - min + 1 }, (_, i) => ({ value: min + i, label: String(min + i) }))}
+        />
       </div>
-      <button
-        type="button"
-        aria-label={`Increase ${label}`}
-        className="btn-ghost btn-animated inline-flex h-11 w-11 items-center justify-center"
-        onClick={() => onChange(clamp(value + 1))}
-        disabled={value >= max}
-        data-testid={testId ? `${testId}-plus` : undefined}
-      >
-        <Plus className="icon-sm" />
+      <button type="button" aria-label={`Increase ${label}`} className={step} onClick={() => onChange(picked ? value + 1 : min)} disabled={picked && value >= max} data-testid={`${testId}-plus`}>
+        <Plus className="icon-sm" aria-hidden />
       </button>
     </div>
   );

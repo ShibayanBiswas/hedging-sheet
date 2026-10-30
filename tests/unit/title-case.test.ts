@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { isTitleCase, titleCase, titleCaseViolations } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
-import { INPUT_SECTIONS } from "@/lib/inputs/validate";
+import { INPUT_SECTIONS } from "@/lib/validation/inputRules";
 import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import {

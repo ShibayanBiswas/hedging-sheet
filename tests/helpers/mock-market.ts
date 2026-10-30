@@ -5,10 +5,12 @@
  */
 import { autoHedgeStrike, normalizePricingParams } from "@/lib/engine/defaults";
 import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
+import { snapExpiry } from "@/lib/engine/schedule";
 import type { HedgeInputs, MarketData, OptionType, PricingParams, StrikeSide, Underlying, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, type DeskInputs } from "@/lib/inputs/draft";
-import { numberFieldRules } from "@/lib/inputs/validate";
+import { setSpreadCount } from "@/lib/inputs/strikes";
+import { numberFieldRules } from "@/lib/validation/inputRules";
 
 import blankFill from "../fixtures/blank-valid-fill.json";
 import defaults from "../fixtures/default-inputs.json";
@@ -48,7 +50,13 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
     else if (key === "valuationDate") d = { ...d, valuationDate: text };
     else if (key === "expiryCount") {
       const n = Number(text);
-      d = { ...d, expiryCount: n, expiryMonths: Array.from({ length: n }, (_, i) => d.expiryMonths[i] ?? NaN) };
+      d = { ...d, expiryCount: n, expiryDates: Array.from({ length: n }, (_, i) => d.expiryDates[i] ?? "") };
+    } else if (key === "spreadCount") {
+      d = { ...d, ...setSpreadCount(d, Number(text), "blank") };
+    } else if (key.startsWith("expiryDates-")) {
+      const dates = [...d.expiryDates];
+      dates[Number(key.split("-")[1])] = d.underlying ? snapExpiry(text, d.underlying) : text;
+      d = { ...d, expiryDates: dates };
     } else {
       const field = key.replace(/-/g, ".");
       const rule = numberFieldRules(d).find((r) => r.field === field);
@@ -56,7 +64,7 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
       const value = rule?.percent ? typed / 100 : typed;
       const [base, index] = field.split(".");
       if (index != null) {
-        const list = [...(d[base as "strikePercents" | "expiryMonths" | "participations"] as Array<number | null>)];
+        const list = [...(d[base as "strikePercents" | "participations"] as Array<number | null>)];
         list[Number(index)] = value;
         d = { ...d, [base!]: list };
       } else {
@@ -64,7 +72,7 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
       }
       if (field === "dailyVol") d = { ...d, dailyVolSource: "overridden" };
     }
-    if (d.hedgeStrikeAuto && Number.isFinite(d.spot)) d = { ...d, hedgeStrike: autoHedgeStrike(d.spot) };
+    if (d.hedgeStrikeAuto && d.underlying && Number.isFinite(d.spot)) d = { ...d, hedgeStrike: autoHedgeStrike(d.spot, d.underlying) };
   }
   return d as HedgeInputs;
 }

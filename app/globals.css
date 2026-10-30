@@ -5,7 +5,7 @@
 :root {
   /*
    * Design tokens. Type grows linearly from a 320 px viewport to a 2560 px one:
-   * size = min + (max − min) × (100vw − 320px) ÷ 2240px, clamped to [min, max].
+   * size = min + (max âˆ’ min) Ã— (100vw âˆ’ 320px) Ã· 2240px, clamped to [min, max].
    */
   --text-display: clamp(1.75rem, calc(1.75rem + 16 * (100vw - 20rem) / 2240), 2.75rem);
   --text-h1: clamp(1.5rem, calc(1.5rem + 10 * (100vw - 20rem) / 2240), 2.125rem);
@@ -16,6 +16,8 @@
   --text-table: 0.875rem;
   --text-table-head: 0.6875rem;
   --text-caption: clamp(0.75rem, calc(0.75rem + 1 * (100vw - 20rem) / 2240), 0.8125rem);
+  /* Helper text under a field: 12 px at every width. */
+  --text-hint: 0.75rem;
   --leading-heading: 1.15;
   --leading-body: 1.5;
   --leading-caption: 1.4;
@@ -186,13 +188,13 @@ textarea {
     box-shadow: 0 0 32px rgba(212, 178, 76, 0.2);
   }
 
-  /* Five Probability KPIs — equal columns across the full viewport width */
+  /* Five Probability KPIs â€” equal columns across the full viewport width */
 
-  /* 5+ headline tiles — single-row horizontal scroll with a visible scrollbar */
+  /* 5+ headline tiles â€” single-row horizontal scroll with a visible scrollbar */
 
-  /* Headline metric rail — equal-width cards in a single horizontally scrollable row */
+  /* Headline metric rail â€” equal-width cards in a single horizontally scrollable row */
 
-  /* ≤4 KPIs: one full-width row; denser bands share the row via grid 1fr columns */
+  /* â‰¤4 KPIs: one full-width row; denser bands share the row via grid 1fr columns */
 
   .horizontal-rail-fill {
     overflow-x: auto;
@@ -284,7 +286,7 @@ textarea {
     border-radius: 999px;
   }
 
-  /* ── Intel · Logic Atlas ─────────────────────────────────────────────── */
+  /* â”€â”€ Intel Â· Logic Atlas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .intel-page {
     @apply min-w-0 space-y-6;
   }
@@ -545,7 +547,7 @@ textarea {
     width: auto;
   }
 
-  /* Product spec / lifecycle rails — one row, cards size to content, visible H-scroll. */
+  /* Product spec / lifecycle rails â€” one row, cards size to content, visible H-scroll. */
 
   @media (max-width: 639px) {
 
@@ -871,7 +873,7 @@ textarea {
   }
 }
 
-/* —— Small-device / phone polish —— */
+/* â€”â€” Small-device / phone polish â€”â€” */
 @media (max-width: 639px) {
   html,
   body {
@@ -912,7 +914,7 @@ textarea {
 /* Unwinding Calculator density + visibility overrides                 */
 /* ------------------------------------------------------------------ */
 
-/* Denser KPI cards — kill the vacant vertical space */
+/* Denser KPI cards â€” kill the vacant vertical space */
 
 /* ------------------------------------------------------------------ Hedging Sheet additions */
 @layer components {
@@ -982,13 +984,13 @@ textarea {
   }
 
   .hs-segment {
-    @apply relative inline-flex rounded-2xl border p-1 font-ui;
+    @apply relative inline-flex h-9 rounded-xl border p-1 font-ui;
     border-color: var(--ar-border);
     background: var(--ar-panel);
   }
 
   .hs-segment button {
-    @apply relative z-10 rounded-xl px-4 py-2 text-body font-bold transition-colors;
+    @apply relative z-10 h-full rounded-lg px-3 text-body font-bold transition-colors;
   }
 
   .hs-segment-glow {
@@ -1023,8 +1025,11 @@ textarea {
     position: sticky;
     bottom: 0;
     z-index: 40;
+    display: flex;
     width: 100%;
-    padding: 0.75rem 0;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
     background: #ffffff;
   }
 
@@ -1171,8 +1176,8 @@ svg.lucide {
 }
 
 .hint {
-  font-size: var(--text-caption);
-  line-height: var(--leading-caption);
+  font-size: var(--text-hint);
+  line-height: 1rem;
   color: var(--ar-muted);
 }
 
@@ -1274,7 +1279,7 @@ svg.lucide {
 
 /* The run bar clears the home indicator on phones. */
 .hs-run-bar {
-  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(0.375rem + env(safe-area-inset-bottom));
 }
 
 /* Popups: a full-height bottom sheet on phones, a centred dialog from 640 px. */
@@ -1327,6 +1332,175 @@ svg.lucide {
 
 .field-grid > .field-wide {
   grid-column: 1 / -1;
+}
+
+/* Inputs: seven numbered groups, compact. Fields sit 4 across at 1440 px, 3 at 1024, 2 at 640 and 1 on phones. */
+.inputs-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.inputs-layout {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 1440px) {
+  .inputs-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "g1 g3"
+      "g2 g3"
+      "g4 g5"
+      "g6 g6"
+      "g7 g7";
+  }
+  .inputs-card-1 { grid-area: g1; }
+  .inputs-card-2 { grid-area: g2; }
+  .inputs-card-3 { grid-area: g3; }
+  .inputs-card-4 { grid-area: g4; }
+  .inputs-card-5 { grid-area: g5; }
+  .inputs-card-6 { grid-area: g6; }
+  .inputs-card-7 { grid-area: g7; }
+}
+
+.inputs-card {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 1rem;
+}
+
+.inputs-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem 0.5rem;
+  min-height: 2.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.inputs-step {
+  display: inline-flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid #7a1e2c;
+  color: #7a1e2c;
+  font-size: var(--text-hint);
+  font-weight: 700;
+}
+
+.inputs-grid {
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .inputs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .inputs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1440px) {
+  .inputs-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.inputs-grid > .field-wide {
+  grid-column: 1 / -1;
+}
+
+.inputs-card .field-label {
+  font-size: var(--text-caption);
+  line-height: 1.125rem;
+}
+
+.inputs-readonly {
+  display: flex;
+  height: 2.25rem;
+  min-width: 0;
+  align-items: center;
+  padding: 0 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--ar-border);
+  background: var(--ar-panel);
+  color: var(--ar-ink);
+  font-size: var(--text-body);
+  white-space: nowrap;
+}
+
+/* Strike and spread rows: a table from 768 px, two fields across on phones. */
+.strike-row,
+.spread-row {
+  display: grid;
+  gap: 4px 8px;
+  align-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.strike-row > :first-child,
+.spread-row > :first-child,
+.strike-row-error {
+  grid-column: 1 / -1;
+}
+
+.strike-head {
+  display: none;
+  color: var(--ar-muted);
+  font-size: var(--text-hint);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .strike-row {
+    grid-template-columns: 4.5rem minmax(5.5rem, 1fr) minmax(6rem, 1fr) auto auto minmax(4.5rem, 0.8fr);
+  }
+  .spread-row {
+    grid-template-columns: 4.5rem minmax(4.5rem, 0.8fr) minmax(4.5rem, 0.8fr) minmax(10rem, 1.6fr) minmax(4.5rem, 0.7fr);
+  }
+  .strike-row > :first-child,
+  .spread-row > :first-child {
+    grid-column: auto;
+  }
+  .strike-head {
+    display: grid;
+  }
+}
+
+.strike-row--error {
+  border-radius: 0.75rem;
+  outline: 1px solid rgba(225, 29, 72, 0.4);
+  outline-offset: 2px;
+}
+
+.btn-compact,
+.strike-head,
+.inputs-readonly {
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+}
+
+.btn-compact {
+  min-height: 2.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--text-caption);
+}
+
+.btn-compact:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .sheet-actions {

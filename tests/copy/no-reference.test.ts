@@ -8,7 +8,7 @@ import { totalLossFall } from "@/lib/engine/hedging-sheet";
 import { buildHedgingExcel, SHEET_NAMES } from "@/lib/excel/build-hedging-excel";
 import { copyViolations } from "@/lib/format/copy-rules";
 import { INPUT_MODES } from "@/lib/inputs/draft";
-import { INPUT_SECTIONS, requiredFields } from "@/lib/inputs/validate";
+import { INPUT_SECTIONS, requiredFields } from "@/lib/validation/inputRules";
 import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { outputTables, specCells, specHeaders, specRowLabels } from "@/lib/tables";

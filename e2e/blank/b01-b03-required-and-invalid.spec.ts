@@ -1,5 +1,5 @@
 import { blankInputs } from "../../lib/inputs/draft";
-import { fieldTestId, numberFieldRules, requiredFields, validateDeskInputs, type NumberFieldRule } from "../../lib/inputs/validate";
+import { fieldTestId, numberFieldRules, requiredFields, validateDeskInputs, type NumberFieldRule } from "../../lib/validation/inputRules";
 import { blankFillInputs } from "../../tests/helpers/mock-market";
 import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS } from "../support/tables";

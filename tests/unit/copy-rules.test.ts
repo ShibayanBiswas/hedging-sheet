@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { copyViolations, type CopyKind } from "@/lib/format/copy-rules";
 import { isTitleCase } from "@/lib/format/title-case";
 import { INPUT_MODES } from "@/lib/inputs/draft";
-import { INPUT_SECTIONS, requiredFields, validateDeskInputs } from "@/lib/inputs/validate";
+import { INPUT_SECTIONS, requiredFields, validateDeskInputs } from "@/lib/validation/inputRules";
 import { logicModules } from "@/lib/logic-atlas";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { outputTables, specCells, specHeaders, specRowLabels } from "@/lib/tables";

@@ -3,14 +3,14 @@ import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
 import { derivedSides } from "@/lib/engine/structure";
 import type { HedgeInputs, HedgingResult, MarketData } from "@/lib/engine/types";
 
+/** The expiries the reference workbook typed in Summary Sheet C12 to H12: each the last Thursday of its month. */
+export const WORKBOOK_EXPIRIES = ["2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24"];
+
 /**
- * The reference workbook's own run: trade date 04-Aug-2026, close 76,799, the expiries it typed and
- * the forward growth it pinned to 5.5%. The app's expiry rule picks different dates, so they are passed in.
+ * The reference workbook's own run: trade date 04-Aug-2026, close 76,799 and the forward growth it pinned to 5.5%
+ * in 'Pricing Params'!H69. The default expiries come from the app's own rule and equal the typed ones.
  */
-export const G0_OPTIONS = {
-  expiryDates: ["2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24"],
-  forwardGrowth: 0.055,
-};
+export const G0_OPTIONS = { forwardGrowth: 0.055 };
 
 export function g0Inputs(): HedgeInputs {
   return { ...defaultInputs({ valuationDate: "2026-08-04", spot: 76799, dailyVol: 0.00895071 }), hedgeStrike: 76800 };

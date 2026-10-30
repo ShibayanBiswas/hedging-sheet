@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { bsPrice } from "@/lib/engine/black-scholes";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
-import { EXPIRY_WEEKDAY, expiryForMonth, medianExpiryIndex, rawExpiryDate } from "@/lib/engine/schedule";
+import { EXPIRY_WEEKDAY, expiryForMonth, medianExpiryIndex } from "@/lib/engine/schedule";
 import { bookReturn, clientReturn, deriveTerms, derivedSides, payoffLevels, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs, Underlying } from "@/lib/engine/types";
 import { blankInputs, type DeskInputs } from "@/lib/inputs/draft";
-import { fieldTestId, groupBySection, INPUT_SECTIONS, numberFieldRules, requiredFields, validateDeskInputs } from "@/lib/inputs/validate";
+import { fieldTestId, groupBySection, INPUT_SECTIONS, numberFieldRules, requiredFields, validateDeskInputs } from "@/lib/validation/inputRules";
 
 import defaults from "../fixtures/default-inputs.json";
 import invalid from "../fixtures/invalid-cases.json";
@@ -24,19 +24,20 @@ describe("validateDeskInputs", () => {
     const errors = validateDeskInputs(blankInputs(), { today: TODAY });
     expect(errors.every((e) => e.kind === "required")).toBe(true);
     const fields = errors.map((e) => e.field);
-    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "strikeOptionTypes.0", "strikeSides.5", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
+    for (const key of ["underlying", "valuationDate", "spot", "nbfcRate", "coupon", "decay", "floorUnits", "tenorDays", "startLevelUplift", "expiryCount", "spreadCount", "notionalCr", "transactionCost", "dailyVol", "stressSigmas", "stressDays", "stressVolMultiplier", "exposureMargin", "futuresMargin"]) {
       expect(fields).toContain(key);
     }
-    for (let i = 0; i < 6; i++) expect(fields).toContain(`strikePercents.${i}`);
+    // No strike rows until the Number Of Spreads is picked.
+    expect(fields.some((f) => /^strike|^participations/.test(f))).toBe(false);
     const order = errors.map((e) => INPUT_SECTIONS.indexOf(e.section));
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(groupBySection(errors)[0]!.title).toBe("Underlying And Market");
   });
 
-  it("asks for the month rows once the expiry count is picked", () => {
-    const draft: DeskInputs = { ...blankInputs(), expiryCount: 3, expiryMonths: [NaN, NaN, NaN] };
+  it("asks for the expiry rows once the expiry count is picked", () => {
+    const draft: DeskInputs = { ...blankInputs(), expiryCount: 3, expiryDates: ["", "", ""] };
     const fields = validateDeskInputs(draft, { today: TODAY }).map((e) => e.field);
-    expect(fields).toEqual(expect.arrayContaining(["expiryMonths.0", "expiryMonths.1", "expiryMonths.2"]));
+    expect(fields).toEqual(expect.arrayContaining(["expiryDates.0", "expiryDates.1", "expiryDates.2"]));
     expect(fields).not.toContain("expiryCount");
   });
 
@@ -61,7 +62,7 @@ describe("validateDeskInputs", () => {
     expect(fieldTestId("spot")).toBe("input-spot");
     expect(fieldTestId("strikePercents.2")).toBe("input-strikePercents-2");
     expect(fieldTestId("spreads.0")).toBe("input-spreads-0-sell");
-    expect(fieldTestId("spreadCount")).toBe("input-spreadCount-input");
+    expect(fieldTestId("spreadCount")).toBe("input-spreadCount");
   });
 });
 
@@ -78,7 +79,7 @@ describe("Blank Inputs suite, unit level", () => {
 
   it("B2.1 clearing any one required field leaves exactly that field in the list", () => {
     for (const { field } of requiredFields(6, 2)) {
-      if (["underlying", "expiryCount"].includes(field)) continue;
+      if (["underlying", "expiryCount", "spreadCount"].includes(field)) continue;
       const [base, index] = field.split(".");
       const patch: Record<string, unknown> =
         index != null
@@ -123,9 +124,12 @@ describe("Blank Inputs suite, unit level", () => {
     }
   });
 
-  it("B5.2 months that do not increase or repeat are rejected", () => {
-    for (const months of [[41, 44, 43, 50, 53, 56], [41, 44, 44, 50, 53, 56]]) {
-      expect(errorsFor({ expiryMonths: months }).find((e) => e.field === "expiryMonths.2")?.code).toBe("expiry-order");
+  it("B5.2 expiries that do not rise or repeat are rejected", () => {
+    const base = filled.expiryDates;
+    for (const third of [base[1]!, "2030-01-31"]) {
+      const dates = [...base];
+      dates[2] = third;
+      expect(errorsFor({ expiryDates: dates }).find((e) => e.field === "expiryDates.2")?.code).toBe("expiry-order");
     }
   });
 
@@ -134,36 +138,26 @@ describe("Blank Inputs suite, unit level", () => {
   });
 
   describe("B6.1 expiry weekday rule", () => {
-    /** Independent of the engine: search the seven days around the raw date for the weekday. */
+    /** Independent of the engine: walk back from the month's last day to the weekday. */
     const expected = (valuation: string, month: number, weekday: number) => {
       const raw = new Date(`${valuation}T00:00:00Z`);
       raw.setUTCDate(raw.getUTCDate() + Math.round(month * 30.5));
-      for (let shift = -3; shift <= 3; shift++) {
-        const d = new Date(raw);
-        d.setUTCDate(d.getUTCDate() + shift);
-        if (d.getUTCDay() === weekday) return { date: d.toISOString().slice(0, 10), shift };
-      }
-      throw new Error("no weekday within 3 days");
+      const d = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth() + 1, 0));
+      while (d.getUTCDay() !== weekday) d.setUTCDate(d.getUTCDate() - 1);
+      return d.toISOString().slice(0, 10);
     };
     const months = [1, 3, 6, 12, 24, 36, 48, 60];
     const valuations = ["2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01"];
     for (const u of ["Sensex", "Nifty"] as Underlying[]) {
-      it(`${u} expires on ${u === "Sensex" ? "Thursday" : "Tuesday"} for months ${months.join(", ")}`, () => {
-        const shifts = new Set<number>();
+      it(`${u} expires on the last ${u === "Sensex" ? "Thursday" : "Tuesday"} of the month for months ${months.join(", ")}`, () => {
         for (const v of valuations) {
-          for (const m of months) {
-            const e = expected(v, m, EXPIRY_WEEKDAY[u]);
-            shifts.add(e.shift);
-            expect(expiryForMonth(v, m, EXPIRY_WEEKDAY[u]), `${u} ${v} month ${m}`).toBe(e.date);
-          }
+          for (const m of months) expect(expiryForMonth(v, m, u), `${u} ${v} month ${m}`).toBe(expected(v, m, EXPIRY_WEEKDAY[u]));
         }
-        expect([...shifts].sort((a, b) => a - b)).toEqual([-3, -2, -1, 0, 1, 2, 3]);
       });
     }
-    it("hand-checked: 28-Oct-2026 month 1 is raw 28-Nov-2026, a Saturday", () => {
-      expect(rawExpiryDate("2026-10-28", 1)).toBe("2026-11-28");
-      expect(expiryForMonth("2026-10-28", 1, EXPIRY_WEEKDAY.Sensex)).toBe("2026-11-26");
-      expect(expiryForMonth("2026-10-28", 1, EXPIRY_WEEKDAY.Nifty)).toBe("2026-12-01");
+    it("hand-checked: 28-Oct-2026 month 1 is raw 28-Nov-2026, so the last Thursday and Tuesday of November", () => {
+      expect(expiryForMonth("2026-10-28", 1, "Sensex")).toBe("2026-11-26");
+      expect(expiryForMonth("2026-10-28", 1, "Nifty")).toBe("2026-11-24");
     });
   });
 

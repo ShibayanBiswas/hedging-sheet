@@ -12,8 +12,8 @@ const cases: Array<[string, Partial<HedgeInputs>]> = [
   ["protection", { strikePercents: [137, 127, 125, 101, 100, 70] }],
   ["floor-units", { floorUnits: 2 }],
   ["spread-count", { strikePercents: [137, 85, 84], participations: [] }],
-  ["expiry-order", { expiryMonths: [41, 44, 44, 50, 53, 56] }],
-  ["expiry-maturity", { expiryMonths: [41, 44, 47, 50, 53, 70] }],
+  ["expiry-order", { expiryDates: base.expiryDates.map((d, i) => (i === 2 ? base.expiryDates[1]! : d)) }],
+  ["expiry-maturity", { expiryDates: base.expiryDates.map((d, i) => (i === 5 ? "2033-07-28" : d)) }],
   ["tenor", { tenorDays: 0 }],
 ];
 

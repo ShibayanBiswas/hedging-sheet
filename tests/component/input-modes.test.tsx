@@ -63,18 +63,26 @@ describe("Inputs modes", () => {
     expect(await screen.findByText("Switch Mode And Clear Results")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("confirm-switch-mode"));
     await waitFor(() => expect(screen.getByTestId("mode-blank")).toHaveAttribute("aria-selected", "true"));
-    for (const id of ["input-spot", "input-coupon", "input-strikePercents-0", "input-dailyVol", "input-stressSigmas", "input-notionalCr"]) {
+    for (const id of ["input-spot", "input-coupon", "input-dailyVol", "input-stressSigmas", "input-notionalCr"]) {
       const input = screen.getByTestId(id) as HTMLInputElement;
       expect(input.value, id).toBe("");
       expect(input.placeholder, id).toMatch(/^Eg /);
     }
     expect((screen.getByTestId("input-underlying") as HTMLSelectElement).value).toBe("");
+    // No counts yet: "Select …" and nothing below them.
+    expect((screen.getByTestId("input-expiryCount") as HTMLSelectElement).value).toBe("");
+    expect((screen.getByTestId("input-spreadCount") as HTMLSelectElement).value).toBe("");
+    expect(screen.queryByTestId("input-expiryDates-0")).toBeNull();
+    expect(screen.queryByTestId("input-strikePercents-0")).toBeNull();
+    expect(screen.getByTestId("strike-count")).toHaveTextContent("-");
+    fireEvent.change(screen.getByTestId("input-spreadCount"), { target: { value: "2" } });
+    expect(screen.getByTestId("strike-count")).toHaveTextContent("6");
     for (const j of [0, 5]) {
+      expect((screen.getByTestId(`input-strikePercents-${j}`) as HTMLInputElement).value).toBe("");
       expect(screen.getByTestId(`input-strikeOptionTypes-${j}`)).toHaveAttribute("data-value", "");
       expect(screen.getByTestId(`input-strikeSides-${j}`)).toHaveAttribute("data-value", "");
     }
-    // No expiry count yet, so no month rows are asked for. Their exit animation is checked in the browser tests.
-    expect((screen.getByTestId("input-expiryCount") as HTMLSelectElement).value).toBe("");
+    expect(screen.queryByTestId("input-strikePercents-6")).toBeNull();
     expect(screen.getByTestId("fetch-live-spot")).toBeInTheDocument();
     expect(screen.getByTestId("compute-volatility")).toBeInTheDocument();
   });
@@ -96,13 +104,21 @@ describe("Inputs modes", () => {
     expect(screen.getByTestId("input-spot")).toHaveAttribute("aria-invalid", "true");
   });
 
-  it("shows month rows once the number of expiries is picked, with dashes for their dates", async () => {
+  it("shows empty expiry dates once the number of expiries is picked, the stepper moving the count", async () => {
     renderDesk();
     fireEvent.click(screen.getByTestId("mode-blank"));
     fireEvent.click(await screen.findByTestId("confirm-switch-mode"));
     await waitFor(() => expect(screen.getByTestId("mode-blank")).toHaveAttribute("aria-selected", "true"));
     fireEvent.change(screen.getByTestId("input-expiryCount"), { target: { value: "3" } });
-    expect(screen.getByTestId("input-expiryMonths-2")).toBeInTheDocument();
-    expect(screen.getByTestId("expiry-date-0")).toHaveTextContent("-");
+    expect((screen.getByTestId("input-expiryDates-2") as HTMLInputElement).value).toBe("");
+    expect(screen.queryByTestId("input-expiryDates-3")).toBeNull();
+    // Three expiries: the median, Expiry 2, is the hedge option's.
+    expect(screen.getByTestId("expiry-note-0")).toHaveTextContent(/^Observation$/);
+    expect(screen.getByTestId("expiry-note-1")).toHaveTextContent("Observation And Hedge Option Expiry");
+    fireEvent.click(screen.getByTestId("input-expiryCount-plus"));
+    expect(screen.getByTestId("input-expiryDates-3")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("input-expiryCount-minus"));
+    fireEvent.click(screen.getByTestId("input-expiryCount-minus"));
+    expect(screen.queryByTestId("input-expiryDates-2")).toBeNull();
   });
 });

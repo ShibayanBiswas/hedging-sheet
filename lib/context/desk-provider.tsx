@@ -3,13 +3,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
-import { autoHedgeStrike, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
-import { istTodayYmd } from "@/lib/engine/dates";
+import { autoHedgeStrike, defaultExpiryDates, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
+import { istTodayYmd, isValidYmd } from "@/lib/engine/dates";
+import { snapExpiry } from "@/lib/engine/schedule";
 import { computeHedgingSheet, validateInputs } from "@/lib/engine/hedging-sheet";
 import type { HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
-import { fieldTestId, groupBySection, validateDeskInputs, type FieldError } from "@/lib/inputs/validate";
+import { fieldSection, fieldTestId, groupBySection, INPUT_SECTIONS, validateDeskInputs, type FieldError } from "@/lib/validation/inputRules";
 import type { MarketLevels } from "@/lib/market-data";
 import { LEVEL_FIELD } from "@/lib/underlyings";
 
@@ -48,7 +49,7 @@ export type DeskContextValue = {
   datasetError: string | null;
   refreshDataset: () => Promise<MarketData | null>;
   applyMarket: (next: { surface?: VolSurface; params?: PricingParams | null }) => void;
-  /** Field errors from lib/inputs/validate. Inline display shows invalid values at once and empty fields after a run attempt. */
+  /** Field errors from lib/validation/inputRules. Inline display shows invalid values at once and empty fields after a run attempt. */
   fieldErrors: FieldError[];
   /** The field errors to show inline right now. */
   visibleErrors: FieldError[];
@@ -79,15 +80,31 @@ function splitKeys(inputs: DeskInputs): { inputsKey: string; overridesKey: strin
   return { inputsKey: JSON.stringify(rest), overridesKey: JSON.stringify({ legVolOverrides, hedgeVolOverride }) };
 }
 
+/**
+ * Values that follow other inputs: the auto hedge strike follows the spot and the underlying's rule,
+ * and a new underlying moves every expiry to its own last expiry weekday of the month.
+ */
+function derive(prev: DeskInputs, next: DeskInputs): DeskInputs {
+  const out = { ...next };
+  if (out.underlying && out.underlying !== prev.underlying) {
+    const u = out.underlying;
+    out.expiryDates = out.expiryDates.map((d) => (isValidYmd(d) ? snapExpiry(d, u) : d));
+  }
+  if (out.hedgeStrikeAuto && out.underlying && Number.isFinite(out.spot)) out.hedgeStrike = autoHedgeStrike(out.spot, out.underlying);
+  return out;
+}
+
 function startInputs(mode: InputMode, levels: MarketLevels | null): DeskInputs {
   if (mode === "blank") return blankInputs();
   const spot = levels?.sensexLevel != null && levels.sensexLevel > 0 ? levels.sensexLevel : undefined;
   return defaultInputs({ valuationDate: levels?.valuationDate ?? istTodayYmd(), spot });
 }
 
-/** Scroll to and focus the input of a field. */
+/** Scroll to and focus the input of a field; a field not on the page yet, such as a row of an unpicked count, goes to its group. */
 export function focusField(field: string) {
-  const el = document.querySelector<HTMLElement>(`[data-testid="${fieldTestId(field)}"]`);
+  const el =
+    document.querySelector<HTMLElement>(`[data-testid="${fieldTestId(field)}"]`) ??
+    document.querySelector<HTMLElement>(`#group-${1 + INPUT_SECTIONS.indexOf(fieldSection(field))}`);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
   el.focus({ preventScroll: true });
@@ -126,9 +143,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const setInputs = useCallback((patch: InputsPatch) => {
     setInputsState((prev) => {
       const delta = typeof patch === "function" ? patch(prev) : patch;
-      const next = { ...prev, ...delta };
-      if (next.hedgeStrikeAuto && Number.isFinite(next.spot)) next.hedgeStrike = autoHedgeStrike(next.spot);
-      return next;
+      return derive(prev, { ...prev, ...delta });
     });
   }, []);
 
@@ -148,13 +163,11 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       if (modeRef.current === "default") {
         setInputsState((prev) => {
           const spot = spotFor(prev.underlying, data);
-          if (spot == null) return prev;
-          return {
-            ...prev,
-            spot,
-            valuationDate: data.valuationDate ?? prev.valuationDate,
-            hedgeStrike: prev.hedgeStrikeAuto ? autoHedgeStrike(spot) : prev.hedgeStrike,
-          };
+          if (spot == null || !prev.underlying) return prev;
+          const valuationDate = data.valuationDate ?? prev.valuationDate;
+          // Untouched default expiries move with the close's date; typed ones stay.
+          const untouched = JSON.stringify(prev.expiryDates) === JSON.stringify(defaultExpiryDates(prev.valuationDate, prev.underlying));
+          return derive(prev, { ...prev, spot, valuationDate, expiryDates: untouched ? defaultExpiryDates(valuationDate, prev.underlying) : prev.expiryDates });
         });
       }
       return data;
@@ -184,7 +197,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       setLevels(data);
       const spot = spotFor(u, data);
       if (spot == null) throw new Error("No close was returned.");
-      setInputsState((prev) => ({ ...prev, spot, hedgeStrike: prev.hedgeStrikeAuto ? autoHedgeStrike(spot) : prev.hedgeStrike }));
+      setInputsState((prev) => derive(prev, { ...prev, spot }));
       return spot;
     } catch {
       alert("The live close could not be fetched. Type the spot instead.", { variant: "error", title: "Fetch Failed" });
@@ -341,7 +354,10 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       alert(`${errors.length} ${errors.length === 1 ? "field needs" : "fields need"} attention before the simulation can run.`, {
         variant: "error",
         title: "Missing Or Invalid Inputs",
-        groups: groupBySection(errors).map((g) => ({ title: g.title, items: g.items.map((e) => `${e.label}: ${e.message}`) })),
+        groups: groupBySection(errors).map((g) => ({
+          title: g.title,
+          items: g.items.map((e) => ({ text: `${e.label}: ${e.message}`, onClick: () => focusField(e.field), testId: `fix-${fieldTestId(e.field)}` })),
+        })),
         actions: [{ label: "Go To Field", onClick: goFirst, testId: "go-to-first-field" }],
         onClose: goFirst,
       });
@@ -367,7 +383,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       const title = WARNING_TITLES[w.code ?? ""];
       if (title) alert(w.message, { variant: "warning", title, fix: w.fix });
     }
-    toast("Simulation Complete");
+    toast("Simulation Completed");
     return true;
   }, [alert, market, refreshDataset, toast]);
 

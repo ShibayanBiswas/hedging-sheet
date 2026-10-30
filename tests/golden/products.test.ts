@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { quarterlyExpiries } from "@/lib/engine/schedule";
 import { blankInputs, isPriceable } from "@/lib/inputs/draft";
 import type { HedgeInputs, HedgingResult, OptionType } from "@/lib/engine/types";
 
@@ -89,8 +90,8 @@ independentlyChecked("G4: no protection", { underlying: "Sensex", strikes: 6, ca
   options: G0_OPTIONS,
 }));
 
-independentlyChecked("G5: a 3 year tenor with 12 observations", { underlying: "Sensex", strikes: 6, calls: 0, expiries: 12 }, () => ({
-  inputs: product({ tenorDays: 1095, expiryCount: 12, expiryMonths: [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 35] }),
+independentlyChecked("G5: a 3 year tenor with 10 quarterly observations", { underlying: "Sensex", strikes: 6, calls: 0, expiries: 10 }, () => ({
+  inputs: product({ tenorDays: 1095, expiryCount: 10, expiryDates: quarterlyExpiries("2026-11-26", 10, "Sensex") }),
 }));
 
 describe("G3: an all Call book against the all Put book", () => {
@@ -104,6 +105,29 @@ describe("G3: an all Call book against the all Put book", () => {
   });
 });
 
+describe("G7: one strike flipped to Call", () => {
+  const puts = run(g0Inputs(), undefined, G0_OPTIONS);
+  const oneCall = run(product({ strikeOptionTypes: ["C", "P", "P", "P", "P", "P"] }), undefined, G0_OPTIONS);
+
+  it("keeps the Inbuilt within 0.5 percentage points of the Put book, far from the old -75%", () => {
+    expect(Math.abs(oneCall.summary.actualInbuilt - puts.summary.actualInbuilt)).toBeLessThan(0.005);
+    expect(oneCall.summary.actualInbuilt).toBeGreaterThan(0);
+  });
+
+  it("carries a futures adjustment equal to put-call parity on every leg of the call strike", () => {
+    const legs = oneCall.pricer.legs.filter((l) => l.blockIndex === 0);
+    expect(legs.every((l) => l.optionType === "C")).toBe(true);
+    for (const l of legs) {
+      const years = l.days / 365;
+      const put = black(l.forward, l.strike, years, l.volatility, l.discountYield, "P");
+      expect(l.futuresAdjustment).toBeCloseTo(l.contracts * Math.exp(-l.discountYield * years) * (l.forward - l.strike), 2);
+      expect(l.price - put).toBeCloseTo(Math.exp(-l.discountYield * years) * (l.forward - l.strike), 6);
+    }
+    expect(oneCall.summary.futuresAdjustmentCr).not.toBe(0);
+    expect(oneCall.summary.totalPremiumCr).toBeCloseTo(puts.summary.totalPremiumCr, 9);
+  });
+});
+
 describe("G4: no protection", () => {
   const r = run(product({ strikePercents: [137, 127, 125, 100, 99, 70] }), undefined, G0_OPTIONS);
 
@@ -113,12 +137,12 @@ describe("G4: no protection", () => {
   });
 });
 
-describe("G5: a 3 year tenor with 12 observations", () => {
-  const r = run(product({ tenorDays: 1095, expiryCount: 12, expiryMonths: [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 35] }));
+describe("G5: a 3 year tenor with 10 quarterly observations", () => {
+  const r = run(product({ tenorDays: 1095, expiryCount: 10, expiryDates: quarterlyExpiries("2026-11-26", 10, "Sensex") }));
 
-  it("prices 12 expiries per strike, all before maturity", () => {
-    expect(r.schedule.expiries).toHaveLength(12);
-    expect(new Set(r.pricer.legs.map((l) => l.expiryIndex)).size).toBe(12);
+  it("prices 10 expiries per strike, all before maturity", () => {
+    expect(r.schedule.expiries).toHaveLength(10);
+    expect(new Set(r.pricer.legs.map((l) => l.expiryIndex)).size).toBe(10);
     for (const d of r.schedule.expiries) expect(d < r.schedule.maturityDate).toBe(true);
   });
 });

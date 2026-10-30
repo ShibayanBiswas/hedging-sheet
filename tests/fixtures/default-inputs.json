@@ -42,13 +42,13 @@
       "B"
     ],
     "expiryCount": 6,
-    "expiryMonths": [
-      41,
-      44,
-      47,
-      50,
-      53,
-      56
+    "expiryDates": [
+      "2030-04-25",
+      "2030-07-25",
+      "2030-10-31",
+      "2030-12-26",
+      "2031-04-24",
+      "2031-07-31"
     ],
     "hedgeExpiryIndex": null,
     "notionalCr": 100,
@@ -60,7 +60,7 @@
     "historyWindowDays": 365,
     "exposureMargin": 0.05,
     "futuresMargin": 0.2,
-    "hedgeStrike": 76800,
+    "hedgeStrike": 77300,
     "hedgeStrikeAuto": true,
     "exchangeForwardRate": 0.0348,
     "exchangeDiscountRate": 0.0348,

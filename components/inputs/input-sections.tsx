@@ -1,44 +1,28 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  Activity,
-  CalendarClock,
-  Check,
-  CloudDownload,
-  Coins,
-  Gauge,
-  Landmark,
-  Layers,
-  LineChart,
-  Percent,
-  RefreshCw,
-  RotateCcw,
-  ScrollText,
-  Plus,
-  ShieldAlert,
-  Trash2,
-  TrendingUp,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import { CalendarClock, Check, ClipboardPaste, CloudDownload, Coins, Gauge, Layers, LineChart, Percent, RefreshCw, RotateCcw, ScrollText, type LucideIcon } from "lucide-react";
 
-import { ChoiceSelect, FieldRow, NumberInput, Segmented, Stepper, TextInput, Toggle } from "@/components/ui/fields";
-import { Panel, SectionTitle } from "@/components/ui/panel";
-import { useDesk } from "@/lib/context/desk-provider";
+import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
+import { ChoiceSelect, CountPicker, FieldRow, NumberInput, Segmented, TextInput, Toggle, type FieldCheck } from "@/components/ui/fields";
+import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
+import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
-import { formatDate } from "@/lib/engine/dates";
+import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
-import { EXPIRY_WEEKDAY, expiryDates, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, resizeList, WEEKDAY_NAMES } from "@/lib/engine/schedule";
-import { deriveTerms, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, spreadCount, startLevel } from "@/lib/engine/structure";
-import type { HedgeInputs, OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
+import { EXPIRY_WEEKDAY, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
+import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
+import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
+import { parseExpiryPaste, parseStrikePaste, type PastedStrike } from "@/lib/inputs/bulk";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
+import { setSpreadCount } from "@/lib/inputs/strikes";
 import { LEVEL_FIELD, UNDERLYINGS } from "@/lib/underlyings";
-import { canRemoveStrike, insertStrike, removeStrike } from "@/lib/inputs/strikes";
+import { checkFieldEdit, INPUT_SECTIONS, unlockedSteps } from "@/lib/validation/inputRules";
 import { fmtNumber, fmtPercent } from "@/lib/format";
-import { deskEase } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+
+// ------------------------------------------------------------------ shared pieces
 
 /** Inline error for a field: invalid values at once, empty fields after a run attempt. */
 function useFieldError() {
@@ -46,248 +30,106 @@ function useFieldError() {
   return (field: string) => visibleErrors.find((e) => e.field === field)?.message ?? null;
 }
 
-function SubSection({ title, icon: Icon, children, subtitle }: { title: string; icon: typeof Activity; children: ReactNode; subtitle?: string }) {
+/** The rule check behind each typed number: a breaking value never reaches the inputs, and leaving the field reverts it with a popup. */
+function useGuard() {
+  const { inputs } = useDesk();
+  const { alert } = useDeskDialog();
+  return useCallback(
+    (field: string) => ({
+      check: (v: number) => checkFieldEdit(inputs, field, v),
+      onReject: (r: FieldCheck) =>
+        alert(r.message, {
+          variant: "error",
+          title: `${r.label} Reverted`,
+          fix: r.range ? `Allowed: ${r.range}. The field is back to its last valid value.` : "The field is back to its last valid value.",
+          onClose: () => focusField(field),
+        }),
+    }),
+    [alert, inputs],
+  );
+}
+
+/** A numbered input group. Until the steps before it are complete it stays visible but cannot be edited. */
+function Group({ step, icon: Icon, aside, children, open }: { step: number; icon: LucideIcon; aside?: ReactNode; children: ReactNode; open: number }) {
+  const locked = step > open;
   return (
-    <div className="w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] p-4">
-      <div className="mb-3">
-        <h3 className="flex items-center gap-2 font-ui font-bold text-ink text-h3">
-          <span className="inline-flex rounded-lg bg-gradient-to-br from-gold/30 to-maroon/15 p-2 text-gold-dark">
-            <Icon className="icon-sm" aria-hidden />
+    <section id={`group-${step}`} data-testid={`group-${step}`} data-locked={locked || undefined} className={cn("inputs-card glass", `inputs-card-${step}`)}>
+      <header className="inputs-card-head">
+        <h2 className="flex min-w-0 items-center gap-2 font-ui text-h3 font-bold text-ink">
+          <span className="inputs-step" aria-hidden>
+            {step}
           </span>
-          {title}
-        </h3>
-        {subtitle ? <p className="mt-1 font-ui text-caption text-muted">{subtitle}</p> : null}
+          <Icon className="icon-sm shrink-0 text-gold" aria-hidden />
+          <span className="truncate">{INPUT_SECTIONS[step - 1]}</span>
+        </h2>
+        {locked ? (
+          <span className="hs-chip hs-chip-maroon" data-testid={`group-${step}-locked`}>
+            Complete Step {open} First
+          </span>
+        ) : (
+          aside
+        )}
+      </header>
+      <div className={cn("inputs-card-body", locked && "pointer-events-none select-none opacity-45")} inert={locked}>
+        {children}
       </div>
-      <div className="field-grid">{children}</div>
-    </div>
+    </section>
+  );
+}
+
+function StatusTag({ edited, testId }: { edited: boolean; testId: string }) {
+  return (
+    <span
+      data-testid={testId}
+      className={cn(
+        "inline-flex shrink-0 items-center rounded-full border px-2 font-ui text-caption font-bold uppercase leading-5 tracking-wider",
+        edited ? "border-amber-400/50 text-amber-900" : "border-emerald-400/50 text-emerald-800",
+      )}
+    >
+      {edited ? "Edited" : "Calculated"}
+    </span>
   );
 }
 
 function ResetIcon({ onClick, label, testId }: { onClick: () => void; label: string; testId?: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={label}
-      aria-label={label}
-      data-testid={testId}
-      className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition hover:rotate-[-30deg]"
-    >
-      <RotateCcw className="icon-sm" />
+    <button type="button" onClick={onClick} title={label} aria-label={label} data-testid={testId} className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+      <RotateCcw className="icon-sm" aria-hidden />
     </button>
   );
 }
 
-function StatusBadge({ tone, children, testId }: { tone: "ok" | "warn" | "muted"; children: ReactNode; testId?: string }) {
-  return (
-    <span
-      data-testid={testId}
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-3 py-1 font-ui text-caption font-bold uppercase tracking-wider",
-        tone === "ok" && "border-emerald-400/40 text-emerald-800",
-        tone === "warn" && "border-amber-400/40 text-amber-900",
-        tone === "muted" && "border-[color:var(--ar-border)] bg-[color:var(--ar-panel)] text-muted",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-/** Gold chip button with a spinning ring while working and a tick on success, in the Round 2 compute style. */
-function FetchButton({
-  onClick,
-  loading,
-  label,
-  busyLabel,
-  doneLabel,
-  icon: Icon,
-  testId,
-}: {
-  onClick: () => Promise<number | null>;
-  loading: boolean;
-  label: string;
-  busyLabel: string;
-  doneLabel: string;
-  /** Without an icon the button is the standard text button. */
-  icon?: LucideIcon;
-  testId: string;
-}) {
+/** A button that shows a spinner while working and a tick once done. */
+function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon, testId }: { onClick: () => Promise<number | null>; loading: boolean; label: string; busyLabel: string; doneLabel: string; icon: LucideIcon; testId: string }) {
   const [done, setDone] = useState(false);
-  const reduce = useReducedMotion();
   useEffect(() => {
     if (!done) return;
     const id = window.setTimeout(() => setDone(false), 2_000);
     return () => window.clearTimeout(id);
   }, [done]);
   return (
-    <motion.button
+    <button
       type="button"
       data-testid={testId}
       disabled={loading}
-      whileHover={reduce ? undefined : { y: -1, scale: 1.02 }}
-      whileTap={reduce ? undefined : { scale: 0.97 }}
-      className={cn("btn-animated btn-motion group inline-flex shrink-0 items-center gap-3", Icon ? "btn-accent" : "btn-ghost")}
+      className="btn-animated btn-motion btn-accent btn-compact inline-flex shrink-0 items-center gap-2"
       onClick={async () => {
-        const v = await onClick();
-        if (v != null) setDone(true);
+        if ((await onClick()) != null) setDone(true);
       }}
     >
-      {Icon ? (
-        <>
-          <span className="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-gold-light via-gold to-gold-dark text-white shadow-sm">
-            {loading ? <span className="absolute inset-0 animate-spin rounded-lg border-2 border-white/30 border-t-white" aria-hidden /> : null}
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span key={done ? "done" : "idle"} className="inline-flex" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}>
-                {done ? <Check className="icon-sm" data-testid={`${testId}-done`} aria-hidden /> : <Icon className="icon-sm" aria-hidden />}
-              </motion.span>
-            </AnimatePresence>
-          </span>
-        </>
-      ) : null}
-      <span className="relative z-10 font-semibold">{loading ? busyLabel : done ? doneLabel : label}</span>
-    </motion.button>
+      <span className="relative z-10 inline-flex items-center gap-2">
+        {done ? <Check className="icon-sm" data-testid={`${testId}-done`} aria-hidden /> : <Icon className={cn("icon-sm", loading && "animate-pulse")} aria-hidden />}
+        {loading ? busyLabel : done ? doneLabel : label}
+      </span>
+    </button>
   );
 }
 
-// ------------------------------------------------------------------ strike helpers
-
-function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskInputs> {
-  const next = [...prev.strikePercents];
-  next[index] = pct;
-  return { strikePercents: next };
-}
-// ------------------------------------------------------------------ Underlying and Market
-
-export function UnderlyingSection({ index }: { index: number }) {
-  const { mode, inputs, setInputs, setUnderlying, levels, levelsLoading, refreshLevels, fetchLiveSpot } = useDesk();
-  const errorFor = useFieldError();
-  const u = underlyingName(inputs);
-  const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  return (
-    <Panel index={index} id="underlying">
-      <SectionTitle icon={LineChart}>
-        Underlying And Market
-      </SectionTitle>
-      <div className="field-grid">
-        <FieldRow label="Underlying" error={errorFor("underlying")}>
-          <ChoiceSelect<Underlying>
-            value={inputs.underlying}
-            testId="input-underlying"
-            invalid={Boolean(errorFor("underlying"))}
-            onChange={setUnderlying}
-            options={UNDERLYINGS.map((u) => ({ value: u, label: u }))}
-          />
-        </FieldRow>
-        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} hint={mode === "default" ? "Today in India by default." : "Today or an earlier date."}>
-          <TextInput
-            type="date"
-            testId="input-valuationDate"
-            placeholder="Eg 28-Oct-2026"
-            invalid={Boolean(errorFor("valuationDate"))}
-            value={inputs.valuationDate}
-            onChange={(e) => setInputs({ valuationDate: e.target.value })}
-          />
-        </FieldRow>
-        <FieldRow
-          label={`${u} Spot`}
-          error={errorFor("spot")}
-          hint={`Derived Spot equals the spot. Start ${u} Level is ${Number.isFinite(start) ? fmtNumber(start, 0) : "-"}.`}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-0 flex-1 basis-40">
-              <NumberInput
-                value={inputs.spot}
-                onChange={(v) => setInputs({ spot: v })}
-                onBlankChange={() => setInputs({ spot: NaN })}
-                digits={2}
-                testId="input-spot"
-                invalid={Boolean(errorFor("spot"))}
-                placeholder={mode === "default" && levelsLoading ? "Fetching The Close" : "Eg 73,500"}
-              />
-            </div>
-            {mode === "blank" ? (
-              <FetchButton
-                testId="fetch-live-spot"
-                icon={CloudDownload}
-                label="Fetch Live Spot"
-                busyLabel="Fetching Live Spot"
-                doneLabel="Spot Fetched"
-                loading={levelsLoading}
-                onClick={fetchLiveSpot}
-              />
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="btn-animated btn-motion btn-accent shrink-0"
-                  data-testid="refresh-yahoo"
-                  onClick={async () => {
-                    const lv = await refreshLevels();
-                    const level = inputs.underlying ? lv?.[LEVEL_FIELD[inputs.underlying]] : undefined;
-                    if (lv && level) setInputs({ spot: level, valuationDate: lv.valuationDate });
-                  }}
-                >
-                  <span className="relative z-10 inline-flex items-center gap-2">
-                    <RefreshCw className={levelsLoading ? "icon-sm animate-spin" : "icon-sm"} />
-                    Refresh From Yahoo
-                  </span>
-                </button>
-                <span className="hs-chip" data-testid="fetched-at">
-                  {levels?.fetchedAt
-                    ? `Fetched At ${new Date(levels.fetchedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}`
-                    : levelsLoading
-                      ? "Fetching"
-                      : "Yahoo Unavailable"}
-                </span>
-              </>
-            )}
-          </div>
-        </FieldRow>
-        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint="The listed option sold for the Day 1 Vega Hedge. Auto picks the nearest 100 point strike to the spot.">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-0 flex-1 basis-40">
-              <NumberInput
-                value={inputs.hedgeStrike}
-                onChange={(v) => setInputs({ hedgeStrike: v, hedgeStrikeAuto: false })}
-                onBlankChange={() => setInputs({ hedgeStrike: NaN, hedgeStrikeAuto: false })}
-                digits={0}
-                testId="input-hedgeStrike"
-                invalid={Boolean(errorFor("hedgeStrike"))}
-                placeholder="Eg 73,500"
-              />
-            </div>
-            <Toggle
-              label="Auto From Spot"
-              checked={inputs.hedgeStrikeAuto}
-              testId="input-hedgeStrikeAuto"
-              onChange={(v) => setInputs({ hedgeStrikeAuto: v, hedgeStrike: v && Number.isFinite(inputs.spot) ? autoHedgeStrike(inputs.spot) : inputs.hedgeStrike })}
-            />
-          </div>
-        </FieldRow>
-      </div>
-    </Panel>
-  );
-}
-
-// ------------------------------------------------------------------ Rates
-
-/** A number field bound to one input key, with the blank, placeholder and error wiring every field shares. */
-function KeyNumber({
-  k,
-  kind,
-  digits,
-  suffix,
-  eg,
-}: {
-  k: keyof DeskInputs;
-  kind?: "number" | "percent" | "integer";
-  digits?: number;
-  suffix?: string;
-  eg: string;
-}) {
+/** A number field bound to one input key, guarded by its rule. */
+function KeyNumber({ k, kind, digits, suffix, eg }: { k: keyof DeskInputs; kind?: "number" | "percent" | "integer"; digits?: number; suffix?: string; eg: string }) {
   const { inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
+  const guard = useGuard();
   return (
     <NumberInput
       kind={kind}
@@ -299,223 +141,266 @@ function KeyNumber({
       testId={`input-${String(k)}`}
       invalid={Boolean(errorFor(String(k)))}
       placeholder={`Eg ${eg}${suffix ? ` ${suffix}` : ""}`}
+      {...guard(String(k))}
     />
   );
 }
 
-export function RatesSection({ index }: { index: number }) {
+function Num({ k, label, hint, ...rest }: { k: keyof DeskInputs; label: string; hint?: string; kind?: "number" | "percent" | "integer"; digits?: number; suffix?: string; eg: string }) {
   const errorFor = useFieldError();
   return (
-    <Panel index={index} id="rates">
-      <SectionTitle icon={Percent}>Rates</SectionTitle>
-      <div className="field-grid">
-        <FieldRow label="NBFC Rate" error={errorFor("nbfcRate")}>
-          <KeyNumber k="nbfcRate" kind="percent" suffix="%" eg="8" />
-        </FieldRow>
-        <FieldRow label="Premium Growth Rate" error={errorFor("premiumRate")} hint="Linked rate curve points and the rate cap while selling forward follow it.">
-          <KeyNumber k="premiumRate" kind="percent" suffix="%" eg="6.5" />
-        </FieldRow>
-        <FieldRow label="Margin Growth Rate" error={errorFor("marginGrowthRate")}>
-          <KeyNumber k="marginGrowthRate" kind="percent" suffix="%" eg="6.58" />
-        </FieldRow>
-      </div>
-    </Panel>
+    <FieldRow label={label} error={errorFor(String(k))} hint={hint}>
+      <KeyNumber k={k} {...rest} />
+    </FieldRow>
   );
 }
 
-// ------------------------------------------------------------------ Product Terms
+function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskInputs> {
+  const next = [...prev.strikePercents];
+  next[index] = pct;
+  return { strikePercents: next };
+}
 
-export function ProductTermsSection({ index }: { index: number }) {
-  const { inputs, setInputs } = useDesk();
+const HEDGE_RULE: Record<Underlying, string> = {
+  Sensex: "Auto From Spot: Spot Times 1.006, Rounded Up To The Next 100",
+  Nifty: "Auto From Spot: Spot Plus 150, Rounded Up To The Next 100",
+};
+
+// ------------------------------------------------------------------ 1 Underlying And Market
+
+function UnderlyingGroup({ open }: { open: number }) {
+  const { mode, inputs, setInputs, setUnderlying, levels, levelsLoading, refreshLevels, fetchLiveSpot } = useDesk();
   const errorFor = useFieldError();
-  const terms = deriveTerms(inputs);
-  const n = terms.nSpreads;
+  const guard = useGuard();
   const u = underlyingName(inputs);
+  const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
+  const fetched = levels?.fetchedAt ? new Date(levels.fetchedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit" }) : null;
   return (
-    <Panel index={index} id="terms">
-      <SectionTitle icon={ScrollText}>Product Terms</SectionTitle>
-      <div className="field-grid">
-        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")}>
-          <NumberInput
-            kind="percent"
-            value={terms.target}
-            onChange={(v) => setInputs((prev) => withStrike(prev, 0, 100 * (1 + v)))}
-            onBlankChange={() => setInputs((prev) => withStrike(prev, 0, NaN))}
-            suffix="%"
-            testId="input-target"
-            placeholder="Eg 37 %"
-          />
+    <Group step={1} icon={LineChart} open={open}>
+      <div className="inputs-grid">
+        <FieldRow label="Underlying" error={errorFor("underlying")}>
+          <ChoiceSelect<Underlying> value={inputs.underlying} testId="input-underlying" invalid={Boolean(errorFor("underlying"))} onChange={setUnderlying} options={UNDERLYINGS.map((x) => ({ value: x, label: x }))} />
         </FieldRow>
-        <FieldRow label="Coupon" error={errorFor("coupon")} hint="The maximum coupon paid at or above the Target.">
-          <KeyNumber k="coupon" kind="percent" suffix="%" eg="102.5" />
+        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} hint={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
+          <TextInput type="date" testId="input-valuationDate" invalid={Boolean(errorFor("valuationDate"))} value={inputs.valuationDate} onChange={(e) => setInputs({ valuationDate: e.target.value })} />
         </FieldRow>
-        <FieldRow label="Protection" error={errorFor("protection")}>
-          <NumberInput
-            kind="percent"
-            value={terms.protection}
-            onChange={(v) =>
-              setInputs((prev) => {
-                const gap = prev.strikePercents[n + 1]! - prev.strikePercents[n + 2]!;
-                const width = Number.isFinite(gap) && gap > 0 ? gap : 1;
-                const next = [...prev.strikePercents];
-                next[n + 1] = 100 * (1 - v);
-                next[n + 2] = next[n + 1]! - width;
-                return { strikePercents: next };
-              })
-            }
-            suffix="%"
-            testId="input-protection"
-            invalid={Boolean(errorFor("protection"))}
-            placeholder="Eg 15 %"
-          />
+        <FieldRow label={`${u} Spot`} error={errorFor("spot")} hint={`Start Level ${Number.isFinite(start) ? fmtNumber(start, 0) : "-"}${fetched && mode === "default" ? ` · Fetched At ${fetched} IST` : ""}`}>
+          <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <NumberInput
+                value={inputs.spot}
+                onChange={(v) => setInputs({ spot: v })}
+                onBlankChange={() => setInputs({ spot: NaN })}
+                digits={2}
+                testId="input-spot"
+                invalid={Boolean(errorFor("spot"))}
+                placeholder={mode === "default" && levelsLoading ? "Fetching The Close" : "Eg 73,500"}
+                {...guard("spot")}
+              />
+            </div>
+            {mode === "blank" ? (
+              <FetchButton testId="fetch-live-spot" icon={CloudDownload} label="Fetch" busyLabel="Fetching" doneLabel="Fetched" loading={levelsLoading} onClick={fetchLiveSpot} />
+            ) : (
+              <button
+                type="button"
+                className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                data-testid="refresh-yahoo"
+                title="Refresh The Close From Yahoo"
+                aria-label="Refresh The Close From Yahoo"
+                onClick={async () => {
+                  const lv = await refreshLevels();
+                  const level = inputs.underlying ? lv?.[LEVEL_FIELD[inputs.underlying]] : undefined;
+                  if (lv && level) setInputs({ spot: level, valuationDate: lv.valuationDate });
+                }}
+              >
+                <RefreshCw className={levelsLoading ? "icon-sm animate-spin" : "icon-sm"} aria-hidden />
+              </button>
+            )}
+          </div>
         </FieldRow>
-        <FieldRow label="Decay" error={errorFor("decay")} hint="Downside participation below the protection level.">
-          <KeyNumber k="decay" digits={2} eg="1.6" />
-        </FieldRow>
-        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")}>
-          <NumberInput
-            kind="percent"
-            digits={0}
-            value={terms.floorLevel}
-            onChange={(v) => setInputs((prev) => withStrike(prev, n + 3, 100 * v))}
-            onBlankChange={() => setInputs((prev) => withStrike(prev, n + 3, NaN))}
-            suffix="%"
-            testId="input-floorLevel"
-            invalid={Boolean(errorFor("floorLevel"))}
-            placeholder="Eg 70 %"
-          />
-        </FieldRow>
-        <FieldRow label="Decay Reduction Below Floor" error={errorFor("floorUnits")}>
-          <KeyNumber k="floorUnits" digits={2} eg="1" />
-        </FieldRow>
-        <FieldRow label="Tenor In Days" error={errorFor("tenorDays")}>
-          <KeyNumber k="tenorDays" kind="integer" eg="1,940" />
-        </FieldRow>
-        <FieldRow label="Start Level Uplift" error={errorFor("startLevelUplift")}>
-          <KeyNumber k="startLevelUplift" kind="percent" suffix="%" eg="0.6" />
+        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint={inputs.underlying ? HEDGE_RULE[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <NumberInput
+                value={inputs.hedgeStrike}
+                onChange={(v) => setInputs({ hedgeStrike: v, hedgeStrikeAuto: false })}
+                onBlankChange={() => setInputs({ hedgeStrike: NaN, hedgeStrikeAuto: false })}
+                digits={0}
+                grouped
+                testId="input-hedgeStrike"
+                invalid={Boolean(errorFor("hedgeStrike"))}
+                placeholder="Eg 77,300"
+                {...guard("hedgeStrike")}
+              />
+            </div>
+            <Toggle
+              label="Auto"
+              checked={inputs.hedgeStrikeAuto}
+              testId="input-hedgeStrikeAuto"
+              onChange={(v) => setInputs({ hedgeStrikeAuto: v, hedgeStrike: v && inputs.underlying && Number.isFinite(inputs.spot) ? autoHedgeStrike(inputs.spot, inputs.underlying) : inputs.hedgeStrike })}
+            />
+          </div>
         </FieldRow>
       </div>
-    </Panel>
+    </Group>
   );
 }
 
-// ------------------------------------------------------------------ Observation Expiries
+// ------------------------------------------------------------------ 2 Observation Expiries
 
-export function ExpiriesSection({ index }: { index: number }) {
+/** One expiry date. It commits on leaving the field: the date moves to its month's last expiry weekday, then the rules run. */
+function ExpiryField({ i, hedge, onSnap }: { i: number; hedge: boolean; onSnap: (i: number, note: string | null) => void }) {
+  const { inputs, setInputs } = useDesk();
+  const { alert } = useDeskDialog();
+  const errorFor = useFieldError();
+  const value = inputs.expiryDates[i] ?? "";
+  const [draft, setDraft] = useState(value);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes, such as a paste or a new underlying
+    setDraft(value);
+  }, [value]);
+  const commit = () => {
+    if (draft === value) return;
+    if (!draft) {
+      onSnap(i, null);
+      setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: "" }) }));
+      return;
+    }
+    const u = inputs.underlying;
+    const snapped = u && isValidYmd(draft) ? snapExpiry(draft, u) : draft;
+    const check = checkFieldEdit(inputs, `expiryDates.${i}`, snapped);
+    if (check) {
+      setDraft(value);
+      alert(check.message, { variant: "error", title: `${check.label} Reverted`, fix: "The field is back to its last valid value.", onClose: () => focusField(`expiryDates.${i}`) });
+      return;
+    }
+    onSnap(i, u && snapped !== draft ? `Moved To The Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]}, ${formatDate(snapped)}` : null);
+    setDraft(snapped);
+    setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: snapped }) }));
+  };
+  return (
+    <TextInput
+      type="date"
+      testId={`input-expiryDates-${i}`}
+      aria-label={`Expiry ${i + 1}${hedge ? " · Observation And Hedge Option Expiry" : ""}`}
+      invalid={Boolean(errorFor(`expiryDates.${i}`))}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+    />
+  );
+}
+
+function ExpiriesGroup({ open }: { open: number }) {
   const { inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
-  const reduce = useReducedMotion();
+  const [notes, setNotes] = useState<Record<number, string | null>>({});
+  const [bulk, setBulk] = useState(false);
   const count = Number.isInteger(inputs.expiryCount) ? inputs.expiryCount : 0;
-  const dates = inputs.underlying && inputs.valuationDate && count > 0 ? expiryDates(inputs as HedgeInputs) : Array.from({ length: count }, () => null);
-  const weekday = inputs.underlying ? WEEKDAY_NAMES[EXPIRY_WEEKDAY[inputs.underlying]]! : "-";
-  const median = medianExpiryIndex(count);
+  const hedgeIndex = inputs.hedgeExpiryIndex ?? medianExpiryIndex(count);
+  const u = inputs.underlying;
+  const first = inputs.expiryDates[0];
 
   const setCount = (next: number) =>
-    setInputs((prev) => ({
-      expiryCount: next,
-      expiryMonths: resizeList(prev.expiryMonths, next, NaN),
-      hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < next ? prev.hedgeExpiryIndex : null,
-    }));
+    setInputs((prev) => {
+      const dates = resizeList(prev.expiryDates, next, "");
+      // New rows continue quarterly from the last filled date.
+      for (let i = 1; i < next; i++) {
+        const before = dates[i - 1];
+        if (!dates[i] && prev.underlying && before && isValidYmd(before)) dates[i] = quarterlyExpiries(before, 2, prev.underlying)[1]!;
+      }
+      return { expiryCount: next, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < next ? prev.hedgeExpiryIndex : null };
+    });
+
+  const parse = useCallback((text: string) => parseExpiryPaste(text, { valuationDate: inputs.valuationDate, underlying: (u || "Sensex") as Underlying }), [inputs.valuationDate, u]);
 
   return (
-    <Panel index={index} id="expiries">
-      <SectionTitle
-        icon={CalendarClock}
-        aside={
-          <span className="hs-chip hs-chip-maroon" data-testid="expiry-weekday">
-            {underlyingName(inputs)} Expiry Weekday · {weekday}
+    <Group
+      step={2}
+      icon={CalendarClock}
+      open={open}
+      aside={
+        <div className="flex flex-wrap items-center justify-end gap-1">
+          <span className="hs-chip" data-testid="expiry-weekday">
+            {u ? `Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]} Of The Month` : "-"}
           </span>
-        }
-      >
-        Observation Expiries
-      </SectionTitle>
-      <div className="field-grid">
-        <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")} hint={`From ${MIN_EXPIRIES} to ${MAX_EXPIRIES}. That many month rows appear.`}>
-          <ChoiceSelect<number>
-            value={Number.isInteger(inputs.expiryCount) ? inputs.expiryCount : ""}
-            testId="input-expiryCount"
-            invalid={Boolean(errorFor("expiryCount"))}
-            onChange={setCount}
-            options={Array.from({ length: MAX_EXPIRIES - MIN_EXPIRIES + 1 }, (_, i) => ({ value: MIN_EXPIRIES + i, label: String(MIN_EXPIRIES + i) }))}
-          />
-        </FieldRow>
-        <div className="field-wide flex w-full flex-col gap-3">
-          <AnimatePresence initial={false}>
-            {Array.from({ length: count }, (_, i) => {
-              const month = inputs.expiryMonths[i];
-              const date = dates[i];
-              const error = errorFor(`expiryMonths.${i}`);
-              return (
-                <motion.div
-                  key={i}
-                  layout={!reduce}
-                  data-testid={`expiry-row-${i}`}
-                  className={cn(
-                    "flex w-full flex-wrap items-center gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3",
-                    error ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
-                  )}
-                  initial={reduce ? false : { opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduce ? undefined : { opacity: 0, y: -6 }}
-                  transition={{ duration: 0.25, ease: deskEase }}
-                >
-                  <span className="w-24 shrink-0 font-ui text-body font-bold text-ink">Expiry {i + 1}</span>
-                  <div className="min-w-0 flex-1 basis-40">
-                    <NumberInput
-                      kind="integer"
-                      value={month ?? NaN}
-                      placeholder="Eg 41"
-                      ariaLabel={`Expiry ${i + 1} Month Number`}
-                      testId={`input-expiryMonths-${i}`}
-                      invalid={Boolean(error)}
-                      onChange={(v) =>
-                        setInputs((prev) => {
-                          const next = [...prev.expiryMonths];
-                          next[i] = v;
-                          return { expiryMonths: next };
-                        })
-                      }
-                      onBlankChange={() =>
-                        setInputs((prev) => {
-                          const next = [...prev.expiryMonths];
-                          next[i] = NaN;
-                          return { expiryMonths: next };
-                        })
-                      }
-                    />
-                  </div>
-                  <span className="hs-chip min-w-[8.5rem] justify-center" data-testid={`expiry-date-${i}`}>
-                    {date ? formatDate(date) : "-"}
-                  </span>
-                  <span className="w-24 shrink-0 font-ui text-caption font-bold text-gold-dark">{i === (inputs.hedgeExpiryIndex ?? median) ? "Option Expiry" : null}</span>
-                  {error ? <p className="hs-error w-full">{error}</p> : null}
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-        <FieldRow label="Option Expiry" hint="The expiry of the listed hedge option: the median expiry, the lower middle one for an even count.">
-          <select
-            className="glass-select w-full rounded-2xl px-4 py-3 font-ui text-body"
-            value={inputs.hedgeExpiryIndex ?? "median"}
-            data-testid="input-hedgeExpiryIndex"
-            aria-label="Option Expiry"
-            onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
+          <button
+            type="button"
+            className="btn-animated btn-motion btn-ghost btn-compact"
+            data-testid="expiries-quarterly"
+            disabled={!u || !count || !isValidYmd(first)}
+            title="Every Expiry Three Months After The One Before"
+            onClick={() => u && first && setInputs({ expiryDates: quarterlyExpiries(first, count, u) })}
           >
-            <option value="median">Median Expiry · {dates[median] ? formatDate(dates[median]) : "-"}</option>
-            {dates.map((d, i) => (
-              <option key={i} value={i} disabled={!d}>
-                Expiry {i + 1} · {d ? formatDate(d) : "-"}
-              </option>
-            ))}
-          </select>
+            <span className="relative z-10">Quarterly From First Expiry</span>
+          </button>
+          <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="expiries-bulk" disabled={!u} onClick={() => setBulk(true)}>
+            <span className="relative z-10 inline-flex items-center gap-1">
+              <ClipboardPaste className="icon-xs" aria-hidden />
+              Bulk Edit
+            </span>
+          </button>
+        </div>
+      }
+    >
+      <div className="inputs-grid">
+        <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")}>
+          <CountPicker label="Number Of Expiry Dates" value={inputs.expiryCount} min={MIN_EXPIRIES} max={MAX_EXPIRIES} onChange={setCount} testId="input-expiryCount" invalid={Boolean(errorFor("expiryCount"))} />
         </FieldRow>
+        {Array.from({ length: count }, (_, i) => (
+          <FieldRow
+            key={i}
+            label={`Expiry ${i + 1}`}
+            error={errorFor(`expiryDates.${i}`)}
+            hint={
+              <span data-testid={`expiry-note-${i}`}>
+                {notes[i] ?? (i === hedgeIndex ? "Observation And Hedge Option Expiry" : "Observation")}
+              </span>
+            }
+          >
+            <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
+          </FieldRow>
+        ))}
+        {count ? (
+          <FieldRow label="Hedge Option Expiry" hint="The Median Expiry Unless Picked">
+            <select
+              className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
+              value={inputs.hedgeExpiryIndex ?? "median"}
+              data-testid="input-hedgeExpiryIndex"
+              onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
+            >
+              <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
+              {Array.from({ length: count }, (_, i) => (
+                <option key={i} value={i}>
+                  Expiry {i + 1} · {formatDate(inputs.expiryDates[i])}
+                </option>
+              ))}
+            </select>
+          </FieldRow>
+        ) : null}
       </div>
-    </Panel>
+      <BulkEditDialog<string>
+        open={bulk}
+        title="Bulk Edit Expiries"
+        hint={`Paste 1 to ${MAX_EXPIRIES} dates from a sheet, one per line or per cell. Each moves to the last expiry day of its month.`}
+        placeholder={"25-Apr-2030\n25-Jul-2030\n31-Oct-2030"}
+        initialText={inputs.expiryDates.slice(0, count).filter(Boolean).map(formatDate).join("\n")}
+        columns={["Expiry"]}
+        parse={parse}
+        render={(d) => [formatDate(d)]}
+        onApply={(dates) => {
+          setNotes({});
+          setInputs((prev) => ({ expiryCount: dates.length, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < dates.length ? prev.hedgeExpiryIndex : null }));
+        }}
+        onClose={() => setBulk(false)}
+        testId="bulk-expiries"
+      />
+    </Group>
   );
 }
 
-// ------------------------------------------------------------------ Strikes
+// ------------------------------------------------------------------ 3 Strikes And Spreads
 
 const OPTION_TYPES: Array<{ value: OptionType; label: string }> = [
   { value: "P", label: "Put" },
@@ -532,467 +417,440 @@ function setAt<T>(list: T[], i: number, v: T): T[] {
   return next;
 }
 
-export function StrikesSection({ index }: { index: number }) {
+function StrikesGroup({ open }: { open: number }) {
   const { mode, inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
+  const guard = useGuard();
   const reduce = useReducedMotion();
-  const [newStrike, setNewStrike] = useState(NaN);
-  const [addError, setAddError] = useState<string | null>(null);
-  // The start level moves with the spot, the underlying, the uplift and the rounding; the % stays put.
-  const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  const add = () => {
-    const next = insertStrike(inputs, newStrike, mode);
-    if (!next) {
-      setAddError("Enter a strike % above the protection strike that is not already a strike, with at most four spreads.");
-      return;
-    }
-    setAddError(null);
-    setNewStrike(NaN);
-    setInputs(next);
-  };
-  return (
-    <Panel index={index} id="strikes">
-      <SectionTitle icon={Layers} aside={<span className="hs-chip">{inputs.strikePercents.length} Strikes</span>}>
-        Strikes
-      </SectionTitle>
-      <div className="flex w-full flex-col gap-3">
-        <AnimatePresence initial={false}>
-          {inputs.strikePercents.map((pct, i) => {
-            const error = errorFor(`strikePercents.${i}`) ?? errorFor(`strikeOptionTypes.${i}`) ?? errorFor(`strikeSides.${i}`);
-            const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
-            return (
-              <motion.div
-                key={i}
-                layout={!reduce}
-                data-testid={`strike-row-${i}`}
-                className={cn(
-                  "grid w-full items-end gap-3 rounded-2xl border bg-[color:var(--ar-panel)] p-3 sm:grid-cols-2 xl:grid-cols-[5rem_minmax(8rem,1fr)_minmax(8rem,1fr)_auto_auto_auto]",
-                  error ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
-                )}
-                initial={reduce ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -6 }}
-                transition={{ duration: 0.25, ease: deskEase }}
-              >
-                <span className="pb-3 font-ui text-body font-bold text-ink sm:col-span-2 xl:col-span-1">Strike {i + 1}</span>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <label className="field-label font-ui" htmlFor={`strike-percent-${i}`}>
-                    Level %
-                  </label>
-                  <NumberInput
-                    id={`strike-percent-${i}`}
-                    value={pct}
-                    digits={2}
-                    suffix="%"
-                    testId={`input-strikePercents-${i}`}
-                    invalid={Boolean(errorFor(`strikePercents.${i}`))}
-                    placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
-                    onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
-                    onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
-                  />
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <label className="field-label font-ui" htmlFor={`strike-level-${i}`}>
-                    Level In Points
-                  </label>
-                  <NumberInput
-                    id={`strike-level-${i}`}
-                    value={level}
-                    digits={0}
-                    grouped
-                    disabled={!Number.isFinite(start)}
-                    testId={`input-strikeLevel-${i}`}
-                    placeholder={Number.isFinite(start) ? "Eg 1,05,901" : "-"}
-                    onChange={(v) => setInputs((prev) => withStrike(prev, i, percentFromLevel(v, start)))}
-                  />
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="field-label font-ui">Option Type</span>
-                  <Segmented<OptionType>
-                    label={`Strike ${i + 1} Option Type`}
-                    value={inputs.strikeOptionTypes[i] ?? ""}
-                    options={OPTION_TYPES}
-                    testId={`input-strikeOptionTypes-${i}`}
-                    invalid={Boolean(errorFor(`strikeOptionTypes.${i}`))}
-                    onChange={(v) => setInputs((prev) => ({ strikeOptionTypes: setAt(prev.strikeOptionTypes, i, v) }))}
-                  />
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="field-label font-ui">Buy Or Sell</span>
-                  <Segmented<StrikeSide>
-                    label={`Strike ${i + 1} Buy Or Sell`}
-                    value={inputs.strikeSides[i] ?? ""}
-                    options={SIDES}
-                    testId={`input-strikeSides-${i}`}
-                    invalid={Boolean(errorFor(`strikeSides.${i}`))}
-                    onChange={(v) => setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, v) }))}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="btn-ghost btn-animated inline-flex h-11 w-11 items-center justify-center self-end !p-0"
-                  aria-label={`Remove Strike ${i + 1}`}
-                  title={canRemoveStrike(inputs, i) ? `Remove Strike ${i + 1}` : "Only A Spread Level Can Go, While More Than One Spread Remains"}
-                  data-testid={`remove-strike-${i}`}
-                  disabled={!canRemoveStrike(inputs, i)}
-                  onClick={() => {
-                    const next = removeStrike(inputs, i, mode);
-                    if (next) setInputs(next);
-                  }}
-                >
-                  <Trash2 className="icon-sm" aria-hidden />
-                </button>
-                {error ? (
-                  <p className="hs-error sm:col-span-2 xl:col-span-6" role="alert" data-testid={`strike-error-${i}`}>
-                    {error}
-                  </p>
-                ) : null}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-        <div className="flex w-full flex-wrap items-end gap-3 rounded-2xl border border-dashed border-[color:var(--ar-border)] p-3">
-          <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1">
-            <label className="field-label font-ui" htmlFor="new-strike">
-              New Strike %
-            </label>
-            <NumberInput id="new-strike" value={newStrike} digits={2} suffix="%" testId="input-newStrike" placeholder="Eg 100" onChange={setNewStrike} onBlankChange={() => setNewStrike(NaN)} />
-          </div>
-          <button type="button" className="btn-ghost btn-animated inline-flex items-center gap-2" data-testid="add-strike" onClick={add}>
-            <Plus className="icon-sm" aria-hidden />
-            Add Strike
-          </button>
-          {addError ? (
-            <p className="hs-error w-full" role="alert" data-testid="add-strike-error">
-              {addError}
-            </p>
-          ) : null}
-        </div>
-      </div>
-    </Panel>
-  );
-}
-
-// ------------------------------------------------------------------ Spreads
-
-export function SpreadsSection({ index }: { index: number }) {
-  const { mode, inputs, setInputs } = useDesk();
-  const errorFor = useFieldError();
-  const reduce = useReducedMotion();
+  const [bulk, setBulk] = useState(false);
+  const k = inputs.strikePercents;
   const terms = deriveTerms(inputs);
-  const n = terms.nSpreads;
+  const n = k.length ? terms.nSpreads : NaN;
+  const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
+  const unitsReady = Number.isFinite(start) && [...k, inputs.coupon, inputs.decay, inputs.floorUnits].every(Number.isFinite) && inputs.participations.every((p) => p == null || Number.isFinite(p));
+  const units = unitsReady ? strikeUnits(inputs, start) : [];
   const payouts = terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
   const total = payouts.reduce((a, b) => a + b, 0);
 
-  // New spreads go on top of the old target, five points apart; removing one drops the top strike.
-  const setCount = (count: number) =>
+  const applyPaste = (rows: PastedStrike[]) =>
     setInputs((prev) => {
-      let next: DeskInputs = prev;
-      while (spreadCount(next) < count) {
-        const added = insertStrike(next, next.strikePercents[0]! + 5, mode);
-        if (!added) break;
-        next = { ...next, ...added };
+      const count = rows.length - 4;
+      const parts: Array<number | null> = prev.participations.slice(0, count - 1).map((p) => p ?? (mode === "blank" ? NaN : 1));
+      while (parts.length < count - 1) parts.push(mode === "blank" ? NaN : 1);
+      parts.push(null);
+      const next = { strikePercents: rows.map((r) => r.percent), participations: parts, strikeOptionTypes: rows.map((r) => r.optionType) as Array<OptionType | "">, strikeSides: rows.map((r) => r.side) };
+      if (rows.some((r) => !r.side) && mode === "default" && [prev.coupon, prev.decay, prev.floorUnits].every(Number.isFinite)) {
+        next.strikeSides = derivedSides({ ...prev, ...next });
       }
-      while (spreadCount(next) > count) {
-        const removed = removeStrike(next, 0, mode);
-        if (!removed) break;
-        next = { ...next, ...removed };
-      }
-      return { strikePercents: next.strikePercents, participations: next.participations, strikeOptionTypes: next.strikeOptionTypes, strikeSides: next.strikeSides };
+      return next;
     });
 
-  const setLevel = (strikeIndex: number, fraction: number) => setInputs((prev) => withStrike(prev, strikeIndex, 100 * (1 + fraction)));
-
   return (
-    <Panel index={index} id="spreads">
-      <SectionTitle
-        icon={TrendingUp}
-        aside={
-          <span className={Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 ? "hs-chip hs-chip-maroon" : "hs-chip"} data-testid="max-coupon">
-            Maximum Upside {Number.isFinite(total) ? fmtPercent(total) : "-"}
+    <Group
+      step={3}
+      icon={Layers}
+      open={open}
+      aside={
+        <div className="flex flex-wrap items-center justify-end gap-1">
+          <span className={cn("hs-chip", Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 && "hs-chip-maroon")} data-testid="max-coupon">
+            Maximum Upside {Number.isFinite(total) && k.length ? fmtPercent(total) : "-"}
           </span>
-        }
-      >
-        Spreads
-      </SectionTitle>
-      <div className="field-grid">
-        <FieldRow label="Number Of Spreads" error={errorFor("spreadCount")} hint={`From ${MIN_SPREADS} to ${MAX_SPREADS}. Adding a spread adds a strike on top.`}>
-          <Stepper label="Number Of Spreads" value={n} min={MIN_SPREADS} max={MAX_SPREADS} onChange={setCount} testId="input-spreadCount" />
+          <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="strikes-bulk" onClick={() => setBulk(true)}>
+            <span className="relative z-10 inline-flex items-center gap-1">
+              <ClipboardPaste className="icon-xs" aria-hidden />
+              Bulk Edit
+            </span>
+          </button>
+        </div>
+      }
+    >
+      <div className="inputs-grid">
+        <FieldRow label="Number Of Spreads" error={errorFor("spreadCount")}>
+          <CountPicker
+            label="Number Of Spreads"
+            value={n}
+            min={MIN_SPREADS}
+            max={MAX_SPREADS}
+            testId="input-spreadCount"
+            invalid={Boolean(errorFor("spreadCount"))}
+            onChange={(c) => setInputs((prev) => setSpreadCount(prev, c, mode))}
+          />
         </FieldRow>
-        <AnimatePresence initial={false}>
-          {terms.spreads.map((s, j) => {
-            const derived = terms.participationDerived[j];
-            const isTop = j === n - 1;
-            const buyStrike = n - j;
-            const sellStrike = n - j - 1;
-            const error = errorFor(`spreads.${j}`);
-            const participationError = errorFor(`participations.${j}`);
-            return (
-              <motion.div
-                key={j}
-                layout={!reduce}
-                className={cn(
-                  "field-wide w-full rounded-2xl border bg-[color:var(--ar-panel)] p-4",
-                  error || participationError ? "border-rose-400/60" : "border-[color:var(--ar-border)]",
-                )}
-                data-testid={`spread-card-${j}`}
-                initial={reduce ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: deskEase }}
-              >
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-ui text-body font-bold text-ink">Spread {j + 1}</p>
-                  <span className="hs-chip">Pays {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]) : "-"}</span>
-                </div>
-                <div className="grid w-full items-start gap-3 md:grid-cols-[1fr_1fr_1.4fr]">
-                  <div>
-                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Buy Level</p>
+        <FieldRow label="Number Of Strikes" hint="Number Of Spreads Plus 4">
+          <output className="inputs-readonly" data-testid="strike-count">
+            {k.length || "-"}
+          </output>
+        </FieldRow>
+      </div>
+      {k.length ? (
+        <div className="mt-2 flex flex-col gap-1" role="table" aria-label="Strikes">
+          <div className="strike-row strike-head" role="row">
+            {["Strike", "Level %", "Level In Points", "Option Type", "Buy Or Sell", "Units"].map((h) => (
+              <span key={h} role="columnheader">
+                {h}
+              </span>
+            ))}
+          </div>
+          <AnimatePresence initial={false}>
+            {k.map((pct, i) => {
+              const error = errorFor(`strikePercents.${i}`) ?? errorFor(`strikeOptionTypes.${i}`) ?? errorFor(`strikeSides.${i}`);
+              const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
+              return (
+                <motion.div
+                  key={i}
+                  role="row"
+                  data-testid={`strike-row-${i}`}
+                  className={cn("strike-row", error && "strike-row--error")}
+                  initial={reduce ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="font-ui text-body font-bold text-ink" role="cell">
+                    Strike {i + 1}
+                  </span>
+                  <span role="cell">
                     <NumberInput
-                      kind="percent"
+                      value={pct}
+                      digits={2}
                       suffix="%"
-                      value={s.buy}
-                      ariaLabel={`Spread ${j + 1} Buy Level`}
-                      placeholder="Eg 25 %"
-                      onChange={(v) => setLevel(buyStrike, v)}
-                      testId={`input-spreads-${j}-buy`}
+                      ariaLabel={`Strike ${i + 1} Level %`}
+                      testId={`input-strikePercents-${i}`}
+                      invalid={Boolean(errorFor(`strikePercents.${i}`))}
+                      placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
+                      onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
+                      onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
+                      {...guard(`strikePercents.${i}`)}
                     />
-                  </div>
-                  <div>
-                    <p className="mb-1 font-ui text-caption font-semibold text-muted">Spread {j + 1} Sell Level</p>
+                  </span>
+                  <span role="cell">
                     <NumberInput
-                      kind="percent"
-                      suffix="%"
-                      value={s.sell}
-                      ariaLabel={`Spread ${j + 1} Sell Level`}
-                      placeholder="Eg 27 %"
-                      invalid={Boolean(errorFor(`spreads.${j}`))}
-                      onChange={(v) => setLevel(sellStrike, v)}
-                      testId={`input-spreads-${j}-sell`}
+                      value={level}
+                      digits={0}
+                      grouped
+                      disabled={!Number.isFinite(start)}
+                      ariaLabel={`Strike ${i + 1} Level In Points`}
+                      testId={`input-strikeLevel-${i}`}
+                      placeholder="-"
+                      onChange={(v) => setInputs((prev) => withStrike(prev, i, percentFromLevel(v, start)))}
                     />
-                  </div>
-                  <div>
-                    <p className="mb-1 flex items-center gap-2 font-ui text-caption font-semibold text-muted">
-                      Spread {j + 1} Participation Rate
-                      {isTop ? (
-                        <StatusBadge tone={derived ? "ok" : "warn"} testId={`spread-${j}-participation-status`}>
-                          {derived ? "Derived" : "Overridden"}
-                        </StatusBadge>
-                      ) : null}
+                  </span>
+                  <span role="cell">
+                    <Segmented<OptionType>
+                      label={`Strike ${i + 1} Option Type`}
+                      value={inputs.strikeOptionTypes[i] ?? ""}
+                      options={OPTION_TYPES}
+                      testId={`input-strikeOptionTypes-${i}`}
+                      invalid={Boolean(errorFor(`strikeOptionTypes.${i}`))}
+                      onChange={(v) => setInputs((prev) => ({ strikeOptionTypes: setAt(prev.strikeOptionTypes, i, v) }))}
+                    />
+                  </span>
+                  <span role="cell">
+                    <Segmented<StrikeSide>
+                      label={`Strike ${i + 1} Buy Or Sell`}
+                      value={inputs.strikeSides[i] ?? ""}
+                      options={SIDES}
+                      testId={`input-strikeSides-${i}`}
+                      invalid={Boolean(errorFor(`strikeSides.${i}`))}
+                      onChange={(v) => setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, v) }))}
+                    />
+                  </span>
+                  <output className="inputs-readonly tabular-nums" role="cell" aria-label={`Strike ${i + 1} Units`} data-testid={`strike-units-${i}`}>
+                    {Number.isFinite(units[i]) ? fmtNumber(units[i]!, 3) : "-"}
+                  </output>
+                  {error ? (
+                    <p className="hs-error strike-row-error" role="alert" data-testid={`strike-error-${i}`}>
+                      {error}
                     </p>
-                    <div className="flex items-center gap-2">
-                      <div className="min-w-0 flex-1 basis-40">
-                        <NumberInput
-                          value={s.participation}
-                          digits={2}
-                          fixed={derived}
-                          ariaLabel={`Spread ${j + 1} Participation Rate`}
-                          placeholder={isTop ? "Eg 10.05" : "Eg 1"}
-                          invalid={Boolean(errorFor(`participations.${j}`))}
-                          onChange={(v) =>
-                            setInputs((prev) => {
-                              const parts = [...prev.participations];
-                              parts[j] = v;
-                              return { participations: parts };
-                            })
-                          }
-                          onBlankChange={() =>
-                            setInputs((prev) => {
-                              const parts = [...prev.participations];
-                              parts[j] = isTop ? null : NaN;
-                              return { participations: parts };
-                            })
-                          }
-                          testId={`input-participations-${j}`}
-                        />
-                      </div>
-                      {isTop && !derived ? (
-                        <ResetIcon
-                          label="Reset To Derived"
-                          testId={`spread-${j}-reset`}
-                          onClick={() =>
-                            setInputs((prev) => {
-                              const parts = [...prev.participations];
-                              parts[j] = null;
-                              return { participations: parts };
-                            })
-                          }
-                        />
-                      ) : null}
-                    </div>
-                    {participationError ? (
-                      <p className="hs-error mt-1" role="alert" data-testid={`participation-error-${j}`}>
-                        {participationError}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-                {error ? <p className="hs-error mt-2">{error}</p> : null}
-              </motion.div>
+                  ) : null}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+          <div className="spread-row strike-head mt-2" role="row">
+            {["Spread", "Buy Level", "Sell Level", "Participation Rate", "Pays"].map((h) => (
+              <span key={h} role="columnheader">
+                {h}
+              </span>
+            ))}
+          </div>
+          {terms.spreads.map((s, j) => {
+            const isTop = j === terms.nSpreads - 1;
+            const derived = terms.participationDerived[j];
+            const error = errorFor(`spreads.${j}`) ?? errorFor(`participations.${j}`);
+            return (
+              <div key={j} role="row" className={cn("spread-row", error && "strike-row--error")} data-testid={`spread-card-${j}`}>
+                <span className="font-ui text-body font-bold text-ink" role="cell">
+                  Spread {j + 1}
+                </span>
+                <output className="inputs-readonly tabular-nums" role="cell" data-testid={`input-spreads-${j}-buy`}>
+                  {Number.isFinite(s.buy) ? fmtPercent(s.buy) : "-"}
+                </output>
+                <output className="inputs-readonly tabular-nums" role="cell" tabIndex={-1} data-testid={`input-spreads-${j}-sell`}>
+                  {Number.isFinite(s.sell) ? fmtPercent(s.sell) : "-"}
+                </output>
+                <span className="flex items-center gap-1" role="cell">
+                  <span className="min-w-0 flex-1">
+                    <NumberInput
+                      value={s.participation}
+                      digits={2}
+                      fixed={derived}
+                      ariaLabel={`Spread ${j + 1} Participation Rate`}
+                      placeholder={isTop ? "Eg 10.05" : "Eg 1"}
+                      invalid={Boolean(errorFor(`participations.${j}`))}
+                      testId={`input-participations-${j}`}
+                      onChange={(v) => setInputs((prev) => ({ participations: setAt(prev.participations, j, v) }))}
+                      onBlankChange={() => setInputs((prev) => ({ participations: setAt(prev.participations, j, isTop ? null : NaN) }))}
+                      {...guard(`participations.${j}`)}
+                    />
+                  </span>
+                  {isTop ? <StatusTag edited={!derived} testId={`spread-${j}-participation-status`} /> : null}
+                  {isTop && !derived ? <ResetIcon label="Reset To Calculated" testId={`spread-${j}-reset`} onClick={() => setInputs((prev) => ({ participations: setAt(prev.participations, j, null) }))} /> : null}
+                </span>
+                <output className="inputs-readonly tabular-nums" role="cell">
+                  {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]!) : "-"}
+                </output>
+                {error ? <p className="hs-error strike-row-error">{error}</p> : null}
+              </div>
             );
           })}
-        </AnimatePresence>
-      </div>
-    </Panel>
+        </div>
+      ) : null}
+      <BulkEditDialog<PastedStrike>
+        open={bulk}
+        title="Bulk Edit Strikes"
+        hint={`Paste ${MIN_SPREADS + 4} to ${MAX_SPREADS + 4} rows from a sheet, highest first: Level %, then Put or Call, then Buy or Sell. Leave Buy Or Sell out to follow the payoff.`}
+        placeholder={"137\tPut\tSell\n127\tPut\tBuy\n125\tPut\tBuy\n85\tPut\tSell\n84\tPut\tBuy\n70\tPut\tBuy"}
+        initialText={k
+          .map((p, i) => [Number.isFinite(p) ? p : "", inputs.strikeOptionTypes[i] === "C" ? "Call" : inputs.strikeOptionTypes[i] === "P" ? "Put" : "", inputs.strikeSides[i] === "B" ? "Buy" : inputs.strikeSides[i] === "S" ? "Sell" : ""].join("\t"))
+          .join("\n")}
+        columns={["Level %", "Option Type", "Buy Or Sell"]}
+        parse={parseStrikePaste}
+        render={(r) => [`${r.percent}%`, r.optionType === "C" ? "Call" : "Put", r.side === "B" ? "Buy" : r.side === "S" ? "Sell" : "Follows Payoff"]}
+        onApply={applyPaste}
+        onClose={() => setBulk(false)}
+        testId="bulk-strikes"
+      />
+    </Group>
   );
 }
 
-// ------------------------------------------------------------------ Notional and Costs
+// ------------------------------------------------------------------ 4 Rates
 
-export function CostsSection({ index }: { index: number }) {
-  const errorFor = useFieldError();
+function RatesGroup({ open }: { open: number }) {
   return (
-    <Panel index={index} id="costs">
-      <SectionTitle icon={Coins}>Notional And Costs</SectionTitle>
-      <div className="field-grid">
-        <FieldRow label="Notional In Crore" error={errorFor("notionalCr")}>
-          <KeyNumber k="notionalCr" digits={2} eg="100" />
-        </FieldRow>
-        <FieldRow label="Transaction Cost" error={errorFor("transactionCost")}>
-          <KeyNumber k="transactionCost" kind="percent" suffix="%" eg="2.25" />
-        </FieldRow>
-        <FieldRow label="Issuance Cost" error={errorFor("issuanceCost")}>
-          <KeyNumber k="issuanceCost" kind="percent" suffix="%" eg="0.13" />
-        </FieldRow>
-        <FieldRow label="Margin Cost" error={errorFor("marginCost")}>
-          <KeyNumber k="marginCost" kind="percent" suffix="%" eg="0" />
-        </FieldRow>
+    <Group step={4} icon={Percent} open={open}>
+      <div className="inputs-grid">
+        <Num k="nbfcRate" label="NBFC Rate" kind="percent" suffix="%" eg="8" />
+        <Num k="premiumRate" label="Premium Growth Rate" kind="percent" suffix="%" eg="6.5" />
+        <Num k="marginGrowthRate" label="Margin Growth Rate" kind="percent" suffix="%" eg="6.58" />
       </div>
-    </Panel>
+    </Group>
   );
 }
 
-// ------------------------------------------------------------------ Volatility and Margin
+// ------------------------------------------------------------------ 5 Product Terms
 
-export function VolatilitySection({ index }: { index: number }) {
+function TermsGroup({ open }: { open: number }) {
+  const { inputs, setInputs } = useDesk();
+  const errorFor = useFieldError();
+  const terms = deriveTerms(inputs);
+  const n = terms.nSpreads;
+  const u = underlyingName(inputs);
+  const has = inputs.strikePercents.length > 0;
+  return (
+    <Group step={5} icon={ScrollText} open={open}>
+      <div className="inputs-grid">
+        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")}>
+          <NumberInput
+            kind="percent"
+            value={has ? terms.target : NaN}
+            disabled={!has}
+            onChange={(v) => setInputs((prev) => withStrike(prev, 0, 100 * (1 + v)))}
+            onBlankChange={() => setInputs((prev) => withStrike(prev, 0, NaN))}
+            suffix="%"
+            testId="input-target"
+            placeholder="Eg 37 %"
+          />
+        </FieldRow>
+        <Num k="coupon" label="Coupon" kind="percent" suffix="%" eg="102.5" />
+        <FieldRow label="Protection" error={errorFor("protection")}>
+          <NumberInput
+            kind="percent"
+            value={has ? terms.protection : NaN}
+            disabled={!has}
+            onChange={(v) =>
+              setInputs((prev) => {
+                const gap = prev.strikePercents[n + 1]! - prev.strikePercents[n + 2]!;
+                const width = Number.isFinite(gap) && gap > 0 ? gap : 1;
+                const next = [...prev.strikePercents];
+                next[n + 1] = 100 * (1 - v);
+                next[n + 2] = next[n + 1]! - width;
+                return { strikePercents: next };
+              })
+            }
+            suffix="%"
+            testId="input-protection"
+            invalid={Boolean(errorFor("protection"))}
+            placeholder="Eg 15 %"
+          />
+        </FieldRow>
+        <Num k="decay" label="Decay" digits={2} eg="1.6" />
+        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")}>
+          <NumberInput
+            kind="percent"
+            digits={0}
+            value={has ? terms.floorLevel : NaN}
+            disabled={!has}
+            onChange={(v) => setInputs((prev) => withStrike(prev, n + 3, 100 * v))}
+            onBlankChange={() => setInputs((prev) => withStrike(prev, n + 3, NaN))}
+            suffix="%"
+            testId="input-floorLevel"
+            invalid={Boolean(errorFor("floorLevel"))}
+            placeholder="Eg 70 %"
+          />
+        </FieldRow>
+        <Num k="floorUnits" label="Decay Reduction Below Floor" digits={2} eg="1" />
+        <Num k="tenorDays" label="Tenor In Days" kind="integer" eg="1,940" />
+        <Num k="startLevelUplift" label="Start Level Uplift" kind="percent" suffix="%" eg="0.6" />
+        <Num k="notionalCr" label="Notional In Crore" digits={2} eg="100" />
+      </div>
+    </Group>
+  );
+}
+
+// ------------------------------------------------------------------ 6 Volatility
+
+function VolatilityGroup({ open }: { open: number }) {
   const { mode, inputs, setInputs, computeDailyVol, dailyVolStatus } = useDesk();
   const errorFor = useFieldError();
+  const guard = useGuard();
   const u = underlyingName(inputs);
-  const source = inputs.dailyVolSource;
-  const compute = (
-    <FetchButton
-      testId={mode === "blank" ? "compute-volatility" : "compute-history"}
-      label={mode === "blank" ? "Compute Volatility" : "Compute From History"}
-      busyLabel="Computing From History"
-      doneLabel="Computed"
-      loading={dailyVolStatus.loading && (mode === "default" || inputs.underlying !== "")}
-      onClick={() => computeDailyVol()}
-    />
-  );
+  const edited = inputs.dailyVolSource !== "calculated";
+  const shown = Number.isFinite(inputs.dailyVol);
   return (
-    <Panel index={index} id="volatility">
-      <SectionTitle icon={Gauge}>Volatility And Margin</SectionTitle>
-      <div className="flex flex-col gap-4">
-        <SubSection
-          title="Volatility"
-          icon={Activity}
-          subtitle="Daily volatility is the standard deviation of daily log returns of Yahoo closes over the window. Annual volatility is daily volatility times the square root of 365."
-        >
-          <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")}>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="min-w-0 flex-1 basis-40">
-                <NumberInput
-                  kind="percent"
-                  digits={4}
-                  value={inputs.dailyVol}
-                  onChange={(v) => setInputs({ dailyVol: v, dailyVolSource: "overridden" })}
-                  onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
-                  suffix="%"
-                  testId="input-dailyVol"
-                  invalid={Boolean(errorFor("dailyVol"))}
-                  placeholder="Eg 0.88 %"
-                />
-              </div>
-              {Number.isFinite(inputs.dailyVol) ? (
-                <StatusBadge tone={source === "calculated" ? "ok" : "warn"} testId="daily-vol-status">
-                  {source === "calculated" ? "Calculated" : source === "overridden" ? "Overridden" : "Fallback"}
-                </StatusBadge>
-              ) : null}
-              {mode === "default" && source !== "calculated" ? <ResetIcon label="Reset To Calculated" testId="daily-vol-reset" onClick={() => void computeDailyVol()} /> : null}
+    <Group step={6} icon={Gauge} open={open}>
+      <div className="inputs-grid">
+        <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")}>
+          <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <NumberInput
+                kind="percent"
+                digits={3}
+                value={inputs.dailyVol}
+                onChange={(v) => setInputs({ dailyVol: v, dailyVolSource: "overridden" })}
+                onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
+                suffix="%"
+                testId="input-dailyVol"
+                invalid={Boolean(errorFor("dailyVol"))}
+                placeholder="Eg 0.88 %"
+                {...guard("dailyVol")}
+              />
             </div>
-          </FieldRow>
-          <FieldRow label={`${u} Annual Volatility`} hint="Edit either one; the other follows.">
-            <NumberInput
-              kind="percent"
-              value={annualVolFromDaily(inputs.dailyVol)}
-              onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
-              onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
-              suffix="%"
-              testId="input-annualVol"
-              placeholder="Eg 16.9 %"
-            />
-          </FieldRow>
-          <FieldRow
-            label="History Window"
-            hint={
-              dailyVolStatus.error
+            {shown ? <StatusTag edited={edited} testId="daily-vol-status" /> : null}
+          </div>
+        </FieldRow>
+        <FieldRow label={`${u} Annual Volatility`} hint="Daily Times The Square Root Of 365">
+          <div className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <NumberInput
+                kind="percent"
+                digits={3}
+                value={annualVolFromDaily(inputs.dailyVol)}
+                onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
+                onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
+                suffix="%"
+                testId="input-annualVol"
+                placeholder="Eg 16.9 %"
+              />
+            </div>
+            {shown ? <StatusTag edited={edited} testId="annual-vol-status" /> : null}
+          </div>
+        </FieldRow>
+        <FieldRow
+          label="History Window"
+          wide
+          hint={
+            <span data-testid="vol-history-note">
+              {dailyVolStatus.error
                 ? dailyVolStatus.error
                 : dailyVolStatus.from
-                  ? `${dailyVolStatus.observations} daily returns from ${formatDate(dailyVolStatus.from)} to ${formatDate(dailyVolStatus.to)}.`
-                  : undefined
-            }
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="glass-select flex-1 rounded-2xl px-4 py-3 font-ui text-body"
-                value={inputs.historyWindowDays}
-                data-testid="input-historyWindowDays"
-                aria-label="History Window"
-                onChange={(e) => {
-                  const windowDays = Number(e.target.value);
-                  setInputs({ historyWindowDays: windowDays });
-                  if (mode === "default") void computeDailyVol({ windowDays });
-                }}
-              >
-                <option value={182}>6 Months</option>
-                <option value={365}>1 Year</option>
-                <option value={730}>2 Years</option>
-                <option value={1095}>3 Years</option>
-              </select>
-              {compute}
-            </div>
-          </FieldRow>
-        </SubSection>
-
-        <SubSection title="Exchange Pricing Rates" icon={Landmark} subtitle="Forward and discount rates for the exchange price of the hedge, from the exchange volatility file.">
-          <FieldRow label="Exchange Forward Rate" error={errorFor("exchangeForwardRate")}>
-            <KeyNumber k="exchangeForwardRate" kind="percent" suffix="%" eg="3.48" />
-          </FieldRow>
-          <FieldRow label="Exchange Discount Rate" error={errorFor("exchangeDiscountRate")}>
-            <KeyNumber k="exchangeDiscountRate" kind="percent" suffix="%" eg="3.48" />
-          </FieldRow>
-        </SubSection>
-
-        <SubSection title="Stressed Pricing Rates" icon={ShieldAlert} subtitle="Forward and discount rates for the stressed price of the hedge.">
-          <FieldRow label="Stressed Forward Rate" error={errorFor("stressedForwardRate")}>
-            <KeyNumber k="stressedForwardRate" kind="percent" suffix="%" eg="3.48" />
-          </FieldRow>
-          <FieldRow label="Stressed Discount Rate" error={errorFor("stressedDiscountRate")}>
-            <KeyNumber k="stressedDiscountRate" kind="percent" suffix="%" eg="3.48" />
-          </FieldRow>
-        </SubSection>
-
-        <SubSection title="Stress Shock" icon={Zap} subtitle="Spot is shocked down by the sigmas over the days, and volatility is scaled by the multiplier.">
-          <FieldRow label="Shock Sigmas" error={errorFor("stressSigmas")}>
-            <KeyNumber k="stressSigmas" digits={0} eg="6" />
-          </FieldRow>
-          <FieldRow label="Shock Days" error={errorFor("stressDays")}>
-            <KeyNumber k="stressDays" kind="integer" eg="2" />
-          </FieldRow>
-          <FieldRow label="Volatility Multiplier" error={errorFor("stressVolMultiplier")}>
-            <KeyNumber k="stressVolMultiplier" digits={2} eg="1.25" />
-          </FieldRow>
-        </SubSection>
-
-        <SubSection title="Margins" icon={Percent}>
-          <FieldRow label="Exposure Margin" error={errorFor("exposureMargin")} hint="Charged on the shocked level of the sold hedge options.">
-            <KeyNumber k="exposureMargin" kind="percent" suffix="%" eg="5" />
-          </FieldRow>
-          <FieldRow label="Futures Margin" error={errorFor("futuresMargin")} hint="Margin on the notional value of the residual futures.">
-            <KeyNumber k="futuresMargin" kind="percent" suffix="%" eg="20" />
-          </FieldRow>
-        </SubSection>
+                  ? `${dailyVolStatus.observations} Daily Returns From ${formatDate(dailyVolStatus.from)} To ${formatDate(dailyVolStatus.to)}`
+                  : "-"}
+            </span>
+          }
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              className="glass-select h-9 min-w-[8rem] rounded-xl px-3 font-ui text-body"
+              value={inputs.historyWindowDays}
+              data-testid="input-historyWindowDays"
+              aria-label="History Window"
+              onChange={(e) => {
+                const windowDays = Number(e.target.value);
+                setInputs({ historyWindowDays: windowDays });
+                if (mode === "default") void computeDailyVol({ windowDays });
+              }}
+            >
+              <option value={182}>6 Months</option>
+              <option value={365}>1 Year</option>
+              <option value={730}>2 Years</option>
+              <option value={1095}>3 Years</option>
+            </select>
+            <FetchButton
+              testId={mode === "blank" ? "compute-volatility" : "compute-history"}
+              icon={RefreshCw}
+              label="Compute From History"
+              busyLabel="Computing"
+              doneLabel="Computed"
+              loading={dailyVolStatus.loading && (mode === "default" || inputs.underlying !== "")}
+              onClick={() => computeDailyVol()}
+            />
+          </div>
+        </FieldRow>
       </div>
-    </Panel>
+    </Group>
+  );
+}
+
+// ------------------------------------------------------------------ 7 Margin And Desk Terms
+
+function DeskTermsGroup({ open }: { open: number }) {
+  return (
+    <Group step={7} icon={Coins} open={open}>
+      <div className="inputs-grid">
+        <Num k="transactionCost" label="Transaction Cost" kind="percent" suffix="%" eg="2.25" />
+        <Num k="issuanceCost" label="Issuance Cost" kind="percent" suffix="%" eg="0.13" />
+        <Num k="marginCost" label="Margin Cost" kind="percent" suffix="%" eg="0" />
+        <Num k="exposureMargin" label="Exposure Margin" kind="percent" suffix="%" eg="5" />
+        <Num k="futuresMargin" label="Futures Margin" kind="percent" suffix="%" eg="20" />
+        <Num k="exchangeForwardRate" label="Exchange Forward Rate" kind="percent" suffix="%" eg="3.48" />
+        <Num k="exchangeDiscountRate" label="Exchange Discount Rate" kind="percent" suffix="%" eg="3.48" />
+        <Num k="stressedForwardRate" label="Stressed Forward Rate" kind="percent" suffix="%" eg="3.48" />
+        <Num k="stressedDiscountRate" label="Stressed Discount Rate" kind="percent" suffix="%" eg="3.48" />
+        <Num k="stressSigmas" label="Shock Sigmas" digits={0} eg="6" />
+        <Num k="stressDays" label="Shock Days" kind="integer" eg="2" />
+        <Num k="stressVolMultiplier" label="Volatility Multiplier" digits={2} eg="1.25" />
+      </div>
+    </Group>
+  );
+}
+
+// ------------------------------------------------------------------ the page body
+
+/** The seven numbered groups in fill order. A group opens once every field of the steps it depends on is filled. */
+export function InputGroups() {
+  const { fieldErrors } = useDesk();
+  const open = unlockedSteps(fieldErrors);
+  return (
+    <div className="inputs-layout">
+      <UnderlyingGroup open={open} />
+      <ExpiriesGroup open={open} />
+      <StrikesGroup open={open} />
+      <RatesGroup open={open} />
+      <TermsGroup open={open} />
+      <VolatilityGroup open={open} />
+      <DeskTermsGroup open={open} />
+    </div>
   );
 }
