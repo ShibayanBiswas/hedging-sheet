@@ -218,7 +218,6 @@ function mapEngineField(field: string): { field: string; section: InputSection; 
     spreads: { section: "Strikes And Spreads", label: "Number Of Spreads", field: "spreadCount" },
     coupon: { section: "Product Terms", label: "Coupon" },
     protection: { section: "Product Terms", label: "Protection" },
-    floorLevel: { section: "Product Terms", label: "Decay Floor Level" },
     floorUnits: { section: "Product Terms", label: "Decay Reduction Below Floor" },
     tenorDays: { section: "Product Terms", label: "Tenor In Days" },
     expiryCount: { section: "Observation Expiries", label: "Number Of Expiry Dates" },

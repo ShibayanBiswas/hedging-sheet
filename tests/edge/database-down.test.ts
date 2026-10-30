@@ -19,6 +19,18 @@ describe("Edge · Database · Unavailable", () => {
     expect(body.surface.expiries.length).toBeGreaterThan(0);
   });
 
+  it("Disconnected: A Save Is Refused By Validation, Or Lasts For This Instance Only And Is Read Back", async () => {
+    delete process.env.MONGODB_URI;
+    const { loadActiveParams, loadActiveSurface, ReferenceDataError, saveReferenceData } = await import("@/lib/data/load");
+    const { seedMarketData } = await import("@/lib/engine/defaults");
+    const market = seedMarketData();
+    await expect(saveReferenceData({ surface: { ...market.surface, expiries: [] } }, "test")).rejects.toBeInstanceOf(ReferenceDataError);
+    const surface = { ...market.surface, monthKey: "2099-01", label: "January 2099 Volatility Surface" };
+    expect(await saveReferenceData({ surface, params: { values: { ...market.params, forwardSellRate: 0.0612 }, monthKey: "2099-01" } }, "test")).toBe(false);
+    expect((await loadActiveSurface()).source).toBe("runtime");
+    expect(await loadActiveParams()).toMatchObject({ source: "runtime", params: { forwardSellRate: 0.0612 } });
+  });
+
   it("Slow Or Unreachable: The Request Gives Up Within Its Timeout And Still Answers", async () => {
     process.env.MONGODB_URI = "mongodb://127.0.0.1:9/?directConnection=true";
     process.env.MONGODB_DB = "hedging_sheet_test";

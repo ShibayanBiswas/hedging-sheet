@@ -363,7 +363,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         {
           strike: s.hedgeStrike,
           expiry: s.hedgeExpiry,
-          option: optionTypeLabel(r.dayOneVegaHedge.fair[0]?.optionType ?? "P"),
+          option: optionTypeLabel(r.dayOneVegaHedge.fair[0]!.optionType),
           quantity: s.hedgeQuantityLakh,
           price: s.hedgePrice,
           premium: s.hedgePremiumCr,
@@ -647,7 +647,7 @@ export function productTables(r: HedgingResult): {
 export function vegaHedgeInputs(r: HedgingResult): KeyValueSpec {
   const i = r.inputs;
   const u = r.underlyingLabel;
-  const fair = r.dayOneVegaHedge.fair[0];
+  const fair = r.dayOneVegaHedge.fair[0]!;
   return {
     id: "d1-inputs",
     title: "Hedge Inputs",
@@ -655,8 +655,8 @@ export function vegaHedgeInputs(r: HedgingResult): KeyValueSpec {
       { label: `${u} Spot`, value: i.spot, kind: "number" },
       { label: "Hedge Strike", value: i.hedgeStrike, kind: "number", digits: 0 },
       { label: "Option Expiry", value: r.summary.hedgeExpiry, kind: "date" },
-      { label: "Option Type", value: optionTypeLabel(fair?.optionType ?? "P"), kind: "text" },
-      { label: fair?.volOverridden ? "Fair Volatility · Overridden" : "Fair Volatility · Surface", value: fair?.volatility ?? null, kind: "percent" },
+      { label: "Option Type", value: optionTypeLabel(fair.optionType), kind: "text" },
+      { label: fair.volOverridden ? "Fair Volatility · Overridden" : "Fair Volatility · Surface", value: fair.volatility, kind: "percent" },
       { label: `${u} Daily Volatility`, value: i.dailyVol, kind: "percent", digits: 3 },
       { label: `${u} Annual Volatility`, value: r.summary.annualVol, kind: "percent" },
       { label: "Exchange Price Forward Rate", value: i.exchangeForwardRate, kind: "percent" },

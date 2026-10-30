@@ -17,7 +17,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text-summary", "html", "lcov"],
       reportsDirectory: "test-results/coverage",
-      include: ["lib/**/*.ts", "app/api/**/*.ts"],
+      include: ["lib/**/*.{ts,tsx}", "app/api/**/*.ts"],
       exclude: [
         "lib/engine/types.ts",
         "lib/context/**",
@@ -32,7 +32,7 @@ export default defineConfig({
       ],
       thresholds: {
         lines: 80,
-        "lib/engine/**": { lines: 90 },
+        "lib/**": { lines: 95, branches: 95 },
       },
     },
   },

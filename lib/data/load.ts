@@ -28,8 +28,8 @@ const anchorCache = new Map<string, { nifty: number | null; sensex: number | nul
 async function monthAnchors(monthKey: string): Promise<{ nifty: number | null; sensex: number | null }> {
   const cached = anchorCache.get(monthKey);
   if (cached) return cached;
-  const levels = await fetchIndexAtDate(`${monthKey}-01`).catch(() => null);
-  const anchors = { nifty: levels?.niftyLevel ?? null, sensex: levels?.sensexLevel ?? null };
+  const levels = await fetchIndexAtDate(`${monthKey}-01`);
+  const anchors = { nifty: levels.niftyLevel, sensex: levels.sensexLevel };
   if (anchors.nifty != null && anchors.sensex != null && `${monthKey}-01` < istTodayYmd()) anchorCache.set(monthKey, anchors);
   return anchors;
 }

@@ -79,9 +79,9 @@ function isStrikeHeader(label: string): boolean {
 
 function gridLooksLikeVolSurface(grid: Grid): boolean {
   return grid.slice(0, 25).some((row) => {
-    const labels = (row ?? []).slice(0, 4).map(text);
+    const labels = row.slice(0, 4).map(text);
     if (labels.some(isStrikeHeader)) return true;
-    return (row ?? []).filter((cell) => asMoneyness(cell) != null).length >= 3;
+    return row.filter((cell) => asMoneyness(cell) != null).length >= 3;
   });
 }
 
@@ -110,7 +110,7 @@ function parseParameters(grid: Grid) {
   let costCol = -1;
 
   for (let i = 0; i < grid.length; i++) {
-    const row = grid[i] ?? [];
+    const row = grid[i]!;
     const a = text(row[0]);
     const b = row[1];
     if (a === "volatility bump" || a === "vol bump") volBump = asFraction(b, 0);
@@ -141,7 +141,7 @@ function parseParameters(grid: Grid) {
 
   if (tableHeader >= 0) {
     for (let r = tableHeader + 1; r < grid.length; r++) {
-      const row = grid[r] ?? [];
+      const row = grid[r]!;
       const iso = cellIsDate(row[dateCol]) ? excelDateToIso(row[dateCol]) : null;
       if (!iso) {
         if (pricingParams.length) break;
@@ -176,7 +176,7 @@ function parseCurveAndDividends(wb: XLSX.WorkBook): { rateCurve?: RatePoint[]; d
   for (const name of wb.SheetNames) {
     const grid = sheetGrid(wb, name);
     for (let i = 0; i < grid.length; i++) {
-      const row = grid[i] ?? [];
+      const row = grid[i]!;
       const rateCol = findCol(row, "rate in percent", "rate (%pa)", "rate (% pa)", "rate %");
       const divCol = findCol(row, "implied dividend", "implied dividends");
       if (!rateCurve && rateCol > 0) {
@@ -235,7 +235,7 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
 
   let headerRow = -1;
   for (let i = 0; i < Math.min(grid.length, 40); i++) {
-    const row = grid[i] ?? [];
+    const row = grid[i]!;
     if (row.slice(0, 4).map(text).some(isStrikeHeader)) {
       headerRow = i;
       break;
@@ -247,7 +247,7 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
   }
   if (headerRow < 0) throw new Error("The Strike Change header row was not found on the Volatility Surface Sheet.");
 
-  const headRow = grid[headerRow] ?? [];
+  const headRow = grid[headerRow]!;
   const moneyness: number[] = [];
   let firstMoneyCol = -1;
   for (let c = 0; c < headRow.length; c++) {
@@ -266,7 +266,7 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
 
   let dataRow = headerRow + 1;
   while (dataRow < grid.length) {
-    const probe = grid[dataRow] ?? [];
+    const probe = grid[dataRow]!;
     const labels = probe.slice(0, 4).map(text);
     if (labels.some((l) => l.includes("strike") || l.includes("expiry"))) {
       dataRow += 1;
@@ -285,7 +285,7 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
   const volsPercent: number[][] = [];
   let dateCol = -1;
   for (let r = dataRow; r < grid.length; r++) {
-    const row = grid[r] ?? [];
+    const row = grid[r]!;
     if (text(row[0]) === "date" || text(row[1]) === "date") break;
     if (dateCol < 0) {
       dateCol = row.findIndex((cell, idx) => idx <= 3 && idx < deepCol && cellIsDate(cell));

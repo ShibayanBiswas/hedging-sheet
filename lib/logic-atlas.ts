@@ -209,7 +209,7 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       lastRun: last((res) => [
         { label: "Hedge Strike", value: num(res.summary.hedgeStrike, 0) },
         { label: "Hedge Quantity", value: num(res.dayOneVegaHedge.quantity) },
-        { label: "Fair Volatility", value: pct(res.dayOneVegaHedge.fair.find((h) => h.move === 0)?.volatility ?? NaN) },
+        { label: "Fair Volatility", value: pct(res.dayOneVegaHedge.fair.find((h) => h.move === 0)!.volatility) },
       ]),
     },
     {
@@ -236,7 +236,7 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       lastRun: last((res) => {
         const zero = res.productDescription.payoff.find((p) => Math.abs(p.performance) < 1e-9);
         return [
-          { label: "Return At 0%", value: pct(zero?.clientReturn ?? NaN) },
+          { label: "Return At 0%", value: pct(zero!.clientReturn) },
           { label: "Internal Rate Of Return", value: pct(res.productDescription.irr) },
         ];
       }),
@@ -277,7 +277,7 @@ export function atlasInsights(run: { result: HedgingResult; market: MarketData }
     text: `The hedge strike of ${num(s.hedgeStrike, 0)} sits ${pct(s.hedgeStrike / r.inputs.spot - 1)} above the ${u} spot of ${num(r.inputs.spot)}.`,
   });
 
-  const fair = r.dayOneVegaHedge.fair.find((h) => h.move === 0)?.volatility ?? NaN;
+  const fair = r.dayOneVegaHedge.fair.find((h) => h.move === 0)!.volatility;
   out.push({
     id: "volatility",
     title: "Volatility Against The Saved Surface",

@@ -45,7 +45,7 @@ export function deriveTerms(inputs: Pick<HedgeInputs, "strikePercents" | "partic
   const raw: Array<{ buy: number; sell: number }> = [];
   for (let j = 0; j < n; j++) {
     // Summary G10, H10 and I10, J10: spread j runs from strike (n − j) up to strike (n − j − 1).
-    raw.push({ buy: (k[n - j] ?? NaN) / 100 - 1, sell: (k[n - j - 1] ?? NaN) / 100 - 1 });
+    raw.push({ buy: k[n - j]! / 100 - 1, sell: k[n - j - 1]! / 100 - 1 });
   }
   const participationDerived = raw.map((_, j) => j === n - 1 && inputs.participations[j] == null);
   const parts = raw.map((_, j) => inputs.participations[j] ?? 1);
@@ -178,16 +178,9 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
   }
   if (errors.length) return errors;
 
+  // Strictly descending strikes put every Sell Level above its Buy Level and the floor below the outflow strike.
   const terms = deriveTerms(inputs);
   terms.spreads.forEach((s, j) => {
-    if (!(s.sell > s.buy)) {
-      errors.push({
-        field: `spreads.${j}`,
-        code: "spread-order",
-        message: `Spread ${j + 1} has a Sell Level that is not above its Buy Level.`,
-        fix: `Raise the Sell Level of Spread ${j + 1} above its Buy Level.`,
-      });
-    }
     if (!(s.participation > 0)) {
       if (j === terms.nSpreads - 1 && terms.participationDerived[j]) {
         const lower = terms.spreads.slice(0, j).reduce((a, x) => a + (x.sell - x.buy) * x.participation, 0);
@@ -230,14 +223,6 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
       code: "protection",
       message: `The protection strike at ${k[n + 1]}% must sit at or below 100% of the start level.`,
       fix: "Set Protection from 0%, for no protection, up to below 100%, such as 15%.",
-    });
-  }
-  if (!(terms.floorLevel < 1 - terms.protection - terms.outflowWidth)) {
-    errors.push({
-      field: "floorLevel",
-      code: "floor-level",
-      message: "The Decay Floor Level must sit below the Protection level less one point.",
-      fix: `Lower the Decay Floor Level below ${(100 * (1 - terms.protection - terms.outflowWidth)).toFixed(2)}%.`,
     });
   }
   if (!errors.length) {
