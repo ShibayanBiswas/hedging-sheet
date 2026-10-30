@@ -93,10 +93,8 @@ export function excelCellDisplayLength(cell: ExcelJS.Cell): number {
  */
 export function autofitExcelColumns(sheet: ExcelJS.Worksheet, max = 60): void {
   const multiColMerges = new Map<string, { startCol: number; endCol: number }>();
-  for (const merge of sheet.model.merges ?? []) {
-    const text = String(merge);
-    const m = /^([A-Z]+)(\d+):([A-Z]+)(\d+)$/i.exec(text);
-    if (!m) continue;
+  for (const merge of sheet.model.merges) {
+    const m = /^([A-Z]+)(\d+):([A-Z]+)(\d+)$/i.exec(String(merge))!;
     const startCol = columnLettersToNumber(m[1]!);
     const endCol = columnLettersToNumber(m[3]!);
     if (endCol > startCol) {
@@ -105,19 +103,17 @@ export function autofitExcelColumns(sheet: ExcelJS.Worksheet, max = 60): void {
   }
 
   sheet.columns.forEach((col, colIndex) => {
-    if (!col || typeof col.eachCell !== "function") return;
     let longest = 1;
     let dateColumn = false;
-    const headerText = String(sheet.getRow(1).getCell((colIndex ?? 0) + 1).value ?? "");
+    const headerText = String(sheet.getRow(1).getCell(colIndex + 1).value ?? "");
     if (DESK_DATE_HEADER_RE.test(headerText)) dateColumn = true;
 
-    col.eachCell({ includeEmpty: false }, (cell) => {
+    col.eachCell!({ includeEmpty: false }, (cell) => {
       if (excelCellLooksLikeDate(cell)) dateColumn = true;
       if (typeof cell.value === "string" && DESK_DATE_HEADER_RE.test(cell.value)) dateColumn = true;
       if (cell.isMerged) {
-        const master = cell.master ?? cell;
-        if (cell !== master) return;
-        const info = multiColMerges.get(String(master.address).toUpperCase());
+        if (cell !== cell.master) return;
+        const info = multiColMerges.get(String(cell.address).toUpperCase());
         if (info) {
           if (info.startCol === 1) return;
           longest = Math.max(longest, excelCellDisplayLength(cell));
@@ -139,7 +135,7 @@ export function autofitExcelColumns(sheet: ExcelJS.Worksheet, max = 60): void {
     let lines = 1;
     row.eachCell((cell) => {
       if (cell.isMerged || typeof cell.value !== "string") return;
-      const width = sheet.getColumn(cell.col).width ?? 10;
+      const width = sheet.getColumn(cell.col).width!;
       const need = Math.ceil(excelCellDisplayLength(cell) / Math.max(1, width - 1));
       if (need > 1) {
         cell.alignment = { ...cell.alignment, wrapText: true, vertical: cell.alignment?.vertical ?? "top" };
