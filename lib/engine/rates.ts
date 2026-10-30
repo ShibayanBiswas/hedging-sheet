@@ -17,7 +17,7 @@ export type CurveRead = {
 };
 
 /** Curve rate as a fraction. Points linked to the Premium Growth Rate follow it, as MarketData D32:D34 do. */
-export function resolvedRate(point: RatePoint, premiumRate: number): number {
+function resolvedRate(point: RatePoint, premiumRate: number): number {
   return point.linkedToPremiumRate ? premiumRate : point.ratePercent / 100;
 }
 

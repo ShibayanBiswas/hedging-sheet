@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export const REPORT = path.join("docs", "db-audit-report.md");
+const REPORT = path.join("docs", "db-audit-report.md");
 
 const HEADER = `# Database Audit Report
 

@@ -1,11 +1,7 @@
 name: Production Smoke
 
 on:
-  # Vercel deploys main within a minute or two; CI takes longer, so production is live when CI finishes.
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
-    branches: [main]
+  # Vercel reports each deployment to GitHub; the smoke runs once the production one is live.
   deployment_status:
   schedule:
     - cron: "30 3 * * *"
@@ -13,16 +9,20 @@ on:
 
 jobs:
   smoke:
-    name: Read-Only Smoke Against The Deployment
+    name: Read-Only Smoke Against The Production Deployment
     if: >-
-      (github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success') &&
-      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       BASE_URL: ${{ github.event.deployment_status.environment_url || 'https://hedging-sheet.vercel.app' }}
+      # Sent as a header so protected deployments answer; never printed.
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24

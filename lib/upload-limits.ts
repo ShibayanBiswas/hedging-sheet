@@ -1,7 +1,7 @@
 /** One limit for the browser and the server: hosted requests are capped near 4.5 megabytes on Vercel. */
 export const MAX_UPLOAD_BYTES = 4.5 * 1024 * 1024;
 
-export const EXCEL_FILE_NAME = /\.(xlsx|xlsm|xls)$/i;
+const EXCEL_FILE_NAME = /\.(xlsx|xlsm|xls)$/i;
 
 /** Zip for xlsx and xlsm, OLE for xls. */
 export function looksLikeExcel(bytes: Uint8Array): boolean {

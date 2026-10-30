@@ -3,7 +3,7 @@ import type { HedgeMarginRow, HedgeRow, HedgingResult, MarginRow, PricerLeg } fr
 
 type Value = number | string | null | undefined;
 /** "price" values compare to 1e-4 absolute; everything else to 1e-6 relative. */
-export type CellKind = "value" | "price";
+type CellKind = "value" | "price";
 export type CellRead = { value: Value; kind: CellKind };
 
 const COLUMN = (letters: string) => [...letters].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0);
@@ -65,8 +65,6 @@ const PRICER_ROWS: Record<number, (l: PricerLeg) => CellRead> = {
  * Pricer rows 21 and 22 are the rate curve brackets: the workbook's curve carries fixed 2025 dates, the engine
  * anchors its tenors at the trade date. The discount yield they feed equals the Premium Rate in both, and matches.
  */
-export const CURVE_BRACKET_CELLS = "Pricer rows 21 and 22, Day1 Vega Hedge columns AE to AH";
-
 const HEDGE_COLUMNS: Array<(h: HedgeRow, r: HedgingResult) => CellRead> = [
   (h) => v(h.valuationDate),
   (h) => v(h.move),

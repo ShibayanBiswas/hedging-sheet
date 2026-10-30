@@ -5,7 +5,7 @@
  */
 import type { HedgeInputs, HedgingResult, OptionType } from "@/lib/engine/types";
 
-export function hartNormal(x: number): number {
+function hartNormal(x: number): number {
   const z = Math.abs(x);
   let c = 0;
   if (z <= 37) {

@@ -14,9 +14,9 @@ const TEST_MARK = /\b(test|tests|debug|fixture|e2e|mock|dummy|sample|parity|scra
 /** Fields that are bookkeeping from older versions; the reference documents no longer carry them. */
 export const LEGACY_FIELDS = ["isActive", "key"] as const;
 
-export type Junk = { id: unknown; reason: string };
+type Junk = { id: unknown; reason: string };
 
-export type CollectionReport = {
+type CollectionReport = {
   name: string;
   kept: boolean;
   count: number;

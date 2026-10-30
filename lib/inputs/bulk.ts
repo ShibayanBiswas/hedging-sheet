@@ -4,9 +4,9 @@ import { MAX_SPREADS, MIN_SPREADS } from "@/lib/engine/structure";
 import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 
 /** At most this many rows in one paste: 10 expiries, or 10 strikes for 6 spreads. */
-export const MAX_PASTE_ROWS = Math.max(MAX_EXPIRIES, MAX_SPREADS + 4);
+const MAX_PASTE_ROWS = Math.max(MAX_EXPIRIES, MAX_SPREADS + 4);
 
-export type BulkRow<T> = { raw: string; value: T | null; note?: string; error?: string };
+type BulkRow<T> = { raw: string; value: T | null; note?: string; error?: string };
 export type BulkResult<T> = { rows: Array<BulkRow<T>>; error: string | null; ok: boolean };
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];

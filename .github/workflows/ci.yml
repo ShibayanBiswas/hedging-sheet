@@ -28,6 +28,8 @@ jobs:
       - run: npm run lint
       - name: Unit, golden and API tests, with coverage
         run: npm run test:coverage
+      - name: No unused files or exports
+        run: npm run lint:unused
       - run: npm run verify:mapping
       - name: Workbook audit, fails on any Mismatch or unmapped cell
         run: npm run audit:workbook && git diff --exit-code docs/workbook-audit.md

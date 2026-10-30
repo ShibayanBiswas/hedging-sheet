@@ -23,12 +23,6 @@ const GOLDEN_SHEETS = new Set(["Pricer", "Day1 Vega Hedge", "MTM & Margin req"])
 type Status = "Match" | "Mismatch Fixed" | "Not Applicable" | "Mismatch";
 type Row = { cell: string; label: string; formula: string; workbook: string; app: string; code: string; test: string; status: Status; reason?: string };
 
-const letters = (col: number) => {
-  let s = "";
-  for (let n = col; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + ((n - 1) % 26)) + s;
-  return s;
-};
-
 const fmt = (v: unknown): string => {
   if (v == null || v === "") return "-";
   if (typeof v === "number") return Number.isInteger(v) ? String(v) : String(Math.round(v * 1e6) / 1e6);
