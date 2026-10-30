@@ -94,6 +94,24 @@ Local means Vitest on Node, or Playwright on Chromium against the mock server on
 - **Fix Commit:** `1dbfb14`. Annual takes the Daily range times the square root of 365, which is above 0% to 191.05%.
 - **Regression Test:** `tests/edge/engine-edges.test.ts` › Edge · Volatility.
 
+## BUG-12-11 To 14 · Layout Tests That Only Held On Desktop Chromium
+
+- **Environment:** Local, `npm run test:all`, the first run of every project: Firefox, WebKit and the Pixel 7 mobile project.
+- **Steps:** Run the Round 11 layout specs and the Atlas column spec on every project.
+- **Expected:** The same rules checked on every browser and width.
+- **Actual:**
+  - Firefox footer gap measured 8.00006 against a limit of 8.
+  - Mobile toast measured 380 px against a limit of 360.
+  - Mobile Market Data toolbar sat 10 px lower than the desktop heading-row rule allowed.
+  - WebKit at 390 px clicked the Logic Atlas tab before hydration and stayed on Inputs.
+- **Root Cause:** The tests, not the app.
+  - The footer gap needed rounding to 0.01 px.
+  - The toast spans the bottom below 640 px by design.
+  - The toolbar wraps under the heading text when the row is too narrow.
+  - The Atlas spec clicked before the page had hydrated.
+- **Fix Commit:** see the commit "Cross Browser Layout Tests Follow The Phone Layout". Each test now states both layouts, or waits for hydration as every other spec does. No limit was raised.
+- **Regression Test:** `e2e/round11.spec.ts` footer, toast and Market Data tests, and `e2e/atlas.spec.ts` › Flows lay out 1 a row at 390 px, on all four projects.
+
 ## BUG-12-10 · Expiries Before The First Surface Row Were Clamped Silently
 
 - **Environment:** Local, Vitest.

@@ -143,9 +143,10 @@ test.describe("Logic Atlas", () => {
     [1024, 2],
     [390, 1],
   ] as const) {
-    test(`Flows lay out ${columns} a row at ${width} px with no overlap`, async ({ page, atlas }) => {
+    test(`Flows lay out ${columns} a row at ${width} px with no overlap`, async ({ page, inputs, atlas }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("/");
+      // After hydration, so the nav has settled its scroll before the Logic Atlas tab is clicked.
+      await inputs.goto();
       await atlas.open();
       const boxes = await atlas.flows.locator("article").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: Math.round(r.x), y: r.y, r: r.right, b: r.bottom })));
       expect(new Set(boxes.slice(0, 6).map((b) => b.x)).size).toBe(columns);

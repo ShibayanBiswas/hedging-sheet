@@ -1,5 +1,23 @@
 # 08 · Changelog
 
+## Round 12: Logic Atlas Rebuild, Edge Cases And Full Automation Testing
+
+| Area | Change |
+|---|---|
+| Logic Atlas | The Formulas section and the Debug Drawer are gone. Three sections as in the Primary SP Dashboard: Flows, 13 connected stage cards with type chips, live descriptions, Uses and Feeds links, rules and Last Run values; Insights from the run; Outputs, one card per result tab. Status chip: Waiting For Run Simulation, Last Run with the IST time, or Inputs Changed · Run Again. The Excel and PDF exports follow |
+| Goal Seek | A goal seek that does not converge, or whose Inbuilt lies outside -100% to 100% of the notional, stops with a Could Not Solve popup and the reason. Rates near 100% used to report an absurd result as solved |
+| Run | One run at a time: clicks while running are ignored. The run prices the inputs as they stand when it finishes. A failed dataset refresh prices on the loaded surface and says so |
+| Market Data | Every Yahoo request times out after 8 seconds and moves on to the next host |
+| Uploads | A volatility cell that is text, empty, 0 or negative is refused, naming the expiry and the strike; before, it was read as 0% |
+| Inputs | Annual Volatility has its own range, the Daily range times the square root of 365. A new underlying resets a typed hedge strike to the new index's rule |
+| Surface | Expiries before the first surface row are flagged as well as those after the last |
+| Product Description | The weighted compounding rates show "-" when there is no NBFC and no margin money, rather than NaN |
+| Validation | The spread-order and floor-level checks are gone: strictly descending strikes already guarantee both |
+| Tests | Named edge case tests in `tests/edge` and `e2e/edge-cases.spec.ts`; golden books for one Call, 1 × 1 × 1 and the maximum 10 expiries × 6 spreads × 10 strikes; 95% lines and branches on `lib/`, enforced; a crawler on Chromium, Firefox and WebKit at 1440, 1280, 1024, 768, 414 and 390 px with no console error and no failed request; visual difference at most 0.1%; Lighthouse Performance 85 and Accessibility 95; Run under 2 s |
+| Commands | `test:all`, `test:local` and `test:vercel -- --url`, each writing `reports/<run>-<timestamp>/` with `summary.md`; `verify:yahoo` against live Yahoo |
+| CI | `ci.yml` runs `test:all`; `vercel-preview.yml`, `production-smoke.yml` (every 6 hours, an issue on failure) and `nightly.yml` (every browser and live Yahoo) |
+| Debugging | `?trace=1` prints the pipeline to the console in development; [the Round 12 bug log](bug-log-round-12.md) |
+
 ## Round 11: Workbook Fidelity, Dynamic Inputs, Layout And Exports
 
 | Area | Change |

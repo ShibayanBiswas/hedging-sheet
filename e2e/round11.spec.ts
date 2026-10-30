@@ -168,7 +168,8 @@ test.describe("Round 11 · Layout", () => {
       const inner = cells.map((c) => {
         const l = c.querySelector(".footer-label")?.getBoundingClientRect();
         const v = c.querySelector(".footer-value")?.getBoundingClientRect();
-        return l && v ? v.left - l.right : 0;
+        // To 0.01 px: Firefox's sub-pixel text layout reports 8.00006 for an 8 px gap.
+        return l && v ? Math.round((v.left - l.right) * 100) / 100 : 0;
       });
       const right = Math.max(...cells.map((c) => c.getBoundingClientRect().right));
       return { inner: Math.max(...inner), rightGap: grid.right - pad - right };
@@ -177,13 +178,19 @@ test.describe("Round 11 · Layout", () => {
     expect(gaps.rightGap).toBeLessThanOrEqual(24);
   });
 
-  test("toast: Simulation Completed, bottom right, 24 px in, at most 360 px wide", async ({ page, inputs }) => {
+  test("toast: Simulation Completed, bottom right, 24 px in, at most 360 px wide; across the bottom below 640 px", async ({ page, inputs }) => {
     await inputs.goto();
     await page.getByTestId("run-simulation").click();
     const toast = page.getByTestId("desk-toast");
     await expect(toast).toHaveText("Simulation Completed");
     const box = (await toast.boundingBox())!;
     const vp = page.viewportSize()!;
+    if (vp.width < 640) {
+      expect(Math.round(box.x)).toBe(16);
+      expect(Math.round(vp.width - (box.x + box.width))).toBe(16);
+      expect(vp.height - (box.y + box.height)).toBeGreaterThanOrEqual(15);
+      return;
+    }
     expect(box.width).toBeLessThanOrEqual(360);
     expect(Math.round(vp.width - (box.x + box.width))).toBe(24);
     expect(vp.height - (box.y + box.height)).toBeGreaterThanOrEqual(23);
@@ -216,14 +223,16 @@ test.describe("Round 11 · Layout", () => {
     });
   }
 
-  test("Market Data: toolbar right-aligned in the heading row, Deep shows the 55% strike, Surface Parameters stacked", async ({ page, nav, inputs }) => {
+  test("Market Data: toolbar right-aligned in the heading row, or right under the heading text when it wraps, Deep shows the 55% strike, Surface Parameters stacked", async ({ page, nav, inputs }) => {
     await inputs.goto();
     await nav.go("market-data");
     const toolbar = page.getByTestId("surface-toolbar");
     expect(await toolbar.evaluate((e) => getComputedStyle(e).justifyContent)).toBe("flex-end");
-    const heading = await page.getByRole("heading", { name: "Volatility Surface" }).boundingBox();
+    const heading = (await page.getByRole("heading", { name: "Volatility Surface" }).boundingBox())!;
+    const description = (await page.getByText(/Volatility In %\. Expiries beyond/).boundingBox())!;
     const bar = (await toolbar.boundingBox())!;
-    expect(bar.y).toBeLessThan(heading!.y + heading!.height + 40);
+    if (page.viewportSize()!.width >= 1024) expect(bar.y).toBeLessThan(heading.y + heading.height + 40);
+    else expect(bar.y).toBeLessThan(description.y + description.height + 24);
     await expect(page.getByTestId("deep-strike-sensex")).toHaveText(/^[\d,]+\.\d{2}$/);
     const params = await page.getByTestId("surface-params-table").boundingBox();
     const curve = await page.getByTestId("rate-curve-editor").boundingBox();
