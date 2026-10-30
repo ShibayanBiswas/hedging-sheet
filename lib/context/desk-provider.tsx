@@ -12,6 +12,7 @@ import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
 import { fieldSection, fieldTestId, groupBySection, INPUT_SECTIONS, validateDeskInputs, type FieldError } from "@/lib/validation/inputRules";
 import type { MarketLevels } from "@/lib/market-data";
+import { traceEnabled, tracePipeline } from "@/lib/trace";
 import { LEVEL_FIELD } from "@/lib/underlyings";
 
 type InputsPatch = Partial<DeskInputs> | ((prev: DeskInputs) => Partial<DeskInputs>);
@@ -379,6 +380,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       return false;
     }
     setLastRun({ result, market: fresh, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
+    if (traceEnabled(window.location.search)) tracePipeline(result);
     for (const w of result.warnings) {
       const title = WARNING_TITLES[w.code ?? ""];
       if (title) alert(w.message, { variant: "warning", title, fix: w.fix });
