@@ -130,8 +130,8 @@ const failed = outcomes.filter((o) => !o.ok);
 const lines = [
   `# Test Run · ${mode === "all" ? "All" : mode === "local" ? "Local" : "Vercel"}`,
   "",
-  `- **Started:** ${stamp.replace("_", " ")} IST`,
-  `- **Commit:** ${sha}`,
+  `- **Started:** ${stamp.replace("_", " ").replace(/-(\d\d)-(\d\d)$/, ":$1:$2")} IST`,
+  `- **Tests From Commit:** ${sha}`,
   ...(mode === "vercel" ? [`- **Deployment:** ${urlArg()}`, `- **Bypass Header:** ${bypassSecret() ? "Sent" : "Not Set"}`] : [`- **Server:** production build on port ${LOCAL_PORT} with a seeded in-memory Mongo, gone when the run ends`]),
   `- **Result:** ${failed.length ? `${failed.length} of ${outcomes.length} steps failed` : `all ${outcomes.length} steps passed`}`,
   "",
