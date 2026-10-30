@@ -1,6 +1,23 @@
 # 08 · Changelog
 
-## Round 11: Fewer Columns And Tables On Market Data
+## Round 11: Workbook Fidelity, Dynamic Inputs, Layout And Exports
+
+| Area | Change |
+|---|---|
+| Workbook Audit | `scripts/audit-workbook.ts` checks every non-empty cell of the nine sheets and writes `docs/workbook-audit.md`: 10,802 cells, 7,221 Match, 6 Mismatch Fixed, 3,575 Not Applicable with a reason, 0 Mismatch. `npm run audit:workbook` fails on a Mismatch or an unmapped cell, and CI fails when the committed audit is out of date |
+| Expiries | Typed dates, 1 to 10, each moved to the last Thursday (Sensex) or Tuesday (Nifty) of its month with a note. No holiday adjustment, as the workbook has none. Default Values reproduce the workbook's C12 to H12 for 04-Aug-2026 |
+| Hedge Strike | Auto from spot: Sensex × 1.006, Nifty + 150, rounded up to the next 100; a typed one must be a multiple of 100 |
+| Inputs | Seven numbered groups in a compact 4, 3, 2, 1 column grid with gating, count pickers, Bulk Edit paste with live checks, field checks that revert an invalid value with a popup, and a Run check whose problems link to their fields. Spreads drive the strikes, n + 4, and each strike shows its units |
+| Volatility | Daily and Annual share one tag, Calculated or Edited |
+| Header And Footer | One header row from 1024 px with a slim tab row, at most 140 px on desktop and 120 px on phones. The footer grid puts each label beside its value; Desk Clock reads 30-Oct-2026 · 12:11:30 pm IST |
+| Toast | Simulation Completed, bottom right 24 px in, at most 360 px wide, above the Run bar; across the bottom on phones |
+| Market Data | Toolbar right-aligned in the heading row; Deep shows the 55% strike; Surface Parameters stacked; Headline one pair a row on phones |
+| Tables | One sans font in every table; single-line rows at most 44 px |
+| Logic Atlas | A Pipeline table, one row per stage from Inputs to Payoff, with the last run's value |
+| Exports | Download PDF on every tab, the whole page, landscape A4 with repeated headers and numbered pages. Excel has one sheet per tab in tab order plus Audit, no frozen panes, no filters, gridlines off |
+| CI | Production Smoke runs after each successful Vercel production deployment; knip fails the build on unused files or exports |
+
+## Round 11 (Earlier): Fewer Columns And Tables On Market Data
 
 | Area | Change |
 |---|---|

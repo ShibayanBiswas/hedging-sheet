@@ -39,10 +39,11 @@ The strikes are the primary inputs. With `n` spreads there are `n + 4` strikes, 
 With the defaults, Spread 1 runs from Strike 3 at 125 to Strike 2 at 127 and Spread 2 from Strike 2 at 127 to Strike 1 at 137.
 
 - **Participation.** Every spread but the top takes its typed participation, 1 by default. The top spread is derived from the coupon: `Summary L10 = (D10 − (H10 − G10) × K10) ÷ (J10 − I10)`, that is the coupon left over after the lower spreads, divided by the top spread width. With the defaults that is (1.025 − 0.02) ÷ 0.10 = 10.05. Any participation can be overridden; Reset To Derived returns it to null, which means derived.
-- **Spread edits write back to strikes.** Typing a Buy Level or Sell Level on a spread row writes the strike it is read from, so the strikes and spreads never disagree. Adjacent spreads share a strike, so they can neither overlap nor leave a gap.
+- **Spreads come from strikes.** A spread's Buy Level and Sell Level are the strikes it runs between, shown read-only, so the strikes and spreads never disagree. Adjacent spreads share a strike, so they can neither overlap nor leave a gap. The Number Of Spreads, 1 to 6, sets the strikes to n + 4.
 - **Strike Level.** Each strike also shows its rupee level, `rupeeStrike(start, %)`. Typing a level sets the % to level ÷ start × 100, rounded to 4 decimals (`percentFromLevel`); the % stays the source, so a new spot or underlying moves every level and keeps every %.
 - **Coupon exceeded.** When the top participation is typed and the spreads pay more than the Coupon, `coupon-exceeded` shows under the field and Run stays off until it is lowered or reset to derived.
 - **Start level.** `Pricer!B5 = ROUNDUP(spot × (1 + uplift), −2)`. The uplift defaults to 0.6%. `startLevel` in `structure.ts`.
+- **Hedge strike.** Auto from spot: Sensex `ceil(spot × 1.006 ÷ 100) × 100`, Nifty `ceil((spot + 150) ÷ 100) × 100`, with float noise rounded off first so an exact multiple stays put. `autoHedgeStrike` in `defaults.ts`. A typed hedge strike must be a positive multiple of 100. The workbook's H23, 76,800, is typed by hand, so the golden case feeds it directly.
 - **Rupee strike.** `Pricer!B19 = ROUND(B5 × B17 ÷ 100, 0)`. `rupeeStrike`.
 
 ## Expiry schedule
@@ -50,9 +51,9 @@ With the defaults, Spread 1 runs from Strike 3 at 125 to Strike 2 at 127 and Spr
 `lib/engine/schedule.ts`.
 
 - The weekday is fixed by the underlying: Sensex Thursday and Nifty Tuesday (NSE circular FAOP 68747 and BSE notice 20250623-59). `EXPIRY_WEEKDAY`.
-- Raw date = valuation date + ROUND(month × 30.5) days. `rawExpiryDate`.
-- Expiry = the nearest chosen weekday to the raw date: up to three days forward, otherwise back. `nearestWeekday`, `expiryForMonth`.
-- Month numbers must rise strictly, and no expiry may fall after maturity. The count runs from 1 to 8.
+- `lastThursday(year, month)` and `lastWeekdayOfMonth` in `lib/dates.ts`; `snapExpiry` moves a typed date to its month's expiry day.
+- Default Values fill the expiries from helper months 41, 44, 47, 50, 53 and 56: each is the expiry day of the month that valuation date + ROUND(month × 30.5) days falls in, as the Summary Sheet's G3 to M3 helpers do. `expiryForMonth`, `defaultExpiryDates`. For 04-Aug-2026 that gives the workbook's C12 to H12 exactly.
+- Expiries are typed dates, each moved to the last expiry weekday of its month: the last Thursday for Sensex, as every expiry the workbook typed is, and the last Tuesday for Nifty. There is no holiday adjustment, because the workbook has none. They must rise strictly and none may fall after maturity. The count runs from 1 to 10.
 - The hedge Option Expiry defaults to the middle expiry, the lower one for an even count. `medianExpiryIndex`.
 - Maturity = valuation date + tenor days. `maturityDate`.
 

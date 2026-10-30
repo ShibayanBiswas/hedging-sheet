@@ -169,7 +169,7 @@ Not Applicable cells carry their reason in the Status column.
 | D23 | Qty (lacs) | =SUMIF(Pricer!$B$17:$CS$17,G23,Pricer!$B$55:$CS$55)/100000 | -1.300129 | -1.300129 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, summary legs | tests/golden/g0-workbook.test.ts | Match |
 | E23 | Px. | =SUMIF(Pricer!$B$17:$CS$17,G23,Pricer!$B$35:$CS$35)/(2*COUNT | 13007.128548 | 13007.128548 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, summary legs | tests/golden/g0-workbook.test.ts | Match |
 | F23 | Premium (cr.) | =D23*E23*100000/10000000*-1 | 169.109498 | 169.109498 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, summary legs | tests/golden/g0-workbook.test.ts | Match |
-| G23 | Vol | constant 137 | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| G23 | Vol | constant 137 | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
 | H23 | Strike | constant 76800 | 76800 | 76800 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, Vega Hedge stage | tests/golden/g0-workbook.test.ts | Match |
 | I23 | Expiry | =D15 | 2030-07-25 | 2030-07-25 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, Vega Hedge stage | tests/golden/g0-workbook.test.ts | Match |
 | J23 | Option | constant P | P | - | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, Vega Hedge stage | tests/golden/g0-workbook.test.ts | Not Applicable: Label or heading text; the app shows its own Title Case labels |
@@ -290,102 +290,102 @@ Not Applicable cells carry their reason in the Status column.
 | C14 | To Loose in Spread2 · Coupon | ='Summary Sheet'!L10*('Summary Sheet'!J10-'Summary Sheet'!I1 | 1.005 | 1.005 | `lib/engine/structure.ts:42` deriveTerms, upsideCash | tests/golden/g0-workbook.test.ts | Match |
 | D14 | To Loose in Spread2 · PP till | constant To Loose | To Loose | - | `lib/engine/structure.ts:42` deriveTerms, upsideCash | tests/golden/g0-workbook.test.ts | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | E14 | To Loose · Mobilization | =E13*E12 | 0.24 | 0.24 | `lib/engine/structure.ts:42` deriveTerms, upsideCash | tests/golden/g0-workbook.test.ts | Match |
-| B17 | To Loose in Spread2 | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| C17 | Coupon | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| D17 | To Loose | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| E17 | Mobilization | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| F17 | Actual IB (%) | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| G17 | Prod Cost (%)* | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| H17 | Inbuilt (Rs.) | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| I17 | Switch | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| J17 | Net mobilization | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| K17 | Premium | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| L17 | NBFC Rate (%) | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| M17 | Prem Rate (%) | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| N17 | Tenor | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| O17 | Payout | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| P17 | Coupon | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Q17 | Delta | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| R17 | Vega | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| S17 | Rho | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| T17 | Gamma | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| U17 | IRR | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| V17 | Margin Cost | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| W17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| X17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Y17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Z17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AA17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AB17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AC17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AD17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AE17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AF17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AG17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AH17 | - | =Z17-1 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AI17 | - | =AA17-1 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AJ17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AK17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AL17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AM17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AN17 | - | =shared AI17 | 84 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AO17 | - | =shared AI17 | 84 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AP17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AQ17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AR17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AS17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AT17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AU17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AV17 | - | constant 70 | 70 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AW17 | - | constant 70 | 70 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AX17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AY17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| AZ17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BA17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BB17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BC17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BD17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BE17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BF17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BG17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BH17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BI17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BJ17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BK17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BL17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BM17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BN17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BO17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BP17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BQ17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BR17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BS17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BT17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BU17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BV17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BW17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BX17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BY17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| BZ17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CA17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CB17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CC17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CD17 | - | =BV17-1 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CE17 | - | =BW17-1 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CF17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CG17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CH17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CI17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CJ17 | - | =shared CE17 | 84 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CK17 | - | =shared CE17 | 84 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CL17 | - | =AP17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CM17 | - | =AQ17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CN17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CO17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CP17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CQ17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
-| CR17 | - | =shared CM17 | 70 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CS17 | - | =shared CM17 | 70 | - | `lib/engine/structure.ts:121` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| B17 | To Loose in Spread2 | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| C17 | Coupon | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| D17 | To Loose | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| E17 | Mobilization | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| F17 | Actual IB (%) | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| G17 | Prod Cost (%)* | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| H17 | Inbuilt (Rs.) | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| I17 | Switch | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| J17 | Net mobilization | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| K17 | Premium | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| L17 | NBFC Rate (%) | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| M17 | Prem Rate (%) | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| N17 | Tenor | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| O17 | Payout | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| P17 | Coupon | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Q17 | Delta | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| R17 | Vega | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| S17 | Rho | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| T17 | Gamma | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| U17 | IRR | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| V17 | Margin Cost | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| W17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| X17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Y17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Z17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AA17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AB17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AC17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AD17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AE17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AF17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AG17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AH17 | - | =Z17-1 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AI17 | - | =AA17-1 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AJ17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AK17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AL17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AM17 | - | =shared AI17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AN17 | - | =shared AI17 | 84 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AO17 | - | =shared AI17 | 84 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AP17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AQ17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AR17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AS17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AT17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AU17 | - | constant 70 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AV17 | - | constant 70 | 70 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AW17 | - | constant 70 | 70 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AX17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AY17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| AZ17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BA17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BB17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BC17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | 137 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BD17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BE17 | - | =100*(1+'Summary Sheet'!$J$10) | 137 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BF17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BG17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BH17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BI17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BJ17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BK17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | 127 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BL17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BM17 | - | =100*(1+'Summary Sheet'!$I$10) | 127 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BN17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BO17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BP17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BQ17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BR17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BS17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | 125 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BT17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BU17 | - | =100*(1+'Summary Sheet'!$G$10) | 125 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BV17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BW17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BX17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BY17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| BZ17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CA17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | 85 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CB17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CC17 | - | =100*(1-'Summary Sheet'!$M$10) | 85 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CD17 | - | =BV17-1 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CE17 | - | =BW17-1 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CF17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CG17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CH17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CI17 | - | =shared CE17 | 84 | 84 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CJ17 | - | =shared CE17 | 84 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CK17 | - | =shared CE17 | 84 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CL17 | - | =AP17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CM17 | - | =AQ17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CN17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CO17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CP17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CQ17 | - | =shared CM17 | 70 | 70 | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Match |
+| CR17 | - | =shared CM17 | 70 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CS17 | - | =shared CM17 | 70 | - | `lib/engine/structure.ts:126` buildStrikes | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A18 | Margin Cost (%) | constant Underlying | Underlying | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | B18 | Underlying · To Loose in Spread2 | constant Sensex | Sensex | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | C18 | Sensex · Coupon | constant Sensex | Sensex | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
@@ -1066,102 +1066,102 @@ Not Applicable cells carry their reason in the Status column.
 | CR24 | Lower Forward · Sensex | =IF(CR22=0,CR23,VLOOKUP(CR22,MarketData!$B$26:$D$43,3,0)/100 | 0.065 | - | `lib/engine/rates.ts:52` readRateCurve, anchoredCurve | tests/unit/engine.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | CS24 | Lower Forward · Sensex | =IF(CS22=0,CS23,VLOOKUP(CS22,MarketData!$B$26:$D$43,3,0)/100 | 0.065 | - | `lib/engine/rates.ts:52` readRateCurve, anchoredCurve | tests/unit/engine.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A25 | Lower Forward | constant C/P | C/P | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B25 | C/P · Sensex | =IF(B20=A20,"","P") | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| C25 | C/P · Sensex | =IF(C20=B20,"","P") | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| D25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| E25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| F25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| G25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| H25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| I25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| J25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| K25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| L25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| M25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| N25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| O25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| P25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Q25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| R25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| S25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| T25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| U25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| V25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| W25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| X25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Y25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Z25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AA25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AB25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AC25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AD25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AE25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AF25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AG25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AH25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AI25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AJ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AK25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AL25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AM25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AN25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AO25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AP25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AQ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AR25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AS25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AT25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AU25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AV25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AW25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AX25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AY25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| AZ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BA25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BB25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BC25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BD25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BE25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BF25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BG25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BH25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BI25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BJ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BK25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BL25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BM25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BN25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BO25 | C/P · Sensex | =IF(BO20=BN20,"","P") | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BP25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BQ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BR25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BS25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BT25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BU25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BV25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BW25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BX25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BY25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| BZ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CA25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CB25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CC25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CD25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CE25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CF25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CG25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CH25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CI25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CJ25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CK25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CL25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CM25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CN25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CO25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CP25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CQ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Match |
-| CR25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CS25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| B25 | C/P · Sensex | =IF(B20=A20,"","P") | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| C25 | C/P · Sensex | =IF(C20=B20,"","P") | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| D25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| E25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| F25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| G25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| H25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| I25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| J25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| K25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| L25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| M25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| N25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| O25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| P25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Q25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| R25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| S25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| T25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| U25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| V25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| W25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| X25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Y25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Z25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AA25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AB25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AC25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AD25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AE25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AF25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AG25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AH25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AI25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AJ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AK25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AL25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AM25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AN25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AO25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AP25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AQ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AR25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AS25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AT25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AU25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AV25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AW25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AX25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AY25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| AZ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BA25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BB25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BC25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BD25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BE25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BF25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BG25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BH25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BI25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BJ25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BK25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BL25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BM25 | C/P · Sensex | =shared C25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BN25 | C/P · Sensex | =shared C25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BO25 | C/P · Sensex | =IF(BO20=BN20,"","P") | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BP25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BQ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BR25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BS25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BT25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BU25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BV25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BW25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BX25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BY25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| BZ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CA25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CB25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CC25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CD25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CE25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CF25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CG25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CH25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CI25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CJ25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CK25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CL25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CM25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CN25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CO25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CP25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CQ25 | C/P · Sensex | =shared BO25 | P | P | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Match |
+| CR25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CS25 | C/P · Sensex | =shared BO25 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/call.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A26 | C/P | constant Valuation Date | Valuation Date | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | B26 | Valuation Date · Sensex | =$B$1 | 2026-08-04 | 2026-08-04 | `lib/engine/hedging-sheet.ts:79` priceOption | tests/golden/g0-workbook.test.ts | Match |
 | C26 | Valuation Date · Sensex | =shared B26 | 2026-08-04 | 2026-08-04 | `lib/engine/hedging-sheet.ts:79` priceOption | tests/golden/g0-workbook.test.ts | Match |
@@ -3006,198 +3006,198 @@ Not Applicable cells carry their reason in the Status column.
 | CR46 | Margin adj. Price · B | =CR35+CR45 | 1308.98562 | - | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, Legs stage | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | CS46 | Margin adj. Price · B | =shared CR46 | 1308.98562 | - | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, Legs stage | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A47 | Margin adj. Price | constant Spread | Spread | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B47 | Spread · B | =(IF(B25<>"",-$C$14*$B$5/(B19-J19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| C47 | Spread · B | =(IF(C25<>"",-$C$14*$B$5/(C19-K19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| D47 | Spread · B | =(IF(D25<>"",-$C$14*$B$5/(D19-L19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| E47 | Spread · B | =(IF(E25<>"",-$C$14*$B$5/(E19-M19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| F47 | Spread · B | =(IF(F25<>"",-$C$14*$B$5/(F19-N19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| G47 | Spread · B | =(IF(G25<>"",-$C$14*$B$5/(G19-P19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| H47 | Spread · B | =(IF(H25<>"",-$C$14*$B$5/(H19-Q19),0)) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| I47 | Spread · B | =(IF(I25<>"",-$C$14*$B$5/(I19-Q19),0)) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| J47 | Spread · B | =IF(J25<>"",$C$14*$B$5/(B19-J19)-$C$13*$B$5/(J19-R19),0) | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| K47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| L47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| M47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| N47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| O47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| P47 | Spread · B | =shared J47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Q47 | Spread · B | =shared J47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| R47 | Spread · B | =IF(R25<>"",$C$13*$B$5/(J19-R19),0) | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| S47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| T47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| U47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| V47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| W47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| X47 | Spread · B | =shared R47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Y47 | Spread · B | =shared R47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Z47 | Spread · B | =IF(Z25<>"",-$E$14*$B$5/(Z19-AH19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AA47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AB47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AC47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AD47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AE47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AF47 | Spread · B | =shared Z47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AG47 | Spread · B | =shared Z47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AH47 | Spread · B | =IF(AH25<>"",$E$14*$B$5/(Z19-AH19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AI47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AJ47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AK47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AL47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AM47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AN47 | Spread · B | =shared AH47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AO47 | Spread · B | =shared AH47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AP47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AQ47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AR47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AS47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AT47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AU47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AW47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AX47 | Spread · B | =(IF(AX25<>"",-$C$14*$B$5/(AX19-BF19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AY47 | Spread · B | =(IF(AY25<>"",-$C$14*$B$5/(AY19-BG19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| AZ47 | Spread · B | =(IF(AZ25<>"",-$C$14*$B$5/(AZ19-BH19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BA47 | Spread · B | =(IF(BA25<>"",-$C$14*$B$5/(BA19-BI19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BB47 | Spread · B | =(IF(BB25<>"",-$C$14*$B$5/(BB19-BJ19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BC47 | Spread · B | =(IF(BC25<>"",-$C$14*$B$5/(BC19-BL19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BD47 | Spread · B | =(IF(BD25<>"",-$C$14*$B$5/(BD19-BM19),0)) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BE47 | Spread · B | =(IF(BE25<>"",-$C$14*$B$5/(BE19-BQ19),0)) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BF47 | Spread · B | =IF(BF25<>"",$C$14*$B$5/(AX19-BF19)-$C$13*$B$5/(BF19-BN19),0 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BG47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BH47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BI47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BJ47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BK47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BL47 | Spread · B | =shared BF47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BM47 | Spread · B | =shared BF47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BN47 | Spread · B | =IF(BN25<>"",$C$13*$B$5/(BF19-BN19),0) | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BO47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BP47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BQ47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BR47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BS47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BT47 | Spread · B | =shared BN47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BU47 | Spread · B | =shared BN47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BV47 | Spread · B | =IF(BV25<>"",-$E$14*$B$5/(BV19-CD19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BW47 | Spread · B | =IF(BW25<>"",-$E$14*$B$5/(BW19-CE19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BX47 | Spread · B | =IF(BX25<>"",-$E$14*$B$5/(BX19-CF19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BY47 | Spread · B | =IF(BY25<>"",-$E$14*$B$5/(BY19-CG19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| BZ47 | Spread · B | =IF(BZ25<>"",-$E$14*$B$5/(BZ19-CH19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CA47 | Spread · B | =IF(CA25<>"",-$E$14*$B$5/(CA19-CI19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CB47 | Spread · B | =IF(CB25<>"",-$E$14*$B$5/(CB19-CJ19)-$E$12,0) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CC47 | Spread · B | =IF(CC25<>"",-$E$14*$B$5/(CC19-CK19)-$E$12,0) | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CD47 | Spread · B | =IF(CD25<>"",$E$14*$B$5/(BV19-CD19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CE47 | Spread · B | =IF(CE25<>"",$E$14*$B$5/(BW19-CE19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CF47 | Spread · B | =IF(CF25<>"",$E$14*$B$5/(BX19-CF19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CG47 | Spread · B | =IF(CG25<>"",$E$14*$B$5/(BY19-CG19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CH47 | Spread · B | =IF(CH25<>"",$E$14*$B$5/(BZ19-CH19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CI47 | Spread · B | =IF(CI25<>"",$E$14*$B$5/(CA19-CI19),0) | 24 | 24 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CJ47 | Spread · B | =shared CI47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CK47 | Spread · B | =shared CI47 | error or blank result | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CL47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CM47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CN47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CO47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CP47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CQ47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Match |
-| CR47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CS47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:121` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| B47 | Spread · B | =(IF(B25<>"",-$C$14*$B$5/(B19-J19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| C47 | Spread · B | =(IF(C25<>"",-$C$14*$B$5/(C19-K19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| D47 | Spread · B | =(IF(D25<>"",-$C$14*$B$5/(D19-L19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| E47 | Spread · B | =(IF(E25<>"",-$C$14*$B$5/(E19-M19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| F47 | Spread · B | =(IF(F25<>"",-$C$14*$B$5/(F19-N19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| G47 | Spread · B | =(IF(G25<>"",-$C$14*$B$5/(G19-P19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| H47 | Spread · B | =(IF(H25<>"",-$C$14*$B$5/(H19-Q19),0)) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| I47 | Spread · B | =(IF(I25<>"",-$C$14*$B$5/(I19-Q19),0)) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| J47 | Spread · B | =IF(J25<>"",$C$14*$B$5/(B19-J19)-$C$13*$B$5/(J19-R19),0) | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| K47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| L47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| M47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| N47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| O47 | Spread · B | =shared J47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| P47 | Spread · B | =shared J47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Q47 | Spread · B | =shared J47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| R47 | Spread · B | =IF(R25<>"",$C$13*$B$5/(J19-R19),0) | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| S47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| T47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| U47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| V47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| W47 | Spread · B | =shared R47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| X47 | Spread · B | =shared R47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Y47 | Spread · B | =shared R47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Z47 | Spread · B | =IF(Z25<>"",-$E$14*$B$5/(Z19-AH19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AA47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AB47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AC47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AD47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AE47 | Spread · B | =shared Z47 | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AF47 | Spread · B | =shared Z47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AG47 | Spread · B | =shared Z47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AH47 | Spread · B | =IF(AH25<>"",$E$14*$B$5/(Z19-AH19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AI47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AJ47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AK47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AL47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AM47 | Spread · B | =shared AH47 | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AN47 | Spread · B | =shared AH47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AO47 | Spread · B | =shared AH47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AP47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AQ47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AR47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AS47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AT47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AU47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AW47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AX47 | Spread · B | =(IF(AX25<>"",-$C$14*$B$5/(AX19-BF19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AY47 | Spread · B | =(IF(AY25<>"",-$C$14*$B$5/(AY19-BG19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| AZ47 | Spread · B | =(IF(AZ25<>"",-$C$14*$B$5/(AZ19-BH19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BA47 | Spread · B | =(IF(BA25<>"",-$C$14*$B$5/(BA19-BI19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BB47 | Spread · B | =(IF(BB25<>"",-$C$14*$B$5/(BB19-BJ19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BC47 | Spread · B | =(IF(BC25<>"",-$C$14*$B$5/(BC19-BL19),0)) | -10.05 | -10.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BD47 | Spread · B | =(IF(BD25<>"",-$C$14*$B$5/(BD19-BM19),0)) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BE47 | Spread · B | =(IF(BE25<>"",-$C$14*$B$5/(BE19-BQ19),0)) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BF47 | Spread · B | =IF(BF25<>"",$C$14*$B$5/(AX19-BF19)-$C$13*$B$5/(BF19-BN19),0 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BG47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BH47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BI47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BJ47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BK47 | Spread · B | =shared BF47 | 9.05 | 9.05 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BL47 | Spread · B | =shared BF47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BM47 | Spread · B | =shared BF47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BN47 | Spread · B | =IF(BN25<>"",$C$13*$B$5/(BF19-BN19),0) | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BO47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BP47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BQ47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BR47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BS47 | Spread · B | =shared BN47 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BT47 | Spread · B | =shared BN47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BU47 | Spread · B | =shared BN47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BV47 | Spread · B | =IF(BV25<>"",-$E$14*$B$5/(BV19-CD19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BW47 | Spread · B | =IF(BW25<>"",-$E$14*$B$5/(BW19-CE19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BX47 | Spread · B | =IF(BX25<>"",-$E$14*$B$5/(BX19-CF19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BY47 | Spread · B | =IF(BY25<>"",-$E$14*$B$5/(BY19-CG19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| BZ47 | Spread · B | =IF(BZ25<>"",-$E$14*$B$5/(BZ19-CH19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CA47 | Spread · B | =IF(CA25<>"",-$E$14*$B$5/(CA19-CI19)-$E$12,0) | -25.6 | -25.6 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CB47 | Spread · B | =IF(CB25<>"",-$E$14*$B$5/(CB19-CJ19)-$E$12,0) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CC47 | Spread · B | =IF(CC25<>"",-$E$14*$B$5/(CC19-CK19)-$E$12,0) | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CD47 | Spread · B | =IF(CD25<>"",$E$14*$B$5/(BV19-CD19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CE47 | Spread · B | =IF(CE25<>"",$E$14*$B$5/(BW19-CE19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CF47 | Spread · B | =IF(CF25<>"",$E$14*$B$5/(BX19-CF19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CG47 | Spread · B | =IF(CG25<>"",$E$14*$B$5/(BY19-CG19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CH47 | Spread · B | =IF(CH25<>"",$E$14*$B$5/(BZ19-CH19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CI47 | Spread · B | =IF(CI25<>"",$E$14*$B$5/(CA19-CI19),0) | 24 | 24 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CJ47 | Spread · B | =shared CI47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CK47 | Spread · B | =shared CI47 | error or blank result | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CL47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CM47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CN47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CO47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CP47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CQ47 | Spread · B | constant 1 | 1 | 1 | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Match |
+| CR47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CS47 | Spread · B | constant 0 | 0 | - | `lib/engine/structure.ts:126` buildStrikes | tests/structure.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A48 | Spread | constant Action | Action | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B48 | Action · B | =IF(B55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| C48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| D48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| E48 | Action · B | =IF(E55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| F48 | Action · B | =shared E48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| G48 | Action · B | =IF(G55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| H48 | Action · B | =shared G48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| I48 | Action · B | =IF(I55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| J48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| K48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| L48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| M48 | Action · B | =IF(M55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| N48 | Action · B | =shared M48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| O48 | Action · B | =IF(O55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| P48 | Action · B | =shared O48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| Q48 | Action · B | =IF(Q55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| R48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| S48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| T48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| U48 | Action · B | =IF(U55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| V48 | Action · B | =shared U48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| W48 | Action · B | =IF(W55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| X48 | Action · B | =shared W48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| Y48 | Action · B | =IF(Y55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| Z48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AA48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AB48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AC48 | Action · B | =IF(AC55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AD48 | Action · B | =shared AC48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AE48 | Action · B | =IF(AE55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AF48 | Action · B | =shared AE48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AG48 | Action · B | =IF(AG55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AH48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AI48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AJ48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AK48 | Action · B | =IF(AK55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AL48 | Action · B | =shared AK48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AM48 | Action · B | =IF(AM55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AN48 | Action · B | =shared AM48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AO48 | Action · B | =IF(AO55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AP48 | Action · B | =IF(AP55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AQ48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AR48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AS48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AT48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AU48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AV48 | Action · B | =IF(AV55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AW48 | Action · B | =shared AV48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| AX48 | Action · B | =IF(AX55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AY48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| AZ48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BA48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BB48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BC48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BD48 | Action · B | =IF(BD55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BE48 | Action · B | =shared BD48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BF48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BG48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BH48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BI48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BJ48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BK48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BL48 | Action · B | =IF(BL55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BM48 | Action · B | =shared BL48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BN48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BO48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BP48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BQ48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BR48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BS48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BT48 | Action · B | =IF(BT55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BU48 | Action · B | =shared BT48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| BV48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BW48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BX48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BY48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| BZ48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CA48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CB48 | Action · B | =IF(CB55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| CC48 | Action · B | =shared CB48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| CD48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CE48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CF48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CG48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CH48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CI48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CJ48 | Action · B | =IF(CJ55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| CK48 | Action · B | =shared CJ48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| CL48 | Action · B | =IF(CL55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CM48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CN48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CO48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CP48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CQ48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Match |
-| CR48 | Action · B | =IF(CR55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
-| CS48 | Action · B | =shared CR48 | Buy | - | `lib/engine/structure.ts:113` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| B48 | Action · B | =IF(B55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| C48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| D48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| E48 | Action · B | =IF(E55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| F48 | Action · B | =shared E48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| G48 | Action · B | =IF(G55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| H48 | Action · B | =shared G48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| I48 | Action · B | =IF(I55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| J48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| K48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| L48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| M48 | Action · B | =IF(M55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| N48 | Action · B | =shared M48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| O48 | Action · B | =IF(O55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| P48 | Action · B | =shared O48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| Q48 | Action · B | =IF(Q55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| R48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| S48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| T48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| U48 | Action · B | =IF(U55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| V48 | Action · B | =shared U48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| W48 | Action · B | =IF(W55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| X48 | Action · B | =shared W48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| Y48 | Action · B | =IF(Y55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| Z48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AA48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AB48 | Action · B | =shared B48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AC48 | Action · B | =IF(AC55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AD48 | Action · B | =shared AC48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AE48 | Action · B | =IF(AE55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AF48 | Action · B | =shared AE48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AG48 | Action · B | =IF(AG55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AH48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AI48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AJ48 | Action · B | =shared B48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AK48 | Action · B | =IF(AK55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AL48 | Action · B | =shared AK48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AM48 | Action · B | =IF(AM55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AN48 | Action · B | =shared AM48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AO48 | Action · B | =IF(AO55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AP48 | Action · B | =IF(AP55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AQ48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AR48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AS48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AT48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AU48 | Action · B | =shared AP48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AV48 | Action · B | =IF(AV55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AW48 | Action · B | =shared AV48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| AX48 | Action · B | =IF(AX55<0,"Sell","Buy") | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AY48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| AZ48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BA48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BB48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BC48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BD48 | Action · B | =IF(BD55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BE48 | Action · B | =shared BD48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BF48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BG48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BH48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BI48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BJ48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BK48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BL48 | Action · B | =IF(BL55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BM48 | Action · B | =shared BL48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BN48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BO48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BP48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BQ48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BR48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BS48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BT48 | Action · B | =IF(BT55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BU48 | Action · B | =shared BT48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| BV48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BW48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BX48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BY48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| BZ48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CA48 | Action · B | =shared AX48 | Sell | Sell | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CB48 | Action · B | =IF(CB55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| CC48 | Action · B | =shared CB48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| CD48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CE48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CF48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CG48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CH48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CI48 | Action · B | =shared AX48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CJ48 | Action · B | =IF(CJ55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| CK48 | Action · B | =shared CJ48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| CL48 | Action · B | =IF(CL55<0,"Sell","Buy") | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CM48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CN48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CO48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CP48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CQ48 | Action · B | =shared CL48 | Buy | Buy | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Match |
+| CR48 | Action · B | =IF(CR55<0,"Sell","Buy") | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
+| CS48 | Action · B | =shared CR48 | Buy | - | `lib/engine/structure.ts:118` derivedSides | tests/structure.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
 | A49 | Action | constant Delta | Delta | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | B49 | Delta · B | =IF(B$25="C",(B27+0.5)*EXP(B28*(B20-B26)/365)*NORMDIST((LN(( | -0.617616 | -0.617616 | `lib/engine/black-scholes.ts:55` bsGreeks | tests/golden/g0-workbook.test.ts | Match |
 | C49 | Delta · B | =shared B49 | -0.592094 | -0.592094 | `lib/engine/black-scholes.ts:55` bsGreeks | tests/golden/g0-workbook.test.ts | Match |
@@ -8242,8 +8242,8 @@ Not Applicable cells carry their reason in the Status column.
 | G32 | Inbuilt (Cr.) · Delta | constant Total Delta Required (A) | Total Delta Required (A) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H32 | Total Delta Required (A) | ='Summary Sheet'!E15 | 16880.373133 | 16880.373133 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J32 | Total Delta Required (A) · Sensex Returns | constant 0.37 | 0.37 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K32 | Total Delta Required (A) · Product Returns | =IF(J32>=-15%,MIN(102.5%,MAX(0%,(J32-25%)*100%)+MAX(0%,(J32- | 1.025 | 1.025 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L32 | Total Delta Required (A) · Pre Tax IRR | =RATE($D$41/365,0,-1,1*(1+K32)) | 0.141963 | 0.141963 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K32 | Total Delta Required (A) · Product Returns | =IF(J32>=-15%,MIN(102.5%,MAX(0%,(J32-25%)*100%)+MAX(0%,(J32- | 1.025 | 1.025 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L32 | Total Delta Required (A) · Pre Tax IRR | =RATE($D$41/365,0,-1,1*(1+K32)) | 0.141963 | 0.141963 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O32 | Total Delta Required (A) · Wtg Avg Annual Comp Rate | =K32-K33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C33 | Inbuilt (Cr.) | constant Issuance Cost (Cr.) | Issuance Cost (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D33 | Issuance Cost (Cr.) | =$D$31*E33 | 0.13 | 0.13 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
@@ -8251,8 +8251,8 @@ Not Applicable cells carry their reason in the Status column.
 | G33 | Issuance Cost (Cr.) · Total Delta Required (A) | constant Options Qty Required for Vega Hedge | Options Qty Required for Vega Hedge | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H33 | Options Qty Required for Vega Hedge | ='Summary Sheet'!K23*100000 | -12809.673918 | -12809.673918 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J33 | Options Qty Required for Vega Hedge · Sensex Returns | constant 0.36 | 0.36 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K33 | Options Qty Required for Vega Hedge · Product Returns | =IF(J33>=-15%,MIN(102.5%,MAX(0%,(J33-25%)*100%)+MAX(0%,(J33- | 0.9245 | 0.9245 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L33 | Options Qty Required for Vega Hedge · Pre Tax IRR | =shared L32 | 0.131079 | 0.131079 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K33 | Options Qty Required for Vega Hedge · Product Returns | =IF(J33>=-15%,MIN(102.5%,MAX(0%,(J33-25%)*100%)+MAX(0%,(J33- | 0.9245 | 0.9245 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L33 | Options Qty Required for Vega Hedge · Pre Tax IRR | =shared L32 | 0.131079 | 0.131079 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O33 | Options Qty Required for Vega Hedge · Wtg Avg Annual Comp Ra | =K33-K34 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C34 | Issuance Cost (Cr.) | constant Transaction Cost (Cr.) | Transaction Cost (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D34 | Transaction Cost (Cr.) | =$D$31*E34 | 2.25 | 2.25 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
@@ -8260,118 +8260,118 @@ Not Applicable cells carry their reason in the Status column.
 | G34 | Transaction Cost (Cr.) · Options Qty Required for Vega Hedge | constant Options Premium Received (Cr.) | Options Premium Received (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H34 | Options Premium Received (Cr.) | ='Summary Sheet'!M23 | 4.554812 | 4.554812 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J34 | Options Premium Received (Cr.) · Sensex Returns | constant 0.35 | 0.35 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K34 | Options Premium Received (Cr.) · Product Returns | =shared K33 | 0.824 | 0.824 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L34 | Options Premium Received (Cr.) · Pre Tax IRR | =shared L32 | 0.119722 | 0.119722 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K34 | Options Premium Received (Cr.) · Product Returns | =shared K33 | 0.824 | 0.824 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L34 | Options Premium Received (Cr.) · Pre Tax IRR | =shared L32 | 0.119722 | 0.119722 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O34 | Options Premium Received (Cr.) · Wtg Avg Annual Comp Rate | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C35 | Transaction Cost (Cr.) | constant Margin (Cr.) | Margin (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D35 | Margin (Cr.) | =Pricer!V5/10000000 | 32.307971 | 32.307972 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G35 | Margin (Cr.) · Options Premium Received (Cr.) | constant Options Delta (B) | Options Delta (B) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H35 | Options Delta (B) | =H33*'Summary Sheet'!M24 | 2512.093188 | 2512.093188 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J35 | Options Delta (B) · Sensex Returns | constant 0.34 | 0.34 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K35 | Options Delta (B) · Product Returns | =shared K33 | 0.7235 | 0.7235 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L35 | Options Delta (B) · Pre Tax IRR | =shared L32 | 0.107846 | 0.107846 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K35 | Options Delta (B) · Product Returns | =shared K33 | 0.7235 | 0.7235 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L35 | Options Delta (B) · Pre Tax IRR | =shared L32 | 0.107846 | 0.107846 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O35 | Options Delta (B) · Wtg Avg Annual Comp Rate | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C36 | Margin (Cr.) | constant Amount with NBFC (Cr.) | Amount with NBFC (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D36 | Amount with NBFC (Cr.) | =Pricer!J5/10000000 | 57.362143 | 57.362143 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G36 | Amount with NBFC (Cr.) · Options Delta (B) | constant Residual Futures to be done (A) - (B) | Residual Futures to be done (A) - (B) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H36 | Residual Futures to be done (A) - (B) | =H32-H35 | 14368.279945 | 14368.279945 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J36 | Residual Futures to be done (A) - (B) · Sensex Returns | constant 0.33 | 0.33 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K36 | Residual Futures to be done (A) - (B) · Product Returns | =shared K33 | 0.623 | 0.623 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L36 | Residual Futures to be done (A) - (B) · Pre Tax IRR | =shared L32 | 0.095394 | 0.095394 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K36 | Residual Futures to be done (A) - (B) · Product Returns | =shared K33 | 0.623 | 0.623 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L36 | Residual Futures to be done (A) - (B) · Pre Tax IRR | =shared L32 | 0.095394 | 0.095394 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O36 | Residual Futures to be done (A) - (B) · Wtg Avg Annual Comp  | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C37 | Amount with NBFC (Cr.) | constant Premium INR (Cr.) | Premium INR (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D37 | Premium INR (Cr.) | =Pricer!K5/10000000 | 50.672828 | 50.672828 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G37 | Premium INR (Cr.) · Residual Futures to be done (A) - (B) | constant Wtd Avg Vol (ARGFL Net Buyer of PUTs) | Wtd Avg Vol (ARGFL Net Buyer of PUTs) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) | ='Summary Sheet'!G15 | 0.078072 | 0.078072 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Sensex Returns | constant 0.32 | 0.32 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Product Returns | =shared K33 | 0.5225 | 0.5225 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Pre Tax IRR | =shared L32 | 0.082299 | 0.082299 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Product Returns | =shared K33 | 0.5225 | 0.5225 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Pre Tax IRR | =shared L32 | 0.082299 | 0.082299 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O37 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) · Wtg Avg Annual Comp  | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | G38 | Wtd Avg Vol (ARGFL Net Buyer of PUTs) | constant Vega INR (Cr.) | Vega INR (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H38 | Vega INR (Cr.) | ='Summary Sheet'!H15 | 0.54315 | 0.54315 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J38 | Vega INR (Cr.) · Sensex Returns | constant 0.31 | 0.31 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K38 | Vega INR (Cr.) · Product Returns | =shared K33 | 0.422 | 0.422 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L38 | Vega INR (Cr.) · Pre Tax IRR | =shared L32 | 0.068482 | 0.068482 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K38 | Vega INR (Cr.) · Product Returns | =shared K33 | 0.422 | 0.422 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L38 | Vega INR (Cr.) · Pre Tax IRR | =shared L32 | 0.068482 | 0.068482 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O38 | Vega INR (Cr.) · Wtg Avg Annual Comp Rate | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C39 | Premium INR (Cr.) | constant Maturity Details | Maturity Details | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | G39 | Maturity Details · Vega INR (Cr.) | constant Wtd Avg Forward (Futures Rollover Cost) | Wtd Avg Forward (Futures Rollover Cost) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H39 | Wtd Avg Forward (Futures Rollover Cost) | ='Summary Sheet'!I15 | 0.055 | 0.055 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J39 | Wtd Avg Forward (Futures Rollover Cost) · Sensex Returns | constant 0.3 | 0.3 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K39 | Wtd Avg Forward (Futures Rollover Cost) · Product Returns | =shared K33 | 0.3215 | 0.3215 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L39 | Wtd Avg Forward (Futures Rollover Cost) · Pre Tax IRR | =shared L32 | 0.053848 | 0.053848 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K39 | Wtd Avg Forward (Futures Rollover Cost) · Product Returns | =shared K33 | 0.3215 | 0.3215 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L39 | Wtd Avg Forward (Futures Rollover Cost) · Pre Tax IRR | =shared L32 | 0.053848 | 0.053848 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O39 | Wtd Avg Forward (Futures Rollover Cost) · Wtg Avg Annual Com | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | G40 | Wtd Avg Forward (Futures Rollover Cost) | constant Rho INR (Cr.) | Rho INR (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H40 | Rho INR (Cr.) | ='Summary Sheet'!J15 | -7.088448 | -7.088448 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J40 | Rho INR (Cr.) · Sensex Returns | constant 0.29 | 0.29 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K40 | Rho INR (Cr.) · Product Returns | =shared K33 | 0.221 | 0.221 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L40 | Rho INR (Cr.) · Pre Tax IRR | =shared L32 | 0.038281 | 0.038281 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K40 | Rho INR (Cr.) · Product Returns | =shared K33 | 0.221 | 0.221 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L40 | Rho INR (Cr.) · Pre Tax IRR | =shared L32 | 0.038281 | 0.038281 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O40 | Rho INR (Cr.) · Wtg Avg Annual Comp Rate | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C41 | Maturity Details | constant Tenor (In Days) | Tenor (In Days) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D41 | Tenor (In Days) | ='Summary Sheet'!O10 | 1940 | 1940 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G41 | Tenor (In Days) · Rho INR (Cr.) | ="Vega Hedge Computation done using - "&'Summary Sheet'!H23& | Vega Hedge Computation done using - 76800 P 25-Jul-30 | - | `lib/tables.ts:0` product description tables | tests/export/export.test.ts | Not Applicable: Text the sheet builds from other cells; the app writes the same facts in its own wording |
 | J41 | Tenor (In Days) · Sensex Returns | constant 0.28 | 0.28 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K41 | Tenor (In Days) · Product Returns | =shared K33 | 0.1205 | 0.1205 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L41 | Tenor (In Days) · Pre Tax IRR | =shared L32 | 0.021637 | 0.021637 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K41 | Tenor (In Days) · Product Returns | =shared K33 | 0.1205 | 0.1205 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L41 | Tenor (In Days) · Pre Tax IRR | =shared L32 | 0.021637 | 0.021637 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O41 | Tenor (In Days) · Wtg Avg Annual Comp Rate | =shared O33 | 0.1005 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C42 | Tenor (In Days) | constant NBFC Growth Rate | NBFC Growth Rate | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D42 | NBFC Growth Rate | ='Summary Sheet'!C4 | 0.08 | 0.08 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J42 | NBFC Growth Rate · Sensex Returns | constant 0.27 | 0.27 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K42 | NBFC Growth Rate · Product Returns | =shared K33 | 0.02 | 0.02 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L42 | NBFC Growth Rate · Pre Tax IRR | =shared L32 | 0.003733 | 0.003733 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K42 | NBFC Growth Rate · Product Returns | =shared K33 | 0.02 | 0.02 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L42 | NBFC Growth Rate · Pre Tax IRR | =shared L32 | 0.003733 | 0.003733 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | O42 | NBFC Growth Rate · Wtg Avg Annual Comp Rate | =shared O33 | 0.02 | - | - | - | Not Applicable: Check column of return steps; no output reads it |
 | C43 | NBFC Growth Rate | constant Final Amount with NBFC (Cr.) | Final Amount with NBFC (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D43 | Final Amount with NBFC (Cr.) | =D36*((1+D42)^(D41/365)) | 86.352501 | 86.352501 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J43 | Final Amount with NBFC (Cr.) · Sensex Returns | constant 0.25 | 0.25 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K43 | Final Amount with NBFC (Cr.) · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
-| L43 | Final Amount with NBFC (Cr.) · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K43 | Final Amount with NBFC (Cr.) · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
+| L43 | Final Amount with NBFC (Cr.) · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C44 | Final Amount with NBFC (Cr.) | constant Premium Growth Rate | Premium Growth Rate | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D44 | Premium Growth Rate | ='Summary Sheet'!C5 | 0.065 | 0.065 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G44 | Premium Growth Rate · Rho INR (Cr.) | constant Leverage | Leverage | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H44 | Leverage | ='Summary Sheet'!N10 | 1.6 | 1.6 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J44 | Leverage · Sensex Returns | constant 0.22 | 0.22 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K44 | Leverage · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
-| L44 | Leverage · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K44 | Leverage · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
+| L44 | Leverage · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C45 | Premium Growth Rate | constant Final Premium INR (Cr.) | Final Premium INR (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D45 | Final Premium INR (Cr.) | =D37*((1+D44)^(D41/365)) | 70.817433 | 70.817433 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | G45 | Final Premium INR (Cr.) · Leverage | constant Target Level | Target Level | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | H45 | Target Level | ='Summary Sheet'!C10 | 0.37 | 0.37 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, greeks | tests/golden/g0-workbook.test.ts | Match |
 | J45 | Target Level · Sensex Returns | constant 0 | 0 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K45 | Target Level · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
-| L45 | Target Level · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K45 | Target Level · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
+| L45 | Target Level · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C46 | Final Premium INR (Cr.) | constant Margin Growth Rate | Margin Growth Rate | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D46 | Margin Growth Rate | ='Summary Sheet'!C6 | 0.06579 | 0.06579 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J46 | Margin Growth Rate · Sensex Returns | constant -0.05 | -0.05 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K46 | Margin Growth Rate · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
-| L46 | Margin Growth Rate · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K46 | Margin Growth Rate · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
+| L46 | Margin Growth Rate · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C47 | Margin Growth Rate | constant Final Margin (Cr.) | Final Margin (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D47 | Final Margin (Cr.) | =D35*((1+D46)^(D41/365)) | 45.330067 | 45.330067 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J47 | Final Margin (Cr.) · Sensex Returns | constant -0.15 | -0.15 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K47 | Final Margin (Cr.) · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
-| L47 | Final Margin (Cr.) · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K47 | Final Margin (Cr.) · Product Returns | =shared K33 | error or blank result | - | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Not Applicable: The workbook saves no value: an error or a blank result |
+| L47 | Final Margin (Cr.) · Pre Tax IRR | =shared L32 | 0 | 0 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C48 | Final Margin (Cr.) | constant Maturity Amount (Cr.) | Maturity Amount (Cr.) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D48 | Maturity Amount (Cr.) | =D47+D45+D43 | 202.5 | 202.5 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J48 | Maturity Amount (Cr.) · Sensex Returns | constant -0.1501 | -0.1501 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K48 | Maturity Amount (Cr.) · Product Returns | =shared K33 | -0.24016 | -0.24016 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L48 | Maturity Amount (Cr.) · Pre Tax IRR | =shared L32 | -0.050361 | -0.050361 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K48 | Maturity Amount (Cr.) · Product Returns | =shared K33 | -0.24016 | -0.24016 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L48 | Maturity Amount (Cr.) · Pre Tax IRR | =shared L32 | -0.050361 | -0.050361 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C49 | Maturity Amount (Cr.) | constant IRR | IRR | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | D49 | IRR | =((D48/D31)^(365/D41))-1 | 0.141963 | 0.141963 | `lib/engine/hedging-sheet.ts:216` computeHedgingSheet, product description | tests/golden/g0-workbook.test.ts | Match |
 | J49 | IRR · Sensex Returns | constant -0.25 | -0.25 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K49 | IRR · Product Returns | =shared K33 | -0.4 | -0.4 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L49 | IRR · Pre Tax IRR | =shared L32 | -0.091635 | -0.091635 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K49 | IRR · Product Returns | =shared K33 | -0.4 | -0.4 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L49 | IRR · Pre Tax IRR | =shared L32 | -0.091635 | -0.091635 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C50 | IRR | constant * Non Greek Pass through Product | * Non Greek Pass through Product | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | J50 | * Non Greek Pass through Product · Sensex Returns | constant -0.3 | -0.3 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K50 | * Non Greek Pass through Product · Product Returns | =shared K33 | -0.48 | -0.48 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L50 | * Non Greek Pass through Product · Pre Tax IRR | =shared L32 | -0.115765 | -0.115765 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K50 | * Non Greek Pass through Product · Product Returns | =shared K33 | -0.48 | -0.48 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L50 | * Non Greek Pass through Product · Pre Tax IRR | =shared L32 | -0.115765 | -0.115765 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | J51 | Sensex Returns | constant -0.35 | -0.35 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K51 | Product Returns | =shared K33 | -0.51 | -0.51 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L51 | Pre Tax IRR | =shared L32 | -0.125596 | -0.125596 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K51 | Product Returns | =shared K33 | -0.51 | -0.51 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L51 | Pre Tax IRR | =shared L32 | -0.125596 | -0.125596 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C52 | * Non Greek Pass through Product | constant Sensex Start Level is Trade date's closing Sensex l | Sensex Start Level is Trade date's closing Sensex level plus | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | J52 | Sensex Start Level is Trade date's closing Sensex level plus | constant -0.4 | -0.4 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K52 | Sensex Start Level is Trade date's closing Sensex level plus | =shared K33 | -0.54 | -0.54 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L52 | Sensex Start Level is Trade date's closing Sensex level plus | =shared L32 | -0.135928 | -0.135928 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K52 | Sensex Start Level is Trade date's closing Sensex level plus | =shared K33 | -0.54 | -0.54 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L52 | Sensex Start Level is Trade date's closing Sensex level plus | =shared L32 | -0.135928 | -0.135928 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | J53 | Sensex Returns | constant -0.45 | -0.45 | - | - | - | Not Applicable: Performance levels of the saved payoff grid; the app generates its own levels and is checked at these ones |
-| K53 | Product Returns | =shared K33 | -0.57 | -0.57 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
-| L53 | Pre Tax IRR | =shared L32 | -0.146823 | -0.146823 | `lib/engine/structure.ts:266` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| K53 | Product Returns | =shared K33 | -0.57 | -0.57 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
+| L53 | Pre Tax IRR | =shared L32 | -0.146823 | -0.146823 | `lib/engine/structure.ts:271` clientReturn, preTaxIrr | tests/golden/g0-workbook.test.ts | Match |
 | C57 | Sensex Start Level is Trade date's closing Sensex level plus | constant Product 2 : Sensex Magnifier Customized 40% PP 1.4x | Product 2 : Sensex Magnifier Customized 40% PP 1.4x Leverage | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | C59 | Product 2 : Sensex Magnifier Customized 40% PP 1.4x Leverage | constant Product Details: | Product Details: | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | G59 | Product Details: · Target Level | constant Greek Details for the product : | Greek Details for the product : | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |

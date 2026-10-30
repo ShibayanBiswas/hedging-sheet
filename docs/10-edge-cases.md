@@ -15,9 +15,9 @@ Each case blocks the run and opens a popup with the message and a How To Fix lin
 | `floor-level` | The Decay Floor is not below protection less the outflow step | Lower the Decay Floor Level |
 | `floor-units` | Decay Reduction Below Floor exceeds the Decay | Keep it at or below the Decay |
 | `spread-count` | Fewer than 1 or more than 4 spreads | Use the Number Of Spreads stepper |
-| `expiry-count` | Fewer than 1 or more than 12 expiries | Use the Number Of Expiry Dates stepper |
-| `expiry-blank` | An expiry month is blank | Type a whole month number |
-| `expiry-order` | Month numbers do not rise strictly | Enter a higher month number |
+| `expiry-count` | Fewer than 1 or more than 10 expiries | Pick the Number Of Expiry Dates from 1 to 10 |
+| `expiry-blank` | An expiry date is blank | Type a date; it moves to the last expiry weekday of its month |
+| `expiry-order` | An expiry does not fall after the one before | Pick a later month |
 | `expiry-maturity` | An expiry falls after maturity | Lower the month or lengthen the tenor |
 | `tenor` | Tenor in Days is zero or less | Enter the tenor in calendar days |
 | `spot-positive`, `coupon-positive`, `decay-positive`, `notionalCr-positive`, `dailyVol-positive`, `hedgeStrike-positive` | A required number is zero or blank | Field specific |

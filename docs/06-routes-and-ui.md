@@ -34,7 +34,14 @@
 
 ## Inputs
 
-Inputs holds inputs only, in full-width sections: Underlying And Market, Rates, Product Terms, Observation Expiries, Strikes, Spreads, Notional And Costs, and Volatility And Margin. Expiries and strikes are one full-width row each: Expiry n with its month number and date, and Strike n with Level %, Level In Points, Option Type, Buy Or Sell and Remove. A strike on the wrong side shows its error under the row and turns Run off. A strike can be added at any level between the target and the protection strike. Each spread row holds its Buy Level, Sell Level, Participation Rate and a reset when the top participation is overridden. Volatility And Margin has five subsections: Volatility, Exchange Pricing Rates, Stressed Pricing Rates, Stress Shock and Margins. A sticky full-width Run Simulation button sits at the bottom.
+Inputs holds inputs only, in seven numbered groups in fill order: 1 Underlying And Market, 2 Observation Expiries, 3 Strikes And Spreads, 4 Rates, 5 Product Terms, 6 Volatility and 7 Margin And Desk Terms. Fields sit 4 across at 1440 px, 3 at 1024, 2 at 768 and 1 on phones, 36 px tall with one-line labels and 12 px helper text. A group stays locked, with "Complete Step N First", until every field of the steps before it is filled: step 2 opens after the Underlying and Valuation Date, step 3 after the expiries, steps 4 to 7 after the strikes and spreads.
+
+- **Counts.** Number Of Expiry Dates (1 to 10) and Number Of Spreads (1 to 6) are dropdowns with a stepper either side. In Blank Inputs they show "Select …" and nothing appears below until a count is picked. The spread count sets the strikes, n + 4, shown read-only, and each strike row shows its units read-only.
+- **Expiries.** Each is a date. A typed date moves to the last expiry weekday of its month, Thursday for Sensex and Tuesday for Nifty, with a note such as "Moved To The Last Thursday, 25-Apr-2030". The median expiry is labelled Observation And Hedge Option Expiry. Quarterly From First Expiry fills the rest three months apart.
+- **Bulk Edit.** Expiries and strikes each take a pasted block from a sheet, tab or comma separated, with a live preview that checks every row. More than 10 rows are refused, and Apply stays off until every row passes.
+- **Field checks.** Every rule lives in `lib/validation/inputRules.ts`. A typed value that breaks its rule is never applied; leaving the field opens a popup with the allowed range and puts the last valid value back. Run Simulation checks everything again and lists each problem, by group, as a link to its field.
+- **Volatility.** Daily and Annual carry one tag, Calculated or Edited, and Compute From History sets both back to Calculated.
+- **Run bar.** A slim sticky bar at the bottom holds Run Simulation and, after a change, "Inputs Changed · Run Again".
 
 A pill at the top switches between two modes, after a confirm popup that also clears the results:
 
