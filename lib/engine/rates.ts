@@ -48,9 +48,9 @@ export function anchoredCurve(curve: RatePoint[], valuationDate: string, premium
  * B22 Lower Maturity = the next curve date.
  * B23, B24 = VLOOKUP of each date on the curve.
  * The rate is FORECAST(maturity, B23:B24, B21:B22), or the upper rate when the two forwards are equal.
+ * `points` comes from anchoredCurve, which always holds at least one point.
  */
 export function readRateCurve(points: DatedRate[], maturity: string): CurveRead {
-  if (!points.length) return { upperMaturity: null, lowerMaturity: null, upperForward: null, lowerForward: null, rate: NaN };
   const m = excelSerial(maturity);
   let upperIdx = 0;
   for (let i = 0; i < points.length; i++) {
