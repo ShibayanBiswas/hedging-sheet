@@ -93,7 +93,7 @@ Run one test by name with `npx playwright test -g "B13.2"`, or one project with 
 
 ## Updating snapshots
 
-Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 8 tabs at 3 widths, 24 files. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. After an intended visual change, run `npm run test:visual:linux`: it rebuilds the app and rewrites all 24 baselines with Docker in `mcr.microsoft.com/playwright:v1.63.0-noble`, the image the CI visual job runs in, then commit them. When fewer than 24 Linux files are committed, the CI visual job also writes them and uploads the `visual-baselines-linux` artifact instead of failing.
+Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 8 tabs at 3 widths, 24 files. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. A page may differ by at most 0.1% of its pixels. To check the committed baselines from any machine, run `npm run test:visual:linux -- compare`; any difference lands in `test-results/visual-compare` with its diff image. After an intended visual change, and only then, run `npm run test:visual:linux`: it rebuilds the app and rewrites all 24 baselines with Docker in `mcr.microsoft.com/playwright:v1.63.0-noble`, the image the CI visual job runs in, then commit them. When fewer than 24 Linux files are committed, the CI visual job also writes them and uploads the `visual-baselines-linux` artifact instead of failing.
 
 ## Reading traces
 
