@@ -10,6 +10,7 @@ import { computeHedgingSheet, validateInputs } from "@/lib/engine/hedging-sheet"
 import type { HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
+import { splitKeys } from "@/lib/inputs/run-keys";
 import { fieldSection, fieldTestId, groupBySection, INPUT_SECTIONS, validateDeskInputs, type FieldError } from "@/lib/validation/inputRules";
 import type { MarketLevels } from "@/lib/market-data";
 import { traceEnabled, tracePipeline } from "@/lib/trace";
@@ -74,12 +75,6 @@ const WARNING_TITLES: Record<string, string> = {
   "expiry-surface": "Expiries Beyond The Surface",
   "loss-cap": "Loss Reaches 100% Before A 90% Fall",
 };
-
-/** Overrides are made on the output tabs, so they are keyed apart from the inputs. */
-function splitKeys(inputs: DeskInputs): { inputsKey: string; overridesKey: string } {
-  const { legVolOverrides, hedgeVolOverride, ...rest } = inputs;
-  return { inputsKey: JSON.stringify(rest), overridesKey: JSON.stringify({ legVolOverrides, hedgeVolOverride }) };
-}
 
 /**
  * Values that follow other inputs: the auto hedge strike follows the spot and the underlying's rule,

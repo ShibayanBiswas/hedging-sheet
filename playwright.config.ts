@@ -13,7 +13,7 @@ const ci = Boolean(process.env.CI);
 const reports = process.env.REPORT_DIR;
 
 /** Specs that need one engine (Chrome DevTools metrics, pixel baselines) or a live deployment. */
-const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/, /layout\.spec/, /numbers\.spec/, /buttons\.spec/, /pipeline\//];
+const CHROMIUM_ONLY = [/visual\//, /perf\.spec/, /responsive\//, /market-data\.spec/, /layout\.spec/, /numbers\.spec/, /pipeline\//];
 const desktop = { viewport: { width: 1440, height: 900 } };
 
 export default defineConfig({

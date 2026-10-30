@@ -62,6 +62,7 @@ test("every button and link on every tab: no console error, no failed response, 
     const w = window as unknown as { __cls: number; __shiftSources: string[] };
     w.__cls = 0;
     w.__shiftSources = [];
+    // Firefox and WebKit do not report layout shifts, so there the shift check reads 0 and the clicks are still checked.
     new PerformanceObserver((list) => {
       for (const e of list.getEntries() as Array<PerformanceEntry & { value: number; hadRecentInput: boolean; sources?: Array<{ node?: Node | null }> }>) {
         if (e.hadRecentInput) continue;
