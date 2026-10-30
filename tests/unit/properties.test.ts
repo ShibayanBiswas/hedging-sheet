@@ -1,5 +1,5 @@
 import fc from "fast-check";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
 import type { DeskInputs } from "@/lib/inputs/draft";
