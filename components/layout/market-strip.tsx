@@ -21,8 +21,8 @@ export function MarketStrip() {
   ];
 
   return (
-    <div className="market-strip market-strip-live overflow-hidden" data-testid="market-strip">
-      <div className="mx-auto flex max-w-full flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 md:px-6 xl:px-8">
+    <div className="market-strip min-w-0 flex-1 overflow-hidden" data-testid="market-strip">
+      <div className="flex items-center justify-center gap-x-4 whitespace-nowrap">
         {items.map((item, index) => (
           <motion.span
             key={item.label}

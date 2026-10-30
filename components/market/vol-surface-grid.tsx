@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
 import type { VolSurface } from "@/lib/engine/types";
-import { referencePriceForUnderlying } from "@/lib/engine/vol-surface";
+import { DEEP_MONEYNESS, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fmtNumber } from "@/lib/format";
 import { UNDERLYINGS } from "@/lib/underlyings";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
@@ -14,7 +14,7 @@ import { useMediaQuery } from "@/lib/hooks/use-media-query";
 const MAX_VOL = 200;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** One sequential scale: faint for the lowest volatility, strongest for the highest. The hue follows the theme. */
-export function heatAlpha(value: number, min: number, max: number): number {
+function heatAlpha(value: number, min: number, max: number): number {
   if (!Number.isFinite(value) || max <= min) return 0;
   return 0.05 + 0.4 * Math.min(1, Math.max(0, (value - min) / (max - min)));
 }
@@ -34,7 +34,7 @@ function shortDate(ymd: string): string {
   return `${MONTHS[Number(m) - 1] ?? ""} ${y?.slice(2) ?? ""}`;
 }
 
-export function parseVol(text: string): number | null {
+function parseVol(text: string): number | null {
   const raw = text.replace(/[%,\s]/g, "");
   if (!/^\d*\.?\d+$/.test(raw)) return null;
   const n = Number(raw);
@@ -138,11 +138,13 @@ export function VolSurfaceGrid({
                 </tr>
                 {UNDERLYINGS.map((u) => {
                   const ref = referencePriceForUnderlying(surface, u);
+                  // Deep reads the 55% column, so it shows the 55% strike.
+                  const deep = surface.moneyness.find((m) => Math.abs(m - DEEP_MONEYNESS) < 1e-9) ?? surface.moneyness[0] ?? NaN;
                   return (
                     <tr key={u} data-testid={`strike-row-${u.toLowerCase()}`}>
                       <td className="font-semibold">{u} Strikes</td>
-                      <td className="text-right" data-kind="text" data-testid={`deep-strike-${u.toLowerCase()}`}>
-                        Deep
+                      <td className="text-right" data-kind="number" data-testid={`deep-strike-${u.toLowerCase()}`}>
+                        {ref > 0 && Number.isFinite(deep) ? fmtNumber(deep * ref, 2) : "-"}
                       </td>
                       {surface.moneyness.map((m) => (
                         <td key={m} className="text-right" data-kind="number">

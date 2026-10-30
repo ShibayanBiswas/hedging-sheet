@@ -63,7 +63,29 @@ export function fmtCrore(v: unknown, digits = 2): string {
   return croreText(v, digits).text;
 }
 
-/** "10:00 am IST": the time format of the footer and the Market Data status row. */
+const IST_PARTS = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Kolkata",
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+});
+
+function istParts(d: Date): Record<string, string> {
+  return Object.fromEntries(IST_PARTS.formatToParts(d).map((p) => [p.type, p.value]));
+}
+
+/** "12:11 pm IST": the time format of the footer and the Market Data status row. */
 export function fmtIstTime(iso: string): string {
-  return `${new Date(iso).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })} IST`;
+  const p = istParts(new Date(iso));
+  return `${p.hour}:${p.minute} ${p.dayPeriod!.toLowerCase()} IST`;
+}
+
+/** 30-Oct-2026 · 12:11:30 pm IST, the footer's Desk Clock. */
+export function fmtDeskClock(d: Date): string {
+  const p = istParts(d);
+  return `${p.day}-${p.month}-${p.year} · ${p.hour}:${p.minute}:${p.second} ${p.dayPeriod!.toLowerCase()} IST`;
 }

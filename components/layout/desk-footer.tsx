@@ -5,7 +5,7 @@ import { Activity, CircleDot, Clock, Database, Server, TrendingUp, Zap } from "l
 
 import { useDesk } from "@/lib/context/desk-provider";
 import { cn } from "@/lib/cn";
-import { fmtIstTime, fmtNumber } from "@/lib/format";
+import { fmtDeskClock, fmtIstTime, fmtNumber } from "@/lib/format";
 import type { SessionPhase } from "@/lib/market-data";
 import { LEVEL_FIELD, UNDERLYINGS } from "@/lib/underlyings";
 
@@ -42,15 +42,15 @@ const STATUS_TONE: Record<string, string> = {
   Unknown: "border-stone-400",
 };
 
-/** One footer cell: the label on the left and the value on the right, so every row reaches the footer's right edge. */
+/** One footer cell: the label with its value right beside it. The grid spreads the cells edge to edge. */
 function Cell({ icon, label, value, testId, extra }: { icon: ReactNode; label: string; value?: ReactNode; testId?: string; extra?: boolean }) {
   return (
-    <div className={cn("flex min-w-0 items-center justify-between gap-2 whitespace-nowrap", extra && "footer-extra")} data-testid={testId}>
-      <span className="inline-flex items-center gap-2">
+    <div className={cn("footer-cell", extra && "footer-extra")} data-testid={testId}>
+      <span className="footer-label inline-flex items-center gap-1">
         {icon}
         {label}
       </span>
-      {value != null ? <span className="tabular-nums text-ink">{value}</span> : null}
+      {value != null ? <span className="footer-value tabular-nums font-semibold text-ink">{value}</span> : null}
     </div>
   );
 }
@@ -71,8 +71,8 @@ export function DeskFooter() {
 
   return (
     <footer className="relative z-10 border-t border-[color:var(--ar-border)] bg-white font-ui" data-testid="desk-footer">
-      <div className="desk-footer-grid px-4 py-3 text-caption text-stone-600 md:px-6">
-        <Cell extra icon={<Server className="icon-xs text-stone-500" aria-hidden />} label="Anand Rathi Wealth · Hedging Sheet" />
+      <div className="desk-footer-grid px-4 py-2 text-caption text-stone-600 md:px-6">
+        <Cell extra icon={<Server className="icon-xs text-stone-500" aria-hidden />} label="Anand Rathi Wealth · Hedging Sheet" testId="footer-brand" />
         {spots.map((s) => (
           <Cell key={s.name} icon={s.icon} label={s.name} value={s.value != null ? fmtNumber(s.value, 2) : "-"} testId={`footer-${s.name.toLowerCase()}`} />
         ))}
@@ -90,7 +90,7 @@ export function DeskFooter() {
           extra
           icon={<Activity className="icon-xs text-stone-500" aria-hidden />}
           label="Desk Clock"
-          value={<span suppressHydrationWarning>{now ? now.toLocaleString("en-IN", { timeZone: IST }) : "-"}</span>}
+          value={<span suppressHydrationWarning>{now ? fmtDeskClock(now) : "-"}</span>}
           testId="footer-clock"
         />
       </div>

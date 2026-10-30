@@ -26,7 +26,7 @@ const VARIANT_META: Record<DeskAlertVariant, { icon: typeof Info; glow: "cyan" |
 };
 
 /** Blocking desk popup in the Primary SP Dashboard style. */
-export function DeskDialog({ open, state, onClose }: { open: boolean; state: DeskDialogState | null; onClose: () => void }) {
+export function DeskDialog({ open, state, onClose }: { open: boolean; state: DeskDialogState | null; onClose: (after?: () => void) => void }) {
   const reduce = useReducedMotion();
   const okRef = useRef<HTMLButtonElement>(null);
   const shown = state ? `${state.title}\n${state.message}` : null;
@@ -58,7 +58,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
           initial={reduce ? false : { opacity: 0 }}
           role="presentation"
         >
-          <button aria-label="Close dialog" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" type="button" onClick={onClose} />
+          <button aria-label="Close dialog" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" type="button" onClick={() => onClose()} />
           <motion.div
             key={`${state.title}\n${state.message}`}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -110,19 +110,16 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                           return (
                             <li key={text} className="flex items-start gap-2 font-ui text-caption leading-5 text-stone-700">
                               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" aria-hidden />
-                              {typeof item === "string" ? (
-                                text
-                              ) : (
+                              <span className="min-w-0 flex-1">{text}</span>
+                              {typeof item === "string" ? null : (
                                 <button
                                   type="button"
                                   data-testid={item.testId}
-                                  className="text-left text-maroon underline decoration-gold/50 underline-offset-2 hover:decoration-maroon"
-                                  onClick={() => {
-                                    onClose();
-                                    item.onClick();
-                                  }}
+                                  aria-label={`Go To Field · ${text}`}
+                                  className="shrink-0 font-semibold text-maroon underline decoration-gold/50 underline-offset-2 hover:decoration-maroon"
+                                  onClick={() => onClose(item.onClick)}
                                 >
-                                  {text}
+                                  Go To Field
                                 </button>
                               )}
                             </li>
@@ -149,7 +146,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                   <span className="relative z-10">{a.label}</span>
                 </button>
               ))}
-              <button ref={okRef} type="button" className="btn-animated btn-motion btn-primary" onClick={onClose} data-testid="desk-dialog-ok">
+              <button ref={okRef} type="button" className="btn-animated btn-motion btn-primary" onClick={() => onClose()} data-testid="desk-dialog-ok">
                 <span className="relative z-10">{state.okLabel ?? "OK"}</span>
               </button>
             </div>

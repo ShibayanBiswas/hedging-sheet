@@ -20,7 +20,7 @@ export const SIMULATION_STEPS = ["Fetching Market Data", "Pricing Legs", "Solvin
 
 export type SimulationState = { running: boolean; step: number };
 
-export type LastRun = { result: HedgingResult; inputsKey: string; overridesKey: string; marketVersion: number; at: string };
+export type LastRun = { result: HedgingResult; market: MarketData; inputsKey: string; overridesKey: string; marketVersion: number; at: string };
 
 export type DailyVolStatus = { loading: boolean; error: string | null; observations: number | null; from: string | null; to: string | null };
 
@@ -378,7 +378,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       alert(first?.message ?? "The inputs changed during the run. Run it again.", { variant: "error", title: "Cannot Run The Simulation", fix: first?.fix });
       return false;
     }
-    setLastRun({ result, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
+    setLastRun({ result, market: fresh, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
     for (const w of result.warnings) {
       const title = WARNING_TITLES[w.code ?? ""];
       if (title) alert(w.message, { variant: "warning", title, fix: w.fix });

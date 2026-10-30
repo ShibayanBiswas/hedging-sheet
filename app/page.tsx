@@ -6,6 +6,7 @@ import { Eraser, RotateCcw } from "lucide-react";
 
 import { InputGroups } from "@/components/inputs/input-sections";
 import { InputModeSwitch } from "@/components/inputs/input-mode-switch";
+import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
@@ -40,12 +41,14 @@ export default function InputsPage() {
   useEdgeCasePopups();
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    // The Run bar sits flush on the page's bottom edge: the negative margin takes back the main padding below it.
+    <div className="-mb-6 flex w-full flex-col gap-2">
       <div className="inputs-intro">
         <h1 className="font-bold tracking-tight text-ink text-h1">Inputs</h1>
-        <div className="min-w-0 flex-1 sm:max-w-md">
+        <div className="order-last w-full sm:order-none sm:w-auto sm:min-w-0 sm:max-w-md sm:flex-1">
           <InputModeSwitch />
         </div>
+        <DownloadPdfButton tab="inputs" className="ml-auto sm:ml-0" />
         <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" onClick={resetInputs} data-testid="reset-inputs">
           <span className="relative z-10 inline-flex items-center gap-2">
             {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}

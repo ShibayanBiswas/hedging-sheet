@@ -1,6 +1,6 @@
 export type DeskAlertVariant = "info" | "warning" | "error";
 
-export type DeskAlertLink = { text: string; onClick: () => void; testId?: string };
+type DeskAlertLink = { text: string; onClick: () => void; testId?: string };
 
 export type DeskAlertOptions = {
   title?: string;

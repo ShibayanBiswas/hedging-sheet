@@ -21,7 +21,7 @@ const ICONS: Record<string, typeof Gauge> = {
 export default function SummaryPage() {
   return (
     <div className="flex w-full flex-col gap-4">
-      <PageIntro title="Summary Sheet" subtitle="Terms, the solved Inbuilt, Greeks, the option legs and the vega hedge." />
+      <PageIntro tab="summary" title="Summary Sheet" subtitle="Terms, the solved Inbuilt, Greeks, the option legs and the vega hedge." />
       <ResultGate>
         {(r) => (
           <>

@@ -19,7 +19,7 @@ function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"
     emerald: "text-emerald-900",
     rose: "text-rose-900",
   };
-  return <span className={cn("rounded px-2 py-1 text-caption font-semibold uppercase tracking-wide", tones[tone])}>{children}</span>;
+  return <span className={cn("rounded px-2 text-caption font-semibold uppercase leading-5 tracking-wide", tones[tone])}>{children}</span>;
 }
 
 /** Payoff scenarios in the Primary SP Dashboard style, with Initial, Target, Protection and Floor rows marked. */

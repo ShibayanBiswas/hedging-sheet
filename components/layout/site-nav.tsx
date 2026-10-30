@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
-import { MarketStrip } from "@/components/layout/market-strip";
 import { moveFocusWithArrows } from "@/lib/keyboard";
 import { activeNav, NAV_ITEMS } from "@/lib/navigation";
 /** Primary SP Dashboard tab bar: pill shell, sliding active pill, icon hover. Tabs share the full width. */
@@ -28,11 +27,11 @@ export function SiteNav() {
 
   return (
     <div className="border-t border-[color:var(--ar-border)]">
-      <MarketStrip />
-      <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-2 md:px-6 xl:px-8">
+      <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-1 md:px-6 xl:px-8">
         <div
           ref={rail}
-          className="nav-pill-shell nav-rail-no-scrollbar flex w-full items-stretch gap-1 overflow-x-auto rounded-2xl border p-1 shadow-sm"
+          data-testid="nav-rail"
+          className="nav-pill-shell nav-rail-no-scrollbar flex w-full items-stretch gap-1 overflow-x-auto rounded-xl border p-1 shadow-sm"
           onKeyDown={(e) => moveFocusWithArrows(e, "a[data-testid^='nav-']")}
         >
           {NAV_ITEMS.map((item) => {
@@ -44,11 +43,11 @@ export function SiteNav() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
-                  className="glass-control relative flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 font-ui text-body font-semibold transition-all lg:gap-1 lg:whitespace-normal lg:px-2 lg:text-center lg:text-caption lg:text-balance xl:gap-2 xl:px-3 xl:text-body"
+                  className="glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
                 >
                   {active ? (
                     <motion.span
-                      className="glass-active-pill absolute inset-0 rounded-xl"
+                      className="glass-active-pill absolute inset-0 rounded-lg"
                       layoutId={reduce ? undefined : "main-nav-active"}
                       transition={{ type: "spring", stiffness: 420, damping: 28 }}
                     />

@@ -39,6 +39,91 @@ function mod(m: Omit<LogicModule, "stageCount">): LogicModule {
 
 const cr = (inr: number) => fmtCrore(inr / 1e7);
 
+const span = (values: number[], show: (v: number) => string) => (values.length ? `${show(Math.min(...values))} To ${show(Math.max(...values))}` : "-");
+
+/** The pipeline, one row a stage, in the order the engine runs them. */
+export function pipelineStages(u: string, weekday: string): LogicFormula[] {
+  return [
+    {
+      name: "Inputs",
+      words: `The desk terms, the ${u} spot and its daily volatility; the Start Level is the spot raised by the uplift, rounded up to the next 100.`,
+      inputs: `Underlying, Valuation Date, ${u} Spot, Coupon, Rates, Daily Volatility`,
+      output: "Start Level",
+      value: (r) => fmtNumber(r.structure.startLevel, 0),
+    },
+    {
+      name: "Expiries",
+      words: `Each typed date moves to the last ${weekday} of its month; the median expiry is the hedge option's.`,
+      inputs: "Expiry Dates, Underlying",
+      output: "Observation Expiries",
+      value: (r) => `${r.schedule.expiries.length} · ${formatDate(r.schedule.expiries[0])} To ${formatDate(r.schedule.expiries.at(-1))}`,
+    },
+    {
+      name: "Strikes",
+      words: "Each Strike % times the Start Level, rounded; the units at a strike are the change in the payoff's slope across it.",
+      inputs: "Strike %, Start Level, Participations, Decay",
+      output: "Strikes In Points And Units",
+      value: (r) => `${r.structure.strikes.length} · ${span(r.structure.strikes.map((s) => s.strike), (v) => fmtNumber(v, 0))}`,
+    },
+    {
+      name: "Surface Lookup",
+      words: "Volatility read off the surface between the two nearest expiries and the two nearest strike columns.",
+      inputs: "Volatility Surface, Strike, Expiry",
+      output: "Volatility Per Leg",
+      value: (r) => span(r.pricer.legs.map((l) => l.volatility), (v) => fmtPercent(v)),
+    },
+    {
+      name: "Forwards",
+      words: "The spot grown at the curve rate for the leg's tenor, less the dividends paid before its expiry.",
+      inputs: `${u} Spot, Rate Curve, Dividends`,
+      output: "Forward Per Leg",
+      value: (r) => span(r.pricer.legs.map((l) => l.forward), (v) => fmtNumber(v, 0)),
+    },
+    {
+      name: "Black Formula",
+      words: "The Black price on the forward, discounted at the leg's yield; each Greek by bumping its input.",
+      inputs: "Forward, Strike, Volatility, Discount Yield, Days",
+      output: "Price And Greeks Per Leg",
+      value: (r) => `${r.pricer.legs.length} Legs Priced`,
+    },
+    {
+      name: "Goal Seek Inbuilt",
+      words: "The Inbuilt that makes the achieved coupon equal the target coupon.",
+      inputs: "Coupon, Leg Prices, Costs",
+      output: "Inbuilt",
+      value: (r) => fmtPercent(r.summary.actualInbuilt, 3),
+    },
+    {
+      name: "Pots",
+      words: "The notional split into the NBFC pot, the option premium and the margin, each grown to maturity at its rate.",
+      inputs: "Notional, NBFC Rate, Premium Growth Rate, Margin Growth Rate",
+      output: "NBFC And Premium In Crore",
+      value: (r) => `NBFC ${fmtCrore(r.productDescription.nbfcCr)} · Premium ${fmtCrore(r.productDescription.premiumCr)}`,
+    },
+    {
+      name: "Vega Hedge",
+      words: "Listed options sold at the hedge strike and expiry so their vega cancels the book's vega.",
+      inputs: "Book Vega, Hedge Strike, Hedge Expiry",
+      output: "Hedge Quantity",
+      value: (r) => fmtNumber(r.dayOneVegaHedge.quantity, 2),
+    },
+    {
+      name: "Margin Grid",
+      words: "The spot shocked step by step; at each level the residual futures, the mark to market and the margin.",
+      inputs: "Delta, Futures Margin, Stress Shocks",
+      output: "Worst Total Requirement In Crore",
+      value: (r) => fmtCrore(r.markToMarket.worstCase.totalRequirementCr, 3),
+    },
+    {
+      name: "Payoff",
+      words: "The client's return at each performance level, with the maturity value and the pre tax return a year.",
+      inputs: "Coupon, Strikes, Participations, Decay",
+      output: "Client Return By Level",
+      value: (r) => `${r.productDescription.payoff.length} Levels · ${span(r.productDescription.payoff.map((p) => p.clientReturn), (v) => fmtPercent(v))}`,
+    },
+  ];
+}
+
 /** Descriptive copy only. `u` is the underlying name and `weekday` its expiry day, so no text hard-codes an index. */
 export function logicModules(u: string, weekday: string): LogicModule[] {
   return [
@@ -363,23 +448,24 @@ export function logicModules(u: string, weekday: string): LogicModule[] {
     mod({
       id: "export",
       title: "Export",
-      subtitle: "One File, Five Tabs",
+      subtitle: "Excel And PDF",
       accent: "gold",
       description:
-        "Download Excel writes the Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge and Mark To Market And Margin tabs from the last run. The tables are the ones on screen, so the headers match. There are no pivots, inputs, market data or helper columns, and every date is a real date.",
+        "Download Excel writes one sheet per tab in tab order, from Inputs to Logic Atlas, then an Audit sheet of the run's inputs. Every tab also downloads as a PDF of the whole page. The tables are the ones on screen, so the headers match. There are no pivots, filters or frozen panes, and every date is a real date.",
       metrics: [
-        { label: "Tabs", value: "Five" },
+        { label: "Sheets", value: "Nine" },
         { label: "Pivots", value: "None" },
       ],
       nodes: [
-        { kind: "input", label: "Last Run", description: "The result of the last Run Simulation." },
-        { kind: "process", label: "Desk Styling", description: "Masthead, headers, frozen panes and fitted columns." },
+        { kind: "input", label: "Last Run", description: "The result of the last Run Simulation and the market data it read." },
+        { kind: "process", label: "Desk Styling", description: "Masthead, maroon headers, hairline rules and fitted columns; gridlines off." },
         { kind: "output", label: "Simulation File", description: "Named by underlying and valuation date." },
+        { kind: "output", label: "Tab PDF", description: "Landscape A4, headers repeated on every page, numbered pages." },
       ],
       formulas: [{ name: "File Name", words: "Hedging Sheet, the underlying and the valuation date.", inputs: "Underlying, Valuation Date", output: "File Name", value: (r) => `${r.inputs.underlying} ${formatDate(r.inputs.valuationDate)}` }],
-      edgeCases: ["Download Excel is off until the first run."],
-      insights: () => ["Download Current Surface on Market Data is the only other file the desk can fetch."],
-      outputs: [{ label: "Simulation File", href: "/summary", value: () => "Five Tabs" }],
+      edgeCases: ["Download Excel and the PDFs of the output tabs are off until the first run; Inputs, Market Data and Logic Atlas download at any time."],
+      insights: () => ["Download Current Surface on Market Data writes the surface file that uploads back."],
+      outputs: [{ label: "Simulation File", href: "/summary", value: () => "Nine Sheets" }],
     }),
   ];
 }

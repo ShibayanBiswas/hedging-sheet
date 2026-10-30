@@ -12,7 +12,7 @@ import { productHeadline, productTables } from "@/lib/tables";
 export default function ProductPage() {
   return (
     <div className="flex w-full flex-col gap-4">
-      <PageIntro title="Product Description" subtitle="A term sheet generated from the inputs, the three pots, the Greeks and the payoff at every level." />
+      <PageIntro tab="product" title="Product Description" subtitle="A term sheet generated from the inputs, the three pots, the Greeks and the payoff at every level." />
       <ResultGate>
         {(r) => {
           const pd = productTables(r);

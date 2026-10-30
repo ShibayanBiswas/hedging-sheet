@@ -14,6 +14,7 @@ export default function VegaHedgePage() {
   return (
     <div className="flex w-full flex-col gap-4">
       <PageIntro
+        tab="vega-hedge"
         title="Day 1 Vega Hedge"
         subtitle="Listed options are sold so their vega cancels the book's vega, then valued three ways and margined under spot shocks."
       />

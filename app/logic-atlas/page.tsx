@@ -8,6 +8,7 @@ import { AlertTriangle, Brain, Bug, Calculator, CheckCircle2, ChevronDown, Copy,
 import { LogicFlowDiagram, type FlowNodeSpec } from "@/components/atlas/logic-flow";
 import { HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
 import { KeyValueCard, TableCard } from "@/components/ui/desk-table";
+import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
 import { Panel, SectionTitle } from "@/components/ui/panel";
 import { useDesk } from "@/lib/context/desk-provider";
 import { cn } from "@/lib/cn";
@@ -15,7 +16,7 @@ import { formatDate } from "@/lib/engine/dates";
 import { EXPIRY_WEEKDAY, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { underlyingName } from "@/lib/inputs/draft";
 import { inputHash } from "@/lib/input-hash";
-import { logicModules } from "@/lib/logic-atlas";
+import { logicModules, pipelineStages } from "@/lib/logic-atlas";
 import { deskEase } from "@/lib/motion";
 import { headlineTable, strikeTypesLabel, strikeLabel, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
@@ -56,6 +57,18 @@ export default function LogicAtlasPage() {
     rows: selected.formulas.map((f) => ({ name: f.name, words: f.words, inputs: f.inputs, output: f.output, value: r ? f.value(r) : "-" })),
   };
   const insights = selected.insights(r ?? null);
+  const pipelineTable: TableSpec = {
+    id: "atlas-pipeline",
+    title: "Pipeline",
+    columns: [
+      { key: "name", label: "Stage", kind: "text" },
+      { key: "words", label: "Formula In Words", kind: "text" },
+      { key: "inputs", label: "Inputs", kind: "text" },
+      { key: "output", label: "Output", kind: "text" },
+      { key: "value", label: "Value From The Last Run", kind: "text" },
+    ],
+    rows: pipelineStages(underlyingName(inputs), weekday).map((s) => ({ name: s.name, words: s.words, inputs: s.inputs, output: s.output, value: r ? s.value(r) : "-" })),
+  };
 
   return (
     <div className="intel-page flex w-full flex-col gap-4">
@@ -78,6 +91,7 @@ export default function LogicAtlasPage() {
             <Network className="icon-xs" />
             {r ? `${r.pricer.legs.length} Live Option Legs In The Last Run` : "No Simulation Run Yet"}
           </span>
+          <DownloadPdfButton tab="logic-atlas" className="ml-auto" />
         </div>
       </motion.header>
 
@@ -92,6 +106,13 @@ export default function LogicAtlasPage() {
             { label: "Last Run", value: lastRun ? new Date(lastRun.at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) : null, kind: "text" },
           ])}
         />
+      </Panel>
+
+      <Panel>
+        <SectionTitle icon={Network} subtitle="Every stage the simulation runs, in order: the formula in words, its inputs, its output and the value from the last run.">
+          Pipeline
+        </SectionTitle>
+        <TableCard spec={pipelineTable} />
       </Panel>
 
       <Panel>

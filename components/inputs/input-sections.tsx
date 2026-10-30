@@ -17,8 +17,8 @@ import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 import { parseExpiryPaste, parseStrikePaste, type PastedStrike } from "@/lib/inputs/bulk";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { setSpreadCount } from "@/lib/inputs/strikes";
-import { LEVEL_FIELD, UNDERLYINGS } from "@/lib/underlyings";
-import { checkFieldEdit, INPUT_SECTIONS, unlockedSteps } from "@/lib/validation/inputRules";
+import { HEDGE_RULE_TEXT, LEVEL_FIELD, QUOTE_UNDERLYING, UNDERLYINGS } from "@/lib/underlyings";
+import { allowedRange, checkFieldEdit, INPUT_SECTIONS, numberFieldRules, unlockedSteps } from "@/lib/validation/inputRules";
 import { fmtNumber, fmtPercent } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
@@ -37,13 +37,16 @@ function useGuard() {
   return useCallback(
     (field: string) => ({
       check: (v: number) => checkFieldEdit(inputs, field, v),
-      onReject: (r: FieldCheck) =>
+      onReject: (r: FieldCheck) => {
+        const rule = numberFieldRules(inputs).find((x) => x.field === field);
+        const range = r.range ?? (rule ? allowedRange(rule) : undefined);
         alert(r.message, {
           variant: "error",
-          title: `${r.label} Reverted`,
-          fix: r.range ? `Allowed: ${r.range}. The field is back to its last valid value.` : "The field is back to its last valid value.",
+          title: `${r.label || rule?.label || "Value"} Reverted`,
+          fix: range ? `Allowed: ${range}. The field is back to its last valid value.` : "The field is back to its last valid value.",
           onClose: () => focusField(field),
-        }),
+        });
+      },
     }),
     [alert, inputs],
   );
@@ -55,12 +58,12 @@ function Group({ step, icon: Icon, aside, children, open }: { step: number; icon
   return (
     <section id={`group-${step}`} data-testid={`group-${step}`} data-locked={locked || undefined} className={cn("inputs-card glass", `inputs-card-${step}`)}>
       <header className="inputs-card-head">
-        <h2 className="flex min-w-0 items-center gap-2 font-ui text-h3 font-bold text-ink">
+        <h2 className="flex min-w-0 items-center gap-2 font-ui text-h2 font-bold text-ink">
           <span className="inputs-step" aria-hidden>
             {step}
           </span>
           <Icon className="icon-sm shrink-0 text-gold" aria-hidden />
-          <span className="truncate">{INPUT_SECTIONS[step - 1]}</span>
+          <span className="min-w-0">{INPUT_SECTIONS[step - 1]}</span>
         </h2>
         {locked ? (
           <span className="hs-chip hs-chip-maroon" data-testid={`group-${step}-locked`}>
@@ -99,8 +102,8 @@ function ResetIcon({ onClick, label, testId }: { onClick: () => void; label: str
   );
 }
 
-/** A button that shows a spinner while working and a tick once done. */
-function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon, testId }: { onClick: () => Promise<number | null>; loading: boolean; label: string; busyLabel: string; doneLabel: string; icon: LucideIcon; testId: string }) {
+/** A button that pulses its icon while working and shows a tick once done. Without an icon it is a plain text button. */
+function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon, testId }: { onClick: () => Promise<number | null>; loading: boolean; label: string; busyLabel: string; doneLabel: string; icon?: LucideIcon; testId: string }) {
   const [done, setDone] = useState(false);
   useEffect(() => {
     if (!done) return;
@@ -112,13 +115,13 @@ function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon
       type="button"
       data-testid={testId}
       disabled={loading}
-      className="btn-animated btn-motion btn-accent btn-compact inline-flex shrink-0 items-center gap-2"
+      className={cn("btn-animated btn-motion btn-compact inline-flex shrink-0 items-center gap-2", Icon ? "btn-accent" : "btn-ghost")}
       onClick={async () => {
         if ((await onClick()) != null) setDone(true);
       }}
     >
       <span className="relative z-10 inline-flex items-center gap-2">
-        {done ? <Check className="icon-sm" data-testid={`${testId}-done`} aria-hidden /> : <Icon className={cn("icon-sm", loading && "animate-pulse")} aria-hidden />}
+        {done && Icon ? <Check className="icon-sm" data-testid={`${testId}-done`} aria-hidden /> : Icon ? <Icon className={cn("icon-sm", loading && "animate-pulse")} aria-hidden /> : null}
         {loading ? busyLabel : done ? doneLabel : label}
       </span>
     </button>
@@ -161,11 +164,6 @@ function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskI
   return { strikePercents: next };
 }
 
-const HEDGE_RULE: Record<Underlying, string> = {
-  Sensex: "Auto From Spot: Spot Times 1.006, Rounded Up To The Next 100",
-  Nifty: "Auto From Spot: Spot Plus 150, Rounded Up To The Next 100",
-};
-
 // ------------------------------------------------------------------ 1 Underlying And Market
 
 function UnderlyingGroup({ open }: { open: number }) {
@@ -182,7 +180,7 @@ function UnderlyingGroup({ open }: { open: number }) {
           <ChoiceSelect<Underlying> value={inputs.underlying} testId="input-underlying" invalid={Boolean(errorFor("underlying"))} onChange={setUnderlying} options={UNDERLYINGS.map((x) => ({ value: x, label: x }))} />
         </FieldRow>
         <FieldRow label="Valuation Date" error={errorFor("valuationDate")} hint={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
-          <TextInput type="date" testId="input-valuationDate" invalid={Boolean(errorFor("valuationDate"))} value={inputs.valuationDate} onChange={(e) => setInputs({ valuationDate: e.target.value })} />
+          <TextInput type="date" testId="input-valuationDate" placeholder="Eg 28-Oct-2026" invalid={Boolean(errorFor("valuationDate"))} value={inputs.valuationDate} onChange={(e) => setInputs({ valuationDate: e.target.value })} />
         </FieldRow>
         <FieldRow label={`${u} Spot`} error={errorFor("spot")} hint={`Start Level ${Number.isFinite(start) ? fmtNumber(start, 0) : "-"}${fetched && mode === "default" ? ` · Fetched At ${fetched} IST` : ""}`}>
           <div className="flex items-center gap-1">
@@ -218,7 +216,7 @@ function UnderlyingGroup({ open }: { open: number }) {
             )}
           </div>
         </FieldRow>
-        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint={inputs.underlying ? HEDGE_RULE[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
+        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint={inputs.underlying ? HEDGE_RULE_TEXT[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
               <NumberInput
@@ -313,7 +311,7 @@ function ExpiriesGroup({ open }: { open: number }) {
       return { expiryCount: next, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < next ? prev.hedgeExpiryIndex : null };
     });
 
-  const parse = useCallback((text: string) => parseExpiryPaste(text, { valuationDate: inputs.valuationDate, underlying: (u || "Sensex") as Underlying }), [inputs.valuationDate, u]);
+  const parse = useCallback((text: string) => parseExpiryPaste(text, { valuationDate: inputs.valuationDate, underlying: u || QUOTE_UNDERLYING }), [inputs.valuationDate, u]);
 
   return (
     <Group
@@ -368,6 +366,7 @@ function ExpiriesGroup({ open }: { open: number }) {
               className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
               value={inputs.hedgeExpiryIndex ?? "median"}
               data-testid="input-hedgeExpiryIndex"
+              aria-label="Hedge Option Expiry"
               onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
             >
               <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
@@ -577,7 +576,8 @@ function StrikesGroup({ open }: { open: number }) {
           {terms.spreads.map((s, j) => {
             const isTop = j === terms.nSpreads - 1;
             const derived = terms.participationDerived[j];
-            const error = errorFor(`spreads.${j}`) ?? errorFor(`participations.${j}`);
+            const participationError = errorFor(`participations.${j}`);
+            const error = participationError ?? errorFor(`spreads.${j}`);
             return (
               <div key={j} role="row" className={cn("spread-row", error && "strike-row--error")} data-testid={`spread-card-${j}`}>
                 <span className="font-ui text-body font-bold text-ink" role="cell">
@@ -610,7 +610,11 @@ function StrikesGroup({ open }: { open: number }) {
                 <output className="inputs-readonly tabular-nums" role="cell">
                   {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]!) : "-"}
                 </output>
-                {error ? <p className="hs-error strike-row-error">{error}</p> : null}
+                {error ? (
+                  <p className="hs-error strike-row-error" role="alert" data-testid={participationError ? `participation-error-${j}` : `spread-error-${j}`}>
+                    {error}
+                  </p>
+                ) : null}
               </div>
             );
           })}
@@ -799,7 +803,6 @@ function VolatilityGroup({ open }: { open: number }) {
             </select>
             <FetchButton
               testId={mode === "blank" ? "compute-volatility" : "compute-history"}
-              icon={RefreshCw}
               label="Compute From History"
               busyLabel="Computing"
               doneLabel="Computed"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ClipboardPaste } from "lucide-react";
 
@@ -38,18 +39,24 @@ export function BulkEditDialog<T>({
   const [text, setText] = useState(initialText);
   const area = useRef<HTMLTextAreaElement>(null);
   const result = useMemo(() => parse(text), [parse, text]);
+  // The latest props, so opening reads them without re-running on every parent render and wiping a paste.
+  const latest = useRef({ initialText, onClose });
+  useEffect(() => {
+    latest.current = { initialText, onClose };
+  });
 
   useEffect(() => {
     if (!open) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- each opening starts from the current values
-    setText(initialText);
+    setText(latest.current.initialText);
     window.setTimeout(() => area.current?.focus(), 0);
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && latest.current.onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, initialText, onClose]);
+  }, [open]);
 
-  return (
+  // Opened only by a click after hydration. On the page body: a group card's backdrop filter would trap a fixed overlay.
+  if (!open) return null;
+  return createPortal(
     <AnimatePresence>
       {open ? (
         <motion.div className="fixed inset-0 z-[190] flex items-end justify-center sm:items-center sm:p-4" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduce ? undefined : { opacity: 0 }}>
@@ -129,6 +136,7 @@ export function BulkEditDialog<T>({
           </div>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

@@ -148,11 +148,13 @@ export function NumberInput({
         }}
         onBlur={() => {
           setFocused(false);
-          if (rejected) {
+          // A guarded field never keeps a value it cannot use: it goes back to the last valid one and says why.
+          const reason = rejected ?? (bad && onReject ? { label: "", message: kind === "integer" ? "Enter a whole number." : "Enter a number." } : null);
+          if (reason) {
             setRejected(null);
             setBad(false);
             setDraft(toDraft(value, kind, digits, grouped, fixed));
-            onReject?.(rejected);
+            onReject?.(reason);
             return;
           }
           if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, grouped, fixed));

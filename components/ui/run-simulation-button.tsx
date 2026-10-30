@@ -31,7 +31,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
       whileTap={reduce || running ? undefined : { scale: 0.985 }}
       transition={{ type: "spring", stiffness: 420, damping: 28 }}
       className={cn(
-        "btn-animated btn-motion btn-primary hs-run-btn relative w-full overflow-hidden",
+        "btn-animated btn-motion btn-primary hs-run-btn relative w-full overflow-hidden font-ui",
         compact ? "!py-3" : slim ? "!py-2 text-body" : "!py-4 text-body",
         running && "cursor-wait",
         className,

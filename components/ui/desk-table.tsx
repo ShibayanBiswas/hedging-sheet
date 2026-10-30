@@ -55,12 +55,13 @@ function Cell({ value, kind, digits, label, cell }: { value: CellValue; kind: Ce
 export type PairItem = { label: string; value: CellValue; kind: CellKind; digits?: number };
 
 /**
- * Label and value pairs laid out across the full width: four pairs a row from 1024 px, two below.
+ * Label and value pairs laid out across the full width: four pairs a row from 1024 px, two from 640 px, one on phones.
  * The columns share the width, so the table never scrolls sideways.
  */
 export function PairsTable({ items, testId, title }: { items: PairItem[]; testId: string; title: string }) {
   const wide = useMediaQuery("(min-width: 1024px)");
-  const perRow = wide ? 4 : 2;
+  const medium = useMediaQuery("(min-width: 640px)");
+  const perRow = wide ? 4 : medium ? 2 : 1;
   const rows = Array.from({ length: Math.ceil(items.length / perRow) }, (_, r) => items.slice(r * perRow, r * perRow + perRow));
   return (
     <div className="data-table-premium-wrap" data-testid={testId} tabIndex={0} role="region" aria-label={title}>

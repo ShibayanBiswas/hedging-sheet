@@ -14,6 +14,7 @@ export default function PricerPage() {
   return (
     <div className="flex w-full flex-col gap-4">
       <PageIntro
+        tab="pricer"
         title="Pricer"
         subtitle="The option book that replicates the payoff. Every leg is priced on the vol surface and the Inbuilt is solved so the three pots reach the target payout."
       />
