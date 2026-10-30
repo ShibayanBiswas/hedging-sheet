@@ -101,9 +101,12 @@ function isMockMode(): boolean {
   return typeof process !== "undefined" && process.env.TEST_MODE === "mock";
 }
 
-/** fetch for Yahoo hosts: the real network, or the deterministic chart in mock mode. */
+/** A Yahoo host that has not answered in this long is treated as down, so the next host or the fallback takes over. */
+const YAHOO_TIMEOUT_MS = 8_000;
+
+/** fetch for Yahoo hosts: the real network with a timeout, or the deterministic chart in mock mode. */
 export async function yahooFetch(url: string, init?: RequestInit): Promise<Response> {
-  if (!isMockMode()) return fetch(url, init);
+  if (!isMockMode()) return fetch(url, { ...init, signal: AbortSignal.timeout(YAHOO_TIMEOUT_MS) });
   return new Response(JSON.stringify(mockChartResponse(url, new Date(process.env.TEST_NOW ?? MOCK_NOW_ISO))), {
     status: 200,
     headers: { "Content-Type": "application/json" },

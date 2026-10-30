@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 
-import { istTodayYmd } from "@/lib/engine/dates";
+import { formatDate, istTodayYmd } from "@/lib/engine/dates";
 import type { BidOffer, DividendPoint, PricingParamPoint, PricingParams, RatePoint, VolSurface } from "@/lib/engine/types";
 import { DEEP_STRIKE, DEFAULT_FWD_SELL_RATE, surfaceMonthLabel } from "@/lib/engine/vol-surface";
 
@@ -302,7 +302,13 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
     expiries.push(iso);
     const vols: number[] = [];
     for (let c = deepCol; c < deepCol + 1 + moneyness.length; c++) {
-      const v = Number(row[c]);
+      const cell = row[c];
+      const v = cell == null || cell === "" || cell instanceof Date ? Number.NaN : Number(cell);
+      if (c > deepCol && !(v > 0)) {
+        const strike = `${Math.round(moneyness[c - deepCol - 1] * 10000) / 100}%`;
+        const seen = cell == null || cell === "" ? "empty" : `"${String(cell).slice(0, 40)}"`;
+        throw new Error(`The volatility for ${formatDate(iso)} at the ${strike} strike is ${seen}; every volatility must be a number above 0.`);
+      }
       vols.push(Number.isFinite(v) ? v : 0);
     }
     volsPercent.push(vols);

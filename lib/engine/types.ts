@@ -347,9 +347,10 @@ export type HedgingResult = {
     finalMarginCr: number;
     maturityCr: number;
     irr: number;
-    weightedCompRate: number;
-    weightedHalfYearlyRate: number;
-    weightedQuarterlyRate: number;
+    /** Null when there is no NBFC and no margin money to weight. */
+    weightedCompRate: number | null;
+    weightedHalfYearlyRate: number | null;
+    weightedQuarterlyRate: number | null;
     greeks: {
       deltaPercent: number;
       totalDelta: number;

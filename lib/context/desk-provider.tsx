@@ -90,6 +90,8 @@ function derive(prev: DeskInputs, next: DeskInputs): DeskInputs {
   if (out.underlying && out.underlying !== prev.underlying) {
     const u = out.underlying;
     out.expiryDates = out.expiryDates.map((d) => (isValidYmd(d) ? snapExpiry(d, u) : d));
+    // A typed hedge strike belongs to the old index, so the new one follows its own spot.
+    if (prev.underlying) out.hedgeStrikeAuto = true;
   }
   if (out.hedgeStrikeAuto && out.underlying && Number.isFinite(out.spot)) out.hedgeStrike = autoHedgeStrike(out.spot, out.underlying);
   return out;
@@ -131,6 +133,9 @@ export function DeskProvider({ children }: { children: ReactNode }) {
   const inputsRef = useRef(inputs);
   const modeRef = useRef<InputMode>("default");
   const marketVersionRef = useRef(0);
+  const runningRef = useRef(false);
+  /** Successful runs since the page loaded, for the end to end suite. */
+  const runCountRef = useRef(0);
 
   useEffect(() => {
     inputsRef.current = inputs;
@@ -345,7 +350,7 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     return { errors: v.errors, warnings: v.warnings };
   }, [inputs, market]);
 
-  const runSimulation = useCallback(async (): Promise<boolean> => {
+  const runOnce = useCallback(async (): Promise<boolean> => {
     const current = inputsRef.current;
     const errors = validateDeskInputs(current, { today: istTodayYmd() });
     if (errors.length || !isPriceable(current)) {
@@ -365,22 +370,36 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       return false;
     }
     setSimulation({ running: true, step: 0 });
-    const fresh = (await refreshDataset()) ?? market;
+    const fetched = await refreshDataset();
+    const fresh = fetched ?? market;
     for (let step = 1; step < SIMULATION_STEPS.length; step++) {
       await wait(220);
       setSimulation({ running: true, step });
     }
+    // The run prices the inputs as they stand when it finishes, so a change made during the run is in the result.
     const priced = inputsRef.current;
     const result = isPriceable(priced) ? computeHedgingSheet(priced, forwardMarket(fresh, priced.valuationDate)) : null;
     await wait(220);
     setSimulation({ running: false, step: SIMULATION_STEPS.length });
     if (!result || !result.ok) {
       const first = result && !result.ok ? result.errors[0] : undefined;
-      alert(first?.message ?? "The inputs changed during the run. Run it again.", { variant: "error", title: "Cannot Run The Simulation", fix: first?.fix });
+      alert(first?.message ?? "The inputs changed during the run. Run it again.", {
+        variant: "error",
+        title: first?.code === "goal-seek" ? "Could Not Solve" : "Cannot Run The Simulation",
+        fix: first?.fix,
+      });
       return false;
     }
+    runCountRef.current += 1;
     setLastRun({ result, market: fresh, ...splitKeys(priced), marketVersion: marketVersionRef.current, at: new Date().toISOString() });
     if (traceEnabled(window.location.search)) tracePipeline(result);
+    if (!fetched) {
+      alert("The desk database could not be reached during the run, so it priced on the surface already loaded on this page.", {
+        variant: "warning",
+        title: "Priced On The Loaded Surface",
+        fix: "Check the connection, then run again to price on the latest saved surface.",
+      });
+    }
     for (const w of result.warnings) {
       const title = WARNING_TITLES[w.code ?? ""];
       if (title) alert(w.message, { variant: "warning", title, fix: w.fix });
@@ -389,14 +408,26 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     return true;
   }, [alert, market, refreshDataset, toast]);
 
+  const runSimulation = useCallback(async (): Promise<boolean> => {
+    // One run at a time: clicks while a run is going are ignored.
+    if (runningRef.current) return false;
+    runningRef.current = true;
+    try {
+      return await runOnce();
+    } finally {
+      runningRef.current = false;
+    }
+  }, [runOnce]);
+
   const keys = useMemo(() => splitKeys(inputs), [inputs]);
+
   const staleInputs = lastRun != null && lastRun.inputsKey !== keys.inputsKey;
   const stale = lastRun != null && (staleInputs || lastRun.overridesKey !== keys.overridesKey || lastRun.marketVersion !== marketVersion);
 
   // The end to end suite reads the last result here; production builds leave NEXT_PUBLIC_E2E unset.
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_E2E !== "1") return;
-    (window as unknown as { __HS_TEST__?: unknown }).__HS_TEST__ = { result: lastRun?.result ?? null, inputs, mode, stale };
+    (window as unknown as { __HS_TEST__?: unknown }).__HS_TEST__ = { result: lastRun?.result ?? null, inputs, mode, stale, runs: runCountRef.current };
   }, [lastRun, inputs, mode, stale]);
 
   const value = useMemo<DeskContextValue>(

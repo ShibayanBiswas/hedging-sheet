@@ -1,4 +1,5 @@
 import { isValidYmd } from "@/lib/engine/dates";
+import { annualVolFromDaily } from "@/lib/engine/hedging-sheet";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
 import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
@@ -183,6 +184,14 @@ export function checkFieldEdit(inputs: DeskInputs, field: string, value: number 
     if (prev && isValidYmd(prev) && d <= prev) return { label, message: `${label} must fall after Expiry ${i}.`, range: `After ${prev}` };
     if (next && isValidYmd(next) && d >= next) return { label, message: `${label} must fall before Expiry ${i + 2}.`, range: `Before ${next}` };
     return null;
+  }
+  if (field === "annualVol") {
+    // Annual is Daily times the square root of 365, so it takes the Daily range scaled the same way.
+    const daily = numberFieldRules(inputs).find((x) => x.field === "dailyVol")!;
+    const label = `${underlyingName(inputs)} Annual Volatility`;
+    const scaled = { ...daily, label, min: annualVolFromDaily(daily.min), max: annualVolFromDaily(daily.max) };
+    const r = checkNumber(Number(value), scaled, label);
+    return r ? { label, message: r.message, range: allowedRange(scaled) } : null;
   }
   const rule = numberFieldRules(inputs).find((r) => r.field === field);
   if (!rule) return null;

@@ -192,8 +192,18 @@ export function validateInputs(
     }
   }
 
+  const firstSurface = market?.surface.expiries[0];
   const lastSurface = market?.surface.expiries[market.surface.expiries.length - 1];
-  if (lastSurface) {
+  if (firstSurface && lastSurface) {
+    const before = schedule.dates.filter((d) => parseYmd(d).getTime() < parseYmd(firstSurface).getTime());
+    if (before.length) {
+      warnings.push({
+        field: "expiryDates",
+        code: "expiry-surface",
+        message: `${before.length} expiry ${before.length === 1 ? "date falls" : "dates fall"} before the first surface row on ${formatDate(firstSurface)}. Their volatility is read from that first row.`,
+        fix: "Upload a surface with nearer expiries, or pick later expiries.",
+      });
+    }
     const beyond = schedule.dates.filter((d) => parseYmd(d).getTime() > parseYmd(lastSurface).getTime());
     if (beyond.length) {
       warnings.push({
@@ -218,7 +228,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const { errors, warnings } = validated;
   if (errors.length) return { ok: false, errors, warnings };
   const dates = validated.dates;
-  // Milliseconds per stage, for the Logic Atlas Debug Drawer.
+  // Milliseconds per stage, for the development trace.
   const timings: Record<string, number> = {};
   let mark = performance.now();
   const stamp = (stage: string) => {
@@ -569,6 +579,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   let solverTrace: Array<{ inbuilt: number; residual: number }> = [];
   let loopPasses = 0;
   let loopResidual = Infinity;
+  let converged = true;
   for (let pass = 0; pass < 50; pass++) {
     loopPasses = pass + 1;
     // Pricer V5 = E5 × Summary Q10
@@ -588,10 +599,43 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     solverTrace = trace;
     solverIterations += solved.iterations;
     inbuilt = solved.root;
+    converged = solved.converged && Number.isFinite(inbuilt);
+    if (!converged) break;
     const next = marginFractionFor(inbuilt);
     loopResidual = Math.abs(next - marginFraction);
     marginFraction = next;
     if (loopResidual < 1e-9) break;
+  }
+  const target = `${(inputs.coupon * 100).toFixed(2)}%`;
+  if (!converged) {
+    return {
+      ok: false,
+      errors: [
+        {
+          field: "coupon",
+          code: "goal-seek",
+          message: `Could Not Solve: no Inbuilt makes the achieved coupon equal the target of ${target} after ${solverIterations} tries.`,
+          fix: "Lower the Coupon, widen the spreads or raise their participation, then run again.",
+        },
+      ],
+      warnings,
+    };
+  }
+  // An Inbuilt beyond the whole notional is no product: the rates have grown the pots past any real book.
+  if (Math.abs(inbuilt) > notional) {
+    const share = ((inbuilt / notional) * 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+    return {
+      ok: false,
+      errors: [
+        {
+          field: "coupon",
+          code: "goal-seek",
+          message: `Could Not Solve: the Inbuilt that pays the target of ${target} is ${share}% of the notional, outside -100% to 100%.`,
+          fix: "Check the Premium Growth Rate, the Margin Growth Rate and the Coupon, then run again.",
+        },
+      ],
+      warnings,
+    };
   }
   const marginInr = notional * marginFraction;
   const payout = payoutFor(inbuilt, marginInr);
@@ -637,7 +681,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const finalMarginCr = marginCr * marginGrowth;
   const maturityCr = finalMarginCr + finalPremiumCr + finalNbfcCr;
   // Product Description O28 = (D36 × D42 + D35 × D46) ÷ (D36 + D35)
-  const weightedCompRate = (nbfcCr * inputs.nbfcRate + marginCr * inputs.marginGrowthRate) / (nbfcCr + marginCr);
+  // With no NBFC and no margin money there is nothing to weight, so the rate is not applicable.
+  const weightedCompRate = nbfcCr + marginCr > 0 ? (nbfcCr * inputs.nbfcRate + marginCr * inputs.marginGrowthRate) / (nbfcCr + marginCr) : null;
   const hedgeQty = hedgeQuantityLakh * LAKH;
   // Product Description H35 = H33 × Summary M24; H36 = H32 − H35
   const optionsDelta = hedgeQty * hedgeDelta;
@@ -751,8 +796,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       irr: (maturityCr / inputs.notionalCr) ** (365 / tenor) - 1,
       weightedCompRate,
       // Product Description P28 and Q28
-      weightedHalfYearlyRate: 2 * ((1 + weightedCompRate) ** (1 / 2) - 1),
-      weightedQuarterlyRate: 4 * ((1 + weightedCompRate) ** (1 / 4) - 1),
+      weightedHalfYearlyRate: weightedCompRate == null ? null : 2 * ((1 + weightedCompRate) ** (1 / 2) - 1),
+      weightedQuarterlyRate: weightedCompRate == null ? null : 4 * ((1 + weightedCompRate) ** (1 / 4) - 1),
       greeks: {
         deltaPercent: (bookDelta * inputs.spot) / notional,
         totalDelta: bookDelta,

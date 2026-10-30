@@ -764,6 +764,7 @@ function VolatilityGroup({ open }: { open: number }) {
                 onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
                 onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
                 suffix="%"
+                {...guard("annualVol")}
                 testId="input-annualVol"
                 placeholder="Eg 16.9 %"
               />
