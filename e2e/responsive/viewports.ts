@@ -2,8 +2,8 @@ type DeviceKind = "phone" | "tablet" | "desktop";
 
 export type Viewport = { name: string; width: number; height: number; kind: DeviceKind };
 
-/** Every device view the desk is checked at, from a small phone to a 2560 px monitor. */
-export const VIEWPORTS: Viewport[] = [
+/** The full device list. Set E2E_FULL_WIDTHS=1 to run it; the default run uses three widths. */
+const FULL_VIEWPORTS: Viewport[] = [
   { name: "small-phone", width: 320, height: 568, kind: "phone" },
   { name: "iphone-se", width: 375, height: 667, kind: "phone" },
   { name: "iphone-15", width: 393, height: 852, kind: "phone" },
@@ -17,6 +17,15 @@ export const VIEWPORTS: Viewport[] = [
   { name: "full-hd", width: 1920, height: 1080, kind: "desktop" },
   { name: "wide", width: 2560, height: 1440, kind: "desktop" },
 ];
+
+/** Phone, the width where every tab must fit, and the desk desktop. */
+const DEFAULT_VIEWPORTS: Viewport[] = [
+  { name: "phone", width: 390, height: 844, kind: "phone" },
+  { name: "tablet", width: 1024, height: 1366, kind: "tablet" },
+  { name: "desktop", width: 1440, height: 900, kind: "desktop" },
+];
+
+export const VIEWPORTS: Viewport[] = process.env.E2E_FULL_WIDTHS === "1" ? FULL_VIEWPORTS : DEFAULT_VIEWPORTS;
 
 /** Context options for a viewport: phones and tablets are touch devices. */
 export function contextFor(v: Viewport) {

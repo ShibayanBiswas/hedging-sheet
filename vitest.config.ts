@@ -11,6 +11,8 @@ export default defineConfig({
     setupFiles: ["tests/helpers/setup.ts"],
     testTimeout: 60_000,
     hookTimeout: 180_000,
+    // Two workers on a laptop. CI keeps Vitest's default so the golden suite can use the runner.
+    ...(process.env.CI ? {} : { maxWorkers: 2, minWorkers: 1 }),
     reporters: process.env.CI ? ["default", "junit"] : ["default"],
     outputFile: { junit: "test-results/vitest-junit.xml" },
     coverage: {

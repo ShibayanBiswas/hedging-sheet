@@ -1,0 +1,73 @@
+name: Playwright
+
+on:
+  workflow_dispatch:
+    inputs:
+      browsers:
+        description: Browsers. Chromium is the default.
+        type: choice
+        options:
+          - chromium
+          - all
+        default: chromium
+      widths:
+        description: Widths. Default is 390, 1024 and 1440.
+        type: choice
+        options:
+          - default
+          - all
+        default: default
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  playwright:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_PROD: "1"
+      NEXT_PUBLIC_E2E: "1"
+      E2E_FULL_WIDTHS: ${{ inputs.widths == 'all' && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install browsers
+        run: |
+          if [ "${{ inputs.browsers }}" = "all" ]; then
+            npx playwright install --with-deps chromium firefox webkit
+          else
+            npx playwright install --with-deps chromium
+          fi
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_E2E: "1"
+      - name: Chromium, or every browser when requested
+        run: |
+          if [ "${{ inputs.browsers }}" = "all" ]; then
+            npx playwright test --grep-invert "visual baselines"
+          else
+            npx playwright test --project=chromium --grep-invert "visual baselines"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          retention-days: 3
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore

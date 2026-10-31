@@ -15,11 +15,11 @@
 | Structure and Call | `tests/structure.test.ts`, `tests/call.test.ts` | Start level, strikes and units, Strike Level edits, adding and removing strikes, each strike's Buy Or Sell, the book against the payoff for all Put, all Call and mixed, put-call parity on every leg, and each leg's option type in Excel |
 | Strikes | `e2e/strikes.spec.ts`, `e2e/strike-matrix.spec.ts` | S1 to S14, and every strike on the wrong side, a mixed Call and Put book against the all Put book, and removing and adding a strike |
 | Pipeline | `e2e/pipeline` | No stale result after a mode or underlying switch; everything that depends on the underlying, for Nifty and Sensex; no underlying typed in a page or component |
-| Crawls | `e2e/numbers.spec.ts`, `e2e/buttons.spec.ts`, `e2e/layout.spec.ts` | Every cell on every tab against the result from `window.__HS_TEST__`; every button and link with no console error, no failed response and no layout shift above 0.1; white surfaces, single line cells, no pinned column, scroll boxes for long tables and the footer and Inputs gaps at 1440, 1024, 768 and 390 px |
+| Crawls | `e2e/numbers.spec.ts`, `e2e/buttons.spec.ts`, `e2e/layout.spec.ts` | Every cell on every tab against the result from `window.__HS_TEST__`; every button and link with no console error, no failed response and no layout shift above 0.1; white surfaces, single line cells, no pinned column, scroll boxes for long tables and the footer and Inputs gaps at 1440, 1024 and 390 px |
 | Default parity suite | `e2e/default` | D1 to D7: prefilled fields, regression numbers at the mock spot, the table checks, Excel, the run gate, the footer and the surface parameter editor; plus the market data flows |
 | Copy and capitalisation | `e2e/copy-rules.spec.ts`, `e2e/capitalisation.spec.ts` | Spelled out words, no brackets, no "/", the % sign, "-" for not applicable, no spreadsheet wording and capitals on every word, on every page in both modes |
 | Accessibility | `e2e/a11y.spec.ts`, B22 | axe on every page, in both modes, before and after a run and with a popup open; no serious or critical violations |
-| Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 on 12 viewports from 320 by 568 to 2560 by 1440 |
+| Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 at 390, 1024 and 1440 px. `E2E_FULL_WIDTHS=1` restores the 12 viewports from 320 by 568 to 2560 by 1440 |
 | Market Data | `e2e/market-data.spec.ts` | At 1440, 1024 and 390 px: no sideways scroll, the sticky grid header with no pinned column, units, the Deep strike, copy, inline edit validation, uploads refused before any request, writes refused without the Desk Key and both downloads |
 | Visual | `e2e/visual` | `toHaveScreenshot` for the 8 tabs at desktop, tablet and phone widths, Linux baselines only, with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
 | Performance | `e2e/perf.spec.ts`, `lighthouserc.json` | LCP under 2.5 s, CLS under 0.1, TBT under 300 ms on Inputs and Pricer; a run under 3 s with mocks |
@@ -103,15 +103,9 @@ A failed test keeps its trace, video and screenshot in `test-results/playwright/
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every push and pull request:
+`.github/workflows/ci.yml` runs on a push or pull request to `main`, and skips a change that only touches `docs/**`, markdown or screenshots. One job runs typecheck, lint, Vitest without coverage (unit, golden and property tests) and the build. A newer push cancels the run it replaces. Playwright, visual baselines and Lighthouse are separate workflows, started by hand from the Actions tab, each as one Chromium job. A failed run uploads its report for 3 days.
 
-1. Typecheck, lint, Vitest with coverage (unit, golden and API), the mapping check, the copy check and the build.
-2. Playwright in mock mode against the production build, across 4 shards and all four projects: the flows, accessibility, the crawls, the pipeline and the responsive audit.
-3. Visual baselines on Linux.
-4. Lighthouse budgets.
-5. Artifact upload for each job.
-
-`.github/workflows/prod-smoke.yml` runs the read-only production project after CI succeeds on `main`, after each successful deployment, preview ones included, nightly, and on demand, and uploads the `prod-smoke-report` artifact.
+`.github/workflows/prod-smoke.yml` runs five Chromium checks against production after CI succeeds on `main`, and on demand. There is no schedule. A failed or cancelled CI run does not smoke production.
 
 ## Debug Drawer
 

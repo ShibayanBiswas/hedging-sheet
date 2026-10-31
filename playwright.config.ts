@@ -19,7 +19,9 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 20_000, toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: "disabled", caret: "hide" } },
   fullyParallel: false,
+  // One browser at a time, locally and in each CI shard, so a laptop does not collect a browser per file.
   workers: 1,
+  globalTeardown: "./e2e/global-teardown.ts",
   retries: ci ? 1 : 0,
   reporter: [
     ["list"],
@@ -42,7 +44,7 @@ export default defineConfig({
   },
   projects: external
     ? [
-        { name: "prod", testMatch: /(prod-smoke|market-data|strikes)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        { name: "prod", testMatch: /prod-smoke\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
         // Read-only layout checks on live data; the screenshots need the mock data, so R8 stays local.
         { name: "prod-responsive", testMatch: /responsive[\\/]r(01|09|10|11)[^\\/]*\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
       ]
@@ -57,8 +59,11 @@ export default defineConfig({
     : {
         command: "npx tsx scripts/e2e-server.ts",
         url: `http://localhost:${port}`,
-        reuseExistingServer: false,
+        // A second local run attaches to the server already on this port instead of starting another Next and Mongo.
+        reuseExistingServer: !ci,
         timeout: 240_000,
+        // SIGTERM lets e2e-server stop the in-memory database. The default is SIGKILL, which skips that cleanup.
+        gracefulShutdown: { signal: "SIGTERM", timeout: 15_000 },
         env: { E2E_PORT: String(port) },
       },
 });

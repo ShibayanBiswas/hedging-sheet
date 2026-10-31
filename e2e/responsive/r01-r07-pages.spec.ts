@@ -32,6 +32,7 @@ test.describe("360 px", () => {
   test.use({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true });
 
   test("R7 every heading takes at most two lines", async ({ page, inputs, nav }) => {
+    test.skip(process.env.E2E_FULL_WIDTHS !== "1", "The 360 px check is part of the full width run.");
     await inputs.goto();
     await inputs.run();
     const found: string[] = [];

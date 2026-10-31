@@ -43,7 +43,7 @@ export function SiteNav() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
-                  className="glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
+                  className="nav-tab glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
                 >
                   {active ? (
                     <motion.span

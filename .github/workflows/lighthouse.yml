@@ -1,0 +1,35 @@
+name: Lighthouse
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  lighthouse:
+    name: Lighthouse Budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      E2E_PROD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx lhci autorun
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: lighthouse
+          retention-days: 3
+          path: test-results/lighthouse
+          if-no-files-found: ignore
