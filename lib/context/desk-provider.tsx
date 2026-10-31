@@ -336,14 +336,16 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     });
   }, [fetchDailyVol, loadDataset, loadLevels]);
 
-  // Field checks run 150 ms after typing stops; Run Simulation always checks the inputs as they are.
+  // The steps unlock from the inputs as they are: a step locked a moment too long cannot take focus, so a value typed
+  // into it would never commit. Only the messages under the fields wait until typing has stopped for 150 ms.
+  const fieldErrors = useMemo(() => validateDeskInputs(inputs, { today: istTodayYmd() }), [inputs]);
   const [checkedInputs, setCheckedInputs] = useState(inputs);
   useEffect(() => {
     const id = window.setTimeout(() => setCheckedInputs(inputs), 150);
     return () => window.clearTimeout(id);
   }, [inputs]);
-  const fieldErrors = useMemo(() => validateDeskInputs(checkedInputs, { today: istTodayYmd() }), [checkedInputs]);
-  const visibleErrors = useMemo(() => (submitted ? fieldErrors : fieldErrors.filter((e) => e.kind === "invalid")), [fieldErrors, submitted]);
+  const shownErrors = useMemo(() => validateDeskInputs(checkedInputs, { today: istTodayYmd() }), [checkedInputs]);
+  const visibleErrors = useMemo(() => (submitted ? shownErrors : shownErrors.filter((e) => e.kind === "invalid")), [shownErrors, submitted]);
 
   const runOnce = useCallback(async (): Promise<boolean> => {
     const current = inputsRef.current;

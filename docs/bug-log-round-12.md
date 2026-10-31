@@ -94,6 +94,16 @@ Local means Vitest on Node, or Playwright on Chromium against the mock server on
 - **Fix Commit:** `1dbfb14`. Annual takes the Daily range times the square root of 365, which is above 0% to 191.05%.
 - **Regression Test:** `tests/edge/engine-edges.test.ts` › Edge · Volatility.
 
+## BUG-12-15 · Blank Inputs Could Lose A Typed Value After Field Checks Were Debounced
+
+- **Environment:** Local, `npm run test:local` on Chromium, after commit `850d578` debounced the field checks by 150 ms.
+- **Steps:** In Blank Inputs, fill the fields one after another quickly, as the Blank suite does.
+- **Expected:** Each step unlocks as soon as the one before is complete, and every typed value is kept.
+- **Actual:** 31 Chromium tests failed. Expiry boxes showed their dates while each still read "Expiry N Is Required", and the Strikes group stayed locked.
+- **Root Cause:** Step locking read the debounced checks. For 150 ms a step stayed locked, and a locked step cannot take focus, so a value typed into it never committed on blur.
+- **Fix Commit:** see the commit "Steps Unlock From The Inputs As They Are; Only Field Messages Wait 150 ms". The steps, the Run button and the popups read the checks on the current inputs; only the messages under the fields wait for typing to stop.
+- **Regression Test:** `e2e/blank/*`, `e2e/capitalisation.spec.ts` and the blank mode runs of `e2e/responsive/r01-r07-pages.spec.ts`: 113 of 113 pass.
+
 ## BUG-12-11 To 14 · Layout Tests That Only Held On Desktop Chromium
 
 - **Environment:** Local, `npm run test:all`, the first run of every project: Firefox, WebKit and the Pixel 7 mobile project.
