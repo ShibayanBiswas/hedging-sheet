@@ -105,13 +105,13 @@ A failed test keeps its trace, video and screenshot in `test-results/playwright/
 
 `.github/workflows/ci.yml` runs on every push and pull request:
 
-1. Typecheck, lint, Vitest with coverage (unit, golden and API), the mapping check, the copy check and the build.
+1. Typecheck, lint, knip, Vitest with coverage (unit, golden and API), the mapping check, the workbook audit, the copy check and the build.
 2. Playwright in mock mode against the production build, across 4 shards and all four projects: the flows, accessibility, the crawls, the pipeline and the responsive audit.
 3. Visual baselines on Linux.
 4. Lighthouse budgets.
 5. Artifact upload for each job.
 
-`.github/workflows/prod-smoke.yml` runs the read-only production project after CI succeeds on `main`, after each successful deployment, preview ones included, nightly, and on demand, and uploads the `prod-smoke-report` artifact.
+`.github/workflows/prod-smoke.yml` runs the read-only production project after CI succeeds on `main`, after a successful Production deployment event when one arrives, nightly, and on demand, and uploads the `prod-smoke-report` artifact. Vercel does not post GitHub deployment events for this repository, so the CI trigger is the one that actually fires. Preview deployments are not smoked. A failed or cancelled CI run does not smoke production.
 
 ## Debug Drawer
 

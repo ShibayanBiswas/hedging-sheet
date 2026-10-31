@@ -10,12 +10,13 @@
 | Inputs | Seven numbered groups in a compact 4, 3, 2, 1 column grid with gating, count pickers, Bulk Edit paste with live checks, field checks that revert an invalid value with a popup, and a Run check whose problems link to their fields. Spreads drive the strikes, n + 4, and each strike shows its units |
 | Volatility | Daily and Annual share one tag, Calculated or Edited |
 | Header And Footer | One header row from 1024 px with a slim tab row, at most 140 px on desktop and 120 px on phones. The footer grid puts each label beside its value; Desk Clock reads 30-Oct-2026 · 12:11:30 pm IST |
+| Section Tabs | From 1024 to 1359 px the tabs use caption size, 4 px padding and a 16 px icon, so every tab stays on one line when Segoe UI falls back to a wider face |
 | Toast | Simulation Completed, bottom right 24 px in, at most 360 px wide, above the Run bar; across the bottom on phones |
 | Market Data | Toolbar right-aligned in the heading row; Deep shows the 55% strike; Surface Parameters stacked; Headline one pair a row on phones |
 | Tables | One sans font in every table; single-line rows at most 44 px |
 | Logic Atlas | A Pipeline table, one row per stage from Inputs to Payoff, with the last run's value |
 | Exports | Download PDF on every tab, the whole page, landscape A4 with repeated headers and numbered pages. Excel has one sheet per tab in tab order plus Audit, no frozen panes, no filters, gridlines off |
-| CI | Production Smoke runs after each successful Vercel production deployment; knip fails the build on unused files or exports |
+| CI | Production Smoke runs after CI succeeds on main, because Vercel does not post deployment events for this repository, and also on a successful Production deployment event, nightly and on demand. Knip fails the build on unused files or exports |
 
 ## Round 11 (Earlier): Fewer Columns And Tables On Market Data
 

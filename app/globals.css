@@ -1099,6 +1099,32 @@ select.input-glow:focus-visible {
   scrollbar-width: none;
 }
 
+/*
+ * From 1024 px every section tab has to fit in the rail. Segoe UI on Windows does.
+ * The Linux fallback for Segoe UI (Noto Sans here, Ubuntu on GitHub runners) is wider,
+ * so the same tabs overflow by about 44 px at 1024 and 34 px at 1280. Caption size,
+ * 4 px padding and a 16 px icon recover that room. From 1360 px the wider type fits,
+ * and that is what the 1440 px visual baseline shows.
+ */
+@media (min-width: 1024px) and (max-width: 1359px) {
+  .nav-pill-shell {
+    gap: 0.25rem;
+  }
+
+  .nav-pill-shell .nav-tab {
+    gap: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    font-size: var(--text-caption);
+    line-height: var(--leading-caption);
+  }
+
+  .nav-pill-shell .icon-nav {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+  }
+}
+
 /* The status strip joins the header row from 1024 px; below it the footer and the Run bar carry the status. */
 .market-strip {
   border: 0;

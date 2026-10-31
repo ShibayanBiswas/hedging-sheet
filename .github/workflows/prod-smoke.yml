@@ -1,7 +1,13 @@
 name: Production Smoke
 
 on:
-  # Vercel reports each deployment to GitHub; the smoke runs once the production one is live.
+  # This repository has never received a deployment_status event: Vercel does not post GitHub
+  # deployment events here. Smoke therefore runs after CI succeeds on main, when production is already live.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # A real Production deployment event, if one arrives, still smokes that deployment.
   deployment_status:
   schedule:
     - cron: "30 3 * * *"
@@ -11,8 +17,9 @@ jobs:
   smoke:
     name: Read-Only Smoke Against The Production Deployment
     if: >-
-      github.event_name != 'deployment_status' ||
-      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+      (github.event_name != 'deployment_status' ||
+        (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')) &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -22,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.deployment.sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha || github.event.deployment.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
