@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
@@ -17,7 +17,7 @@ function rawValue(value: CellValue): number | undefined {
 function TableFrame({ children, testId, title, note }: { children: ReactNode; testId: string; title: string; note?: string }) {
   const reduce = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       className="w-full min-w-0"
       data-testid={testId}
       initial={reduce ? false : { opacity: 0, y: 10 }}
@@ -30,7 +30,7 @@ function TableFrame({ children, testId, title, note }: { children: ReactNode; te
         </div>
       </div>
       {note ? <p className="mt-2 font-ui text-caption italic text-muted">{note}</p> : null}
-    </motion.div>
+    </m.div>
   );
 }
 

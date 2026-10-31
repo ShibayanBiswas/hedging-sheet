@@ -1,13 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { BookOpenText, ChartLine, Coins, FileText, Gauge, Landmark, Percent, Sigma } from "lucide-react";
 
-import { PayoffUnderlyingChart } from "@/components/charts/payoff-underlying-chart";
 import { KeyValueCard, TableCard } from "@/components/ui/desk-table";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
 import { PayoffScenariosTable } from "@/components/ui/payoff-scenarios-table";
 import { ResultGate } from "@/components/ui/result-gate";
 import { productHeadline, productTables } from "@/lib/tables";
+
+/** The chart library loads only once a run has a chart to draw; the placeholder keeps its height. */
+const PayoffUnderlyingChart = dynamic(() => import("@/components/charts/payoff-underlying-chart").then((m) => m.PayoffUnderlyingChart), {
+  ssr: false,
+  loading: () => <div className="hs-skeleton h-[calc(min(52dvh,420px)+6rem)] min-h-[396px] w-full" data-testid="payoff-chart-loading" />,
+});
 
 export default function ProductPage() {
   return (

@@ -4,6 +4,7 @@ import { checkInputShape } from "@/lib/engine/input-schema";
 import { anchoredCurve, dividendYield, pricerDiscountYield, readRateCurve } from "@/lib/engine/rates";
 import { maturityDate, medianExpiryIndex, validateSchedule } from "@/lib/engine/schedule";
 import { brentSolve } from "@/lib/engine/solver";
+import { annualVolFromDaily } from "@/lib/engine/volatility";
 import {
   buildStrikes,
   clientReturn,
@@ -46,15 +47,6 @@ const LAKH = 1e5;
 const HALVES = 2;
 /** MTM & Margin req D6:D20 and the Day 1 Vega Hedge moves: −50 to +20 percent in 5 percent steps. */
 const SCENARIO_MOVES = [-0.5, -0.45, -0.4, -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2];
-
-// Summary I26 = I25 × √365
-export function annualVolFromDaily(daily: number): number {
-  return daily * Math.sqrt(365);
-}
-
-export function dailyVolFromAnnual(annual: number): number {
-  return annual / Math.sqrt(365);
-}
 
 export function legKey(blockIndex: number, expiryIndex: number): string {
   return `${blockIndex}-${expiryIndex}`;
@@ -155,7 +147,7 @@ export function totalLossFall(inputs: HedgeInputs): number | null {
   return -p;
 }
 
-export function validateInputs(
+function validateInputs(
   inputs: HedgeInputs,
   market?: MarketData,
 ): { errors: ValidationIssue[]; warnings: ValidationIssue[]; dates: string[] } {

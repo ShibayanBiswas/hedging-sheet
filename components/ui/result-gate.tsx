@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { AlertTriangle, ArrowLeft, Sparkles } from "lucide-react";
 
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
@@ -22,7 +22,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
   if (!lastRun || staleInputs) {
     return (
       <div className="flex min-h-[52dvh] w-full items-center justify-center py-8" data-testid="run-gate">
-        <motion.div
+        <m.div
           className="glass glass-glow-purple relative w-full max-w-xl overflow-hidden rounded-2xl border border-gold/30 text-center shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)]"
           initial={reduce ? false : { opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -39,13 +39,13 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
                 Inputs Changed
               </p>
             ) : null}
-            <motion.span
+            <m.span
               className="mx-auto inline-flex rounded-2xl border border-gold/30 p-3 text-gold-dark"
               animate={reduce ? undefined : { rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
             >
               <Sparkles className="icon-lg" aria-hidden />
-            </motion.span>
+            </m.span>
             <h2 className="mt-4 font-bold tracking-tight text-ink text-h2">Run The Simulation To See Results</h2>
             <p className="mx-auto mt-2 max-w-md font-ui text-body text-muted">
               {staleInputs
@@ -64,7 +64,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
               </Link>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
     <>
       <AnimatePresence initial={false}>
         {stale ? (
-          <motion.div
+          <m.div
             key="stale"
             data-testid="stale-banner"
             className="mb-4 flex w-full flex-col items-start gap-3 rounded-2xl border border-amber-400/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
@@ -88,7 +88,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
             <div className="w-full sm:w-64">
               <RunSimulationButton compact />
             </div>
-          </motion.div>
+          </m.div>
         ) : null}
       </AnimatePresence>
       {children(lastRun.result)}

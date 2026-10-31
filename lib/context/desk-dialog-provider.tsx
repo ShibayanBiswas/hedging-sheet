@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CheckCircle2, OctagonAlert } from "lucide-react";
 
 import { DeskDialog, type DeskDialogState } from "@/components/ui/desk-dialog";
@@ -82,7 +82,7 @@ export function DeskDialogProvider({ children }: { children: ReactNode }) {
       <DeskDialog open={state != null} state={state} onClose={close} />
       <AnimatePresence>
         {toastState ? (
-          <motion.div
+          <m.div
             key={toastState.id}
             role={toastState.variant === "error" ? "alert" : "status"}
             data-testid="desk-toast"
@@ -99,7 +99,7 @@ export function DeskDialogProvider({ children }: { children: ReactNode }) {
           >
             {toastState.variant === "error" ? <OctagonAlert className="icon-sm shrink-0 text-rose-600" aria-hidden /> : <CheckCircle2 className="icon-sm shrink-0 text-emerald-600" aria-hidden />}
             <span className="min-w-0">{toastState.text}</span>
-          </motion.div>
+          </m.div>
         ) : null}
       </AnimatePresence>
     </DeskDialogContext.Provider>

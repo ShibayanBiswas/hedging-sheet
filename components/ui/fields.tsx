@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
@@ -43,7 +43,7 @@ export function FieldRow({
         {hint ? <p className="hint mt-1 font-ui">{hint}</p> : null}
         <AnimatePresence initial={false}>
           {error ? (
-            <motion.p
+            <m.p
               key={error}
               className="hs-error mt-1"
               role="alert"
@@ -52,7 +52,7 @@ export function FieldRow({
               exit={{ opacity: 0, y: -4 }}
             >
               {error}
-            </motion.p>
+            </m.p>
           ) : null}
         </AnimatePresence>
       </div>
@@ -297,7 +297,7 @@ export function Segmented<T extends string>({
             className={cn(active ? "text-maroon" : "text-muted hover:text-ink")}
           >
             {active ? (
-              <motion.span
+              <m.span
                 className="hs-segment-glow"
                 layoutId={reduce ? undefined : `segment-${id}`}
                 transition={{ type: "spring", stiffness: 420, damping: 30 }}

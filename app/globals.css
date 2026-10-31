@@ -1911,3 +1911,25 @@ textarea {
   border-color: #7a1e2c !important;
   box-shadow: 0 0 0 2px rgba(122, 30, 44, 0.2) !important;
 }
+
+/* Loading placeholder: a soft opacity pulse, still when reduced motion is asked for. */
+.hs-skeleton {
+  border-radius: 1rem;
+  background: #f2eeef;
+  animation: hs-skeleton-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes hs-skeleton-pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-skeleton {
+    animation: none;
+  }
+}

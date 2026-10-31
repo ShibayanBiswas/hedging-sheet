@@ -1,5 +1,5 @@
 import { isValidYmd } from "@/lib/engine/dates";
-import { annualVolFromDaily } from "@/lib/engine/hedging-sheet";
+import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
 import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";

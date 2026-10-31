@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { Eraser, Sparkles } from "lucide-react";
 
 import { useDesk } from "@/lib/context/desk-provider";
@@ -22,25 +22,25 @@ export function InputModeSwitch() {
       data-testid="mode-switch"
       onKeyDown={(e) => moveFocusWithArrows(e, '[role="tab"]')}
     >
-      {INPUT_MODES.map((m) => {
-        const active = mode === m.id;
-        const Icon = ICONS[m.id];
+      {INPUT_MODES.map((item) => {
+        const active = mode === item.id;
+        const Icon = ICONS[item.id];
         return (
-          <motion.button
-            key={m.id}
+          <m.button
+            key={item.id}
             type="button"
             role="tab"
             aria-selected={active}
             tabIndex={active ? 0 : -1}
-            data-testid={`mode-${m.id}`}
-            title={m.subtitle}
+            data-testid={`mode-${item.id}`}
+            title={item.subtitle}
             className={cn("glass-control relative flex h-9 flex-1 items-center justify-center rounded-lg px-3 text-center transition-colors")}
             whileTap={reduce ? undefined : { scale: 0.97 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
-            onClick={() => requestMode(m.id)}
+            onClick={() => requestMode(item.id)}
           >
             {active ? (
-              <motion.span
+              <m.span
                 className="glass-active-pill absolute inset-0 rounded-lg"
                 layoutId={reduce ? undefined : "input-mode-active"}
                 transition={{ type: "spring", stiffness: 420, damping: 28 }}
@@ -49,10 +49,10 @@ export function InputModeSwitch() {
             ) : null}
             <span className="relative inline-flex items-center gap-2 whitespace-nowrap font-ui text-body font-bold">
               <Icon className="icon-sm" aria-hidden />
-              {m.label}
+              {item.label}
             </span>
-            <span className="sr-only">{m.subtitle}</span>
-          </motion.button>
+            <span className="sr-only">{item.subtitle}</span>
+          </m.button>
         );
       })}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -51,7 +51,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
   return (
     <AnimatePresence>
       {open && state ? (
-        <motion.div
+        <m.div
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-4"
           exit={reduce ? undefined : { opacity: 0 }}
@@ -59,7 +59,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
           role="presentation"
         >
           <button aria-label="Close dialog" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" type="button" onClick={() => onClose()} />
-          <motion.div
+          <m.div
             key={`${state.title}\n${state.message}`}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             aria-labelledby="desk-dialog-title"
@@ -150,8 +150,8 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
                 <span className="relative z-10">{state.okLabel ?? "OK"}</span>
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       ) : null}
     </AnimatePresence>
   );

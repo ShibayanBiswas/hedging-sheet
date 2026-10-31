@@ -68,7 +68,8 @@ const local = { E2E_PROD: "1", E2E_PORT: LOCAL_PORT, REPORT_DIR: dir };
 const STATIC: Step[] = [
   { name: "Type Check", command: "npx tsc --noEmit" },
   { name: "Lint", command: "npx eslint . --max-warnings 0" },
-  { name: "Unused Code", command: "npx knip --no-progress" },
+  // Knip's parser otherwise reserves one large buffer up front, which fails on a laptop short of memory.
+  { name: "Unused Code", command: "npx knip --no-progress", env: { KNIP_DISABLE_RAW_TRANSFER: "1" } },
   { name: "Copy Rules", command: "npx vitest run tests/copy tests/unit/copy-rules.test.ts tests/unit/title-case.test.ts" },
   { name: "Workbook Mapping", command: "npx tsx scripts/extract-mapping.ts" },
   { name: "Workbook Audit", command: "npx tsx scripts/audit-workbook.ts" },
@@ -93,10 +94,16 @@ const LOCAL: Step[] = [
   ...(full
     ? [
         {
-          name: "Lighthouse",
+          name: "Lighthouse Desktop",
           command: `npx lhci autorun --collect.url=http://localhost:${LOCAL_PORT}/ --collect.url=http://localhost:${LOCAL_PORT}/pricer --upload.outputDir=${dir}/lighthouse`,
           env: { E2E_PROD: "1", E2E_PORT: LOCAL_PORT },
           report: `${dir}/lighthouse`,
+        },
+        {
+          name: "Lighthouse Mobile",
+          command: `npx lhci autorun --config=lighthouserc.mobile.json --collect.url=http://localhost:${LOCAL_PORT}/ --collect.url=http://localhost:${LOCAL_PORT}/pricer --upload.outputDir=${dir}/lighthouse-mobile`,
+          env: { E2E_PROD: "1", E2E_PORT: LOCAL_PORT },
+          report: `${dir}/lighthouse-mobile`,
         },
       ]
     : []),

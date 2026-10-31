@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Brain, CheckCircle2, Clock, LineChart, Network, TriangleAlert } from "lucide-react";
 
 import { StageCard } from "@/components/atlas/stage-card";
@@ -28,7 +28,7 @@ export default function LogicAtlasPage() {
 
   return (
     <div className="intel-page flex w-full flex-col gap-4">
-      <motion.header className="intel-hero" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: deskEase }}>
+      <m.header className="intel-hero" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: deskEase }}>
         <div className="relative z-10 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="intel-hero-kicker">Anand Rathi Wealth · Desk Intelligence</p>
@@ -45,7 +45,7 @@ export default function LogicAtlasPage() {
         <p className="intel-hero-sub relative z-10">
           How the {underlyingName(inputs)} product flows from the inputs through pricing, the goal seek and the vega hedge to the margin and the payoff.
         </p>
-      </motion.header>
+      </m.header>
 
       <Panel id="flows">
         <div data-testid="atlas-section-flows">

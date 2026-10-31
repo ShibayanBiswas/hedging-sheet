@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { ArrowRight, Cpu, LineChart, Search, ShieldCheck, type LucideIcon } from "lucide-react";
 
 import type { AtlasStage, StageKind } from "@/lib/logic-atlas";
@@ -47,7 +47,7 @@ export function StageCard({ stage, step, titles, pending }: { stage: AtlasStage;
   const kind = KIND[stage.kind];
   const Icon = kind.icon;
   return (
-    <motion.article
+    <m.article
       id={`stage-${stage.id}`}
       tabIndex={-1}
       data-testid={`stage-${stage.id}`}
@@ -99,6 +99,6 @@ export function StageCard({ stage, step, titles, pending }: { stage: AtlasStage;
           <span className="text-muted">{pending}</span>
         )}
       </div>
-    </motion.article>
+    </m.article>
   );
 }

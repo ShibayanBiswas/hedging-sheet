@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 
 import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
@@ -29,7 +29,7 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
   const u = result.underlyingLabel;
   const rows = result.productDescription.payoff;
   return (
-    <motion.div
+    <m.div
       className="w-full min-w-0"
       data-testid="table-pd-payoff"
       initial={reduce ? false : { opacity: 0, y: 10 }}
@@ -93,6 +93,6 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
       <p className="mt-2 font-ui text-caption italic text-muted">
         Levels: every strike, the protection level and 0.01% below it, zero, and every 5% in between.
       </p>
-    </motion.div>
+    </m.div>
   );
 }

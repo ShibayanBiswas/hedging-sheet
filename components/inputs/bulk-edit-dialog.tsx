@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ClipboardPaste } from "lucide-react";
 
 import type { BulkResult } from "@/lib/inputs/bulk";
@@ -59,7 +59,7 @@ export function BulkEditDialog<T>({
   return createPortal(
     <AnimatePresence>
       {open ? (
-        <motion.div className="fixed inset-0 z-[190] flex items-end justify-center sm:items-center sm:p-4" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduce ? undefined : { opacity: 0 }}>
+        <m.div className="fixed inset-0 z-[190] flex items-end justify-center sm:items-center sm:p-4" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduce ? undefined : { opacity: 0 }}>
           <button type="button" aria-label="Close Bulk Edit" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" onClick={onClose} />
           <div role="dialog" aria-modal="true" aria-labelledby={`${testId}-title`} data-testid={testId} className="desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden border border-gold/30 sm:max-w-2xl">
             <div className="h-1 bg-gradient-to-r from-maroon via-gold to-maroon/70" />
@@ -134,7 +134,7 @@ export function BulkEditDialog<T>({
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       ) : null}
     </AnimatePresence>,
     document.body,

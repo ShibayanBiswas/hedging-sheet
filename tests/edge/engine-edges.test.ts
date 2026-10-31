@@ -2,7 +2,8 @@ import ExcelJS from "exceljs";
 import fc from "fast-check";
 import { describe, expect, it, vi } from "vitest";
 
-import { annualVolFromDaily, computeHedgingSheet } from "@/lib/engine/hedging-sheet";
+import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
+import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { autoHedgeStrike, seedMarketData } from "@/lib/engine/defaults";
 import { expiryForMonth, resizeList, snapExpiry, validateSchedule } from "@/lib/engine/schedule";
 import { derivedSides, validateStructure } from "@/lib/engine/structure";

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 
 import { moveFocusWithArrows } from "@/lib/keyboard";
 import { activeNav, NAV_ITEMS } from "@/lib/navigation";
@@ -38,7 +38,7 @@ export function SiteNav() {
             const active = section.id === item.id;
             const Icon = item.icon;
             return (
-              <motion.div key={item.id} className="flex min-w-max flex-1 lg:min-w-min lg:flex-auto" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
+              <m.div key={item.id} className="flex min-w-max flex-1 lg:min-w-min lg:flex-auto" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
@@ -46,22 +46,22 @@ export function SiteNav() {
                   className="glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
                 >
                   {active ? (
-                    <motion.span
+                    <m.span
                       className="glass-active-pill absolute inset-0 rounded-lg"
                       layoutId={reduce ? undefined : "main-nav-active"}
                       transition={{ type: "spring", stiffness: 420, damping: 28 }}
                     />
                   ) : null}
-                  <motion.span
+                  <m.span
                     className="relative inline-flex"
                     whileHover={reduce ? undefined : { scale: 1.12, rotate: -4 }}
                     transition={{ type: "spring", stiffness: 400, damping: 18 }}
                   >
                     <Icon className="icon-nav" aria-hidden />
-                  </motion.span>
+                  </m.span>
                   <span className="relative">{item.label}</span>
                 </Link>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>

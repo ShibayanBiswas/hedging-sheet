@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight, Command, X } from "lucide-react";
 
 import { NAV_ITEMS } from "@/lib/navigation";
@@ -45,7 +45,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
   return createPortal(
     <div className="fixed inset-0 z-[300] flex items-end justify-center sm:items-start sm:p-4 sm:pt-12" role="presentation">
       <button aria-label="Close search" className="absolute inset-0 bg-stone-950/55 backdrop-blur-[3px]" type="button" onClick={close} />
-      <motion.div
+      <m.div
         animate={{ opacity: 1, scale: 1, y: 0 }}
         aria-labelledby={titleId}
         aria-modal="true"
@@ -98,7 +98,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
           })}
           {!results.length ? <p className="px-3 py-6 text-center font-ui text-body text-stone-500">No matches.</p> : null}
         </div>
-      </motion.div>
+      </m.div>
     </div>,
     document.body,
   );

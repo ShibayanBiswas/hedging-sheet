@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CalendarClock, Check, ClipboardPaste, CloudDownload, Coins, Gauge, Layers, LineChart, Percent, RefreshCw, RotateCcw, ScrollText, type LucideIcon } from "lucide-react";
 
 import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
@@ -10,7 +10,7 @@ import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
-import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
+import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
 import { EXPIRY_WEEKDAY, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
 import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
@@ -495,7 +495,7 @@ function StrikesGroup({ open }: { open: number }) {
               const error = errorFor(`strikePercents.${i}`) ?? errorFor(`strikeOptionTypes.${i}`) ?? errorFor(`strikeSides.${i}`);
               const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
               return (
-                <motion.div
+                <m.div
                   key={i}
                   role="row"
                   data-testid={`strike-row-${i}`}
@@ -562,7 +562,7 @@ function StrikesGroup({ open }: { open: number }) {
                       {error}
                     </p>
                   ) : null}
-                </motion.div>
+                </m.div>
               );
             })}
           </AnimatePresence>

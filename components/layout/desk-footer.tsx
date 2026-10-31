@@ -14,10 +14,21 @@ const IST = "Asia/Kolkata";
 function useNow(): Date | null {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    let id = 0;
     const tick = () => setNow(new Date());
-    tick();
-    const id = window.setInterval(tick, 1_000);
-    return () => window.clearInterval(id);
+    // One tick a second while the page is visible; none while it is hidden.
+    const sync = () => {
+      window.clearInterval(id);
+      if (document.hidden) return;
+      tick();
+      id = window.setInterval(tick, 1_000);
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", sync);
+    };
   }, []);
   return now;
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { bsPrice } from "@/lib/engine/black-scholes";
-import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
+import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
 import { EXPIRY_WEEKDAY, expiryForMonth, medianExpiryIndex } from "@/lib/engine/schedule";
 import { bookReturn, clientReturn, deriveTerms, derivedSides, payoffLevels, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs, Underlying } from "@/lib/engine/types";

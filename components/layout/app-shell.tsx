@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Download, FileSpreadsheet, Loader2, Search, Upload } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -26,9 +26,9 @@ function DownloadExcelButton() {
     <div className="flex items-center gap-2">
       <AnimatePresence>
         {status ? (
-          <motion.span key={status} className="hs-chip hidden md:inline-flex" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+          <m.span key={status} className="hs-chip hidden md:inline-flex" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
             {status}
-          </motion.span>
+          </m.span>
         ) : null}
       </AnimatePresence>
       <button

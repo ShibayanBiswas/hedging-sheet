@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 
 import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
@@ -24,7 +24,7 @@ export function Panel({
 }) {
   const reduce = useReducedMotion();
   return (
-    <motion.section
+    <m.section
       id={id}
       className={cn("glass section-pad w-full min-w-0 rounded-2xl", recalculating && "hs-recalc", className)}
       initial={reduce ? false : { opacity: 0, y: 14 }}
@@ -32,7 +32,7 @@ export function Panel({
       transition={{ duration: 0.45, ease: deskEase, delay: Math.min(index, 8) * 0.05 }}
     >
       {children}
-    </motion.section>
+    </m.section>
   );
 }
 
@@ -64,7 +64,7 @@ export function SectionTitle({
 export function PageIntro({ title, subtitle, aside, tab }: { title: string; subtitle?: string; aside?: ReactNode; tab?: ExportTab }) {
   const reduce = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       className="mb-4 flex flex-wrap items-end justify-between gap-3"
       initial={reduce ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -81,6 +81,6 @@ export function PageIntro({ title, subtitle, aside, tab }: { title: string; subt
           {tab ? <DownloadPdfButton tab={tab} /> : null}
         </div>
       ) : null}
-    </motion.div>
+    </m.div>
   );
 }

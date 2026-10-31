@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, it } from "vitest";
 
-import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/hedging-sheet";
+import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
 import type { DeskInputs } from "@/lib/inputs/draft";
 import { splitKeys } from "@/lib/inputs/run-keys";
 import { checkFieldEdit, numberFieldRules } from "@/lib/validation/inputRules";

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { MotionProvider } from "@/components/layout/motion-provider";
 import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
 import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
 import { SurfaceUploadProvider } from "@/lib/context/surface-upload-provider";
@@ -29,15 +30,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-IN">
       <body className="bg-white font-serif text-ink antialiased">
-        <DeskDialogProvider>
-          <DeskKeyProvider>
-            <DeskProvider>
-              <SurfaceUploadProvider>
-                <AppShell>{children}</AppShell>
-              </SurfaceUploadProvider>
-            </DeskProvider>
-          </DeskKeyProvider>
-        </DeskDialogProvider>
+        <MotionProvider>
+          <DeskDialogProvider>
+            <DeskKeyProvider>
+              <DeskProvider>
+                <SurfaceUploadProvider>
+                  <AppShell>{children}</AppShell>
+                </SurfaceUploadProvider>
+              </DeskProvider>
+            </DeskKeyProvider>
+          </DeskDialogProvider>
+        </MotionProvider>
       </body>
     </html>
   );

@@ -11,7 +11,7 @@ import fs from "node:fs";
 import ExcelJS from "exceljs";
 
 import { defaultExpiryDates, seedMarketData, seedPricingParams } from "../lib/engine/defaults";
-import { annualVolFromDaily } from "../lib/engine/hedging-sheet";
+import { annualVolFromDaily } from "../lib/engine/volatility";
 import { G0_OPTIONS, g0Inputs, run } from "../tests/golden/cases";
 import { engineCell, payoffCell, splitAddress, type CellRead } from "../tests/golden/workbook-cells";
 import { REFERENCE_WORKBOOK, isFormula, savedValue } from "./workbook-reference";

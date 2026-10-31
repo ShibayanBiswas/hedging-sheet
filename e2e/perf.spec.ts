@@ -34,9 +34,9 @@ test.describe("performance budgets", () => {
     await inputs.goto();
     const v = await collectVitals(page);
     test.info().annotations.push({ type: "vitals", description: JSON.stringify(v) });
-    expect(v.cls).toBeLessThan(0.1);
+    expect(v.cls).toBeLessThan(0.05);
     if (prod) {
-      expect(v.lcp).toBeLessThan(2_500);
+      expect(v.lcp).toBeLessThan(2_000);
       expect(v.longTaskMs).toBeLessThan(300);
     }
   });
@@ -49,18 +49,27 @@ test.describe("performance budgets", () => {
     await page.reload();
     const v = await collectVitals(page);
     test.info().annotations.push({ type: "vitals", description: JSON.stringify(v) });
-    expect(v.cls).toBeLessThan(0.1);
+    expect(v.cls).toBeLessThan(0.05);
     if (prod) {
-      expect(v.lcp).toBeLessThan(2_500);
+      expect(v.lcp).toBeLessThan(2_000);
       expect(v.longTaskMs).toBeLessThan(300);
     }
   });
 
-  test("a run completes in under 2 s with mocked market data", async ({ page, inputs }) => {
+  test("a run of the default book completes in under 1.5 s, with no main thread task over 200 ms", async ({ page, inputs }) => {
     await inputs.goto();
+    await page.evaluate(() => {
+      const w = window as unknown as { __longTasks: number[] };
+      w.__longTasks = [];
+      new PerformanceObserver((list) => list.getEntries().forEach((e) => w.__longTasks.push(e.duration))).observe({ type: "longtask" });
+    });
     const start = Date.now();
     await inputs.runButton.click();
     await expect(page).toHaveURL(/\/summary$/, { timeout: 10_000 });
-    expect(Date.now() - start).toBeLessThan(prod ? 2_000 : 3_000);
+    const ms = Date.now() - start;
+    const longest = await page.evaluate(() => Math.max(0, ...(window as unknown as { __longTasks: number[] }).__longTasks));
+    test.info().annotations.push({ type: "run", description: JSON.stringify({ ms, longestTaskMs: Math.round(longest) }) });
+    expect(ms).toBeLessThan(prod ? 1_500 : 3_000);
+    if (prod) expect(longest).toBeLessThan(200);
   });
 });

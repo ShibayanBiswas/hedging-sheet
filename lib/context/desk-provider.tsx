@@ -6,8 +6,8 @@ import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { autoHedgeStrike, defaultExpiryDates, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
 import { istTodayYmd, isValidYmd } from "@/lib/engine/dates";
 import { snapExpiry } from "@/lib/engine/schedule";
-import { computeHedgingSheet, validateInputs } from "@/lib/engine/hedging-sheet";
-import type { HedgingResult, MarketData, PricingParams, Underlying, ValidationIssue, VolSurface } from "@/lib/engine/types";
+import { priceBook } from "@/lib/engine/run-engine";
+import type { HedgingFailure, HedgingResult, MarketData, PricingParams, Underlying, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
 import { splitKeys } from "@/lib/inputs/run-keys";
@@ -55,8 +55,6 @@ export type DeskContextValue = {
   fieldErrors: FieldError[];
   /** The field errors to show inline right now. */
   visibleErrors: FieldError[];
-  /** Engine issues of priceable inputs: structure warnings such as expiries beyond the surface. */
-  issues: { errors: ValidationIssue[]; warnings: ValidationIssue[] };
   simulation: SimulationState;
   runSimulation: () => Promise<boolean>;
   lastRun: LastRun | null;
@@ -69,6 +67,8 @@ export type DeskContextValue = {
 const DeskContext = createContext<DeskContextValue | null>(null);
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+/** Each progress step shows at least this long, so the steps can be read. */
+const STEP_MS = 120;
 
 /** Run warnings shown as a popup after the simulation, by code. */
 const WARNING_TITLES: Record<string, string> = {
@@ -336,14 +336,14 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     });
   }, [fetchDailyVol, loadDataset, loadLevels]);
 
-  const fieldErrors = useMemo(() => validateDeskInputs(inputs, { today: istTodayYmd() }), [inputs]);
+  // Field checks run 150 ms after typing stops; Run Simulation always checks the inputs as they are.
+  const [checkedInputs, setCheckedInputs] = useState(inputs);
+  useEffect(() => {
+    const id = window.setTimeout(() => setCheckedInputs(inputs), 150);
+    return () => window.clearTimeout(id);
+  }, [inputs]);
+  const fieldErrors = useMemo(() => validateDeskInputs(checkedInputs, { today: istTodayYmd() }), [checkedInputs]);
   const visibleErrors = useMemo(() => (submitted ? fieldErrors : fieldErrors.filter((e) => e.kind === "invalid")), [fieldErrors, submitted]);
-
-  const issues = useMemo(() => {
-    if (!isPriceable(inputs)) return { errors: [], warnings: [] };
-    const v = validateInputs(inputs, market);
-    return { errors: v.errors, warnings: v.warnings };
-  }, [inputs, market]);
 
   const runOnce = useCallback(async (): Promise<boolean> => {
     const current = inputsRef.current;
@@ -367,14 +367,27 @@ export function DeskProvider({ children }: { children: ReactNode }) {
     setSimulation({ running: true, step: 0 });
     const fetched = await refreshDataset();
     const fresh = fetched ?? market;
+    const price = (d: DeskInputs): Promise<HedgingResult | HedgingFailure | null> =>
+      isPriceable(d)
+        ? priceBook(d, forwardMarket(fresh, d.valuationDate)).catch(() => ({
+            ok: false as const,
+            errors: [{ field: "", code: "engine", message: "The pricing engine stopped before it finished.", fix: "Run the simulation again." }],
+            warnings: [],
+          }))
+        : Promise.resolve(null);
+    // The engine works in its own thread while the steps show.
+    let priced = inputsRef.current;
+    const first = price(priced);
     for (let step = 1; step < SIMULATION_STEPS.length; step++) {
-      await wait(220);
       setSimulation({ running: true, step });
+      await wait(STEP_MS);
     }
+    let result = await first;
     // The run prices the inputs as they stand when it finishes, so a change made during the run is in the result.
-    const priced = inputsRef.current;
-    const result = isPriceable(priced) ? computeHedgingSheet(priced, forwardMarket(fresh, priced.valuationDate)) : null;
-    await wait(220);
+    if (inputsRef.current !== priced) {
+      priced = inputsRef.current;
+      result = await price(priced);
+    }
     setSimulation({ running: false, step: SIMULATION_STEPS.length });
     if (!result || !result.ok) {
       const first = result && !result.ok ? result.errors[0] : undefined;
@@ -448,7 +461,6 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       applyMarket,
       fieldErrors,
       visibleErrors,
-      issues,
       simulation,
       runSimulation,
       lastRun,
@@ -477,7 +489,6 @@ export function DeskProvider({ children }: { children: ReactNode }) {
       applyMarket,
       fieldErrors,
       visibleErrors,
-      issues,
       simulation,
       runSimulation,
       lastRun,

@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2, Play } from "lucide-react";
 
 import { SIMULATION_STEPS, useDesk } from "@/lib/context/desk-provider";
@@ -19,7 +19,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
   const progress = running ? ((simulation.step + 1) / SIMULATION_STEPS.length) * 100 : 0;
 
   return (
-    <motion.button
+    <m.button
       type="button"
       data-testid={compact ? "run-simulation-compact" : "run-simulation"}
       disabled={running || blocked}
@@ -38,7 +38,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
       )}
     >
       {running ? (
-        <motion.span
+        <m.span
           aria-hidden
           className="absolute inset-y-0 left-0 bg-white/20"
           initial={{ width: 0 }}
@@ -48,7 +48,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
       ) : null}
       <span className="relative z-10 inline-flex items-center justify-center gap-3 font-bold">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.span
+          <m.span
             key={running ? "running" : "idle"}
             className="inline-flex"
             initial={reduce ? false : { opacity: 0, scale: 0.6 }}
@@ -56,7 +56,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
             exit={{ opacity: 0, scale: 0.6 }}
           >
             {running ? <Loader2 className="icon-md animate-spin" /> : lastRun && !stale ? <CheckCircle2 className="icon-md" /> : <Play className="icon-md fill-current" />}
-          </motion.span>
+          </m.span>
         </AnimatePresence>
         <span>{label}</span>
         {running ? (
@@ -65,6 +65,6 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
           </span>
         ) : null}
       </span>
-    </motion.button>
+    </m.button>
   );
 }

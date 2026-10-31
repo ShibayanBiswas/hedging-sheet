@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { CalendarClock, Database, Play } from "lucide-react";
 
 import { useDesk } from "@/lib/context/desk-provider";
@@ -24,7 +24,7 @@ export function MarketStrip() {
     <div className="market-strip min-w-0 flex-1 overflow-hidden" data-testid="market-strip">
       <div className="flex items-center justify-center gap-x-4 whitespace-nowrap">
         {items.map((item, index) => (
-          <motion.span
+          <m.span
             key={item.label}
             className="inline-flex items-center gap-2 font-ui text-caption"
             initial={reduce ? false : { opacity: 0, y: 6 }}
@@ -36,7 +36,7 @@ export function MarketStrip() {
             <span className={cn("font-semibold text-ink", item.color)} data-testid={`strip-${item.label.toLowerCase()}`}>
               {item.value}
             </span>
-          </motion.span>
+          </m.span>
         ))}
       </div>
     </div>
