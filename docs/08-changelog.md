@@ -16,7 +16,7 @@
 | Tables | One sans font in every table; single-line rows at most 44 px |
 | Logic Atlas | A Pipeline table, one row per stage from Inputs to Payoff, with the last run's value |
 | Exports | Download PDF on every tab, the whole page, landscape A4 with repeated headers and numbered pages. Excel has one sheet per tab in tab order plus Audit, no frozen panes, no filters, gridlines off |
-| CI | Production Smoke runs after CI succeeds on main, because Vercel does not post deployment events for this repository, and also on a successful Production deployment event, nightly and on demand. Knip fails the build on unused files or exports |
+| CI | A push to main runs one job: typecheck, lint, Vitest without a coverage upload, and the build. Playwright, visual baselines and Lighthouse are manual. Production Smoke is five checks after that job succeeds, with no schedule |
 
 ## Round 11 (Earlier): Fewer Columns And Tables On Market Data
 

@@ -1,0 +1,40 @@
+name: Visual Baselines
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  visual:
+    name: Visual Baselines
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The same image makes the baselines locally with Docker, so fonts and rendering match.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    env:
+      E2E_PROD: "1"
+      NEXT_PUBLIC_E2E: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:visual
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-baselines
+          retention-days: 3
+          path: test-results
+          if-no-files-found: ignore

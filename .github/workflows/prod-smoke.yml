@@ -1,48 +1,49 @@
 name: Production Smoke
 
 on:
-  # This repository has never received a deployment_status event: Vercel does not post GitHub
-  # deployment events here. Smoke therefore runs after CI succeeds on main, when production is already live.
+  # Production is live by the time CI on main finishes. Docs, markdown and screenshot pushes do not run CI, so they do not smoke.
   workflow_run:
     workflows: [CI]
     types: [completed]
     branches: [main]
-  # A real Production deployment event, if one arrives, still smokes that deployment.
-  deployment_status:
-  schedule:
-    - cron: "30 3 * * *"
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   smoke:
-    name: Read-Only Smoke Against The Production Deployment
-    if: >-
-      (github.event_name != 'deployment_status' ||
-        (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')) &&
-      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    name: Production Smoke
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
-      BASE_URL: ${{ github.event.deployment_status.environment_url || 'https://hedging-sheet.vercel.app' }}
-      # Sent as a header so protected deployments answer; never printed.
+      BASE_URL: https://hedging-sheet.vercel.app
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Sent as a header so a protected deployment answers; never printed.
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.event.deployment.sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       - run: npm run test:prod
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: prod-smoke-report
+          retention-days: 3
           path: |
             playwright-report
-            test-results/junit-e2e.xml
-            test-results/playwright
+            test-results
           if-no-files-found: ignore

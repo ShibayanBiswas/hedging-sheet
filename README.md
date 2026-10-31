@@ -36,7 +36,9 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run dev` | Dev server on port 3005 |
 | `npm run build` and `npm start` | Production build, and serving it on port 3005 |
 | `npm run lint` and `npm run typecheck` | Static checks |
-| `npm test` | Every Vitest layer |
+| `npm test` | Every Vitest layer, including the golden workbook tests and the property tests |
+| `npm run test:ci` | The same Vitest run without the API layer, which is what CI runs |
+| `npm run test:full` | Typecheck, lint, every Vitest layer, and Playwright on Chromium at 390, 1024 and 1440 px |
 | `npm run test:unit` | Vitest without the golden and API layers |
 | `npm run test:golden` | The workbook tie-out G0, the products G1 to G6 and the random product invariants |
 | `npm run test:api`, `test:component`, `test:export` | One Vitest layer |
@@ -44,7 +46,7 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run verify:mapping` | Every formula cell of the reference workbook has a row in [11 Workbook Mapping](docs/11-workbook-mapping.md) |
 | `npm run verify:copy` | Copy rules, capitals and no spreadsheet wording |
 | `npm run verify:db` | Read-only check of collections, validators, indexes, invalid documents, orphans and junk; `-- --db hedging_sheet_preview --apply` fixes a preview database, never production |
-| `npm run test:e2e` | Every Playwright spec on Chromium in mock mode, against an in-memory database |
+| `npm run test:e2e` | Playwright on Chromium in mock mode, at 390, 1024 and 1440 px. Set `E2E_FULL_WIDTHS=1` for the wider device list. Visual baselines are separate |
 | `npm run e2e` | Playwright on Chromium, Firefox, WebKit and Pixel 7 in mock mode |
 | `npm run e2e:blank` and `e2e:default` | The Blank Inputs suite B1 to B22 and the Default parity suite D1 to D7 |
 | `npm run e2e:copy` | Copy rules and capitalisation on every page in both modes |
@@ -52,8 +54,8 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run test:visual` and `test:visual:update` | Linux screenshot baselines, and rewriting them |
 | `npm run test:visual:linux` | Rewrites the Linux baselines with Docker, in the image CI uses |
 | `npm run e2e:perf` and `npm run lhci` | Web vitals and Lighthouse budgets |
-| `npm run e2e:responsive` | The responsive audit on 12 viewports |
-| `npm run test:prod` | Read-only Playwright checks against `BASE_URL`: Run only, nothing saved |
+| `npm run e2e:responsive` | The responsive audit at 390, 1024 and 1440 px. `E2E_FULL_WIDTHS=1` adds the other devices |
+| `npm run test:prod` | Five read-only checks against `BASE_URL`: health, the app loads, Run, one Excel download, and a refused write |
 | `npm run test:prod:responsive` | The responsive audit against `BASE_URL` |
 | `npm run e2e:server` | The mock-mode server the Playwright suite starts |
 | `npm run test:all` | Typecheck, lint, unit, golden, API, mapping, copy and the Chromium end to end suite |
@@ -81,7 +83,7 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 The tests run without the internet or the desk database. In mock mode, Yahoo answers from a fixed history (Sensex 76,835.78, Nifty 23,500.00), Mongo is an in-memory server seeded from `tests/fixtures`, and the clock is frozen at 28-Oct-2026 10:00 IST.
 
 ```powershell
-npm run test:all            # typecheck, lint, unit, golden, API, mapping, copy and Chromium end to end
+npm run test:full           # typecheck, lint, every Vitest layer, Chromium end to end
 $env:NEXT_PUBLIC_E2E = "1"; npm run build
 $env:E2E_PROD = "1"; npm run e2e:blank   # one suite against the production build
 npm run report              # the last Playwright HTML report
@@ -91,12 +93,25 @@ npm run report              # the last Playwright HTML report
 - **Vitest** covers the engine, validation, the stage hand-offs, copy rules, components, every API route and the Excel file.
 - **Playwright** covers both input modes end to end.
   - The Blank Inputs suite checks every required field, every number field and every output table against `tests/fixtures/table-schema.json`.
-  - The crawls check every number on every tab against the result, every button and link, white surfaces, single line cells and the layout at 1440, 1024, 768 and 390 px.
+  - The crawls check every number on every tab against the result, every button and link, white surfaces, single line cells and the layout at 1440, 1024 and 390 px.
   - The pipeline specs check that no stale result is shown and that everything follows the underlying.
   - `e2e/strikes.spec.ts` and `e2e/strike-matrix.spec.ts` cover the strike rows, each strike's Option Type and Buy Or Sell, and Put and Call runs.
 - **Structure and Call tests.** `tests/structure.test.ts` pins the start level, strikes, units and sides; `tests/call.test.ts` checks put-call parity on every leg and that a call strike's futures leg makes the book equal to the all Put book.
-- **CI** runs it all on every push.
-- **Production smoke:** a read-only run against production after CI succeeds on `main`, and nightly.
+- **CI** on a push or pull request to `main` runs one job: typecheck, lint, Vitest (unit, golden and property tests, no coverage upload) and `next build`. It skips pushes that only change `docs/**`, markdown, or screenshots, and it cancels a run that a newer commit has replaced. Playwright, visual baselines and Lighthouse are not part of that job.
+- **Production smoke** is five Chromium checks against [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app) after that CI job succeeds on `main`. There is no schedule.
+
+### Manual workflows
+
+On GitHub, open **Actions**, choose the workflow, and press **Run workflow**. Each one is a single job. A failed run keeps its report for 3 days.
+
+| Workflow | What it runs |
+|---|---|
+| [Playwright](https://github.com/ShibayanBiswas/hedging-sheet/actions/workflows/playwright.yml) | Chromium by default, at 390, 1024 and 1440 px. The form can select every browser, or the full width list (`E2E_FULL_WIDTHS=1` locally) |
+| [Visual Baselines](https://github.com/ShibayanBiswas/hedging-sheet/actions/workflows/visual.yml) | The Linux screenshot baselines, in the Playwright image |
+| [Lighthouse](https://github.com/ShibayanBiswas/hedging-sheet/actions/workflows/lighthouse.yml) | Lighthouse budgets on Inputs and Pricer |
+| [Production Smoke](https://github.com/ShibayanBiswas/hedging-sheet/actions/workflows/prod-smoke.yml) | The five production checks, also started by hand |
+
+Locally, `npm run test:full` is the full check. `npm run test:visual` and `npm run lhci` are the manual visual and Lighthouse commands. `npm run test:e2e` is Chromium only.
 
 See [07 Testing and Debug](docs/07-testing-debug.md) for mock mode, fixtures, page objects, snapshots and traces.
 

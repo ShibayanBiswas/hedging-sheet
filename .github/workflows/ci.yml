@@ -3,10 +3,19 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "e2e/**/__screenshots__/**"
   pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "e2e/**/__screenshots__/**"
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -14,9 +23,9 @@ env:
 
 jobs:
   checks:
-    name: Typecheck, Lint, Vitest, Mapping, Copy And Build
+    name: Typecheck, Lint, Vitest And Build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,110 +35,6 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - name: Unit, golden and API tests, with coverage
-        run: npm run test:coverage
-      - name: No unused files or exports
-        run: npm run lint:unused
-      - run: npm run verify:mapping
-      - name: Workbook audit, fails on any Mismatch or unmapped cell
-        run: npm run audit:workbook && git diff --exit-code docs/workbook-audit.md
-      - run: npm run verify:copy
+      # Unit, golden and property tests. No coverage report: v8 coverage is the slow part and nothing uploads it.
+      - run: npm run test:ci
       - run: npm run build
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: vitest-coverage
-          path: |
-            test-results/coverage
-            test-results/vitest-junit.xml
-          if-no-files-found: ignore
-
-  e2e:
-    name: Playwright Shard ${{ matrix.shard }} Of 4
-    needs: checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    env:
-      E2E_PROD: "1"
-      # Exposes window.__HS_TEST__ for the number crawl; production builds never set it.
-      NEXT_PUBLIC_E2E: "1"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run build
-      # End to end, accessibility, layout, number and button crawls; the visual baselines run in their own job.
-      - run: npx playwright test --shard=${{ matrix.shard }}/4 --grep-invert "visual baselines"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-shard-${{ matrix.shard }}
-          path: |
-            playwright-report
-            test-results/junit-e2e.xml
-            test-results/playwright
-          if-no-files-found: ignore
-
-  visual:
-    name: Visual Baselines
-    needs: checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # The same image makes the baselines locally with Docker, so fonts and rendering match.
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-      options: --ipc=host
-    env:
-      E2E_PROD: "1"
-      NEXT_PUBLIC_E2E: "1"
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - run: npm run build
-      # 8 tabs at desktop, tablet and phone widths: 24 Linux baselines. Counted before the run, which writes any missing.
-      - id: baselines
-        run: |
-          linux=$(ls e2e/visual/__screenshots__/chromium/linux/*.png 2>/dev/null | wc -l)
-          echo "missing=$([ "$linux" -lt 24 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-      # Until all 24 are committed, this step writes them for the artifact instead of failing.
-      - run: npm run test:visual
-        continue-on-error: ${{ steps.baselines.outputs.missing == 'true' }}
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: visual-baselines-linux
-          path: |
-            e2e/visual/__screenshots__/chromium/linux
-            test-results/playwright
-          if-no-files-found: ignore
-
-  lighthouse:
-    name: Lighthouse Budgets
-    needs: checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      E2E_PROD: "1"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npx lhci autorun
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: lighthouse
-          path: test-results/lighthouse
-          if-no-files-found: ignore

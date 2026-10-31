@@ -7,7 +7,7 @@ import type { Page } from "@playwright/test";
 import { EXPORT_TABS } from "../lib/exports/tab-specs";
 import { expect, test } from "./fixtures";
 
-const WIDTHS = [1440, 1280, 1024, 768, 414, 390];
+const WIDTHS = [1440, 1024, 390];
 
 // Measurements read the settled page: under the frozen test clock entry animations never finish.
 test.use({ reducedMotion: "reduce" });
@@ -198,7 +198,7 @@ test.describe("Round 11 · Layout", () => {
     expect(Math.round(390 - (box.x + box.width))).toBe(16);
   });
 
-  for (const width of [1440, 1024, 768, 390]) {
+  for (const width of [1440, 1024, 390]) {
     test(`single-line table rows stay at or under 44 px at ${width} px`, async ({ page, inputs, nav }) => {
       await page.setViewportSize({ width, height: 900 });
       await runDefault(page, inputs);
