@@ -46,7 +46,8 @@ const products = fc
     });
   });
 
-describe("invariants on random products", () => {
+// Each test prices hundreds of books: 11 to 24 s alone, past a minute beside the other suites on a busy laptop.
+describe("invariants on random products", { timeout: 180_000 }, () => {
   it(`the option book gives the product payoff, gap below 1e-6, over ${RUNS} products`, async () => {
     await fc.assert(
       fc.asyncProperty(products, async (inputs) => {
