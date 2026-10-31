@@ -1,0 +1,29 @@
+{
+  "files.watcherExclude": {
+    "**/.next/**": true,
+    "**/node_modules/**": true,
+    "**/reports/**": true,
+    "**/test-results/**": true,
+    "**/playwright-report/**": true,
+    "**/coverage/**": true,
+    "**/.lighthouseci/**": true,
+    "**/~$*.xlsm": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/reports": true,
+    "**/test-results": true,
+    "**/playwright-report": true,
+    "**/coverage": true,
+    "**/.lighthouseci": true,
+    "**/*.xlsm": true
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/reports": true,
+    "**/test-results": true,
+    "**/playwright-report": true,
+    "**/coverage": true
+  }
+}

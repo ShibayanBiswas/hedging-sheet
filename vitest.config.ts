@@ -8,6 +8,10 @@ export default defineConfig({
     include: ["tests/**/*.test.{ts,tsx}"],
     // Component tests opt into jsdom with a @vitest-environment docblock.
     environment: "node",
+    // Two processes at most on a laptop; CI uses every core. Worker threads crash Node here (0xC0000005) under the
+    // in-memory Mongo and the PDF renderer, so the pool is forks.
+    pool: "forks",
+    poolOptions: { forks: { maxForks: process.env.CI ? undefined : 2, minForks: 1 } },
     setupFiles: ["tests/helpers/setup.ts"],
     testTimeout: 60_000,
     hookTimeout: 180_000,

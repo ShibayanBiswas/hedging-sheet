@@ -2,7 +2,8 @@
  * One command per environment, each writing to reports/<timestamp>/ with summary.md.
  *
  *   npm run test:all                       # static checks, then everything test:local runs
- *   npm run test:local                     # production build on port 3000 against a seeded in-memory Mongo
+ *   npm run test:local                     # production build on port 3000 against a seeded in-memory Mongo, Chromium only
+ *   npm run test:local:full                # the same with Firefox, WebKit, mobile and Lighthouse; CI always runs this
  *   npm run test:vercel -- --url <url>     # read-only checks against a deployment
  *
  * The in-memory Mongo is seeded when the server starts and is gone when it stops, so nothing is left behind.
@@ -73,6 +74,9 @@ const STATIC: Step[] = [
   { name: "Workbook Audit", command: "npx tsx scripts/audit-workbook.ts" },
 ];
 
+/** The laptop runs the light suite; every browser, width and Lighthouse run in CI or with --full. */
+const full = Boolean(process.env.CI) || process.argv.includes("--full");
+
 const LOCAL: Step[] = [
   { name: "Production Build With The Test Hook", command: "npx next build", env: { NEXT_PUBLIC_E2E: "1" } },
   {
@@ -81,17 +85,21 @@ const LOCAL: Step[] = [
     report: `${dir}/coverage/index.html`,
   },
   {
-    name: "Playwright On Chromium, Firefox, WebKit And Mobile",
+    name: full ? "Playwright On Chromium, Firefox, WebKit And Mobile" : "Playwright On Chromium",
     command: "npx playwright test",
-    env: local,
+    env: full ? { ...local, PW_FULL: "1" } : local,
     report: `${dir}/playwright-html/index.html`,
   },
-  {
-    name: "Lighthouse",
-    command: `npx lhci autorun --collect.url=http://localhost:${LOCAL_PORT}/ --collect.url=http://localhost:${LOCAL_PORT}/pricer --upload.outputDir=${dir}/lighthouse`,
-    env: { E2E_PROD: "1", E2E_PORT: LOCAL_PORT },
-    report: `${dir}/lighthouse`,
-  },
+  ...(full
+    ? [
+        {
+          name: "Lighthouse",
+          command: `npx lhci autorun --collect.url=http://localhost:${LOCAL_PORT}/ --collect.url=http://localhost:${LOCAL_PORT}/pricer --upload.outputDir=${dir}/lighthouse`,
+          env: { E2E_PROD: "1", E2E_PORT: LOCAL_PORT },
+          report: `${dir}/lighthouse`,
+        },
+      ]
+    : []),
 ];
 
 function vercelSteps(url: string): Step[] {
