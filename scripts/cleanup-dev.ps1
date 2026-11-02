@@ -1,9 +1,11 @@
 # Stops what this repo's dev and test commands leave behind, then deletes the build and test caches.
 #   npm run clean:dev
 # Other apps on this laptop keep running, including their own node, Playwright browsers and mongod. A process is stopped only if:
-#   - its command line names this folder, or it is mongodb-memory-server or the mongod that package downloads, or
-#   - it was started by such a process, as the browsers a Playwright run opens are.
-# A browser whose runner has already gone cannot be told from another app's, so it is left alone.
+#   - its command line or executable names this folder, or
+#   - it was started by such a process, as the browsers a Playwright run opens are, and this repo's in-memory mongod.
+# That mongod is caught by the child walk alone: mongodb-memory-server keeps its binary in a cache outside this folder,
+# shared with every other repo on this laptop, so neither its path nor its name says whose it is.
+# A browser or mongod whose runner has already gone cannot be told from another app's, so it is left alone.
 # Cursor, VS Code extensions, the editor's TypeScript server, MCP servers and the shell running this script are never stopped.
 $ErrorActionPreference = "SilentlyContinue"
 $root = Split-Path -Parent $PSScriptRoot
@@ -21,8 +23,7 @@ foreach ($p in $all) {
   $cmd = [string]$p.CommandLine
   $exe = [string]$p.ExecutablePath
   if ($self.ContainsKey([int]$p.ProcessId) -or $cmd -match $editorPattern -or $p.Name -notmatch "^(node|esbuild|mongod.*)\.exe$") { continue }
-  # mongodb-memory-server downloads its mongod, named mongod-x64-win32-<version>.exe, into a mongodb-binaries folder.
-  if ($cmd -like "*$root*" -or $exe -like "*$root*" -or $cmd -like "*mongodb-memory-server*" -or $exe -like "*\mongodb-binaries\*") {
+  if ($cmd -like "*$root*" -or $exe -like "*$root*") {
     $ours[[int]$p.ProcessId] = $p
   }
 }
