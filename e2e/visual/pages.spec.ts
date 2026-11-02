@@ -1,32 +1,215 @@
+import type { Page } from "@playwright/test";
+
+import { fillBlank } from "../blank/helpers";
 import { expect, test } from "../fixtures";
+import type { InputsPage } from "../pages";
 import { TAB_IDS } from "../pages";
 import { masks, settle } from "../responsive/helpers";
 
 /**
- * The one set of pixel baselines: the 8 tabs at 1440, 768 and 390 px, light theme, after a run.
- * Clocks, fetch times and live spots are masked and motion is reduced. Baselines are Linux only, from CI.
+ * The one set of pixel baselines: the 8 tabs at 390, 768, 1440 and 1920 px in both modes after a run, whole pages, and every
+ * popup, dialog and toast at 390 and 1440 px. Clocks, fetch times and live spots are masked and motion is reduced.
+ * Baselines are Linux only, from the CI image.
  */
-const WIDTHS = [
-  { name: "desktop", width: 1440, height: 900 },
-  { name: "tablet", width: 768, height: 1024 },
-  { name: "phone", width: 390, height: 844 },
+const VIEWPORTS = [
+  { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
 ] as const;
 
-for (const w of WIDTHS) {
-  test.describe(`${w.name} ${w.width}`, () => {
-    test.use({ viewport: { width: w.width, height: w.height }, reducedMotion: "reduce" });
+async function shootEveryTab(page: Page, nav: { go: (id: (typeof TAB_IDS)[number]) => Promise<void> }, prefix: string) {
+  await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
+  for (const id of TAB_IDS) {
+    await nav.go(id);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settle(page);
+    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true });
+  }
+}
 
-    test(`visual baselines ${w.name} every tab after a run`, async ({ page, inputs, nav }) => {
+for (const v of VIEWPORTS) {
+  test.describe(`${v.width} px`, () => {
+    test.use({ viewport: v, reducedMotion: "reduce" });
+
+    test(`visual baselines ${v.width} Default Values, every tab after a run`, async ({ page, inputs, nav }) => {
       test.setTimeout(240_000);
       await inputs.goto();
       await inputs.run();
-      await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
-      for (const id of TAB_IDS) {
-        await nav.go(id);
-        await page.evaluate(() => window.scrollTo(0, 0));
+      await shootEveryTab(page, nav, `default-${v.width}`);
+    });
+
+    test(`visual baselines ${v.width} Blank Inputs, every tab after a run, and the empty start`, async ({ page, inputs, nav }) => {
+      test.setTimeout(360_000);
+      await inputs.goto("blank");
+      await settle(page);
+      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true });
+      await fillBlank(inputs);
+      await inputs.run();
+      await shootEveryTab(page, nav, `blank-${v.width}`);
+    });
+  });
+}
+
+type Context = { page: Page; inputs: InputsPage };
+
+/** Each opens one popup, dialog or toast, from a fresh page. */
+const POPUPS: Array<{ name: string; toast?: boolean; open: (c: Context) => Promise<void> }> = [
+  {
+    name: "switch-mode",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.getByTestId("mode-blank").click();
+      await inputs.dialog.expectTitle("Switch Mode And Clear Results");
+    },
+  },
+  {
+    name: "missing-inputs",
+    open: async ({ inputs }) => {
+      await inputs.goto("blank");
+      await inputs.expectValidationDialog();
+    },
+  },
+  {
+    name: "field-reverted",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      const field = page.getByRole("textbox", { name: "Valuation Date", exact: true });
+      await field.fill("not a date");
+      await field.blur();
+      await inputs.dialog.expectTitle("Valuation Date Reverted");
+    },
+  },
+  {
+    name: "fetch-failed",
+    open: async ({ page, inputs }) => {
+      await inputs.goto("blank");
+      await inputs.fill("underlying", "Sensex");
+      await page.route("**/api/market/levels", (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "Yahoo is down" }) }));
+      await page.getByTestId("fetch-live-spot").click();
+      await inputs.dialog.expectTitle("Fetch Failed");
+    },
+  },
+  {
+    name: "could-not-solve",
+    open: async ({ inputs }) => {
+      await inputs.goto();
+      await inputs.fill("premiumRate", "100");
+      await inputs.runButton.click();
+      await inputs.dialog.expectTitle("Could Not Solve");
+    },
+  },
+  {
+    name: "expiries-beyond-surface",
+    open: async ({ inputs }) => {
+      await fillBlank(inputs);
+      await inputs.runButton.click();
+      await inputs.dialog.expectTitle("Expiries Beyond The Surface");
+    },
+  },
+  {
+    name: "priced-on-loaded-surface",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.route("**/api/dataset**", (route) => route.abort("internetdisconnected"));
+      await inputs.runButton.click();
+      await inputs.dialog.expectTitle("Priced On The Loaded Surface");
+    },
+  },
+  {
+    name: "bulk-edit-expiries",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.getByTestId("expiries-bulk").click();
+      await expect(page.getByTestId("bulk-expiries")).toBeVisible();
+    },
+  },
+  {
+    name: "bulk-edit-strikes",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.getByTestId("strikes-bulk").click();
+      await expect(page.getByTestId("bulk-strikes")).toBeVisible();
+    },
+  },
+  {
+    name: "command-palette",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.keyboard.press("Control+k");
+      await expect(page.getByRole("dialog")).toBeVisible();
+    },
+  },
+  {
+    // Cancelled by the end of the test: nothing reaches the test database.
+    name: "desk-key",
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await page.getByTestId("nav-market-data").click();
+      await page.getByTestId("edit-params").click();
+      await page.getByTestId("param-cap-buying").fill("7.1");
+      await page.getByTestId("param-cap-buying").blur();
+      await page.getByTestId("save-params").click();
+      await expect(page.getByTestId("desk-key-dialog")).toBeVisible();
+    },
+  },
+  {
+    name: "toast-simulation-completed",
+    toast: true,
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await inputs.runButton.click();
+      await expect(page.getByTestId("desk-toast")).toHaveText("Simulation Completed");
+    },
+  },
+  {
+    name: "toast-excel-saved",
+    toast: true,
+    open: async ({ page, inputs }) => {
+      await inputs.goto();
+      await inputs.run();
+      await expect(page.getByTestId("desk-toast")).toHaveCount(1);
+      await page.getByTestId("tab-actions").getByTestId("download-excel").click();
+      await expect(page.getByTestId("desk-toast")).toHaveText(/^Saved /, { timeout: 30_000 });
+    },
+  },
+];
+
+for (const width of [390, 1440]) {
+  test.describe(`popups at ${width} px`, () => {
+    test.use({ viewport: { width, height: width === 390 ? 844 : 900 }, reducedMotion: "reduce" });
+
+    for (const popup of POPUPS) {
+      test(`visual baselines popup ${popup.name} at ${width}`, async ({ page, inputs }) => {
+        // A toast clears itself after 4 s; held here so a slow machine compares the same picture every time.
+        if (popup.toast) {
+          await page.addInitScript(() => {
+            const { setTimeout: start } = window;
+            window.setTimeout = ((fn: TimerHandler, ms?: number, ...rest: unknown[]) => (ms === 4_000 ? 0 : start(fn, ms, ...rest))) as typeof window.setTimeout;
+          });
+        }
+        await popup.open({ page, inputs });
         await settle(page);
-        await expect(page).toHaveScreenshot(`${w.name}-${id}.png`, { mask: masks(page) });
-      }
+        const mask = masks(page);
+        await expect(page).toHaveScreenshot(`popup-${width}-${popup.name}.png`, { mask: popup.toast ? mask.filter((_, i) => i !== mask.length - 1) : mask });
+      });
+    }
+
+    test(`visual baselines states at ${width}: not run, then Inputs Changed`, async ({ page, inputs, nav }) => {
+      await inputs.goto();
+      await nav.go("summary");
+      await settle(page);
+      await expect(page).toHaveScreenshot(`state-${width}-not-run.png`, { mask: masks(page) });
+      await nav.go("inputs");
+      await inputs.run();
+      await nav.go("inputs");
+      await inputs.fill("coupon", "11");
+      await inputs.dialog.dismissAll();
+      await nav.go("summary");
+      await expect(page.getByText("Inputs Changed · Run Again")).toBeVisible();
+      await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
+      await settle(page);
+      await expect(page).toHaveScreenshot(`state-${width}-inputs-changed.png`, { mask: masks(page) });
     });
   });
 }

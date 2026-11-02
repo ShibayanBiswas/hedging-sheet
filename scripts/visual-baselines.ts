@@ -1,5 +1,5 @@
 /**
- * The 24 Linux visual baselines, made with Docker in the same Playwright image CI runs in, so they match CI from any machine.
+ * The Linux visual baselines, made with Docker in the same Playwright image CI runs in, so they match CI from any machine.
  *
  *   npm run test:visual:linux              # rewrites the baselines
  *   npm run test:visual:linux -- compare   # checks the committed ones; differences land in test-results/visual-compare
