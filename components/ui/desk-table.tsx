@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
-import { volText } from "@/lib/format";
+import { ungroup, volText } from "@/lib/format";
 import { cellKey, displayCell, gridColumnLabel, tableRowLabel, type CellKind, type CellValue, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
 /** Raw number behind a cell, for tests that compare values beyond the shown digits. */
@@ -217,9 +217,10 @@ function GridEditCell({ shown, label, testId, onCommit }: { shown: string; label
       onBlur={(e) => {
         setFocused(false);
         if (e.target.value === shownOnFocus.current) return;
-        const text = e.target.value.replace(/[%\s]/g, "");
-        const n = Number(text);
-        if (text && Number.isFinite(n) && n > 0) onCommit(n / 100);
+        // Text it cannot use stores nothing, and the cell goes back to what the desk holds once idle.
+        const text = ungroup(e.target.value.replace(/[%\s]/g, ""));
+        const n = text != null && /^(\d+\.?\d*|\.\d+)$/.test(text) ? Number(text) : 0;
+        if (n > 0) onCommit(n / 100);
       }}
     />
   );
