@@ -6,7 +6,7 @@ import { FileDown, Loader2 } from "lucide-react";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { useDesk } from "@/lib/context/desk-provider";
 import { istTodayYmd } from "@/lib/engine/dates";
-import { EXPORT_TABS, type ExportTab } from "@/lib/exports/tab-specs";
+import { EXPORT_TABS, type ExportTab } from "@/lib/exports/tab-list";
 
 /** Download the whole tab as a PDF. Output tabs need a current run; Inputs, Market Data and Logic Atlas download any time. */
 export function DownloadPdfButton({ tab }: { tab: ExportTab }) {

@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { TabActions } from "@/components/ui/tab-actions";
-import type { ExportTab } from "@/lib/exports/tab-specs";
+import type { ExportTab } from "@/lib/exports/tab-list";
 import { cn } from "@/lib/cn";
 
 export function Panel({

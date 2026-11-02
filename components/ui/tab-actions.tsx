@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { DownloadExcelButton } from "@/components/ui/download-excel-button";
 import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
-import type { ExportTab } from "@/lib/exports/tab-specs";
+import type { ExportTab } from "@/lib/exports/tab-list";
 
 /**
  * The far right of every tab's heading row, in one order everywhere: anything the tab adds, such as Reset To Defaults,

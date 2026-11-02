@@ -1634,6 +1634,10 @@ main:has(.inputs-page),
   background-color: var(--ar-panel);
 }
 
+.vol-grid-placeholder {
+  height: min(60dvh, 26rem);
+}
+
 .vol-grid td.vol-grid-note {
   white-space: normal;
   max-width: none;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
@@ -12,6 +13,15 @@ import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 /** Volatility cells are in %; anything outside this range is a typing error. */
 const MAX_VOL = 200;
+/**
+ * An uploaded surface is the one table with no ceiling on its rows, so only it is virtualised, and only past this many.
+ * Every other table tops out at 42 rows, measured on the largest book. Downloads read the surface data, not the page.
+ */
+const VIRTUAL_ABOVE = 100;
+/** 11 + 20 + 11 px and a 1 px rule. */
+const ROW_PX = 43;
+/** The rows above the first expiry scroll too; these extra rows cover their height. */
+const OVERSCAN = 12;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** One sequential scale: faint for the lowest volatility, strongest for the highest. The hue follows the theme. */
 function heatAlpha(value: number, min: number, max: number): number {
@@ -71,6 +81,16 @@ export function VolSurfaceGrid({
     return all.length ? { min: Math.min(...all), max: Math.max(...all) } : { min: 0, max: 0 };
   }, [surface]);
   const rows = surface.expiries.map((expiry, r) => ({ expiry, r })).filter((row) => row.expiry.slice(0, 10) >= asOf);
+  const box = useRef<HTMLDivElement>(null);
+  // While editing every row stays mounted: a cell scrolled away would lose what was typed in it.
+  const virtual = rows.length > VIRTUAL_ABOVE && !editing && !loading && !error;
+  const virtualizer = useVirtualizer({ count: virtual ? rows.length : 0, getScrollElement: () => box.current, estimateSize: () => ROW_PX, overscan: OVERSCAN });
+  const items = virtualizer.getVirtualItems();
+  const shownRows = virtual ? items.map((item) => ({ ...rows[item.index]!, index: item.index })) : rows.map((row, index) => ({ ...row, index }));
+  const spacerAbove = virtual && items.length ? items[0]!.start : 0;
+  const spacerBelow = virtual && items.length ? virtualizer.getTotalSize() - items.at(-1)!.end : 0;
+  /** Two header rows, the Reference Strikes label and its rows, the Volatility By Expiry label. */
+  const rowsBefore = 2 + 1 + UNDERLYINGS.length + 1;
   const hidden = surface.expiries.length - rows.length;
   const span = surface.moneyness.length + 2;
   const empty = !loading && surface.expiries.length === 0;
@@ -86,8 +106,8 @@ export function VolSurfaceGrid({
   return (
     <div className="flex flex-col gap-2">
       <div className="relative min-w-0">
-      <div className="data-table-premium-wrap desk-table-scroll vol-grid-box" data-testid={testId} tabIndex={0} role="region" aria-label="Volatility Surface">
-        <table className={cn("data-table-premium vol-grid min-w-full", editing && "vol-grid--editing")}>
+      <div ref={box} className="data-table-premium-wrap desk-table-scroll vol-grid-box" data-testid={testId} tabIndex={0} role="region" aria-label="Volatility Surface">
+        <table className={cn("data-table-premium vol-grid min-w-full", editing && "vol-grid--editing")} aria-rowcount={virtual ? rowsBefore + rows.length : undefined}>
           <thead>
             <tr>
               <th rowSpan={2} scope="col">
@@ -160,8 +180,13 @@ export function VolSurfaceGrid({
                     <span>Volatility By Expiry</span>
                   </td>
                 </tr>
-                {rows.map(({ expiry, r }) => (
-                  <tr key={expiry}>
+                {spacerAbove > 0 ? (
+                  <tr aria-hidden style={{ height: spacerAbove }}>
+                    <td colSpan={span} />
+                  </tr>
+                ) : null}
+                {shownRows.map(({ expiry, r, index }) => (
+                  <tr key={expiry} aria-rowindex={virtual ? rowsBefore + index + 1 : undefined}>
                     <td className="font-semibold" data-kind="date" title={formatDate(expiry)}>
                       {phone ? shortDate(expiry) : formatDate(expiry)}
                     </td>
@@ -194,6 +219,11 @@ export function VolSurfaceGrid({
                     })}
                   </tr>
                 ))}
+                {spacerBelow > 0 ? (
+                  <tr aria-hidden style={{ height: spacerBelow }}>
+                    <td colSpan={span} />
+                  </tr>
+                ) : null}
               </>
             )}
           </tbody>

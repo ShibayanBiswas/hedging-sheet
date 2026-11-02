@@ -1,9 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, Download, FileSpreadsheet, Gauge, Pencil, Plus, RefreshCw, RotateCcw, Save, SlidersHorizontal, Trash2, Upload, X } from "lucide-react";
 
-import { VolSurfaceGrid } from "@/components/market/vol-surface-grid";
 import { PairsTable } from "@/components/ui/desk-table";
 import { NumberInput, Segmented } from "@/components/ui/fields";
 import { PageIntro, Panel, SectionTitle } from "@/components/ui/panel";
@@ -19,6 +19,12 @@ import { pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vo
 import { fmtIstTime, fmtPercent } from "@/lib/format";
 import { QUOTE_UNDERLYING } from "@/lib/underlyings";
 import { downloadSurfaceFile } from "@/lib/excel/excel-runtime";
+
+/** The surface editor loads only on this tab; the placeholder keeps its height. */
+const VolSurfaceGrid = dynamic(() => import("@/components/market/vol-surface-grid").then((m) => m.VolSurfaceGrid), {
+  ssr: false,
+  loading: () => <div className="hs-skeleton vol-grid-placeholder" data-testid="vol-grid-loading" />,
+});
 
 const SAMPLE_FILE = "/samples/Hedging_Sheet_Vol_Surface_Sample.xlsx";
 const now = () => fmtIstTime(new Date().toISOString());

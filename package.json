@@ -10,6 +10,8 @@
     "build": "next build",
     "vercel-build": "tsx scripts/db-deploy-setup.ts && next build",
     "start": "next start --port 3005",
+    "analyze": "next analyze",
+    "bundle:report": "tsx scripts/bundle-report.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -70,6 +72,7 @@
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",
+    "@tanstack/react-virtual": "3.14.25",
     "exceljs": "4.4.0",
     "framer-motion": "12.43.0",
     "lucide-react": "0.539.0",
