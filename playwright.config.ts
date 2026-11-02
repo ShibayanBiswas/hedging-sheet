@@ -38,6 +38,8 @@ export default defineConfig({
     ["list"],
     // Failed API calls quote their request headers, and this report zips that text where scripts/test-run.ts cannot clean it.
     ...(bypass ? [] : ([["html", { outputFolder: reports ? `${reports}/playwright-html` : "playwright-report", open: "never" }]] as const)),
+    // JUnit has no skip reasons or annotations in this Playwright version; the sign-off reads them, and the bundle and run numbers, from this file.
+    ...(bypass ? [] : ([["json", { outputFile: reports ? `${reports}/results.json` : "test-results/results.json" }]] as const)),
     ["junit", { outputFile: reports ? `${reports}/junit-e2e.xml` : "test-results/junit-e2e.xml" }],
   ],
   outputDir: reports ? `${reports}/traces` : "test-results/playwright",
