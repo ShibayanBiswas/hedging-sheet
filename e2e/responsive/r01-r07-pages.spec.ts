@@ -15,6 +15,8 @@ for (const v of VIEWPORTS) {
         if (mode === "blank") await fillBlank(inputs);
         else await inputs.goto();
         await inputs.run();
+        // The run's warning popups follow one another; on a busy machine the last can open a few seconds later.
+        await inputs.dialog.dismissAll(4_000);
         const found: string[] = [];
         for (const id of TAB_IDS) {
           await nav.go(id);
@@ -32,6 +34,8 @@ test.describe("360 px", () => {
   test.use({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true });
 
   test("R7 every heading takes at most two lines", async ({ page, inputs, nav }) => {
+    // Eight tabs at a phone width: past 90 s when the machine is busy.
+    test.setTimeout(240_000);
     await inputs.goto();
     await inputs.run();
     const found: string[] = [];

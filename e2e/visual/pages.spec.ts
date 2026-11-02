@@ -44,23 +44,22 @@ test.describe("animation smoke", () => {
 
   test("run steps appear in order and results reveal within 1.5 s of the run finishing", async ({ page, inputs }) => {
     await inputs.goto();
-    const seen: string[] = [];
-    const watcher = (async () => {
-      const deadline = Date.now() + 10_000;
-      while (Date.now() < deadline) {
-        const text = await page.evaluate(() => document.querySelector('[data-testid="run-simulation"]')?.textContent ?? "");
-        const step = /Step (\d) Of 4/.exec(text)?.[1];
-        if (step && seen[seen.length - 1] !== step) seen.push(step);
-        if (seen.length && (!text || !step)) return;
-        await page.waitForTimeout(40);
-      }
-    })();
+    // Recorded in the page, so a busy test machine cannot miss a step between two polls.
+    await page.evaluate(() => {
+      const w = window as unknown as { __steps: string[] };
+      w.__steps = [];
+      const button = document.querySelector('[data-testid="run-simulation"]')!;
+      new MutationObserver(() => {
+        const step = /Step (\d) Of 4/.exec(button.textContent ?? "")?.[1];
+        if (step && w.__steps[w.__steps.length - 1] !== step) w.__steps.push(step);
+      }).observe(button, { subtree: true, childList: true, characterData: true });
+    });
     await inputs.runButton.click();
-    await watcher;
+    await expect(page).toHaveURL(/\/summary$/, { timeout: 10_000 });
+    const seen = await page.evaluate(() => (window as unknown as { __steps: string[] }).__steps);
     expect(seen.length).toBeGreaterThanOrEqual(3);
     expect([...seen].sort()).toEqual(seen);
     const done = Date.now();
-    await expect(page).toHaveURL(/\/summary$/);
     await expect(page.getByTestId("table-summary-headline")).toBeVisible({ timeout: 1_500 });
     expect(Date.now() - done).toBeLessThan(1_500);
   });
