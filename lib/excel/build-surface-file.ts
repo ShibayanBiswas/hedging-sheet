@@ -112,8 +112,9 @@ export function buildSurfaceFile(
     dataCell(ws.getCell(rr, 1));
     (surface.volsPercent[r] ?? []).forEach((v, c) => {
       const cell = ws.getCell(rr, 2 + c);
-      cell.value = Math.round(v * 100) / 100;
-      cell.numFmt = "0.00";
+      // The value in full, so uploading the file back gives the same surface; the format only limits what shows.
+      cell.value = v;
+      cell.numFmt = "0.00#";
       dataCell(cell);
     });
   });

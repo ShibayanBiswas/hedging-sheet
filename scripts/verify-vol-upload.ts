@@ -30,7 +30,7 @@ async function main() {
 
   check("Strike Change columns", JSON.stringify(parsed.surface.moneyness) === JSON.stringify(market.surface.moneyness), `${parsed.surface.moneyness.length}`);
   check("Expiry rows", parsed.surface.expiries.length === market.surface.expiries.length, `${parsed.surface.expiries.length}`);
-  const volGap = Math.max(...parsed.surface.volsPercent.flatMap((row, r) => row.map((v, c) => Math.abs(v - Math.round(market.surface.volsPercent[r]![c]! * 100) / 100))));
+  const volGap = Math.max(...parsed.surface.volsPercent.flatMap((row, r) => row.map((v, c) => Math.abs(v - market.surface.volsPercent[r]![c]!))));
   check("Volatility grid", volGap < 1e-9, `largest gap ${volGap.toExponential(2)}`);
   check("Forward Pricing Params grid", parsed.surface.pricingParams.length === live.surface.pricingParams.length, `${parsed.surface.pricingParams.length} rows`);
   check("Reference prices", parsed.surface.referenceSensexPrice === market.surface.referenceSensexPrice, String(parsed.surface.referenceSensexPrice));
