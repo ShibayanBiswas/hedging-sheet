@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
@@ -188,6 +188,8 @@ export type GridEdit = {
 };
 
 export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
+  /** What the focused cell showed on arrival: leaving it unchanged stores nothing, so a shown value is never rounded into an override. */
+  const shownOnFocus = useRef("");
   return (
     <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note}>
       <table className="data-table-premium hs-has-groups min-w-full">
@@ -244,7 +246,11 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                           aria-label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`}
                           defaultValue={typeof v === "number" ? (v * 100).toFixed(2) : ""}
                           data-testid={`grid-edit-${key}`}
+                          onFocus={(e) => {
+                            shownOnFocus.current = e.target.value;
+                          }}
                           onBlur={(e) => {
+                            if (e.target.value === shownOnFocus.current) return;
                             const text = e.target.value.replace(/[%\s]/g, "");
                             const n = Number(text);
                             if (text && Number.isFinite(n) && n > 0) edit.onChange(key, n / 100);
