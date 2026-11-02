@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
 import type { VolSurface } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
-import { fmtNumber, ungroup } from "@/lib/format";
+import { fmtNumber, ungroup, volText } from "@/lib/format";
 import { UNDERLYINGS } from "@/lib/underlyings";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
@@ -202,7 +202,7 @@ export function VolSurfaceGrid({
                             <input
                               className={cn("vol-grid-input", invalid && "vol-grid-input--invalid")}
                               inputMode="decimal"
-                              defaultValue={v.toFixed(2)}
+                              defaultValue={volText(v).text}
                               aria-invalid={invalid || undefined}
                               aria-label={`Volatility For ${formatDate(expiry)} At ${c === 0 ? "Deep" : `${Math.round((surface.moneyness[c - 1] ?? 0) * 100)}%`}`}
                               data-testid={`vol-cell-${r}-${c}`}
@@ -213,7 +213,7 @@ export function VolSurfaceGrid({
                               }}
                             />
                           ) : (
-                            fmtNumber(v, 2)
+                            volText(v).text
                           )}
                         </td>
                       );
@@ -237,11 +237,11 @@ export function VolSurfaceGrid({
           <span className="inline-flex items-center gap-2">
             Low{" "}
             <span className="tabular-nums" style={{ color: heatColor(0.05), fontWeight: 500 }}>
-              {fmtNumber(min, 2)}%
+              {volText(min).text}%
             </span>
             to High{" "}
             <span className="tabular-nums" style={{ color: heatColor(0.45), fontWeight: 700 }}>
-              {fmtNumber(max, 2)}%
+              {volText(max).text}%
             </span>
           </span>
           {hidden > 0 ? (

@@ -175,7 +175,9 @@ function marketDataSpecs(market: MarketData, i: Pick<DeskInputs, "valuationDate"
         { label: "Forward Sell Rate This Month", value: row?.fwdSellRate ?? null, kind: "percent" },
       ],
     },
-    { id: "md-surface", title: "Volatility Surface", note: "Volatility in %. The first rows are the reference strikes; Deep reads the 55% column.", columns, rows: [...strikeRows, ...volRows] },
+    { id: "md-strikes", title: "Reference Strikes", columns: columns.map((c) => (c.key === "row" ? { ...c, label: "Underlying" } : c)), rows: strikeRows },
+    // Its own table: a volatility shows up to 3 decimals, where a strike in the same column stays at 2.
+    { id: "md-surface", title: "Volatility Surface", note: "Volatility in %. Deep reads the 55% column.", columns: columns.map((c) => (c.kind === "number" ? { ...c, kind: "vol" as const } : c)), rows: volRows },
     {
       id: "md-params",
       title: "Surface Parameters",

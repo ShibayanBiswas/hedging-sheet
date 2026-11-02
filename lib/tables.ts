@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/engine/dates";
 import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg, StrikeSide } from "@/lib/engine/types";
-import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, fullDigits, numberText, percentText, type Display } from "@/lib/format";
+import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, fullDigits, numberText, percentText, volText, type Display } from "@/lib/format";
 
 function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
@@ -20,7 +20,7 @@ export function strikeTypesLabel(types: OptionType[]): string {
 }
 
 /** How a value is shown on screen and written to Excel. */
-export type CellKind = "crore" | "rupee" | "percent" | "number" | "integer" | "date" | "text" | "greek";
+export type CellKind = "crore" | "rupee" | "percent" | "number" | "integer" | "date" | "text" | "greek" | "vol";
 
 export type CellValue = number | string | null;
 
@@ -95,6 +95,8 @@ export function displayCell(value: CellValue, kind: CellKind, digits?: number): 
       return numberText(value, 0);
     case "greek":
       return numberText(value, digits ?? 8);
+    case "vol":
+      return volText(value);
     default:
       return numberText(value, digits ?? 2);
   }

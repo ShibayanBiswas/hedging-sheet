@@ -23,6 +23,8 @@ function numFmtFor(kind: CellKind, digits?: number): string | undefined {
       return `#,##0${decimals(digits ?? 2)}`;
     case "greek":
       return `0${decimals(digits ?? 8)}`;
+    case "vol":
+      return "0.00#";
     case "date":
       return "dd-mmm-yyyy";
     default:
