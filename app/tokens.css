@@ -28,7 +28,6 @@
   --leading-heading: 1.15;
   --leading-body: 1.5;
   --leading-caption: 1.4;
-  --font-serif: "Times New Roman", Times, Georgia, serif;
   --font-sans: "Segoe UI", system-ui, sans-serif;
   /* Every number lines up in columns. */
   --numeric: tabular-nums;

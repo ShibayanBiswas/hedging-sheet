@@ -18,7 +18,7 @@ body {
   min-height: 100%;
   background: var(--ar-bg);
   color: var(--ar-ink);
-  font-family: var(--font-serif), "Times New Roman", Times, Georgia, serif;
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
 }
 
 button,
@@ -189,7 +189,7 @@ textarea {
   }
 
   .intel-hero-title {
-    @apply mt-2 font-serif text-h1 font-bold tracking-tight;
+    @apply mt-2 text-h1 font-bold tracking-tight;
     color: var(--ar-ink);
   }
 
@@ -372,7 +372,6 @@ textarea {
 
   .brand-title {
     @apply text-h3 font-bold text-ink md:text-h2;
-    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
     letter-spacing: -0.02em;
   }
 
@@ -2024,15 +2023,6 @@ main:has(.inputs-page),
 /* The total row's 2 px rule comes out of its top padding, so it stays under 44 px too. */
 .data-table-premium tbody tr.hs-row-total td {
   padding-top: 0.5625rem;
-}
-
-/* One sans font in every table, button and field; headings keep the serif brand face. */
-.data-table-premium,
-button,
-input,
-select,
-textarea {
-  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
 }
 
 .data-table-premium tbody tr:hover td {

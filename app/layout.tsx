@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await connection();
   return (
     <html lang="en-IN">
-      <body className="bg-white font-serif text-ink antialiased">
+      <body className="bg-white font-sans text-ink antialiased">
         <MotionProvider>
           <DeskDialogProvider>
             <DeskKeyProvider>

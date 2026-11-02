@@ -55,7 +55,6 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["var(--font-serif)", "Times New Roman", "Times", "Georgia", "serif"],
       },
     },
   },

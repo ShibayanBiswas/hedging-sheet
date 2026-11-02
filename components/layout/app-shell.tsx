@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="relative flex min-h-dvh flex-col bg-mesh font-serif">
+    <div className="relative flex min-h-dvh flex-col bg-mesh">
       <header className="brand-header sticky top-0 z-50 font-ui" data-testid="site-header">
         <div className="brand-header-row">
           <div className="flex min-w-0 shrink-0 items-center gap-3">
