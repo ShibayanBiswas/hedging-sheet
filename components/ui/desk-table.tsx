@@ -4,6 +4,7 @@ import { Fragment, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { volText } from "@/lib/format";
 import { cellKey, displayCell, gridColumnLabel, tableRowLabel, type CellKind, type CellValue, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
 /** Raw number behind a cell, for tests that compare values beyond the shown digits. */
@@ -185,6 +186,8 @@ export type GridEdit = {
   rowLabel: string;
   /** Column key, then the new value as a decimal, or null to clear the override. */
   onChange: (columnKey: string, value: number | null) => void;
+  /** The overrides the desk holds now, by column key. */
+  overrides: Record<string, number>;
 };
 
 export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
@@ -237,6 +240,9 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                     );
                   }
                   const key = spec.columnKeys![i]!;
+                  const override = edit.overrides[key];
+                  // An override shows as typed; a surface value has many decimals and keeps its 2.
+                  const shown = override != null ? volText(override * 100).text : typeof v === "number" ? (v * 100).toFixed(2) : "";
                   return (
                     <td key={i} className={cn("hs-edit-cell text-right", overridden && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
                       <div className="flex items-center justify-end gap-2">
@@ -244,7 +250,7 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                           className="w-20 rounded-lg border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-caption tabular-nums outline-none focus:border-gold"
                           inputMode="decimal"
                           aria-label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`}
-                          defaultValue={typeof v === "number" ? (v * 100).toFixed(2) : ""}
+                          defaultValue={shown}
                           data-testid={`grid-edit-${key}`}
                           onFocus={(e) => {
                             shownOnFocus.current = e.target.value;

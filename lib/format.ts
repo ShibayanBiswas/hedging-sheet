@@ -48,6 +48,12 @@ export function numberText(v: unknown, digits = 2): Display {
   return { text: grouped(v, digits) };
 }
 
+/** A volatility in % points: every decimal it holds up to MAX_DECIMALS, and never fewer than 2. */
+export function volText(v: unknown): Display {
+  if (!finite(v)) return blank(v == null ? "Not applicable" : "The value could not be computed");
+  return { text: v.toLocaleString(NUMBER_LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: MAX_DECIMALS }) };
+}
+
 export function percentText(v: unknown, digits = 2): Display {
   if (!finite(v)) return blank(v == null ? "Not applicable" : "The value could not be computed");
   return { text: `${grouped(v * 100, digits)}%` };

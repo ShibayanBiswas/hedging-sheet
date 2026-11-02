@@ -55,6 +55,7 @@ export default function PricerPage() {
                   spec={pricerGrid(r)}
                   edit={{
                     rowLabel: "Volatility",
+                    overrides: inputs.legVolOverrides,
                     onChange: (key, value) =>
                       setInputs((prev) => {
                         const next = { ...prev.legVolOverrides };

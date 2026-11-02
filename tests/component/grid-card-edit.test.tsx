@@ -36,7 +36,7 @@ const legCell = () => screen.getByTestId("grid-edit-leg-1") as HTMLInputElement;
 describe("Pricer leg volatility cell", () => {
   it("stores nothing when the cell is tabbed through showing a surface volatility of 14.2678%", () => {
     const onChange = vi.fn();
-    render(<GridCard spec={spec(0.142678)} edit={{ rowLabel: "Volatility", onChange }} />);
+    render(<GridCard spec={spec(0.142678)} edit={{ rowLabel: "Volatility", onChange, overrides: {} }} />);
     expect(legCell().value).toBe("14.27");
     tabThrough(legCell());
     expect(onChange).not.toHaveBeenCalled();
@@ -45,7 +45,7 @@ describe("Pricer leg volatility cell", () => {
 
   it("commits a typed volatility once, and a later untouched blur neither commits it again nor rounds it", () => {
     const onChange = vi.fn();
-    const edit = { rowLabel: "Volatility", onChange };
+    const edit = { rowLabel: "Volatility", onChange, overrides: {} };
     const { rerender } = render(<GridCard spec={spec(0.142678)} edit={edit} />);
     typeInto(legCell(), "14.275");
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -61,14 +61,14 @@ describe("Pricer leg volatility cell", () => {
 
   it("does not round an override of 14.275 when the tab is reopened and the cell shows it to 2 decimals", () => {
     const onChange = vi.fn();
-    render(<GridCard spec={spec(0.14275, true)} edit={{ rowLabel: "Volatility", onChange }} />);
+    render(<GridCard spec={spec(0.14275, true)} edit={{ rowLabel: "Volatility", onChange, overrides: {} }} />);
     tabThrough(legCell());
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it("does not bring back a typed override after it was reset", () => {
     const onChange = vi.fn();
-    const edit = { rowLabel: "Volatility", onChange };
+    const edit = { rowLabel: "Volatility", onChange, overrides: {} };
     const { rerender } = render(<GridCard spec={spec(0.142678)} edit={edit} />);
     typeInto(legCell(), "30");
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -79,7 +79,7 @@ describe("Pricer leg volatility cell", () => {
 
   it("commits a change, takes a percent sign, and ignores text that is not a positive number", () => {
     const onChange = vi.fn();
-    render(<GridCard spec={spec(0.142678)} edit={{ rowLabel: "Volatility", onChange }} />);
+    render(<GridCard spec={spec(0.142678)} edit={{ rowLabel: "Volatility", onChange, overrides: {} }} />);
     typeInto(legCell(), "15 %");
     expect(onChange).toHaveBeenLastCalledWith("leg-1", 0.15);
     onChange.mockClear();
