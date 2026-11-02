@@ -1,11 +1,9 @@
 "use client";
 
 import { Fragment, type ReactNode } from "react";
-import { m, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
-import { deskEase } from "@/lib/motion";
 import { cellKey, displayCell, gridColumnLabel, tableRowLabel, type CellKind, type CellValue, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 
 /** Raw number behind a cell, for tests that compare values beyond the shown digits. */
@@ -15,22 +13,15 @@ function rawValue(value: CellValue): number | undefined {
 
 /** The Primary SP Dashboard DataTable frame: the table scrolls inside it both ways, with an animated reveal. */
 function TableFrame({ children, testId, title, note }: { children: ReactNode; testId: string; title: string; note?: string }) {
-  const reduce = useReducedMotion();
   return (
-    <m.div
-      className="w-full min-w-0"
-      data-testid={testId}
-      initial={reduce ? false : { opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: deskEase }}
-    >
+    <div className="w-full min-w-0" data-testid={testId}>
       <div className="relative min-w-0">
         <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label={title}>
           {children}
         </div>
       </div>
       {note ? <p className="mt-2 font-ui text-caption italic text-muted">{note}</p> : null}
-    </m.div>
+    </div>
   );
 }
 

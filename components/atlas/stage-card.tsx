@@ -1,6 +1,5 @@
 "use client";
 
-import { m, useReducedMotion } from "framer-motion";
 import { ArrowRight, Cpu, LineChart, Search, ShieldCheck, type LucideIcon } from "lucide-react";
 
 import type { AtlasStage, StageKind } from "@/lib/logic-atlas";
@@ -43,19 +42,10 @@ function StageLinks({ label, ids, titles, testId }: { label: string; ids: string
 
 /** One pipeline stage, in the Primary SP Dashboard flow node style, with what it reads, what it feeds and its last run. */
 export function StageCard({ stage, step, titles, pending }: { stage: AtlasStage; step: number; titles: Record<string, string>; pending: string }) {
-  const reduce = useReducedMotion();
   const kind = KIND[stage.kind];
   const Icon = kind.icon;
   return (
-    <m.article
-      id={`stage-${stage.id}`}
-      tabIndex={-1}
-      data-testid={`stage-${stage.id}`}
-      className={cn("atlas-card", kind.tone)}
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(step, 12) * 0.04, duration: 0.3, ease: "easeOut" }}
-    >
+    <article id={`stage-${stage.id}`} tabIndex={-1} data-testid={`stage-${stage.id}`} className={cn("atlas-card", kind.tone)}>
       {step > 1 ? (
         <span className="atlas-arrow" aria-hidden>
           <ArrowRight className="icon-sm" />
@@ -99,6 +89,6 @@ export function StageCard({ stage, step, titles, pending }: { stage: AtlasStage;
           <span className="text-muted">{pending}</span>
         )}
       </div>
-    </m.article>
+    </article>
   );
 }

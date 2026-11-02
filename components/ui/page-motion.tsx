@@ -1,18 +1,11 @@
-﻿"use client";
+import type { ReactNode } from "react";
 
-import { type ReactNode } from "react";
-import { m, useReducedMotion } from "framer-motion";
-
-import { pageEnter } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
-/** Page-level entrance — wrap each route's main content once. */
+/**
+ * Page-level entrance, wrapping each route's main content once. It is plain CSS, so the server's HTML is already visible:
+ * the fade needs no script to finish, and under reduced motion there is no fade at all.
+ */
 export function PageEnter({ children, className }: { children: ReactNode; className?: string }) {
-  const reduce = useReducedMotion();
-  // The server cannot know the motion preference and renders the hidden start; the client must still write the end state.
-  return (
-    <m.div className={cn("desk-page-enter", className)} {...pageEnter} transition={reduce ? { duration: 0 } : pageEnter.transition}>
-      {children}
-    </m.div>
-  );
+  return <div className={cn("desk-page-enter hs-enter", className)}>{children}</div>;
 }

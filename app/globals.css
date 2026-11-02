@@ -148,7 +148,6 @@ textarea {
       0 8px 22px -14px rgba(122, 30, 44, 0.35),
       0 0 0 1px rgba(212, 178, 76, 0.08);
     color: var(--ar-ink);
-    transition: all 0.25s ease;
   }
 
   .input-glow:focus {
@@ -379,15 +378,15 @@ textarea {
 
   /* Fill, border and text come from the glass tokens at the end of this file. */
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold transition;
+    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold;
   }
 
   .btn-accent {
-    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold transition;
+    @apply relative overflow-hidden rounded-xl px-6 py-3 text-body font-bold;
   }
 
   .btn-ghost {
-    @apply relative overflow-hidden rounded-xl px-4 py-3 text-body font-semibold transition;
+    @apply relative overflow-hidden rounded-xl px-4 py-3 text-body font-semibold;
   }
 
   .chart-shell {
@@ -397,14 +396,6 @@ textarea {
     box-shadow:
       inset 0 1px 0 rgba(212, 178, 76, 0.06),
       0 12px 40px -20px rgba(17, 17, 17, 0.12);
-  }
-
-  .btn-animated {
-    transition:
-      box-shadow 0.25s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease,
-      color 0.2s ease;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -425,16 +416,6 @@ textarea {
     background: var(--ar-header-bg);
     backdrop-filter: blur(20px);
     box-shadow: 0 4px 24px -8px rgba(17, 17, 17, 0.08);
-  }
-
-  .brand-header-glow {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--ar-gold), var(--ar-maroon), var(--ar-gold), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 6s linear infinite;
-    pointer-events: none;
   }
 
   /* One row at every width: brand, then the status strip from 1024 px, then the actions. */
@@ -473,7 +454,6 @@ textarea {
     inset: 0;
     background: radial-gradient(ellipse at 50% 0%, rgba(212, 178, 76, 0.08), transparent 55%);
     pointer-events: none;
-    animation: chart-glow 6s ease-in-out infinite;
   }
 
   .market-strip {
@@ -491,22 +471,20 @@ textarea {
     color: var(--ar-muted);
   }
 
-  .glass {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .glass:hover {
-    transform: translateY(-1px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-  .glass:hover,
   .btn-primary:hover,
+  .btn-primary:active,
+  .btn-accent:active,
+  .btn-ghost:active,
+  .glass-control:active,
+  .hs-segment button:active,
+  .hs-overridden-badge:active,
   .btn-motion:hover,
   .btn-motion:active {
-    transform: none;
+    transform: none !important;
   }
 }
 
@@ -523,6 +501,28 @@ textarea {
 .desk-page-enter {
   position: relative;
   z-index: 1;
+}
+
+/*
+ * Entrances are CSS, never a hidden start state written by a script: the server's HTML is visible as it arrives, the fade
+ * needs no JavaScript to finish, and server and client can never disagree about the visitor's motion preference.
+ */
+@keyframes hs-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.hs-enter {
+  animation: hs-enter 180ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--enter-step, 0) * 30ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-enter {
+    animation: none;
+  }
 }
 
 .market-strip-live {
@@ -552,15 +552,24 @@ textarea {
 }
 
 .btn-motion {
-  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease;
 }
 
-.btn-motion:hover {
+.btn-motion:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.03);
 }
 
-.btn-motion:active {
+.btn-motion:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+/* Run Simulation can be as wide as the window, so it moves less. */
+.hs-run-btn.btn-motion:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+}
+
+.hs-run-btn.btn-motion:active:not(:disabled) {
+  transform: scale(0.985);
 }
 
 @keyframes shimmer {
@@ -652,10 +661,6 @@ textarea {
     }
   }
 
-  .data-table-premium tbody tr td {
-    transition: background-color 0.18s ease;
-  }
-
   .data-table-premium tbody tr.hs-row-highlight td {
     background: var(--ar-table-row-selected);
     font-weight: 700;
@@ -702,7 +707,7 @@ textarea {
   }
 
   .hs-segment button {
-    @apply relative z-10 h-full rounded-lg px-3 text-body font-bold transition-colors;
+    @apply relative z-10 h-full rounded-lg px-3 text-body font-bold;
   }
 
   .hs-segment-glow {
@@ -716,10 +721,6 @@ textarea {
   .hs-recalc::after {
     animation: none;
     display: none;
-  }
-
-  .data-table-premium tbody tr td {
-    transition: none;
   }
 
   *,
@@ -761,7 +762,7 @@ textarea {
 /* ------------------------------------------------------------------ Round 3 additions */
 @layer components {
   .hs-input {
-    @apply rounded-2xl border px-4 py-3 font-ui text-body tabular-nums outline-none transition;
+    @apply rounded-2xl border px-4 py-3 font-ui text-body tabular-nums outline-none;
     border-color: var(--ar-border);
     background: var(--ar-input-bg);
   }
@@ -799,7 +800,9 @@ summary:focus-visible,
 
 /* Fields keep their glow on click; keyboard focus adds a ring every engine draws, selects included. */
 input.input-glow:focus-visible,
-select.input-glow:focus-visible {
+select.input-glow:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
   outline: 2px solid #8a6508;
   outline-offset: 2px;
 }
@@ -1645,22 +1648,13 @@ main:has(.inputs-page),
   color: #be123c;
 }
 
+/* A solid bar: gradients are off everywhere, so a gradient skeleton would not show at all. */
 .vol-grid-skeleton {
   display: block;
   height: 0.75rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--ar-panel), rgb(212 178 76 / 0.18), var(--ar-panel));
-  background-size: 200% 100%;
-  animation: vol-skeleton 1.2s ease-in-out infinite;
-}
-
-@keyframes vol-skeleton {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -100% 0;
-  }
+  background: #f2eeef;
+  animation: hs-skeleton-pulse 1.2s ease-in-out infinite alternate;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1779,7 +1773,6 @@ main:has(.inputs-page),
 
 .glass-select {
   outline: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .glass-select--empty {
@@ -1978,6 +1971,10 @@ main:has(.inputs-page),
 .atlas-link:hover,
 .atlas-link:focus-visible {
   border-color: #7a1e2c;
+}
+
+.atlas-link:active {
+  background: var(--control-fill-pressed);
 }
 
 .atlas-values {

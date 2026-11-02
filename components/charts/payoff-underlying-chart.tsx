@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { m, useReducedMotion } from "framer-motion";
+import { deskFade } from "@/lib/motion";
 import { Area, ComposedChart, Line, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { clientReturn, deriveTerms } from "@/lib/engine/structure";
@@ -169,7 +170,7 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
           </ResponsiveContainer>
         </div>
       </div>
-      <m.div className="flex flex-wrap gap-4 font-ui text-caption text-muted" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}>
+      <m.div className="flex flex-wrap gap-4 font-ui text-caption text-muted" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={deskFade}>
         <span className="inline-flex items-center gap-2">
           <span className="inline-block w-6 border-t-[3px]" style={{ borderColor: PAYOFF }} aria-hidden />
           Client Return · Left Axis

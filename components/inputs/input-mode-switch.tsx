@@ -26,7 +26,7 @@ export function InputModeSwitch() {
         const active = mode === item.id;
         const Icon = ICONS[item.id];
         return (
-          <m.button
+          <button
             key={item.id}
             type="button"
             role="tab"
@@ -34,9 +34,7 @@ export function InputModeSwitch() {
             tabIndex={active ? 0 : -1}
             data-testid={`mode-${item.id}`}
             title={item.subtitle}
-            className={cn("glass-control relative flex h-9 flex-1 items-center justify-center rounded-lg px-3 text-center transition-colors")}
-            whileTap={reduce ? undefined : { scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 420, damping: 28 }}
+            className={cn("glass-control relative flex h-9 flex-1 items-center justify-center rounded-lg px-3 text-center")}
             onClick={() => requestMode(item.id)}
           >
             {active ? (
@@ -52,7 +50,7 @@ export function InputModeSwitch() {
               {item.label}
             </span>
             <span className="sr-only">{item.subtitle}</span>
-          </m.button>
+          </button>
         );
       })}
     </div>

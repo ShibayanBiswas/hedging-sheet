@@ -1,13 +1,10 @@
 "use client";
 
-import { m, useReducedMotion } from "framer-motion";
-
 import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { fmtCrore, fmtPercent } from "@/lib/format";
 import { cellKey } from "@/lib/tables";
-import { deskEase } from "@/lib/motion";
 
 const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
 const finiteOrUndefined = (v: number) => (Number.isFinite(v) ? v : undefined);
@@ -24,19 +21,11 @@ function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"
 
 /** Payoff scenarios in the Primary SP Dashboard style, with Initial, Target, Protection and Floor rows marked. */
 export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
-  const reduce = useReducedMotion();
   const terms = deriveTerms(result.inputs);
   const u = result.underlyingLabel;
   const rows = result.productDescription.payoff;
   return (
-    <m.div
-      className="w-full min-w-0"
-      data-testid="table-pd-payoff"
-      initial={reduce ? false : { opacity: 0, y: 10 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
-      transition={{ duration: 0.4, ease: deskEase }}
-    >
+    <div className="w-full min-w-0" data-testid="table-pd-payoff">
       <div className="relative min-w-0">
         <div className="data-table-premium-wrap desk-table-scroll" tabIndex={0} role="region" aria-label="Payoff Scenarios">
           <table className="data-table-premium payoff-scenarios-table min-w-full">
@@ -93,6 +82,6 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
       <p className="mt-2 font-ui text-caption italic text-muted">
         Levels: every strike, the protection level and 0.01% below it, zero, and every 5% in between.
       </p>
-    </m.div>
+    </div>
   );
 }

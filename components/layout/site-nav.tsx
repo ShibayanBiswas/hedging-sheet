@@ -38,12 +38,12 @@ export function SiteNav() {
             const active = section.id === item.id;
             const Icon = item.icon;
             return (
-              <m.div key={item.id} className="flex min-w-max flex-1 lg:min-w-min lg:flex-auto" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
+              <div key={item.id} className="flex min-w-max flex-1 lg:min-w-min lg:flex-auto">
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   data-testid={`nav-${item.id}`}
-                  className="nav-tab glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold transition-all lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
+                  className="nav-tab glass-control relative flex h-9 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 font-ui text-body font-semibold lg:gap-1 lg:px-2 lg:text-caption xl:gap-2 xl:px-3 xl:text-body"
                 >
                   {active ? (
                     <m.span
@@ -52,16 +52,12 @@ export function SiteNav() {
                       transition={{ type: "spring", stiffness: 420, damping: 28 }}
                     />
                   ) : null}
-                  <m.span
-                    className="relative inline-flex"
-                    whileHover={reduce ? undefined : { scale: 1.12, rotate: -4 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 18 }}
-                  >
+                  <span className="relative inline-flex">
                     <Icon className="icon-nav" aria-hidden />
-                  </m.span>
+                  </span>
                   <span className="relative">{item.label}</span>
                 </Link>
-              </m.div>
+              </div>
             );
           })}
         </div>

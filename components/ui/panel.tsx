@@ -1,13 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { m, useReducedMotion } from "framer-motion";
+import type { CSSProperties, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
 import type { ExportTab } from "@/lib/exports/tab-specs";
 import { cn } from "@/lib/cn";
-import { deskEase } from "@/lib/motion";
 
 export function Panel({
   children,
@@ -22,17 +20,10 @@ export function Panel({
   index?: number;
   id?: string;
 }) {
-  const reduce = useReducedMotion();
   return (
-    <m.section
-      id={id}
-      className={cn("glass section-pad w-full min-w-0 rounded-2xl", recalculating && "hs-recalc", className)}
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: deskEase, delay: Math.min(index, 8) * 0.05 }}
-    >
+    <section id={id} className={cn("glass section-pad hs-enter w-full min-w-0 rounded-2xl", recalculating && "hs-recalc", className)} style={{ "--enter-step": Math.min(index, 4) } as CSSProperties}>
       {children}
-    </m.section>
+    </section>
   );
 }
 
@@ -62,14 +53,8 @@ export function SectionTitle({
 }
 
 export function PageIntro({ title, subtitle, aside, tab }: { title: string; subtitle?: string; aside?: ReactNode; tab?: ExportTab }) {
-  const reduce = useReducedMotion();
   return (
-    <m.div
-      className="mb-4 flex flex-wrap items-end justify-between gap-3"
-      initial={reduce ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: deskEase }}
-    >
+    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
         <p className="label-chip">Hedging Sheet</p>
         <h1 className="mt-1 font-bold tracking-tight text-ink text-h1">{title}</h1>
@@ -81,6 +66,6 @@ export function PageIntro({ title, subtitle, aside, tab }: { title: string; subt
           {tab ? <DownloadPdfButton tab={tab} /> : null}
         </div>
       ) : null}
-    </m.div>
+    </div>
   );
 }

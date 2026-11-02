@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { m, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Brain, CheckCircle2, Clock, LineChart, Network, TriangleAlert } from "lucide-react";
 
 import { StageCard } from "@/components/atlas/stage-card";
@@ -11,12 +10,10 @@ import { useDesk } from "@/lib/context/desk-provider";
 import { fmtRunStamp } from "@/lib/format";
 import { underlyingName } from "@/lib/inputs/draft";
 import { atlasInsights, atlasOutputs, atlasStages } from "@/lib/logic-atlas";
-import { deskEase } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 export default function LogicAtlasPage() {
   const { inputs, lastRun, staleInputs, market, dailyVolStatus } = useDesk();
-  const reduce = useReducedMotion();
   // A run made with other inputs is never shown: its values no longer describe the product on screen.
   const run = lastRun && !staleInputs ? { result: lastRun.result, market: lastRun.market } : null;
   const stages = atlasStages(inputs, run, { market, history: dailyVolStatus });
@@ -28,7 +25,7 @@ export default function LogicAtlasPage() {
 
   return (
     <div className="intel-page flex w-full flex-col gap-4">
-      <m.header className="intel-hero" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: deskEase }}>
+      <header className="intel-hero">
         <div className="relative z-10 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="intel-hero-kicker">Anand Rathi Wealth · Desk Intelligence</p>
@@ -45,7 +42,7 @@ export default function LogicAtlasPage() {
         <p className="intel-hero-sub relative z-10">
           How the {underlyingName(inputs)} product flows from the inputs through pricing, the goal seek and the vega hedge to the margin and the payoff.
         </p>
-      </m.header>
+      </header>
 
       <Panel id="flows">
         <div data-testid="atlas-section-flows">

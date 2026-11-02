@@ -1,12 +1,9 @@
 /**
- * Shared Framer Motion presets for the Primary SP desk.
+ * Shared Framer Motion presets for the Primary SP desk. Entrances are CSS (.hs-enter in app/globals.css).
  * Respects prefers-reduced-motion via useReducedMotion at call sites.
  */
 
 export const deskEase = [0.22, 1, 0.36, 1] as const;
 
-export const pageEnter = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.22, ease: deskEase },
-};
+/** Opacity and transform changes run 150 to 200 ms. */
+export const deskFade = { duration: 0.18, ease: deskEase };

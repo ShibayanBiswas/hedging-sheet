@@ -5,6 +5,7 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Calendar, Info, Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
+import { deskFade } from "@/lib/motion";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { MAX_DECIMALS, NUMBER_LOCALE } from "@/lib/format";
 import { parsePastedDate } from "@/lib/inputs/bulk";
@@ -65,6 +66,7 @@ export function FieldRow({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
+              transition={deskFade}
             >
               {error}
             </m.p>
@@ -190,7 +192,7 @@ export function NumberInput({
           if (!result) onChange(parsed);
         }}
         className={cn(
-          "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
+          "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none focus:border-gold",
           PLACEHOLDER,
           suffix && "pr-12",
           (bad || invalid || rejected) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
@@ -282,7 +284,7 @@ export function DateInput({
           if (e.key === "Enter") e.currentTarget.blur();
         }}
         className={cn(
-          "input-glow h-9 w-full min-w-0 rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
+          "input-glow h-9 w-full min-w-0 rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none focus:border-gold",
           PLACEHOLDER,
           invalid && "border-rose-500 ring-2 ring-rose-400/60",
         )}

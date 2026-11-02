@@ -64,7 +64,7 @@ export function DeskKeyDialog({ error, onSubmit, onCancel }: { error: string | n
             onChange={(e) => setValue(e.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "desk-key-error" : undefined}
-            className="input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none transition focus:border-gold"
+            className="input-glow w-full rounded-2xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-4 py-3 font-ui text-body outline-none focus:border-gold"
           />
           {error ? (
             <p className="hs-error" id="desk-key-error" role="alert">

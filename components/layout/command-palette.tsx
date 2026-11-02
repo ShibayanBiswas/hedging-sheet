@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
+import { deskFade } from "@/lib/motion";
 import { ArrowRight, Command, X } from "lucide-react";
 
 import { NAV_ITEMS } from "@/lib/navigation";
@@ -52,7 +53,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
         className="desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden shadow-[0_28px_80px_-24px_rgba(17,17,17,0.55)] sm:max-w-xl"
         initial={{ opacity: 0, scale: 0.97, y: -14 }}
         role="dialog"
-        transition={{ type: "spring", stiffness: 420, damping: 32 }}
+        transition={deskFade}
       >
         <div className="flex items-center gap-3 border-b border-[color:var(--ar-border)] px-4 py-3">
           <Command className="icon-sm shrink-0 text-gold-dark" aria-hidden />

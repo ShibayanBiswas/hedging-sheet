@@ -7,6 +7,7 @@ import { AlertTriangle, Info, Lightbulb, OctagonAlert } from "lucide-react";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import type { DeskAlertOptions, DeskAlertVariant } from "@/lib/desk-alert";
 import { cn } from "@/lib/cn";
+import { deskFade } from "@/lib/motion";
 
 export type DeskDialogState = {
   title: string;
@@ -57,6 +58,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
           exit={reduce ? undefined : { opacity: 0 }}
           initial={reduce ? false : { opacity: 0 }}
           role="presentation"
+          transition={deskFade}
         >
           <button aria-label="Close dialog" className="absolute inset-0 bg-ink/45 backdrop-blur-[2px]" type="button" onClick={() => onClose()} />
           <m.div
@@ -72,6 +74,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
             exit={reduce ? undefined : { opacity: 0, scale: 0.96, y: 8 }}
             initial={reduce ? false : { opacity: 0, scale: 0.96, y: 12 }}
             role="alertdialog"
+            transition={deskFade}
           >
             <div className="h-1 bg-gradient-to-r from-maroon via-gold to-maroon/70" />
             <div className="border-b border-gold/15 bg-gradient-to-r from-maroon/[0.06] via-transparent to-gold/[0.08] px-6 py-4">

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
+import { deskFade } from "@/lib/motion";
 import { CheckCircle2, OctagonAlert } from "lucide-react";
 
 import { DeskDialog, type DeskDialogState } from "@/components/ui/desk-dialog";
@@ -95,7 +96,7 @@ export function DeskDialogProvider({ children }: { children: ReactNode }) {
             initial={reduce ? false : { opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? undefined : { opacity: 0, y: 8 }}
-            transition={{ type: "spring", stiffness: 420, damping: 30 }}
+            transition={deskFade}
           >
             {toastState.variant === "error" ? <OctagonAlert className="icon-sm shrink-0 text-rose-600" aria-hidden /> : <CheckCircle2 className="icon-sm shrink-0 text-emerald-600" aria-hidden />}
             <span className="min-w-0">{toastState.text}</span>
