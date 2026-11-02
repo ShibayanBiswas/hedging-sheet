@@ -7,8 +7,8 @@ import { NAV_ITEMS } from "@/lib/navigation";
  */
 const EMBED_MESSAGE = "hedging-sheet:navigate";
 const PARENT_ORIGIN = "https://sp-workstation.vercel.app";
-/** npm run dev in the SP Workstation repo; its run.ps1 and .env.example use port 3000. Never accepted in a production build. */
-const LOCAL_PARENT_ORIGIN = "http://localhost:3000";
+/** npm run dev in the SP Workstation repo on port 3000; its run.ps1 opens 127.0.0.1. Never accepted in a production build. */
+const LOCAL_PARENT_ORIGINS = new Set(["http://localhost:3000", "http://127.0.0.1:3000"]);
 
 const ROUTES = new Set(NAV_ITEMS.map((item) => item.href));
 
@@ -17,7 +17,7 @@ type EmbedEvent = Pick<MessageEvent, "source" | "origin" | "data">;
 /** The route to open for a message, or null when the message is not one to act on. */
 export function embedNavigationTarget(event: EmbedEvent, parent: unknown, production: boolean): string | null {
   if (event.source === null || event.source !== parent) return null;
-  if (event.origin !== PARENT_ORIGIN && (production || event.origin !== LOCAL_PARENT_ORIGIN)) return null;
+  if (event.origin !== PARENT_ORIGIN && (production || !LOCAL_PARENT_ORIGINS.has(event.origin))) return null;
   const data: unknown = event.data;
   if (typeof data !== "object" || data === null) return null;
   const { type, path } = data as { type?: unknown; path?: unknown };

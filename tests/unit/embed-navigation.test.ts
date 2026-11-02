@@ -5,7 +5,6 @@ import { NAV_ITEMS } from "@/lib/navigation";
 
 const parent = { name: "parent window" };
 const WORKSTATION = "https://sp-workstation.vercel.app";
-const LOCAL = "http://localhost:3000";
 const message = (path: unknown = "/pricer") => ({ type: "hedging-sheet:navigate", path });
 const event = (over: Partial<{ source: unknown; origin: string; data: unknown }> = {}) => ({ source: parent, origin: WORKSTATION, data: message(), ...over }) as unknown as Pick<MessageEvent, "source" | "origin" | "data">;
 
@@ -14,9 +13,12 @@ describe("embed navigation", () => {
     for (const { href } of NAV_ITEMS) expect(embedNavigationTarget(event({ data: message(href) }), parent, true)).toBe(href);
   });
 
-  it("accepts the Workstation's local dev port only outside production builds", () => {
-    expect(embedNavigationTarget(event({ origin: LOCAL }), parent, false)).toBe("/pricer");
-    expect(embedNavigationTarget(event({ origin: LOCAL }), parent, true)).toBeNull();
+  it.each(["http://localhost:3000", "http://127.0.0.1:3000"])("accepts the Workstation's local dev origin %s only outside production builds", (origin) => {
+    expect(embedNavigationTarget(event({ origin }), parent, false)).toBe("/pricer");
+    expect(embedNavigationTarget(event({ origin }), parent, true)).toBeNull();
+  });
+
+  it("accepts the live Workstation outside production builds too", () => {
     expect(embedNavigationTarget(event({ origin: WORKSTATION }), parent, false)).toBe("/pricer");
   });
 
@@ -30,7 +32,8 @@ describe("embed navigation", () => {
     "http://localhost:3001",
     "http://localhost",
     "https://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "https://127.0.0.1:3000",
     "null",
     "",
   ])("rejects the origin %s, in development too", (origin) => {
