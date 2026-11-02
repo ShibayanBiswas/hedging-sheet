@@ -60,7 +60,7 @@ describe("vol surface upload", () => {
     expect(parsed.surface.expiries).toEqual(volSeed.expiries);
     expect(parsed.surface.referenceSensexPrice).toBeCloseTo(volSeed.referenceSensexPrice, 6);
     parsed.surface.volsPercent.forEach((row, r) =>
-      row.forEach((v, c) => expect(v).toBeCloseTo(Math.round(volSeed.volsPercent[r]![c]! * 100) / 100, 6)),
+      row.forEach((v, c) => expect(v).toBe(volSeed.volsPercent[r]![c]!)),
     );
     // The file carries the forward Pricing Params grid and future dividends only.
     const live = forwardMarket(seedMarketData(), istTodayYmd());
