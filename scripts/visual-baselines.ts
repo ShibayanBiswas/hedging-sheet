@@ -16,7 +16,8 @@ const image = "mcr.microsoft.com/playwright:v1.63.0-noble";
 
 const run = spawnSync(
   "docker",
-  ["run", "--rm", "--ipc=host", "-v", `${root}:/src:ro`, "-v", `${out}:/out`, image, "bash", "/src/scripts/visual-baselines.sh", compare ? "compare" : "update"],
+  // Named so npm run clean:dev can stop this container and no other.
+  ["run", "--rm", "--name", "hedging-sheet-visual", "--ipc=host", "-v", `${root}:/src:ro`, "-v", `${out}:/out`, image, "bash", "/src/scripts/visual-baselines.sh", compare ? "compare" : "update"],
   { stdio: "inherit" },
 );
 process.exit(run.status ?? 1);

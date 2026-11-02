@@ -1,0 +1,9 @@
+# Heavy folders Cursor must neither index nor watch; the same list as .gitignore and .vscode/settings.json.
+.next/
+node_modules/
+reports/
+test-results/
+playwright-report/
+coverage/
+.lighthouseci/
+*.xlsm

@@ -6,7 +6,7 @@ The Hedging Sheet is a **Next.js** app. Vercel hosts it and rebuilds it every ti
 
 - Production: [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app)
 - Vercel project: `shibayan-biswas-projects/hedging-sheet`, the same team as the other desk apps
-- Repository: [ShibayanBiswas/hedging-sheet](https://github.com/ShibayanBiswas/hedging-sheet), private
+- Repository: [ShibayanBiswas/hedging-sheet](https://github.com/ShibayanBiswas/hedging-sheet), public
 
 ## What you need before you start
 
