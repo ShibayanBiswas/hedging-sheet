@@ -3,6 +3,7 @@ import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
 import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
+import { NUMBER_LOCALE } from "@/lib/format";
 import { blankInputs, underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 
 /**
@@ -135,7 +136,7 @@ export function requiredFields(expiryCount: number, nSpreads: number): FieldErro
   return [...fields.values()];
 }
 
-const show = (v: number, percent?: boolean) => (percent ? `${+(v * 100).toFixed(3)}%` : v.toLocaleString("en-IN", { maximumFractionDigits: 3 }));
+const show = (v: number, percent?: boolean) => (percent ? `${+(v * 100).toFixed(3)}%` : v.toLocaleString(NUMBER_LOCALE, { maximumFractionDigits: 3 }));
 
 /** The allowed range of a number field, as the popup states it. */
 export function allowedRange(rule: Pick<NumberFieldRule, "min" | "max" | "minInclusive" | "percent" | "integer" | "step">): string {

@@ -76,7 +76,7 @@ describe("Excel cells", () => {
       expect(Object.is(c.value, 0)).toBe(true);
       return c.numFmt;
     });
-    expect(formats).toEqual(["#,##0", "0.000", "#,##,##0.00", "#,##0.00"]);
+    expect(formats).toEqual(["#,##0", "0.000", "#,##0.00", "#,##0.00"]);
     const text = cell();
     writeTypedCell(text, 12, "text");
     expect(text.value).toBe("12");

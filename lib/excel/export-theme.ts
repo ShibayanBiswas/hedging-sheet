@@ -4,6 +4,8 @@
  */
 import type ExcelJS from "exceljs";
 
+import { NUMBER_LOCALE } from "@/lib/format";
+
 /** ARGB hex for ExcelJS fills / fonts / borders. */
 export const EXCEL_THEME = {
   maroon: "FF7A1E2C",
@@ -65,7 +67,7 @@ export function excelCellDisplayLength(cell: ExcelJS.Cell): number {
     if (fmt.includes("%")) return Math.max(4, `${(v * 100).toFixed(2)}%`.length);
     // Excel date serials with dd-mmm-yy need room or the cell prints ####.
     if (/[dym]/i.test(fmt) && /mmm|yyyy|yy|dd/i.test(fmt)) return 12;
-    return v.toLocaleString("en-IN", { maximumFractionDigits: 3 }).length;
+    return v.toLocaleString(NUMBER_LOCALE, { maximumFractionDigits: 3 }).length;
   }
   if (v instanceof Date) return 12;
   if (typeof v === "object") {

@@ -18,7 +18,7 @@ describe("display length of a cell", () => {
     expect(excelCellDisplayLength(cell(0.1234, "0.00%"))).toBe(6);
     expect(excelCellDisplayLength(cell(0.01, "0%"))).toBe(5);
     expect(excelCellDisplayLength(cell(46352, "dd-mmm-yyyy"))).toBe(12);
-    expect(excelCellDisplayLength(cell(1234567.891))).toBe("12,34,567.891".length);
+    expect(excelCellDisplayLength(cell(1234567.891))).toBe("1,234,567.891".length);
     expect(excelCellDisplayLength(cell(new Date("2026-11-26T00:00:00Z")))).toBe(12);
   });
 

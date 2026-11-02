@@ -9,14 +9,14 @@ function decimals(digits: number): string {
   return d > 0 ? `.${"0".repeat(d)}` : "";
 }
 
-/** Real Excel number formats per kind: percent 0.00%, crore #,##,##0.00, dates dd-mmm-yyyy. */
+/** Real Excel number formats per kind: percent 0.00%, crore #,##0.00, dates dd-mmm-yyyy. */
 function numFmtFor(kind: CellKind, digits?: number): string | undefined {
   switch (kind) {
     case "percent":
       return `0${decimals(digits ?? 2)}%`;
     case "crore":
     case "rupee":
-      return `#,##,##0${decimals(digits ?? 2)}`;
+      return `#,##0${decimals(digits ?? 2)}`;
     case "integer":
       return "#,##0";
     case "number":

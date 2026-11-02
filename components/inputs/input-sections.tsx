@@ -224,7 +224,6 @@ function UnderlyingGroup({ open }: { open: number }) {
                 onChange={(v) => setInputs({ hedgeStrike: v, hedgeStrikeAuto: false })}
                 onBlankChange={() => setInputs({ hedgeStrike: NaN, hedgeStrikeAuto: false })}
                 digits={0}
-                grouped
                 testId="input-hedgeStrike"
                 invalid={Boolean(errorFor("hedgeStrike"))}
                 placeholder="Eg 77,300"
@@ -526,7 +525,6 @@ function StrikesGroup({ open }: { open: number }) {
                     <NumberInput
                       value={level}
                       digits={0}
-                      grouped
                       disabled={!Number.isFinite(start)}
                       ariaLabel={`Strike ${i + 1} Level In Points`}
                       testId={`input-strikeLevel-${i}`}

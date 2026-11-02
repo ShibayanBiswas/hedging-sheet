@@ -92,7 +92,7 @@ With the defaults the units are −10.05, +9.05, +1, −25.6, +24 and +1.
 
 `priceOption` in `hedging-sheet.ts` and `lib/engine/black-scholes.ts`.
 
-The leg grid shows these rows in Pricer column A order. The strike % and rupee strike head each column as "137% · 1,05,901", with the real expiry date beneath.
+The leg grid shows these rows in Pricer column A order. The strike % and rupee strike head each column as "137% · 105,901", with the real expiry date beneath.
 
 | Pricer row | Field | Formula | Code |
 |---|---|---|---|

@@ -615,7 +615,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   }
   // An Inbuilt beyond the whole notional is no product: the rates have grown the pots past any real book.
   if (Math.abs(inbuilt) > notional) {
-    const share = ((inbuilt / notional) * 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+    const share = ((inbuilt / notional) * 100).toLocaleString("en-US", { maximumFractionDigits: 2 });
     return {
       ok: false,
       errors: [

@@ -73,7 +73,7 @@ describe("Edge · Spot", () => {
     for (const value of [0, -76000, "abc"]) {
       const r = checkFieldEdit(desk(), "spot", value);
       expect(r?.message, String(value)).toMatch(/Sensex Spot (must be above 0|is required)/);
-      expect(r?.range).toBe("Above 0 To 10,00,000");
+      expect(r?.range).toBe("Above 0 To 1,000,000");
     }
   });
 
@@ -330,8 +330,8 @@ describe("Edge · Display", () => {
     );
   });
 
-  it("Very Large And Very Small Numbers Read In Full With Indian Grouping", () => {
-    expect(numberText(1_23_45_67_890.1234, 3).text).toBe("1,23,45,67,890.123");
+  it("Very Large And Very Small Numbers Read In Full With One Grouping Style", () => {
+    expect(numberText(1_23_45_67_890.1234, 3).text).toBe("1,234,567,890.123");
     expect(numberText(0.0004, 3).text).toBe("0.000");
     expect(numberText(-0.0004, 3).text).toBe("0.000");
   });

@@ -43,7 +43,7 @@ describe("title case helper", () => {
   });
 
   it("allows units, symbols, numbers, dates and tickers", () => {
-    for (const ok of ["Premium ₹ Cr", "Requirement At 0%", "137% · 1,05,901", "28-Oct-2026", "Quantity In L", "BSE And NSE", "−50% To +20%", "Day 1"]) {
+    for (const ok of ["Premium ₹ Cr", "Requirement At 0%", "137% · 105,901", "28-Oct-2026", "Quantity In L", "BSE And NSE", "−50% To +20%", "Day 1"]) {
       expect(isTitleCase(ok), ok).toBe(true);
     }
     expect(titleCaseViolations("Mark to Market")).toEqual(["to"]);

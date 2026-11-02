@@ -49,7 +49,7 @@ test.describe("Strikes, spreads and per spread option type", () => {
     await expect(inputs.field("strikePercents-2")).toHaveValue("125.00");
   });
 
-  test("S3 spot 80,000 makes Strike Level 1 read 1,10,285", async ({ inputs }) => {
+  test("S3 spot 80,000 makes Strike Level 1 read 110,285", async ({ inputs }) => {
     await inputs.goto();
     await inputs.fill("spot", "80000");
     await expect.poll(async () => digits(await inputs.field("strikeLevel-0").inputValue())).toBe("110285");

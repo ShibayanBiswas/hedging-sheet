@@ -7,7 +7,7 @@ The Pricer tab shows the option book that replicates the payoff. The row by row 
 - **Headline.** Start level, Actual Inbuilt, Premium, Maturity Payout, Achieved Coupon, Delta in Contracts and Internal Rate of Return, as one table row.
 - **Pot Computation.** The Pricer top block, B5 to V5, one row each, in sheet order: Start Level, Coupon, Option Expiry, Mobilisation, Actual Inbuilt, Product Cost, Inbuilt, Transaction Cost, Net Mobilisation With NBFC, Premium, NBFC Rate, Premium Growth Rate, Tenor, Maturity Payout, Achieved Coupon, Delta, Vega, Rho, Gamma, Internal Rate of Return and Margin.
 - **Payout Construction.** The coupon, the payout from each spread, the decay, the protection level and the loss at the protection point.
-- **Leg Grid.** One column per live leg. The header has two levels: the strike as "137% · 1,05,901" over the real expiry date, such as "28-Mar-2030". Rows follow Pricer column A, from Underlying to Rho in Rupees.
+- **Leg Grid.** One column per live leg. The header has two levels: the strike as "137% · 105,901" over the real expiry date, such as "28-Mar-2030". Rows follow Pricer column A, from Underlying to Rho in Rupees.
 
 ## Legs
 

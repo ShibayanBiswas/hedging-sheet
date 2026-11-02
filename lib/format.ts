@@ -11,6 +11,9 @@ function finite(v: unknown): v is number {
 /** No number shows more than 3 decimal places, on screen or in Excel. */
 export const MAX_DECIMALS = 3;
 
+/** One grouping style everywhere: 102,202 and 74,151.04, on screen, in the PDF and in Excel. */
+export const NUMBER_LOCALE = "en-US";
+
 function places(digits: number): number {
   return Math.max(0, Math.min(MAX_DECIMALS, Math.round(digits)));
 }
@@ -28,7 +31,7 @@ export function blank(reason = "Not applicable"): Display {
 
 function grouped(v: number, digits: number): string {
   const d = places(digits);
-  return clean(v, d).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+  return clean(v, d).toLocaleString(NUMBER_LOCALE, { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 export function numberText(v: unknown, digits = 2): Display {

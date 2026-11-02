@@ -81,4 +81,4 @@ The shell, tabs, dialogs, tables and the Logic Atlas follow the Primary SP Dashb
 
 ## Copy rules
 
-Full words, no brackets, almost no "/", Title Case labels, dates as DD-MMM-YYYY, crore with Indian grouping and two decimals, and "-" with a tooltip for any value that cannot be computed. No copy hard-codes Sensex; every label follows the underlying.
+Full words, no brackets, almost no "/", Title Case labels, dates as DD-MMM-YYYY, crore with one international grouping style, such as 102,202 and 74,151.04, and two decimals, and "-" with a tooltip for any value that cannot be computed. No copy hard-codes Sensex; every label follows the underlying.

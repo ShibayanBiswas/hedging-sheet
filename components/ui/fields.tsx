@@ -5,7 +5,7 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
-import { MAX_DECIMALS } from "@/lib/format";
+import { MAX_DECIMALS, NUMBER_LOCALE } from "@/lib/format";
 
 export type FieldCheck = { label: string; message: string; range?: string };
 
@@ -62,12 +62,12 @@ export function FieldRow({
 
 type NumberKind = "number" | "percent" | "integer";
 
-function toDraft(value: number, kind: NumberKind, digits: number, grouped = false, fixed = false): string {
+function toDraft(value: number, kind: NumberKind, digits: number, fixed = false): string {
   if (!Number.isFinite(value)) return "";
   const shown = kind === "percent" ? value * 100 : value;
-  if (kind === "integer") return String(Math.round(shown));
+  if (kind === "integer") return Math.round(shown).toLocaleString(NUMBER_LOCALE);
   const most = Math.min(MAX_DECIMALS, fixed ? digits : Math.max(digits, MAX_DECIMALS));
-  return shown.toLocaleString("en-IN", { minimumFractionDigits: Math.min(digits, most), maximumFractionDigits: most, useGrouping: grouped });
+  return shown.toLocaleString(NUMBER_LOCALE, { minimumFractionDigits: Math.min(digits, most), maximumFractionDigits: most });
 }
 
 function parseDraft(text: string, kind: NumberKind): number | null {
@@ -93,7 +93,6 @@ export function NumberInput({
   invalid,
   onBlankChange,
   ariaLabel,
-  grouped = false,
   fixed = false,
   check,
   onReject,
@@ -114,21 +113,19 @@ export function NumberInput({
   invalid?: boolean;
   onBlankChange?: () => void;
   ariaLabel?: string;
-  /** Show the value with Indian digit grouping, such as 1,05,901. */
-  grouped?: boolean;
   /** Round the shown value to `digits`, for derived values; typed values otherwise show in full. */
   fixed?: boolean;
 }) {
   const contextId = useContext(FieldIdContext);
-  const [draft, setDraft] = useState(() => toDraft(value, kind, digits, grouped, fixed));
+  const [draft, setDraft] = useState(() => toDraft(value, kind, digits, fixed));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
   const [rejected, setRejected] = useState<FieldCheck | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle
-    if (!focused) setDraft(toDraft(value, kind, digits, grouped, fixed));
-  }, [value, kind, digits, grouped, fixed, focused]);
+    if (!focused) setDraft(toDraft(value, kind, digits, fixed));
+  }, [value, kind, digits, fixed, focused]);
 
   return (
     <div className="relative w-full">
@@ -153,11 +150,11 @@ export function NumberInput({
           if (reason) {
             setRejected(null);
             setBad(false);
-            setDraft(toDraft(value, kind, digits, grouped, fixed));
+            setDraft(toDraft(value, kind, digits, fixed));
             onReject?.(reason);
             return;
           }
-          if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, grouped, fixed));
+          if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, fixed));
         }}
         onChange={(e) => {
           const text = e.target.value;

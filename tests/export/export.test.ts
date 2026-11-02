@@ -146,7 +146,7 @@ describe("Excel download", () => {
     await reopened.xlsx.load(buffer as ArrayBuffer);
     const texts: string[] = [];
     reopened.getWorksheet("Pricer")!.eachRow((row) => row.eachCell((cell) => texts.push(String(cell.value))));
-    expect(texts.includes("137% · 1,13,025")).toBe(true);
+    expect(texts.includes("137% · 113,025")).toBe(true);
     expect(texts.some((t) => /^\d{2}-[A-Z][a-z]{2}-\d{4}$/.test(t))).toBe(true);
     expect(texts.some((t) => /Strike Block|^Field$|^Expiry \d+$/.test(t))).toBe(false);
     const all: string[] = [];

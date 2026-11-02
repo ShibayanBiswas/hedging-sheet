@@ -165,7 +165,7 @@ const num = (key: string, label: string, digits = 2): Column => ({ key, label, k
 const date = (key: string, label: string): Column => ({ key, label, kind: "date" });
 const text = (key: string, label: string): Column => ({ key, label, kind: "text" });
 
-/** "137% · 1,05,901": the Pricer strike band label. */
+/** "137% · 105,901": the Pricer strike band label. */
 export function strikeLabel(percent: number, strike: number): string {
   return `${fmtNumber(percent, Number.isInteger(percent) ? 0 : 2)}% · ${fmtNumber(strike, 0)}`;
 }

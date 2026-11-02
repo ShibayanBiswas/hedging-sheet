@@ -52,7 +52,7 @@ describe("Inputs modes", () => {
   it("starts in Default Values with the live spot and the run gate shown", async () => {
     renderDesk();
     expect(screen.getByTestId("mode-default")).toHaveAttribute("aria-selected", "true");
-    await waitFor(() => expect((screen.getByTestId("input-spot") as HTMLInputElement).value).toBe("76835.78"));
+    await waitFor(() => expect((screen.getByTestId("input-spot") as HTMLInputElement).value).toBe("76,835.78"));
     expect((screen.getByTestId("input-coupon") as HTMLInputElement).value).toBe("102.50");
     expect(screen.getByTestId("run-gate")).toHaveTextContent("Run The Simulation To See Results");
   });
