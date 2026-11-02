@@ -95,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <SiteNav />
       </header>
-      <main className="relative z-10 mx-auto w-full max-w-full flex-1 px-4 py-6 md:px-6 xl:px-8">{children}</main>
+      <main className="shell-pad relative z-10 w-full flex-1 py-6">{children}</main>
       <DeskFooter />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </div>

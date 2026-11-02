@@ -27,7 +27,7 @@ export function SiteNav() {
 
   return (
     <div className="border-t border-[color:var(--ar-border)]">
-      <nav aria-label="Sections" className="mx-auto max-w-full px-4 py-1 md:px-6 xl:px-8">
+      <nav aria-label="Sections" className="shell-pad py-1">
         <div
           ref={rail}
           data-testid="nav-rail"

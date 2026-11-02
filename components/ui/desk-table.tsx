@@ -130,11 +130,10 @@ export function TableCard({ spec, testId }: { spec: TableSpec; testId?: string }
   );
 }
 
-/** Item and value pairs side by side on wide screens, so a two-column card is not stretched across 2560 px. */
+/** Item and value pairs side by side on wide screens, so a two-column card is not stretched across the 1680 px of content. */
 function usePairColumns(count: number): number {
   const two = useMediaQuery("(min-width: 1920px)");
-  const three = useMediaQuery("(min-width: 2400px)");
-  return Math.max(1, Math.min(count, three ? 3 : two ? 2 : 1));
+  return Math.max(1, Math.min(count, two ? 2 : 1));
 }
 
 export function KeyValueCard({ spec }: { spec: KeyValueSpec }) {

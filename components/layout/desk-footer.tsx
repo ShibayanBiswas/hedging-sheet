@@ -82,7 +82,7 @@ export function DeskFooter() {
 
   return (
     <footer className="relative z-10 border-t border-[color:var(--ar-border)] bg-white font-ui" data-testid="desk-footer">
-      <div className="desk-footer-grid px-4 py-2 text-caption text-stone-600 md:px-6">
+      <div className="desk-footer-grid shell-pad py-2 text-caption text-stone-600">
         <Cell extra icon={<Server className="icon-xs text-stone-500" aria-hidden />} label="Anand Rathi Wealth · Hedging Sheet" testId="footer-brand" />
         {spots.map((s) => (
           <Cell key={s.name} icon={s.icon} label={s.name} value={s.value != null ? fmtNumber(s.value, 2) : "-"} testId={`footer-${s.name.toLowerCase()}`} />

@@ -23,7 +23,8 @@ export function MarketStrip() {
         {items.map((item) => (
           <span key={item.label} className="inline-flex items-center gap-2 font-ui text-caption">
             <item.icon className={cn("icon-xs", item.color)} aria-hidden />
-            <span className="text-muted">{item.label}</span>
+            {/* Read out at every width, shown from 1280 px: between 1024 and 1280 px the row only has room for the values. */}
+            <span className="sr-only text-muted xl:not-sr-only">{item.label}</span>
             <span className={cn("font-semibold text-ink", item.color)} data-testid={`strip-${item.label.toLowerCase()}`}>
               {item.value}
             </span>
