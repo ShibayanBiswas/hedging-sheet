@@ -20,7 +20,6 @@ async function framed(page: Page, parentOrigin: string, app: string) {
 }
 
 const post = (page: Page, message: unknown) => page.evaluate((m) => (document.getElementById("app") as HTMLIFrameElement).contentWindow!.postMessage(m, "*"), message);
-const frameUrl = (page: Page) => page.evaluate(() => (document.getElementById("app") as HTMLIFrameElement).contentWindow?.location.pathname).catch(() => null);
 
 test.describe("Embed navigation in SP Workstation", () => {
   test("a message from the Workstation changes tab inside the frame, and the run survives with no reload", async ({ page, baseURL }) => {

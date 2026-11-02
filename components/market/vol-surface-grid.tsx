@@ -84,6 +84,7 @@ export function VolSurfaceGrid({
   const box = useRef<HTMLDivElement>(null);
   // While editing every row stays mounted: a cell scrolled away would lose what was typed in it.
   const virtual = rows.length > VIRTUAL_ABOVE && !editing && !loading && !error;
+  // eslint-disable-next-line react-hooks/incompatible-library -- only this component reads the virtualizer, and the build does not use the React Compiler
   const virtualizer = useVirtualizer({ count: virtual ? rows.length : 0, getScrollElement: () => box.current, estimateSize: () => ROW_PX, overscan: OVERSCAN });
   const items = virtualizer.getVirtualItems();
   const shownRows = virtual ? items.map((item) => ({ ...rows[item.index]!, index: item.index })) : rows.map((row, index) => ({ ...row, index }));
