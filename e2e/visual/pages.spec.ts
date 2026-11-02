@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import type { Page } from "@playwright/test";
 
 import { fillBlank } from "../blank/helpers";
@@ -18,13 +20,15 @@ const VIEWPORTS = [
   { width: 1920, height: 1080 },
 ] as const;
 
+const FULL_PAGE_CSS = path.join(process.cwd(), "e2e", "visual", "full-page.css");
+
 async function shootEveryTab(page: Page, nav: { go: (id: (typeof TAB_IDS)[number]) => Promise<void> }, prefix: string) {
   await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
   for (const id of TAB_IDS) {
     await nav.go(id);
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page);
-    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true });
+    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true, stylePath: FULL_PAGE_CSS });
   }
 }
 
@@ -43,7 +47,7 @@ for (const v of VIEWPORTS) {
       test.setTimeout(360_000);
       await inputs.goto("blank");
       await settle(page);
-      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true });
+      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true, stylePath: FULL_PAGE_CSS });
       await fillBlank(inputs);
       await inputs.run();
       await shootEveryTab(page, nav, `blank-${v.width}`);
@@ -158,7 +162,7 @@ const POPUPS: Array<{ name: string; toast?: boolean; open: (c: Context) => Promi
     toast: true,
     open: async ({ page, inputs }) => {
       await inputs.goto();
-      await inputs.runButton.click();
+      await inputs.run();
       await expect(page.getByTestId("desk-toast")).toHaveText("Simulation Completed");
     },
   },
@@ -190,8 +194,8 @@ for (const width of [390, 1440]) {
         }
         await popup.open({ page, inputs });
         await settle(page);
-        const mask = masks(page);
-        await expect(page).toHaveScreenshot(`popup-${width}-${popup.name}.png`, { mask: popup.toast ? mask.filter((_, i) => i !== mask.length - 1) : mask });
+        // Only what sits behind a popup: a mask paints on top, so a mask on a field would cover the popup itself. The mock spot and clock are fixed.
+        await expect(page).toHaveScreenshot(`popup-${width}-${popup.name}.png`, { mask: [page.getByTestId("market-strip"), page.getByTestId("desk-footer")] });
       });
     }
 
@@ -203,7 +207,7 @@ for (const width of [390, 1440]) {
       await nav.go("inputs");
       await inputs.run();
       await nav.go("inputs");
-      await inputs.fill("coupon", "11");
+      await inputs.fill("notionalCr", "150");
       await inputs.dialog.dismissAll();
       await nav.go("summary");
       await expect(page.getByText("Inputs Changed · Run Again")).toBeVisible();

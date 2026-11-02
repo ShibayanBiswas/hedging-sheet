@@ -72,4 +72,24 @@ test.describe("performance budgets", () => {
     expect(ms).toBeLessThan(prod ? 1_500 : 3_000);
     if (prod) expect(longest).toBeLessThan(200);
   });
+
+  test("a Chrome performance trace of a default run shows no main thread task over 200 ms", async ({ page, browser, inputs }) => {
+    await inputs.goto();
+    await browser.startTracing(page, { categories: ["toplevel", "devtools.timeline", "disabled-by-default-devtools.timeline"] });
+    const start = Date.now();
+    await inputs.runButton.click();
+    await expect(page).toHaveURL(/\/summary$/, { timeout: 10_000 });
+    const ms = Date.now() - start;
+    await expect(page.getByTestId("table-summary-headline")).toBeVisible();
+    const trace = JSON.parse((await browser.stopTracing()).toString()) as { traceEvents: Array<{ name: string; ph: string; pid: number; tid: number; dur?: number; args?: { name?: string } }> };
+    const main = new Set(trace.traceEvents.filter((e) => e.ph === "M" && e.name === "thread_name" && e.args?.name === "CrRendererMain").map((e) => `${e.pid}:${e.tid}`));
+    const tasks = trace.traceEvents.filter((e) => e.ph === "X" && /RunTask$/.test(e.name) && main.has(`${e.pid}:${e.tid}`)).map((e) => (e.dur ?? 0) / 1_000);
+    const longestTaskMs = Math.round(Math.max(0, ...tasks));
+    test.info().annotations.push({ type: "trace", description: JSON.stringify({ ms, longestTaskMs, tasksOver50Ms: tasks.filter((t) => t > 50).length, tasks: tasks.length }) });
+    expect(tasks.length, "the trace holds the renderer's tasks").toBeGreaterThan(0);
+    if (prod) {
+      expect(ms).toBeLessThan(1_500);
+      expect(longestTaskMs).toBeLessThan(200);
+    }
+  });
 });
