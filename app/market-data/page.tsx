@@ -434,36 +434,6 @@ export default function MarketDataPage() {
         <SectionTitle
           icon={FileSpreadsheet}
           subtitle={`${surface.label}. Volatility In %. Expiries beyond ${lastExpiry ? formatDate(lastExpiry) : "the last row"} read the last row.`}
-          aside={
-        <div className="md-toolbar" role="toolbar" aria-label="Volatility Surface" data-testid="surface-toolbar">
-              {editing ? (
-                <>
-                  <ToolButton icon={Check} primary disabled={busy || invalidCells > 0} onClick={() => void save()} data-testid="save-surface">
-                    {busy ? "Saving" : "Save Surface"}
-                  </ToolButton>
-                  <ToolButton icon={X} onClick={() => setEditing(false)} data-testid="discard-surface">
-                    Cancel
-                  </ToolButton>
-                </>
-              ) : (
-                <ToolButton icon={Pencil} disabled={firstLoad || upload.busy || Boolean(preview)} onClick={startEdit} data-testid="edit-surface">
-                  Edit Surface
-                </ToolButton>
-              )}
-              <ToolButton icon={Upload} disabled={upload.busy || editing} onClick={() => fileRef.current?.click()} data-testid="upload-surface">
-                {upload.busy ? "Uploading" : "Upload Surface"}
-              </ToolButton>
-              <ToolButton icon={Download} disabled={editing || firstLoad} onClick={downloadCurrent} data-testid="download-surface">
-                Download Current Surface
-              </ToolButton>
-              <ToolButton icon={FileSpreadsheet} onClick={downloadSample} data-testid="download-sample">
-                Download Sample
-              </ToolButton>
-              <ToolButton icon={RefreshCw} spin={reloading} disabled={reloading || editing} onClick={() => void reload()} data-testid="reload-surface">
-                {reloading ? "Reloading" : "Reload From Desk Database"}
-              </ToolButton>
-            </div>
-          }
         >
           Volatility Surface
         </SectionTitle>
@@ -479,6 +449,34 @@ export default function MarketDataPage() {
             if (file) void upload.choose(file);
           }}
         />
+        <div className="md-toolbar" role="toolbar" aria-label="Volatility Surface" data-testid="surface-toolbar">
+          {editing ? (
+            <>
+              <ToolButton icon={Check} primary disabled={busy || invalidCells > 0} onClick={() => void save()} data-testid="save-surface">
+                {busy ? "Saving" : "Save Surface"}
+              </ToolButton>
+              <ToolButton icon={X} onClick={() => setEditing(false)} data-testid="discard-surface">
+                Cancel
+              </ToolButton>
+            </>
+          ) : (
+            <ToolButton icon={Pencil} disabled={firstLoad || upload.busy || Boolean(preview)} onClick={startEdit} data-testid="edit-surface">
+              Edit Surface
+            </ToolButton>
+          )}
+          <ToolButton icon={Upload} disabled={upload.busy || editing} onClick={() => fileRef.current?.click()} data-testid="upload-surface">
+            {upload.busy ? "Uploading" : "Upload Surface"}
+          </ToolButton>
+          <ToolButton icon={Download} disabled={editing || firstLoad} onClick={downloadCurrent} data-testid="download-surface">
+            Download Current Surface
+          </ToolButton>
+          <ToolButton icon={FileSpreadsheet} onClick={downloadSample} data-testid="download-sample">
+            Download Sample
+          </ToolButton>
+          <ToolButton icon={RefreshCw} spin={reloading} disabled={reloading || editing} onClick={() => void reload()} data-testid="reload-surface">
+            {reloading ? "Reloading" : "Reload From Desk Database"}
+          </ToolButton>
+        </div>
         <StatusRow status={upload.status} testId="market-status" />
         {editing && invalidCells > 0 ? (
           <p className="md-status md-status--error" role="alert" data-testid="surface-invalid">

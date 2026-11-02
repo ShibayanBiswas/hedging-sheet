@@ -1516,12 +1516,12 @@ main:has(.inputs-page),
   margin-left: auto;
 }
 
-/* The surface buttons sit right-aligned in the heading row. */
+/* The surface buttons keep their own row, under the heading and its description. */
 .md-toolbar {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
   gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .md-btn {

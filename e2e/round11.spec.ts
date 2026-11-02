@@ -224,16 +224,14 @@ test.describe("Round 11 · Layout", () => {
     });
   }
 
-  test("Market Data: toolbar right-aligned in the heading row, or right under the heading text when it wraps, Deep shows the 55% strike, Surface Parameters stacked", async ({ page, nav, inputs }) => {
+  test("Market Data: toolbar on its own row under the heading text, Deep shows the 55% strike, Surface Parameters stacked", async ({ page, nav, inputs }) => {
     await inputs.goto();
     await nav.go("market-data");
     const toolbar = page.getByTestId("surface-toolbar");
-    expect(await toolbar.evaluate((e) => getComputedStyle(e).justifyContent)).toBe("flex-end");
-    const heading = (await page.getByRole("heading", { name: "Volatility Surface" }).boundingBox())!;
     const description = (await page.getByText(/Volatility In %\. Expiries beyond/).boundingBox())!;
     const bar = (await toolbar.boundingBox())!;
-    if (page.viewportSize()!.width >= 1024) expect(bar.y).toBeLessThan(heading.y + heading.height + 40);
-    else expect(bar.y).toBeLessThan(description.y + description.height + 24);
+    expect(bar.y).toBeGreaterThanOrEqual(description.y + description.height - 1);
+    expect(bar.y).toBeLessThan(description.y + description.height + 24);
     await expect(page.getByTestId("deep-strike-sensex")).toHaveText(/^[\d,]+\.\d{2}$/);
     const params = await page.getByTestId("surface-params-table").boundingBox();
     const curve = await page.getByTestId("rate-curve-editor").boundingBox();
