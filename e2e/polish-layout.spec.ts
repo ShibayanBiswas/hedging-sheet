@@ -199,6 +199,48 @@ test.describe("Final polish actions", () => {
   });
 });
 
+test.describe("Final polish rendering", () => {
+  test("the Desk Clock's one interval stops while the page is hidden and restarts when it shows", async ({ page, inputs }) => {
+    await page.addInitScript(() => {
+      const live = new Set<number>();
+      const { setInterval: start, clearInterval: stop } = window;
+      window.setInterval = ((fn: TimerHandler, ms?: number, ...rest: unknown[]) => {
+        const id = start(fn, ms, ...rest);
+        if (ms === 1_000) live.add(id);
+        return id;
+      }) as typeof window.setInterval;
+      window.clearInterval = ((id?: number) => {
+        live.delete(id as number);
+        stop(id);
+      }) as typeof window.clearInterval;
+      (window as unknown as { clockIntervals: () => number }).clockIntervals = () => live.size;
+    });
+    await inputs.goto();
+    const count = () => page.evaluate(() => (window as unknown as { clockIntervals: () => number }).clockIntervals());
+    const setHidden = (hidden: boolean) =>
+      page.evaluate((value) => {
+        Object.defineProperty(document, "hidden", { configurable: true, value });
+        document.dispatchEvent(new Event("visibilitychange"));
+      }, hidden);
+    expect(await count()).toBe(1);
+    await setHidden(true);
+    expect(await count()).toBe(0);
+    await setHidden(false);
+    expect(await count()).toBe(1);
+  });
+
+  test("the market data is not polled: nothing is fetched while the page sits idle", async ({ page, inputs }) => {
+    await inputs.goto();
+    await page.waitForLoadState("networkidle");
+    const fetched: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/api/")) fetched.push(r.url());
+    });
+    await page.waitForTimeout(5_000);
+    expect(fetched).toEqual([]);
+  });
+});
+
 test.describe("Final polish first paint", () => {
   test("the server's HTML is visible as it arrives, with no script needed to reveal it", async ({ request }) => {
     for (const path of ["/", "/summary", "/market-data", "/logic-atlas"]) {

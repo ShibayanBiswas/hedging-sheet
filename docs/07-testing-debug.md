@@ -20,6 +20,9 @@
 | Copy and capitalisation | `e2e/copy-rules.spec.ts`, `e2e/capitalisation.spec.ts` | Spelled out words, no brackets, no "/", the % sign, "-" for not applicable, no spreadsheet wording and capitals on every word, on every page in both modes |
 | Accessibility | `e2e/a11y.spec.ts`, B22 | axe on every page, in both modes, before and after a run and with a popup open; no serious or critical violations |
 | Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 at 390, 1024 and 1440 px. `E2E_FULL_WIDTHS=1` restores the 12 viewports from 320 by 568 to 2560 by 1440 |
+| Final polish layout | `e2e/polish-layout.spec.ts` | Every tab before and after Run at 390, 1024 and 2560 px, or at 360, 390, 414, 768, 1024, 1280, 1440, 1920 and 2560 px with `E2E_FULL_WIDTHS=1`: no overlap or sideways scroll, the action group in order within 16 px of the content edge, content at most 1680 px and centred with the header, tabs and footer in line, single-line cells, a fade on tables that scroll and 44 px targets on phones. Also no hidden start state in the server's HTML, no fade under reduced motion, the clock stopping while hidden and no polling |
+| Embed navigation | `tests/unit/embed-navigation.test.ts`, `tests/component/embed-navigation.test.tsx`, `e2e/embed.spec.ts` | Accepted and rejected origins, sources and paths, and in a real frame: the run surviving a tab change with no reload, and the footer fitting at 768 by 1024 |
+| Large surface | `e2e/large-surface.spec.ts` | 150 rows: a window of rows in the page, the last row reachable under a sticky header, every row mounted while editing, all 150 in the Excel download; 100 rows or fewer are not virtualised |
 | Market Data | `e2e/market-data.spec.ts` | At 1440, 1024 and 390 px: no sideways scroll, the sticky grid header with no pinned column, units, the Deep strike, copy, inline edit validation, uploads refused before any request, writes refused without the Desk Key and both downloads |
 | Visual | `e2e/visual` | `toHaveScreenshot` for the 8 tabs at desktop, tablet and phone widths, Linux baselines only, with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
 | Performance | `e2e/perf.spec.ts`, `lighthouserc.json` | LCP under 2.5 s, CLS under 0.1, TBT under 300 ms on Inputs and Pricer; a run under 3 s with mocks |
@@ -40,6 +43,8 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run verify:copy` | The copy rules and the spreadsheet wording check |
 | `npm run verify:db` | Read-only database check; `-- --db hedging_sheet_preview --apply` fixes a preview database, never production |
 | `npm run test:e2e` | Every Playwright spec on Chromium in mock mode |
+| `npm run bundle:report` | After a build: first load JavaScript of every page, gzipped, against the 250 KB limit |
+| `npm run analyze` | The Next Turbopack analyzer: which modules make up each page |
 | `npm run e2e` | Every Playwright project in mock mode |
 | `npm run e2e:blank`, `e2e:default` | The Blank Inputs suite or the Default parity suite |
 | `npm run e2e:copy` | The copy rules and capitalisation crawls |

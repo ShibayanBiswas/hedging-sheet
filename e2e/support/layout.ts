@@ -3,12 +3,12 @@ import type { Page } from "@playwright/test";
 /** Phone, the 1024 px tab break, and the desk desktop. */
 export const WIDTHS = [1440, 1024, 390] as const;
 
-/** Space between the footer's right edge and its rightmost text. */
+/** Space between the footer's content edge, where the page's side margin starts, and its rightmost text. */
 export function footerRightGap(page: Page): Promise<number> {
   return page.evaluate(() => {
-    const f = document.querySelector<HTMLElement>("[data-testid='desk-footer']")!;
+    const f = document.querySelector<HTMLElement>(".desk-footer-grid")!;
     const leaves = Array.from(f.querySelectorAll<HTMLElement>("*")).filter((e) => e.children.length === 0 && (e.textContent ?? "").trim() && e.getBoundingClientRect().width > 0);
-    return Math.round(f.getBoundingClientRect().right - Math.max(...leaves.map((e) => e.getBoundingClientRect().right)));
+    return Math.round(f.getBoundingClientRect().right - parseFloat(getComputedStyle(f).paddingRight) - Math.max(...leaves.map((e) => e.getBoundingClientRect().right)));
   });
 }
 
