@@ -9,7 +9,7 @@ import { fmtDeskClock } from "@/lib/format";
 
 /** Download every tab as one Excel file. It needs a run that still matches the inputs. */
 export function DownloadExcelButton() {
-  const { lastRun, staleInputs } = useDesk();
+  const { lastRun, staleInputs, dailyVolStatus } = useDesk();
   const { toast } = useDeskDialog();
   const [busy, setBusy] = useState(false);
   const disabled = !lastRun || staleInputs || busy;
@@ -25,7 +25,7 @@ export function DownloadExcelButton() {
         setBusy(true);
         try {
           const { downloadHedgingExcel } = await import("@/lib/excel/excel-runtime");
-          toast(`Saved ${await downloadHedgingExcel(lastRun.result, { market: lastRun.market, runAt: fmtDeskClock(new Date(lastRun.at)) })}`);
+          toast(`Saved ${await downloadHedgingExcel(lastRun.result, { market: lastRun.market, runAt: fmtDeskClock(new Date(lastRun.at)), history: dailyVolStatus })}`);
         } catch {
           toast("The Excel File Could Not Be Built", { variant: "error" });
         } finally {

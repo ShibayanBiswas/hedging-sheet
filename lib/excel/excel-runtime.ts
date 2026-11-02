@@ -2,6 +2,7 @@ import type { Workbook } from "exceljs";
 
 import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { buildDeskExportFilename } from "@/lib/excel/export-filename";
+import type { VolHistory } from "@/lib/logic-atlas";
 
 type ExcelJsModule = typeof import("exceljs");
 
@@ -34,7 +35,7 @@ export function hedgingExportFilename(result: HedgingResult): string {
 }
 
 /** Build the workbook, one sheet per tab and the Audit sheet, in the browser and start the download. */
-export async function downloadHedgingExcel(result: HedgingResult, extra: { market: MarketData; runAt: string }): Promise<string> {
+export async function downloadHedgingExcel(result: HedgingResult, extra: { market: MarketData; runAt: string; history: VolHistory | null }): Promise<string> {
   const [{ buildHedgingExcel }, { fetchBrandLogoBase64 }] = await Promise.all([
     import("@/lib/excel/build-hedging-excel"),
     import("@/lib/excel/export-branding"),

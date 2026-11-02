@@ -6,6 +6,7 @@ import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { AUDIT_SHEET, auditSpecs, EXPORT_TABS, tabSpecs } from "@/lib/exports/tab-specs";
 import { fmtDeskClock, fmtNumber } from "@/lib/format";
 import type { DeskInputs } from "@/lib/inputs/draft";
+import type { VolHistory } from "@/lib/logic-atlas";
 import { strikeTypesLabel, type AnySpec, type GridSpec, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 import { writeTypedCell } from "@/lib/excel/excel-cells";
 import { embedBrandLogo } from "@/lib/excel/export-branding";
@@ -133,7 +134,7 @@ export function buildHedgingExcel(
   wb: ExcelJS.Workbook,
   result: HedgingResult,
   logo: string | null,
-  extra: { market?: MarketData; inputs?: DeskInputs; runAt?: string } = {},
+  extra: { market?: MarketData; inputs?: DeskInputs; runAt?: string; history?: VolHistory | null } = {},
 ): ExcelJS.Workbook {
   const market = extra.market ?? seedMarketData();
   const inputs = extra.inputs ?? result.inputs;
@@ -141,7 +142,7 @@ export function buildHedgingExcel(
   const runAt = extra.runAt ?? fmtDeskClock(new Date());
   const subtitle = `${result.underlyingLabel} · Valuation Date ${formatDate(i.valuationDate)} · Spot ${fmtNumber(i.spot, 2)}`;
   const eyebrow = `Anand Rathi Wealth · Hedging Sheet · ${strikeTypesLabel(i.strikeOptionTypes)} · Run ${runAt}`;
-  const ctx = { result, inputs, market };
+  const ctx = { result, inputs, market, history: extra.history };
   for (const tab of EXPORT_TABS) {
     const title = tab.id === "product" ? result.productDescription.title : tab.id === "margin" ? "Mark To Market And Margin Requirement" : tab.name;
     writeSheet(wb, tab.name, title, subtitle, eyebrow, tabSpecs(tab.id, ctx), logo);

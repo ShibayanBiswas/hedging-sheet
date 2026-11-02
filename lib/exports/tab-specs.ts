@@ -7,7 +7,7 @@ import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { inputHash } from "@/lib/input-hash";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
-import { atlasInsights, atlasOutputs, atlasStages } from "@/lib/logic-atlas";
+import { atlasInsights, atlasOutputs, atlasStages, type VolHistory } from "@/lib/logic-atlas";
 import { outputTables, type AnySpec, type CellValue, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 import { UNDERLYINGS } from "@/lib/underlyings";
 import type { ExportTab } from "@/lib/exports/tab-list";
@@ -21,6 +21,8 @@ export type ExportContext = {
   result: HedgingResult | null;
   inputs: DeskInputs;
   market: MarketData;
+  /** The history behind a calculated daily volatility, which the Logic Atlas names. */
+  history?: VolHistory | null;
 };
 
 const num = (v: number): CellValue => (Number.isFinite(v) ? v : null);
@@ -196,7 +198,7 @@ function marketDataSpecs(market: MarketData, i: Pick<DeskInputs, "valuationDate"
 /** The Logic Atlas tab: Flows, Insights and Outputs, as the page shows them. */
 function logicAtlasSpecs(ctx: ExportContext): AnySpec[] {
   const run = ctx.result ? { result: ctx.result, market: ctx.market } : null;
-  const stages = atlasStages(ctx.inputs, run, { market: ctx.market });
+  const stages = atlasStages(ctx.inputs, run, { market: ctx.market, history: ctx.history });
   const titles = Object.fromEntries(stages.map((s) => [s.id, s.title]));
   const names = (ids: string[]) => (ids.length ? ids.map((id) => titles[id]).join(", ") : null);
   const pending = "Waiting For Run Simulation";

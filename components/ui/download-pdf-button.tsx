@@ -10,7 +10,7 @@ import { EXPORT_TABS, type ExportTab } from "@/lib/exports/tab-list";
 
 /** Download the whole tab as a PDF. Output tabs need a current run; Inputs, Market Data and Logic Atlas download any time. */
 export function DownloadPdfButton({ tab }: { tab: ExportTab }) {
-  const { inputs, market, lastRun, staleInputs } = useDesk();
+  const { inputs, market, lastRun, staleInputs, dailyVolStatus } = useDesk();
   const { toast } = useDeskDialog();
   const [busy, setBusy] = useState(false);
   const meta = EXPORT_TABS.find((t) => t.id === tab)!;
@@ -33,7 +33,7 @@ export function DownloadPdfButton({ tab }: { tab: ExportTab }) {
             import("@/lib/pdf/tab-pdf-props"),
           ]);
           // The page on screen: a current run matches these inputs, and Market Data shows the market as it is now.
-          const props = tabPdfProps(tab, { result: run?.result ?? null, inputs, market, runAt: run?.at ?? null, now: new Date() });
+          const props = tabPdfProps(tab, { result: run?.result ?? null, inputs, market, history: dailyVolStatus, runAt: run?.at ?? null, now: new Date() });
           const blob = await pdf(createElement(TabPdfDocument, props)).toBlob();
           const name = pdfFileName(tab, inputs.valuationDate, istTodayYmd());
           const url = URL.createObjectURL(blob);
