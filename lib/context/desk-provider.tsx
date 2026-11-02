@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { autoHedgeStrike, defaultExpiryDates, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
@@ -66,6 +66,8 @@ export type DeskContextValue = {
 
 const DeskContext = createContext<DeskContextValue | null>(null);
 
+const neverChanges = () => () => undefined;
+
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 /** Each progress step shows at least this long, so the steps can be read. */
 const STEP_MS = 120;
@@ -110,10 +112,14 @@ export function focusField(field: string) {
   target.focus({ preventScroll: true });
 }
 
-export function DeskProvider({ children }: { children: ReactNode }) {
+export function DeskProvider({ today, children }: {
+  /** The server's IST date. The first render reads it on both sides, so a browser on another date does not break hydration. */
+  today: string;
+  children: ReactNode;
+}) {
   const { alert, toast } = useDeskDialog();
   const [mode, setModeState] = useState<InputMode>("default");
-  const [inputs, setInputsState] = useState<DeskInputs>(() => defaultInputs({ valuationDate: istTodayYmd() }));
+  const [inputs, setInputsState] = useState<DeskInputs>(() => defaultInputs({ valuationDate: today }));
   const [levels, setLevels] = useState<MarketLevels | null>(null);
   const [levelsLoading, setLevelsLoading] = useState(true);
   const [market, setMarket] = useState<MarketData>(() => seedMarketData());
@@ -340,13 +346,15 @@ export function DeskProvider({ children }: { children: ReactNode }) {
 
   // The steps unlock from the inputs as they are: a step locked a moment too long cannot take focus, so a value typed
   // into it would never commit. Only the messages under the fields wait until typing has stopped for 150 ms.
-  const fieldErrors = useMemo(() => validateDeskInputs(inputs, { today: istTodayYmd() }), [inputs]);
+  // The rules read the browser's clock, as ever, from the render after hydration; the first render reads the server's date.
+  const ruleToday = useSyncExternalStore(neverChanges, istTodayYmd, () => today);
+  const fieldErrors = useMemo(() => validateDeskInputs(inputs, { today: ruleToday }), [inputs, ruleToday]);
   const [checkedInputs, setCheckedInputs] = useState(inputs);
   useEffect(() => {
     const id = window.setTimeout(() => setCheckedInputs(inputs), 150);
     return () => window.clearTimeout(id);
   }, [inputs]);
-  const shownErrors = useMemo(() => validateDeskInputs(checkedInputs, { today: istTodayYmd() }), [checkedInputs]);
+  const shownErrors = useMemo(() => validateDeskInputs(checkedInputs, { today: ruleToday }), [checkedInputs, ruleToday]);
   const visibleErrors = useMemo(() => (submitted ? shownErrors : shownErrors.filter((e) => e.kind === "invalid")), [shownErrors, submitted]);
 
   const runOnce = useCallback(async (): Promise<boolean> => {

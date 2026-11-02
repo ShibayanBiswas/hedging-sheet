@@ -30,7 +30,7 @@ function stubFetch() {
 function renderDesk() {
   return render(
     <DeskDialogProvider>
-      <DeskProvider>
+      <DeskProvider today="2026-10-28">
         <InputsPage />
         <ResultGate>{() => <p>Results</p>}</ResultGate>
       </DeskProvider>

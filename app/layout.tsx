@@ -8,6 +8,7 @@ import { DeskDialogProvider } from "@/lib/context/desk-dialog-provider";
 import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
 import { SurfaceUploadProvider } from "@/lib/context/surface-upload-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
+import { istTodayYmd } from "@/lib/engine/dates";
 
 import "./tokens.css";
 import "./globals.css";
@@ -36,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <MotionProvider>
           <DeskDialogProvider>
             <DeskKeyProvider>
-              <DeskProvider>
+              <DeskProvider today={istTodayYmd()}>
                 <SurfaceUploadProvider>
                   <AppShell>{children}</AppShell>
                 </SurfaceUploadProvider>
