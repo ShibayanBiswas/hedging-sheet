@@ -5,6 +5,7 @@ import { EXPIRY_WEEKDAY, medianExpiryIndex, WEEKDAY_NAMES } from "@/lib/engine/s
 import { deriveTerms, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
 import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
+import { MAX_DECIMALS } from "@/lib/format";
 import { inputHash } from "@/lib/input-hash";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { atlasInsights, atlasOutputs, atlasStages, type VolHistory } from "@/lib/logic-atlas";
@@ -28,6 +29,19 @@ export type ExportContext = {
 const num = (v: number): CellValue => (Number.isFinite(v) ? v : null);
 const text = (v: string | null | undefined): CellValue => (v ? v : null);
 
+/** The decimals that print these field values without rounding one away: from `least`, their usual look, up to MAX_DECIMALS. */
+function fullDigits(values: number[], least = 2): number {
+  const fits = (d: number) => values.every((v) => !Number.isFinite(v) || Math.abs(v - Number(v.toFixed(d))) < 1e-9);
+  let d = least;
+  while (d < MAX_DECIMALS && !fits(d)) d += 1;
+  return d;
+}
+
+function inFull(item: KeyValueSpec["items"][number]): KeyValueSpec["items"][number] {
+  if (typeof item.value !== "number" || (item.kind !== "percent" && item.kind !== "number")) return item;
+  return { ...item, digits: fullDigits([item.kind === "percent" ? item.value * 100 : item.value], item.digits) };
+}
+
 /** The Inputs tab: the seven groups, with expiries and strikes as tables. */
 function inputsSpecs(i: DeskInputs): AnySpec[] {
   const u = underlyingName(i);
@@ -39,7 +53,7 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
   const units = ready && k.length ? strikeUnits(i, start) : [];
   const terms = deriveTerms(i);
   const has = k.length > 0;
-  const kv = (id: string, title: string, items: KeyValueSpec["items"]): KeyValueSpec => ({ id, title, items });
+  const kv = (id: string, title: string, items: KeyValueSpec["items"]): KeyValueSpec => ({ id, title, items: items.map(inFull) });
   return [
     kv("inputs-market", "1 Underlying And Market", [
       { label: "Underlying", value: text(i.underlying), kind: "text" },
@@ -67,7 +81,7 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
       title: "3 Strikes And Spreads",
       columns: [
         { key: "strike", label: "Strike", kind: "text" },
-        { key: "level", label: "Level %", kind: "number" },
+        { key: "level", label: "Level %", kind: "number", digits: fullDigits(k) },
         { key: "points", label: "Level In Points", kind: "integer" },
         { key: "type", label: "Option Type", kind: "text" },
         { key: "side", label: "Buy Or Sell", kind: "text" },
@@ -87,9 +101,10 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
       title: "Spreads",
       columns: [
         { key: "spread", label: "Spread", kind: "text" },
-        { key: "buy", label: "Buy Level", kind: "percent" },
-        { key: "sell", label: "Sell Level", kind: "percent" },
-        { key: "participation", label: "Participation Rate", kind: "number" },
+        { key: "buy", label: "Buy Level", kind: "percent", digits: fullDigits(terms.spreads.map((s) => s.buy * 100)) },
+        { key: "sell", label: "Sell Level", kind: "percent", digits: fullDigits(terms.spreads.map((s) => s.sell * 100)) },
+        // Typed rates only: the page rounds the calculated top spread to 2 decimals, so it never widens the column.
+        { key: "participation", label: "Participation Rate", kind: "number", digits: fullDigits(i.participations.map((p) => p ?? NaN)) },
       ],
       rows: has ? terms.spreads.map((s, j) => ({ spread: `Spread ${j + 1}`, buy: num(s.buy), sell: num(s.sell), participation: num(s.participation) })) : [],
     },
