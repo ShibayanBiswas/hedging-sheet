@@ -130,7 +130,7 @@ export function NumberInput({
   invalid?: boolean;
   onBlankChange?: () => void;
   ariaLabel?: string;
-  /** Round the shown value to `digits`, for derived values; typed values otherwise show in full. */
+  /** Round the shown value to `digits`, for derived values; typed values otherwise show up to MAX_DECIMALS places. */
   fixed?: boolean;
 }) {
   const contextId = useContext(FieldIdContext);
