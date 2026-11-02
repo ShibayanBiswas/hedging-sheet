@@ -19,8 +19,8 @@ test.describe("Default Values mode", () => {
     await inputs.goto();
     await expect(page.getByTestId("mode-default")).toHaveAttribute("aria-selected", "true");
     await expect(inputs.field("underlying")).toHaveValue("Sensex");
-    await expect(inputs.field("valuationDate")).toHaveValue("2026-10-28");
-    await expect(inputs.field("spot")).toHaveValue("76835.78");
+    await expect(inputs.field("valuationDate")).toHaveValue("28-Oct-2026");
+    await expect(inputs.field("spot")).toHaveValue("76,835.78");
     await expect(page.getByTestId("daily-vol-status")).toContainText("Calculated");
     await expect(page.getByTestId("expiry-weekday")).toContainText("Thursday");
     await expect(page.getByTestId("fetch-live-spot")).toHaveCount(0);
@@ -75,7 +75,7 @@ test.describe("Default Values mode", () => {
     await inputs.fill("underlying", "Nifty");
     await expect(nav.underlyingBadge).toHaveText("Nifty");
     await expect(page.getByTestId("expiry-weekday")).toContainText("Tuesday");
-    await expect(inputs.field("spot")).toHaveValue("23500.00");
+    await expect(inputs.field("spot")).toHaveValue("23,500.00");
     await inputs.run();
     for (const out of Object.values(outputs)) {
       await out.open();

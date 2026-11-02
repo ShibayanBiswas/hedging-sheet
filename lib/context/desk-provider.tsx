@@ -104,8 +104,10 @@ export function focusField(field: string) {
     document.querySelector<HTMLElement>(`[data-testid="${fieldTestId(field)}"]`) ??
     document.querySelector<HTMLElement>(`#group-${1 + INPUT_SECTIONS.indexOf(fieldSection(field))}`);
   if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.focus({ preventScroll: true });
+  // A locked group is collapsed to its header, so the link lands there.
+  const target = el.closest<HTMLElement>("[data-locked]") ?? el;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.focus({ preventScroll: true });
 }
 
 export function DeskProvider({ children }: { children: ReactNode }) {

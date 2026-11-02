@@ -5,7 +5,7 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CalendarClock, Check, ClipboardPaste, CloudDownload, Coins, Gauge, Layers, LineChart, Percent, RefreshCw, RotateCcw, ScrollText, type LucideIcon } from "lucide-react";
 
 import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
-import { ChoiceSelect, CountPicker, FieldRow, NumberInput, Segmented, TextInput, Toggle, type FieldCheck } from "@/components/ui/fields";
+import { ChoiceSelect, CountPicker, DateInput, FieldRow, NumberInput, Segmented, Toggle, type FieldCheck } from "@/components/ui/fields";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
@@ -19,7 +19,7 @@ import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { setSpreadCount } from "@/lib/inputs/strikes";
 import { HEDGE_RULE_TEXT, LEVEL_FIELD, QUOTE_UNDERLYING, UNDERLYINGS } from "@/lib/underlyings";
 import { allowedRange, checkFieldEdit, INPUT_SECTIONS, numberFieldRules, unlockedSteps } from "@/lib/validation/inputRules";
-import { fmtNumber, fmtPercent } from "@/lib/format";
+import { fmtIstTime, fmtNumber, fmtPercent } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 // ------------------------------------------------------------------ shared pieces
@@ -52,11 +52,14 @@ function useGuard() {
   );
 }
 
-/** A numbered input group. Until the steps before it are complete it stays visible but cannot be edited. */
-function Group({ step, icon: Icon, aside, children, open }: { step: number; icon: LucideIcon; aside?: ReactNode; children: ReactNode; open: number }) {
+/**
+ * A numbered input group across the full width, its header one line: step, title, a short rule, then the actions and the
+ * card's one status chip at the top right. Until the steps before it are complete it collapses to that header.
+ */
+function Group({ step, icon: Icon, rule, actions, status, children, open }: { step: number; icon: LucideIcon; rule?: ReactNode; actions?: ReactNode; status?: ReactNode; children: ReactNode; open: number }) {
   const locked = step > open;
   return (
-    <section id={`group-${step}`} data-testid={`group-${step}`} data-locked={locked || undefined} className={cn("inputs-card glass", `inputs-card-${step}`)}>
+    <section id={`group-${step}`} data-testid={`group-${step}`} data-locked={locked || undefined} tabIndex={locked ? -1 : undefined} className={cn("inputs-card glass", `inputs-card-${step}`)}>
       <header className="inputs-card-head">
         <h2 className="flex min-w-0 items-center gap-2 font-ui text-h2 font-bold text-ink">
           <span className="inputs-step" aria-hidden>
@@ -66,14 +69,22 @@ function Group({ step, icon: Icon, aside, children, open }: { step: number; icon
           <span className="min-w-0">{INPUT_SECTIONS[step - 1]}</span>
         </h2>
         {locked ? (
-          <span className="hs-chip hs-chip-maroon" data-testid={`group-${step}-locked`}>
+          <span className="hs-chip hs-chip-maroon ml-auto" data-testid={`group-${step}-locked`}>
             Complete Step {open} First
           </span>
         ) : (
-          aside
+          <>
+            {rule}
+            {actions || status ? (
+              <div className="inputs-card-actions">
+                {actions}
+                {status}
+              </div>
+            ) : null}
+          </>
         )}
       </header>
-      <div className={cn("inputs-card-body", locked && "pointer-events-none select-none opacity-45")} inert={locked}>
+      <div className="inputs-card-body" hidden={locked} inert={locked}>
         {children}
       </div>
     </section>
@@ -85,7 +96,7 @@ function StatusTag({ edited, testId }: { edited: boolean; testId: string }) {
     <span
       data-testid={testId}
       className={cn(
-        "inline-flex shrink-0 items-center rounded-full border px-2 font-ui text-caption font-bold uppercase leading-5 tracking-wider",
+        "inline-flex shrink-0 items-center rounded-full border px-2 font-ui text-caption font-bold leading-5",
         edited ? "border-amber-400/50 text-amber-900" : "border-emerald-400/50 text-emerald-800",
       )}
     >
@@ -115,7 +126,7 @@ function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon
       type="button"
       data-testid={testId}
       disabled={loading}
-      className={cn("btn-animated btn-motion btn-compact inline-flex shrink-0 items-center gap-2", Icon ? "btn-accent" : "btn-ghost")}
+      className={cn("btn-animated btn-motion btn-compact inline-flex shrink-0 items-center justify-center gap-2", Icon ? "btn-accent" : "btn-ghost w-full")}
       onClick={async () => {
         if ((await onClick()) != null) setDone(true);
       }}
@@ -143,7 +154,7 @@ function KeyNumber({ k, kind, digits, suffix, eg }: { k: keyof DeskInputs; kind?
       onBlankChange={() => setInputs({ [k]: NaN } as Partial<DeskInputs>)}
       testId={`input-${String(k)}`}
       invalid={Boolean(errorFor(String(k)))}
-      placeholder={`Eg ${eg}${suffix ? ` ${suffix}` : ""}`}
+      placeholder={`Eg ${eg}`}
       {...guard(String(k))}
     />
   );
@@ -168,21 +179,29 @@ function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskI
 
 function UnderlyingGroup({ open }: { open: number }) {
   const { mode, inputs, setInputs, setUnderlying, levels, levelsLoading, refreshLevels, fetchLiveSpot } = useDesk();
+  const { alert } = useDeskDialog();
   const errorFor = useFieldError();
   const guard = useGuard();
   const u = underlyingName(inputs);
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  const fetched = levels?.fetchedAt ? new Date(levels.fetchedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit" }) : null;
+  const fetched = levels?.fetchedAt && mode === "default" ? fmtIstTime(levels.fetchedAt) : "-";
   return (
-    <Group step={1} icon={LineChart} open={open}>
+    <Group step={1} icon={LineChart} open={open} status={Number.isFinite(inputs.hedgeStrike) ? <StatusTag edited={!inputs.hedgeStrikeAuto} testId="hedge-strike-status" /> : null}>
       <div className="inputs-grid">
         <FieldRow label="Underlying" error={errorFor("underlying")}>
           <ChoiceSelect<Underlying> value={inputs.underlying} testId="input-underlying" invalid={Boolean(errorFor("underlying"))} onChange={setUnderlying} options={UNDERLYINGS.map((x) => ({ value: x, label: x }))} />
         </FieldRow>
-        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} hint={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
-          <TextInput type="date" testId="input-valuationDate" placeholder="Eg 28-Oct-2026" invalid={Boolean(errorFor("valuationDate"))} value={inputs.valuationDate} onChange={(e) => setInputs({ valuationDate: e.target.value })} />
+        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} tip={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
+          <DateInput
+            label="Valuation Date"
+            testId="input-valuationDate"
+            invalid={Boolean(errorFor("valuationDate"))}
+            value={inputs.valuationDate}
+            onCommit={(valuationDate) => setInputs({ valuationDate })}
+            onUnreadable={() => alert("Enter a date such as 31-Oct-2026.", { variant: "error", title: "Valuation Date Reverted", fix: "The field is back to its last valid value.", onClose: () => focusField("valuationDate") })}
+          />
         </FieldRow>
-        <FieldRow label={`${u} Spot`} error={errorFor("spot")} hint={`Start Level ${Number.isFinite(start) ? fmtNumber(start, 0) : "-"}${fetched && mode === "default" ? ` · Fetched At ${fetched} IST` : ""}`}>
+        <FieldRow label={`${u} Spot`} error={errorFor("spot")}>
           <div className="flex items-center gap-1">
             <div className="min-w-0 flex-1">
               <NumberInput
@@ -216,7 +235,7 @@ function UnderlyingGroup({ open }: { open: number }) {
             )}
           </div>
         </FieldRow>
-        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} hint={inputs.underlying ? HEDGE_RULE_TEXT[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
+        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} tip={inputs.underlying ? HEDGE_RULE_TEXT[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
               <NumberInput
@@ -238,6 +257,16 @@ function UnderlyingGroup({ open }: { open: number }) {
             />
           </div>
         </FieldRow>
+        <FieldRow label="Start Level">
+          <output className="inputs-readonly inputs-num" data-testid="start-level">
+            {Number.isFinite(start) ? fmtNumber(start, 0) : "-"}
+          </output>
+        </FieldRow>
+        <FieldRow label="Fetched At">
+          <output className="inputs-readonly inputs-num" data-testid="spot-fetched-at">
+            {fetched}
+          </output>
+        </FieldRow>
       </div>
     </Group>
   );
@@ -250,41 +279,33 @@ function ExpiryField({ i, hedge, onSnap }: { i: number; hedge: boolean; onSnap: 
   const { inputs, setInputs } = useDesk();
   const { alert } = useDeskDialog();
   const errorFor = useFieldError();
-  const value = inputs.expiryDates[i] ?? "";
-  const [draft, setDraft] = useState(value);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes, such as a paste or a new underlying
-    setDraft(value);
-  }, [value]);
-  const commit = () => {
-    if (draft === value) return;
-    if (!draft) {
+  const revert = (message: string, label: string) =>
+    alert(message, { variant: "error", title: `${label} Reverted`, fix: "The field is back to its last valid value.", onClose: () => focusField(`expiryDates.${i}`) });
+  const commit = (typed: string) => {
+    if (!typed) {
       onSnap(i, null);
       setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: "" }) }));
       return;
     }
     const u = inputs.underlying;
-    const snapped = u && isValidYmd(draft) ? snapExpiry(draft, u) : draft;
+    const snapped = u ? snapExpiry(typed, u) : typed;
     const check = checkFieldEdit(inputs, `expiryDates.${i}`, snapped);
     if (check) {
-      setDraft(value);
-      alert(check.message, { variant: "error", title: `${check.label} Reverted`, fix: "The field is back to its last valid value.", onClose: () => focusField(`expiryDates.${i}`) });
+      revert(check.message, check.label);
       return;
     }
-    onSnap(i, u && snapped !== draft ? `Moved To The Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]}, ${formatDate(snapped)}` : null);
-    setDraft(snapped);
+    onSnap(i, u && snapped !== typed ? `Moved To The Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]}, ${formatDate(snapped)}` : null);
     setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: snapped }) }));
   };
   return (
-    <TextInput
-      type="date"
+    <DateInput
+      label={`Expiry ${i + 1}`}
       testId={`input-expiryDates-${i}`}
-      aria-label={`Expiry ${i + 1}${hedge ? " · Observation And Hedge Option Expiry" : ""}`}
+      ariaLabel={`Expiry ${i + 1}${hedge ? " · Observation And Hedge Option Expiry" : ""}`}
       invalid={Boolean(errorFor(`expiryDates.${i}`))}
-      value={draft}
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+      value={inputs.expiryDates[i] ?? ""}
+      onCommit={commit}
+      onUnreadable={() => revert("Enter a date such as 31-Oct-2026.", `Expiry ${i + 1}`)}
     />
   );
 }
@@ -317,11 +338,13 @@ function ExpiriesGroup({ open }: { open: number }) {
       step={2}
       icon={CalendarClock}
       open={open}
-      aside={
-        <div className="flex flex-wrap items-center justify-end gap-1">
-          <span className="hs-chip" data-testid="expiry-weekday">
-            {u ? `Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]} Of The Month` : "-"}
-          </span>
+      rule={
+        <span className="hs-chip inputs-card-rule" data-testid="expiry-weekday">
+          {u ? `Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]} Of The Month` : "-"}
+        </span>
+      }
+      actions={
+        <>
           <button
             type="button"
             className="btn-animated btn-motion btn-ghost btn-compact"
@@ -338,44 +361,49 @@ function ExpiriesGroup({ open }: { open: number }) {
               Bulk Edit
             </span>
           </button>
-        </div>
+        </>
       }
     >
-      <div className="inputs-grid">
-        <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")}>
-          <CountPicker label="Number Of Expiry Dates" value={inputs.expiryCount} min={MIN_EXPIRIES} max={MAX_EXPIRIES} onChange={setCount} testId="input-expiryCount" invalid={Boolean(errorFor("expiryCount"))} />
-        </FieldRow>
-        {Array.from({ length: count }, (_, i) => (
-          <FieldRow
-            key={i}
-            label={`Expiry ${i + 1}`}
-            error={errorFor(`expiryDates.${i}`)}
-            hint={
-              <span data-testid={`expiry-note-${i}`}>
-                {notes[i] ?? (i === hedgeIndex ? "Observation And Hedge Option Expiry" : "Observation")}
-              </span>
-            }
-          >
-            <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
+      <div className="inputs-grid inputs-grid-expiries">
+        <div className="expiry-card">
+          <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")}>
+            <CountPicker label="Number Of Expiry Dates" value={inputs.expiryCount} min={MIN_EXPIRIES} max={MAX_EXPIRIES} onChange={setCount} testId="input-expiryCount" invalid={Boolean(errorFor("expiryCount"))} />
           </FieldRow>
+        </div>
+        {count ? null : (
+          <p className="inputs-slim-row" data-testid="expiries-empty">
+            Select Number Of Expiry Dates
+          </p>
+        )}
+        {Array.from({ length: count }, (_, i) => (
+          <div key={i} className="expiry-card" data-testid={`expiry-card-${i}`}>
+            <FieldRow label={`Expiry ${i + 1}`} error={errorFor(`expiryDates.${i}`)}>
+              <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
+            </FieldRow>
+            <span className={cn(notes[i] ? "hint truncate font-ui" : "hs-chip expiry-role")} data-testid={`expiry-note-${i}`} title={notes[i] ?? undefined}>
+              {notes[i] ?? (i === hedgeIndex ? "Observation And Hedge Option Expiry" : "Observation")}
+            </span>
+          </div>
         ))}
         {count ? (
-          <FieldRow label="Hedge Option Expiry" hint="The Median Expiry Unless Picked">
-            <select
-              className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
-              value={inputs.hedgeExpiryIndex ?? "median"}
-              data-testid="input-hedgeExpiryIndex"
-              aria-label="Hedge Option Expiry"
-              onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
-            >
-              <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
-              {Array.from({ length: count }, (_, i) => (
-                <option key={i} value={i}>
-                  Expiry {i + 1} · {formatDate(inputs.expiryDates[i])}
-                </option>
-              ))}
-            </select>
-          </FieldRow>
+          <div className="expiry-card">
+            <FieldRow label="Hedge Option Expiry" tip="The Median Expiry Unless Picked">
+              <select
+                className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
+                value={inputs.hedgeExpiryIndex ?? "median"}
+                data-testid="input-hedgeExpiryIndex"
+                aria-label="Hedge Option Expiry"
+                onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
+              >
+                <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
+                {Array.from({ length: count }, (_, i) => (
+                  <option key={i} value={i}>
+                    Expiry {i + 1} · {formatDate(inputs.expiryDates[i])}
+                  </option>
+                ))}
+              </select>
+            </FieldRow>
+          </div>
         ) : null}
       </div>
       <BulkEditDialog<string>
@@ -448,21 +476,26 @@ function StrikesGroup({ open }: { open: number }) {
       step={3}
       icon={Layers}
       open={open}
-      aside={
-        <div className="flex flex-wrap items-center justify-end gap-1">
-          <span className={cn("hs-chip", Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 && "hs-chip-maroon")} data-testid="max-coupon">
-            Maximum Upside {Number.isFinite(total) && k.length ? fmtPercent(total) : "-"}
+      rule={
+        <span className={cn("hs-chip inputs-card-rule", Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 && "hs-chip-maroon")} data-testid="max-coupon">
+          Maximum Upside {Number.isFinite(total) && k.length ? fmtPercent(total) : "-"}
+        </span>
+      }
+      actions={
+        <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="strikes-bulk" onClick={() => setBulk(true)}>
+          <span className="relative z-10 inline-flex items-center gap-1">
+            <ClipboardPaste className="icon-xs" aria-hidden />
+            Bulk Edit
           </span>
-          <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="strikes-bulk" onClick={() => setBulk(true)}>
-            <span className="relative z-10 inline-flex items-center gap-1">
-              <ClipboardPaste className="icon-xs" aria-hidden />
-              Bulk Edit
-            </span>
-          </button>
-        </div>
+        </button>
       }
     >
       <div className="inputs-grid">
+        <FieldRow label="Number Of Strikes" tip="Number Of Spreads Plus 4">
+          <output className="inputs-readonly inputs-num" data-testid="strike-count">
+            {k.length || "-"}
+          </output>
+        </FieldRow>
         <FieldRow label="Number Of Spreads" error={errorFor("spreadCount")}>
           <CountPicker
             label="Number Of Spreads"
@@ -474,14 +507,16 @@ function StrikesGroup({ open }: { open: number }) {
             onChange={(c) => setInputs((prev) => setSpreadCount(prev, c, mode))}
           />
         </FieldRow>
-        <FieldRow label="Number Of Strikes" hint="Number Of Spreads Plus 4">
-          <output className="inputs-readonly" data-testid="strike-count">
-            {k.length || "-"}
-          </output>
-        </FieldRow>
       </div>
+      {k.length ? null : (
+        <p className="inputs-slim-row mt-2" data-testid="strikes-empty">
+          Select Number Of Strikes
+        </p>
+      )}
       {k.length ? (
-        <div className="mt-2 flex flex-col gap-1" role="table" aria-label="Strikes">
+        <>
+        <div className="desk-table-scroll inputs-table-rail mt-2" tabIndex={0} role="region" aria-label="Strikes Table">
+        <div className="inputs-table" role="table" aria-label="Strikes">
           <div className="strike-row strike-head" role="row">
             {["Strike", "Level %", "Level In Points", "Option Type", "Buy Or Sell", "Units"].map((h) => (
               <span key={h} role="columnheader">
@@ -510,12 +545,12 @@ function StrikesGroup({ open }: { open: number }) {
                   <span role="cell">
                     <NumberInput
                       value={pct}
-                      digits={2}
+                      digits={3}
                       suffix="%"
                       ariaLabel={`Strike ${i + 1} Level %`}
                       testId={`input-strikePercents-${i}`}
                       invalid={Boolean(errorFor(`strikePercents.${i}`))}
-                      placeholder={`Eg ${[137, 127, 125, 85, 84, 70][i] ?? 100}`}
+                      placeholder="-"
                       onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
                       onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
                       {...guard(`strikePercents.${i}`)}
@@ -552,7 +587,7 @@ function StrikesGroup({ open }: { open: number }) {
                       onChange={(v) => setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, v) }))}
                     />
                   </span>
-                  <output className="inputs-readonly tabular-nums" role="cell" aria-label={`Strike ${i + 1} Units`} data-testid={`strike-units-${i}`}>
+                  <output className="inputs-readonly inputs-num" role="cell" aria-label={`Strike ${i + 1} Units`} data-testid={`strike-units-${i}`}>
                     {Number.isFinite(units[i]) ? fmtNumber(units[i]!, 3) : "-"}
                   </output>
                   {error ? (
@@ -564,12 +599,21 @@ function StrikesGroup({ open }: { open: number }) {
               );
             })}
           </AnimatePresence>
-          <div className="spread-row strike-head mt-2" role="row">
-            {["Spread", "Buy Level", "Sell Level", "Participation Rate", "Pays"].map((h) => (
+        </div>
+        </div>
+        <div className="desk-table-scroll inputs-table-rail mt-2" tabIndex={0} role="region" aria-label="Spreads Table">
+        <div className="inputs-table" role="table" aria-label="Spreads">
+          <div className="spread-row strike-head" role="row">
+            {["Spread", "Buy Level %", "Sell Level %"].map((h) => (
               <span key={h} role="columnheader">
                 {h}
               </span>
             ))}
+            <span className="inline-flex items-center justify-end gap-2" role="columnheader">
+              Participation Rate
+              <StatusTag edited={!terms.participationDerived[n - 1]} testId={`spread-${n - 1}-participation-status`} />
+            </span>
+            <span role="columnheader">Pays</span>
           </div>
           {terms.spreads.map((s, j) => {
             const isTop = j === terms.nSpreads - 1;
@@ -581,10 +625,10 @@ function StrikesGroup({ open }: { open: number }) {
                 <span className="font-ui text-body font-bold text-ink" role="cell">
                   Spread {j + 1}
                 </span>
-                <output className="inputs-readonly tabular-nums" role="cell" data-testid={`input-spreads-${j}-buy`}>
+                <output className="inputs-readonly inputs-num" role="cell" data-testid={`input-spreads-${j}-buy`}>
                   {Number.isFinite(s.buy) ? fmtPercent(s.buy) : "-"}
                 </output>
-                <output className="inputs-readonly tabular-nums" role="cell" tabIndex={-1} data-testid={`input-spreads-${j}-sell`}>
+                <output className="inputs-readonly inputs-num" role="cell" tabIndex={-1} data-testid={`input-spreads-${j}-sell`}>
                   {Number.isFinite(s.sell) ? fmtPercent(s.sell) : "-"}
                 </output>
                 <span className="flex items-center gap-1" role="cell">
@@ -594,7 +638,7 @@ function StrikesGroup({ open }: { open: number }) {
                       digits={2}
                       fixed={derived}
                       ariaLabel={`Spread ${j + 1} Participation Rate`}
-                      placeholder={isTop ? "Eg 10.05" : "Eg 1"}
+                      placeholder="-"
                       invalid={Boolean(errorFor(`participations.${j}`))}
                       testId={`input-participations-${j}`}
                       onChange={(v) => setInputs((prev) => ({ participations: setAt(prev.participations, j, v) }))}
@@ -602,10 +646,9 @@ function StrikesGroup({ open }: { open: number }) {
                       {...guard(`participations.${j}`)}
                     />
                   </span>
-                  {isTop ? <StatusTag edited={!derived} testId={`spread-${j}-participation-status`} /> : null}
                   {isTop && !derived ? <ResetIcon label="Reset To Calculated" testId={`spread-${j}-reset`} onClick={() => setInputs((prev) => ({ participations: setAt(prev.participations, j, null) }))} /> : null}
                 </span>
-                <output className="inputs-readonly tabular-nums" role="cell">
+                <output className="inputs-readonly inputs-num" role="cell">
                   {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]!) : "-"}
                 </output>
                 {error ? (
@@ -617,6 +660,8 @@ function StrikesGroup({ open }: { open: number }) {
             );
           })}
         </div>
+        </div>
+        </>
       ) : null}
       <BulkEditDialog<PastedStrike>
         open={bulk}
@@ -672,7 +717,7 @@ function TermsGroup({ open }: { open: number }) {
             onBlankChange={() => setInputs((prev) => withStrike(prev, 0, NaN))}
             suffix="%"
             testId="input-target"
-            placeholder="Eg 37 %"
+            placeholder="Eg 37"
           />
         </FieldRow>
         <Num k="coupon" label="Coupon" kind="percent" suffix="%" eg="102.5" />
@@ -694,14 +739,13 @@ function TermsGroup({ open }: { open: number }) {
             suffix="%"
             testId="input-protection"
             invalid={Boolean(errorFor("protection"))}
-            placeholder="Eg 15 %"
+            placeholder="Eg 15"
           />
         </FieldRow>
         <Num k="decay" label="Decay" digits={2} eg="1.6" />
         <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")}>
           <NumberInput
             kind="percent"
-            digits={0}
             value={has ? terms.floorLevel : NaN}
             disabled={!has}
             onChange={(v) => setInputs((prev) => withStrike(prev, n + 3, 100 * v))}
@@ -709,7 +753,7 @@ function TermsGroup({ open }: { open: number }) {
             suffix="%"
             testId="input-floorLevel"
             invalid={Boolean(errorFor("floorLevel"))}
-            placeholder="Eg 70 %"
+            placeholder="Eg 70"
           />
         </FieldRow>
         <Num k="floorUnits" label="Decay Reduction Below Floor" digits={2} eg="1" />
@@ -731,86 +775,74 @@ function VolatilityGroup({ open }: { open: number }) {
   const edited = inputs.dailyVolSource !== "calculated";
   const shown = Number.isFinite(inputs.dailyVol);
   return (
-    <Group step={6} icon={Gauge} open={open}>
+    <Group step={6} icon={Gauge} open={open} status={shown ? <StatusTag edited={edited} testId="daily-vol-status" /> : null}>
       <div className="inputs-grid">
         <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")}>
-          <div className="flex items-center gap-1">
-            <div className="min-w-0 flex-1">
-              <NumberInput
-                kind="percent"
-                digits={3}
-                value={inputs.dailyVol}
-                onChange={(v) => setInputs({ dailyVol: v, dailyVolSource: "overridden" })}
-                onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
-                suffix="%"
-                testId="input-dailyVol"
-                invalid={Boolean(errorFor("dailyVol"))}
-                placeholder="Eg 0.88 %"
-                {...guard("dailyVol")}
-              />
-            </div>
-            {shown ? <StatusTag edited={edited} testId="daily-vol-status" /> : null}
-          </div>
+          <NumberInput
+            kind="percent"
+            digits={3}
+            value={inputs.dailyVol}
+            onChange={(v) => setInputs({ dailyVol: v, dailyVolSource: "overridden" })}
+            onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
+            suffix="%"
+            testId="input-dailyVol"
+            invalid={Boolean(errorFor("dailyVol"))}
+            placeholder="Eg 0.88"
+            {...guard("dailyVol")}
+          />
         </FieldRow>
-        <FieldRow label={`${u} Annual Volatility`} hint="Daily Times The Square Root Of 365">
-          <div className="flex items-center gap-1">
-            <div className="min-w-0 flex-1">
-              <NumberInput
-                kind="percent"
-                digits={3}
-                value={annualVolFromDaily(inputs.dailyVol)}
-                onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
-                onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
-                suffix="%"
-                {...guard("annualVol")}
-                testId="input-annualVol"
-                placeholder="Eg 16.9 %"
-              />
-            </div>
-            {shown ? <StatusTag edited={edited} testId="annual-vol-status" /> : null}
-          </div>
+        <FieldRow label={`${u} Annual Volatility`}>
+          <NumberInput
+            kind="percent"
+            digits={3}
+            value={annualVolFromDaily(inputs.dailyVol)}
+            onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
+            onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
+            suffix="%"
+            {...guard("annualVol")}
+            testId="input-annualVol"
+            placeholder="Eg 16.9"
+          />
         </FieldRow>
-        <FieldRow
-          label="History Window"
-          wide
-          hint={
-            <span data-testid="vol-history-note">
-              {dailyVolStatus.error
-                ? dailyVolStatus.error
-                : dailyVolStatus.from
-                  ? `${dailyVolStatus.observations} Daily Returns From ${formatDate(dailyVolStatus.from)} To ${formatDate(dailyVolStatus.to)}`
-                  : "-"}
-            </span>
-          }
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              className="glass-select h-9 min-w-[8rem] rounded-xl px-3 font-ui text-body"
-              value={inputs.historyWindowDays}
-              data-testid="input-historyWindowDays"
-              aria-label="History Window"
-              onChange={(e) => {
-                const windowDays = Number(e.target.value);
-                setInputs({ historyWindowDays: windowDays });
-                if (mode === "default") void computeDailyVol({ windowDays });
-              }}
-            >
-              <option value={182}>6 Months</option>
-              <option value={365}>1 Year</option>
-              <option value={730}>2 Years</option>
-              <option value={1095}>3 Years</option>
-            </select>
-            <FetchButton
-              testId={mode === "blank" ? "compute-volatility" : "compute-history"}
-              label="Compute From History"
-              busyLabel="Computing"
-              doneLabel="Computed"
-              loading={dailyVolStatus.loading && (mode === "default" || inputs.underlying !== "")}
-              onClick={() => computeDailyVol()}
-            />
-          </div>
+        <FieldRow label="History Window">
+          <select
+            className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
+            value={inputs.historyWindowDays}
+            data-testid="input-historyWindowDays"
+            aria-label="History Window"
+            onChange={(e) => {
+              const windowDays = Number(e.target.value);
+              setInputs({ historyWindowDays: windowDays });
+              if (mode === "default") void computeDailyVol({ windowDays });
+            }}
+          >
+            <option value={182}>6 Months</option>
+            <option value={365}>1 Year</option>
+            <option value={730}>2 Years</option>
+            <option value={1095}>3 Years</option>
+          </select>
         </FieldRow>
+        <div className="inputs-action">
+          <FetchButton
+            testId={mode === "blank" ? "compute-volatility" : "compute-history"}
+            label="Compute From History"
+            busyLabel="Computing"
+            doneLabel="Computed"
+            loading={dailyVolStatus.loading && (mode === "default" || inputs.underlying !== "")}
+            onClick={() => computeDailyVol()}
+          />
+        </div>
       </div>
+      <p className="hint mt-2 font-ui" data-testid="vol-rule">
+        Annual Equals Daily Times The Square Root Of 365 ·{" "}
+        <span data-testid="vol-history-note">
+          {dailyVolStatus.error
+            ? dailyVolStatus.error
+            : dailyVolStatus.from
+              ? `${dailyVolStatus.observations} Daily Returns From ${formatDate(dailyVolStatus.from)} To ${formatDate(dailyVolStatus.to)}`
+              : "-"}
+        </span>
+      </p>
     </Group>
   );
 }

@@ -181,19 +181,17 @@ test.describe("B10 Protection and floor", () => {
 });
 
 test.describe("B11 Volatility", () => {
-  test("B11.1 to B11.3 Compute From History fills both volatilities; editing either moves the other and tags both Edited", async ({ page, inputs }) => {
+  test("B11.1 to B11.3 Compute From History fills both volatilities; editing either moves the other and tags the card Edited", async ({ page, inputs }) => {
     // Volatility is step 6, open once the strikes are in.
     await fillBlank(inputs);
     await page.getByTestId("compute-volatility").click();
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Calculated");
-    await expect(page.getByTestId("annual-vol-status")).toHaveText("Calculated");
     const daily = await value(page, "input-dailyVol");
     expect(daily).toBeGreaterThan(0);
     expect(Math.abs((await value(page, "input-annualVol")) - daily * Math.sqrt(365))).toBeLessThan(1e-9);
     await inputs.fill("annualVol", "20");
     expect(Math.abs((await value(page, "input-dailyVol")) - 0.2 / Math.sqrt(365))).toBeLessThan(1e-12);
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
-    await expect(page.getByTestId("annual-vol-status")).toHaveText("Edited");
     await inputs.fill("dailyVol", "1");
     expect(Math.abs((await value(page, "input-annualVol")) - 0.01 * Math.sqrt(365))).toBeLessThan(1e-12);
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
@@ -227,7 +225,7 @@ test.describe("B12 Fetch buttons", () => {
     await inputs.goto("blank");
     await inputs.fill("underlying", "Sensex");
     await page.getByTestId("fetch-live-spot").click();
-    await expect(inputs.field("spot")).toHaveValue("76835.78");
+    await expect(inputs.field("spot")).toHaveValue("76,835.78");
     for (const id of ["valuationDate", "coupon", "nbfcRate", "dailyVol", "notionalCr", "tenorDays"]) await expect(inputs.field(id)).toHaveValue("");
   });
 

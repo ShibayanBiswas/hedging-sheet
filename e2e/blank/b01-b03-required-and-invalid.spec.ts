@@ -193,14 +193,17 @@ test.describe("B3 Invalid values in every number field", () => {
     expect(await page.getByTestId("input-spot").getAttribute("data-value")).toBe("123456.78");
   });
 
-  test("B3.8 a future valuation date is rejected; invalid dates cannot be entered", async ({ page, inputs }) => {
+  test("B3.8 a future valuation date is rejected; text that is no real date reverts with a popup", async ({ page, inputs }) => {
     await inputs.fill("valuationDate", "2026-10-29");
     await expect(inputs.field("valuationDate")).toHaveAttribute("aria-invalid", "true");
     await inputs.runButton.click();
     expect((await dialogItems(page)).join("\n")).toContain("Valuation Date: Valuation Date cannot be in the future.");
     await inputs.dialog.close();
     await expect(inputs.field("valuationDate")).toBeFocused();
-    // The date control only holds real dates; strings such as 2026-02-30 are rejected by the unit tests on validateDeskInputs.
-    await expect(inputs.field("valuationDate")).toHaveAttribute("type", "date");
+    // The field reads 31-Oct-2026 and only ever commits a real date: 30 February goes back to the last value with a popup.
+    await inputs.fill("valuationDate", "30-Feb-2026");
+    await inputs.dialog.expectTitle("Valuation Date Reverted");
+    await inputs.dialog.close();
+    await expect(inputs.field("valuationDate")).toHaveValue("29-Oct-2026");
   });
 });

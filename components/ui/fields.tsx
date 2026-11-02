@@ -1,11 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
-import { Minus, Plus } from "lucide-react";
+import { Calendar, Info, Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/cn";
+import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { MAX_DECIMALS, NUMBER_LOCALE } from "@/lib/format";
+import { parsePastedDate } from "@/lib/inputs/bulk";
 
 export type FieldCheck = { label: string; message: string; range?: string };
 
@@ -14,30 +16,43 @@ const FieldIdContext = createContext<string | undefined>(undefined);
 
 const PLACEHOLDER = "placeholder:text-stone-400 placeholder:font-normal";
 
+/** Helper text behind an icon: it opens on hover, on keyboard focus and on a tap, across the width of its field. */
+function FieldTip({ text }: { text: string }) {
+  return (
+    <span className="field-tip" role="img" aria-label={text} tabIndex={0}>
+      <Info className="icon-xs" aria-hidden />
+      <span className="field-tip-text">{text}</span>
+    </span>
+  );
+}
+
 export function FieldRow({
   label,
   children,
   hint,
+  tip,
   error,
   htmlFor,
-  wide,
 }: {
   label: ReactNode;
   children: ReactNode;
   hint?: ReactNode;
+  /** Helper text kept behind an icon before the label, so the field stays one compact unit and the tab order reads left to right. */
+  tip?: string;
   error?: string | null;
   htmlFor?: string;
-  /** Span the whole row of the grid. */
-  wide?: boolean;
 }) {
   const labelId = useId();
   const inputId = useId();
   const forId = htmlFor ?? inputId;
   return (
-    <div className={cn("flex w-full min-w-0 flex-col gap-1", wide && "field-wide")}>
-      <label className="field-label truncate font-ui" htmlFor={forId} id={labelId} title={typeof label === "string" ? label : undefined}>
-        {label}
-      </label>
+    <div className="relative flex w-full min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 items-center gap-1">
+        {tip ? <FieldTip text={tip} /> : null}
+        <label className="field-label min-w-0 truncate font-ui" htmlFor={forId} id={labelId} title={typeof label === "string" ? label : undefined}>
+          {label}
+        </label>
+      </div>
       <div className="min-w-0" role="group" aria-labelledby={labelId}>
         <FieldIdContext.Provider value={forId}>{children}</FieldIdContext.Provider>
         {hint ? <p className="hint mt-1 font-ui">{hint}</p> : null}
@@ -84,7 +99,7 @@ export function NumberInput({
   value,
   onChange,
   kind = "number",
-  digits = 2,
+  digits: digitsProp,
   suffix,
   disabled,
   testId,
@@ -117,6 +132,8 @@ export function NumberInput({
   fixed?: boolean;
 }) {
   const contextId = useContext(FieldIdContext);
+  /** Percent fields read as 8.000 %. */
+  const digits = digitsProp ?? (kind === "percent" ? 3 : 2);
   const [draft, setDraft] = useState(() => toDraft(value, kind, digits, fixed));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
@@ -194,22 +211,100 @@ export function NumberInput({
   );
 }
 
-export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { testId?: string; invalid?: boolean }) {
-  const { testId, className, invalid, id, ...rest } = props;
+const dateText = (ymd: string) => (isValidYmd(ymd) ? formatDate(ymd) : ymd);
+
+/**
+ * A date that reads 31-Oct-2026 at rest. Type it in that form, as 2026-10-31 or as 31-10-2026, or pick it from the calendar.
+ * It commits on leaving the field; text that is not a date goes back to the last value and onUnreadable says why.
+ */
+export function DateInput({
+  value,
+  onCommit,
+  onUnreadable,
+  label,
+  testId,
+  invalid,
+  ariaLabel,
+}: {
+  /** yyyy-mm-dd, or "" while empty. */
+  value: string;
+  onCommit: (ymd: string) => void;
+  onUnreadable?: () => void;
+  /** Names the calendar button. */
+  label: string;
+  testId?: string;
+  invalid?: boolean;
+  ariaLabel?: string;
+}) {
   const contextId = useContext(FieldIdContext);
+  const picker = useRef<HTMLInputElement>(null);
+  const [draft, setDraft] = useState(() => dateText(value));
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle, and put a refused entry back
+    if (!focused) setDraft(dateText(value));
+  }, [value, focused]);
+
+  const commit = () => {
+    setFocused(false);
+    const text = draft.trim();
+    if (!text) {
+      if (value) onCommit("");
+      return;
+    }
+    if (text === dateText(value)) return;
+    const ymd = parsePastedDate(text);
+    if (!ymd) {
+      onUnreadable?.();
+      return;
+    }
+    if (ymd !== value) onCommit(ymd);
+  };
+
   return (
-    <input
-      {...rest}
-      id={id ?? contextId}
-      data-testid={testId}
-      aria-invalid={invalid || undefined}
-      className={cn(
-        "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body outline-none transition focus:border-gold",
-        PLACEHOLDER,
-        invalid && "border-rose-500 ring-2 ring-rose-400/60",
-        className,
-      )}
-    />
+    <div className="relative flex w-full items-center gap-1">
+      <input
+        type="text"
+        id={ariaLabel ? undefined : contextId}
+        aria-label={ariaLabel}
+        data-testid={testId}
+        data-value={value || undefined}
+        aria-invalid={invalid || undefined}
+        autoComplete="off"
+        spellCheck={false}
+        placeholder="Eg 31-Oct-2026"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        className={cn(
+          "input-glow h-9 w-full min-w-0 rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none transition focus:border-gold",
+          PLACEHOLDER,
+          invalid && "border-rose-500 ring-2 ring-rose-400/60",
+        )}
+      />
+      <button
+        type="button"
+        aria-label={`Open Calendar For ${label}`}
+        title={`Open Calendar For ${label}`}
+        className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+        onClick={() => {
+          try {
+            picker.current?.showPicker();
+          } catch {
+            picker.current?.focus();
+          }
+        }}
+      >
+        <Calendar className="icon-sm" aria-hidden />
+      </button>
+      {/* Only the calendar popup comes from this control: it never shows its own date format. */}
+      <input ref={picker} type="date" className="date-picker-native" tabIndex={-1} aria-hidden="true" value={isValidYmd(value) ? value : ""} onChange={(e) => onCommit(e.target.value)} />
+    </div>
   );
 }
 

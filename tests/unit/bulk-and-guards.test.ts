@@ -17,6 +17,7 @@ describe("pasted dates", () => {
     expect(parsePastedDate("25-Apr-2030")).toBe("2030-04-25");
     expect(parsePastedDate("25 April 30")).toBe("2030-04-25");
     expect(parsePastedDate("25/04/2030")).toBe("2030-04-25");
+    expect(parsePastedDate("25-04-2030")).toBe("2030-04-25");
     expect(parsePastedDate("31-Feb-2030")).toBeNull();
     expect(parsePastedDate("soon")).toBeNull();
   });

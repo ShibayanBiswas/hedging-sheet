@@ -16,6 +16,7 @@ export function masks(page: Page) {
     page.getByTestId("fetched-at"),
     page.getByTestId("input-spot"),
     page.getByTestId("input-valuationDate"),
+    page.getByTestId("spot-fetched-at"),
     page.getByTestId("desk-toast"),
   ];
 }

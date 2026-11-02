@@ -20,7 +20,7 @@ function splitRows(text: string): string[][] {
     .filter((cells) => cells.some(Boolean));
 }
 
-/** A typed date as yyyy-mm-dd: 2030-04-25, 25-Apr-2030, 25 Apr 30, 25/04/2030. Null when it is not a real date. */
+/** A typed date as yyyy-mm-dd: 2030-04-25, 25-Apr-2030, 25 Apr 30, 25/04/2030, 25-04-2030. Null when it is not a real date. */
 export function parsePastedDate(text: string): string | null {
   const t = text.trim();
   let y: number, m: number, d: number;
@@ -31,7 +31,7 @@ export function parsePastedDate(text: string): string | null {
     if (mi < 0) return null;
     [d, m, y] = [Number(match[1]), mi + 1, Number(match[3])];
     if (y < 100) y += 2000;
-  } else if ((match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) [d, m, y] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  } else if ((match = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(t))) [d, m, y] = [Number(match[1]), Number(match[2]), Number(match[3])];
   else return null;
   const ymd = `${y}-${pad(m)}-${pad(d)}`;
   return isValidYmd(ymd) ? ymd : null;

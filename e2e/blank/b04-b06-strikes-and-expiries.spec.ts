@@ -165,7 +165,7 @@ test.describe("B6 Weekday rule", () => {
       for (const [i, typed] of TYPED.entries()) {
         await inputs.fill(`expiryDates-${i}`, typed);
         const snapped = lastWeekday(typed, weekday);
-        await expect(page.getByTestId(`input-expiryDates-${i}`), `${underlying} ${typed}`).toHaveValue(snapped);
+        await expect(page.getByTestId(`input-expiryDates-${i}`), `${underlying} ${typed}`).toHaveValue(formatDate(snapped));
         await expect(page.getByTestId(`expiry-note-${i}`)).toHaveText(`Moved To The Last ${name}, ${formatDate(snapped)}`);
       }
     }
@@ -173,10 +173,10 @@ test.describe("B6 Weekday rule", () => {
 
   test("B6.2 switching the underlying moves every date to the new expiry day", async ({ page, inputs }) => {
     await fillBlank(inputs);
-    const sensex = await Promise.all([0, 1, 2, 3, 4, 5].map((i) => page.getByTestId(`input-expiryDates-${i}`).inputValue()));
+    const sensex = await Promise.all([0, 1, 2, 3, 4, 5].map(async (i) => (await page.getByTestId(`input-expiryDates-${i}`).getAttribute("data-value"))!));
     for (const d of sensex) expect(d).toBe(lastWeekday(d, 4));
     await inputs.fill("underlying", "Nifty");
     await expect(page.getByTestId("expiry-weekday")).toHaveText("Last Tuesday Of The Month");
-    for (const [i, d] of sensex.entries()) await expect(page.getByTestId(`input-expiryDates-${i}`)).toHaveValue(lastWeekday(d, 2));
+    for (const [i, d] of sensex.entries()) await expect(page.getByTestId(`input-expiryDates-${i}`)).toHaveValue(formatDate(lastWeekday(d, 2)));
   });
 });

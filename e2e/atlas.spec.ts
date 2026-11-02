@@ -74,7 +74,7 @@ test.describe("Logic Atlas", () => {
   test("the rules and the descriptions follow the underlying", async ({ page, inputs, atlas }) => {
     await inputs.goto();
     await inputs.fill("input-underlying", "Nifty");
-    await expect(inputs.field("spot")).toHaveValue("23500.00", { timeout: 30_000 });
+    await expect(inputs.field("spot")).toHaveValue("23,500.00", { timeout: 30_000 });
     await atlas.open();
     await expect(page.getByTestId("stage-vega-hedge-rule")).toHaveText("Nifty: Spot Plus 150, Rounded Up To The Next 100");
     await expect(page.getByTestId("stage-expiries-rule")).toHaveText("Last Tuesday Of Each Month");

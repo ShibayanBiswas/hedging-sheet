@@ -37,6 +37,9 @@ test.describe("Round 11 · Inputs", () => {
     await page.getByTestId("input-expiryCount").selectOption("10");
     await expect(page.getByTestId("input-expiryCount-plus")).toBeDisabled();
 
+    // Strikes And Spreads opens once the expiries are complete.
+    await inputs.fill("input-expiryCount", "1");
+    await inputs.fill("input-expiryDates-0", "2030-04-25");
     for (const n of [1, 6, 3]) {
       await page.getByTestId("input-spreadCount").selectOption(String(n));
       await expect(page.locator('[data-testid^="strike-row-"]')).toHaveCount(n + 4);
@@ -56,7 +59,7 @@ test.describe("Round 11 · Inputs", () => {
   test("a typed expiry moves to the last Thursday and says so", async ({ page, inputs }) => {
     await inputs.goto();
     await inputs.fill("input-expiryDates-0", "2030-04-01");
-    await expect(page.getByTestId("input-expiryDates-0")).toHaveValue("2030-04-25");
+    await expect(page.getByTestId("input-expiryDates-0")).toHaveValue("25-Apr-2030");
     await expect(page.getByTestId("expiry-note-0")).toHaveText("Moved To The Last Thursday, 25-Apr-2030");
   });
 
@@ -71,7 +74,7 @@ test.describe("Round 11 · Inputs", () => {
     await expect(page.getByTestId("bulk-expiries-row-1")).toContainText("Moved To 25-Jul-2030");
     await page.getByTestId("bulk-expiries-apply").click();
     await expect(page.getByTestId("input-expiryCount")).toHaveValue("3");
-    await expect(page.getByTestId("input-expiryDates-1")).toHaveValue("2030-07-25");
+    await expect(page.getByTestId("input-expiryDates-1")).toHaveValue("25-Jul-2030");
   });
 
   test("Bulk Edit pastes strikes and the spread count follows", async ({ page, inputs }) => {
@@ -110,16 +113,14 @@ test.describe("Round 11 · Inputs", () => {
     await expect(page.getByTestId("input-spot")).toBeFocused();
   });
 
-  test("volatility tags: both Calculated, both Edited after a change, both Calculated after Compute From History", async ({ page, inputs }) => {
+  test("volatility tag: one for the card, Calculated, Edited after a change, Calculated after Compute From History", async ({ page, inputs }) => {
     await inputs.goto();
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Calculated");
-    await expect(page.getByTestId("annual-vol-status")).toHaveText("Calculated");
+    await expect(page.getByTestId("annual-vol-status")).toHaveCount(0);
     await inputs.fill("input-annualVol", "18");
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
-    await expect(page.getByTestId("annual-vol-status")).toHaveText("Edited");
     await page.getByTestId("compute-history").click();
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Calculated");
-    await expect(page.getByTestId("annual-vol-status")).toHaveText("Calculated");
     await expect(page.getByTestId("vol-history-note")).toHaveText(/^\d+ Daily Returns From \d{2}-[A-Z][a-z]{2}-\d{4} To \d{2}-[A-Z][a-z]{2}-\d{4}$/);
   });
 
@@ -275,6 +276,7 @@ test.describe("Round 11 · Downloads", () => {
       expect(text, tab.id).toContain("Valuation Date 28-Oct-2026");
       expect(pages.at(-1)!.text, tab.id).toContain(`Page ${pages.length} Of ${pages.length}`);
       expect(text, tab.id).not.toMatch(/NaN|undefined|\d\.\d{4,}/);
+      expect(text, `${tab.id}: one grouping style`).not.toMatch(/\d,\d{2},\d{3}/);
     }
   });
 
@@ -291,6 +293,13 @@ test.describe("Round 11 · Downloads", () => {
       expect(s.views.some((v) => v.state === "frozen"), s.name).toBe(false);
       expect(s.views.every((v) => v.showGridLines === false), s.name).toBe(true);
       expect(s.autoFilter ?? null, s.name).toBeNull();
+      // One grouping style: no Indian pattern in a number format, and none in a cell written as text.
+      s.eachRow((row) =>
+        row.eachCell((cell) => {
+          expect(String(cell.numFmt ?? ""), `${s.name}!${cell.address}`).not.toContain("#,##,");
+          if (typeof cell.value === "string") expect(cell.value, `${s.name}!${cell.address}`).not.toMatch(/\d,\d{2},\d{3}/);
+        }),
+      );
     }
   });
 });

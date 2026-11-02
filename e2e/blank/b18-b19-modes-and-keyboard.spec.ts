@@ -11,9 +11,9 @@ test.describe("B18 Mode switching", () => {
     await inputs.run();
     await nav.go("inputs");
     await inputs.setMode("default");
-    await expect(inputs.field("spot")).toHaveValue("76835.78");
-    await expect(inputs.field("valuationDate")).toHaveValue("2026-10-28");
-    await expect(inputs.field("coupon")).toHaveValue("102.50");
+    await expect(inputs.field("spot")).toHaveValue("76,835.78");
+    await expect(inputs.field("valuationDate")).toHaveValue("28-Oct-2026");
+    await expect(inputs.field("coupon")).toHaveValue("102.500");
     await outputs.summary.open();
     await outputs.summary.expectGate();
   });
@@ -40,7 +40,7 @@ test.describe("B18 Mode switching", () => {
     await expect(inputs.dialog.ok).toHaveText("Cancel");
     await inputs.dialog.close();
     await expect(page.getByTestId("mode-blank")).toHaveAttribute("aria-selected", "true");
-    await expect(inputs.field("coupon")).toHaveValue("102.50");
+    await expect(inputs.field("coupon")).toHaveValue("102.500");
     await expect(page.getByTestId("strip-simulation")).toHaveText("Up To Date");
   });
 

@@ -1,4 +1,4 @@
-import { isValidYmd } from "@/lib/engine/dates";
+import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
 import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
@@ -179,7 +179,7 @@ export function checkFieldEdit(inputs: DeskInputs, field: string, value: number 
     const label = `Expiry ${i + 1}`;
     const d = String(value);
     if (!isValidYmd(d)) return { label, message: `${label} is not a valid date.` };
-    if (inputs.valuationDate && d <= inputs.valuationDate) return { label, message: `${label} must fall after the Valuation Date.`, range: `After ${inputs.valuationDate}` };
+    if (inputs.valuationDate && d <= inputs.valuationDate) return { label, message: `${label} must fall after the Valuation Date.`, range: `After ${formatDate(inputs.valuationDate)}` };
     const prev = inputs.expiryDates[i - 1];
     const next = inputs.expiryDates[i + 1];
     if (prev && isValidYmd(prev) && d <= prev) return { label, message: `${label} must fall after Expiry ${i}.`, range: `After ${prev}` };

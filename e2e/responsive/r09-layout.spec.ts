@@ -3,8 +3,8 @@ import { expect, test } from "../fixtures";
 import { settle } from "./helpers";
 import { contextFor, VIEWPORTS } from "./viewports";
 
-/** Input fields: 4 across from 1440 px, 3 from 1024, 2 from 640, 1 on phones. */
-const expectedColumns = (width: number) => (width >= 1440 ? 4 : width >= 1024 ? 3 : width >= 640 ? 2 : 1);
+/** Input fields: 6 across from 1280 px, 4 from 1024, 2 from 640, 1 on phones. */
+const expectedColumns = (width: number) => (width >= 1280 ? 6 : width >= 1024 ? 4 : width >= 640 ? 2 : 1);
 
 for (const v of VIEWPORTS) {
   test.describe(`${v.name} ${v.width}x${v.height}`, () => {
@@ -24,9 +24,12 @@ for (const v of VIEWPORTS) {
       await settle(page);
       expect(inView(await inputs.runButton.boundingBox()), "Run Simulation in view halfway down").toBe(true);
 
-      // Input fields: one column on phones, two on tablets, three from 1024 px, four from 1440 px.
-      const columns = await page.locator(".inputs-grid").first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
-      expect(columns, "field grid columns").toBe(expectedColumns(v.width));
+      // Input fields in the longest group, read from where they land: the first row of Margin And Desk Terms.
+      const columns = await page.getByTestId("group-7").locator("input").evaluateAll((els) => {
+        const tops = els.map((e) => Math.round(e.getBoundingClientRect().top));
+        return tops.filter((t) => t === tops[0]).length;
+      });
+      expect(columns, "fields in a row").toBe(expectedColumns(v.width));
 
       // Section tabs: the full pill bar from 1024 px; below that the bar scrolls sideways.
       const rail = await page.locator("nav .nav-pill-shell").evaluate((el) => ({ scroll: el.scrollWidth, client: el.clientWidth }));

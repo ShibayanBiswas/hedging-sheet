@@ -1036,9 +1036,22 @@ svg.lucide {
   }
 }
 
-/* The run bar clears the home indicator on phones. */
+/* A slim bar from edge to edge of the window, flush on the bottom edge; it clears the home indicator on phones. */
 .hs-run-bar {
+  --run-bar-bleed: 1rem;
+  width: auto;
+  margin-inline: calc(var(--run-bar-bleed) * -1);
+  padding-inline: var(--run-bar-bleed);
   padding-bottom: calc(0.375rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ar-border);
+}
+
+@media (min-width: 768px) {
+  .hs-run-bar { --run-bar-bleed: 1.5rem; }
+}
+
+@media (min-width: 1280px) {
+  .hs-run-bar { --run-bar-bleed: 2rem; }
 }
 
 /* Popups: a full-height bottom sheet on phones, a centred dialog from 640 px. */
@@ -1093,7 +1106,7 @@ svg.lucide {
   grid-column: 1 / -1;
 }
 
-/* Inputs: seven numbered groups, compact. Fields sit 4 across at 1440 px, 3 at 1024, 2 at 640 and 1 on phones. */
+/* Inputs: seven numbered groups stacked in fill order, each across the full width. */
 .inputs-intro {
   display: flex;
   flex-wrap: wrap;
@@ -1102,30 +1115,25 @@ svg.lucide {
 }
 
 .inputs-layout {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
 }
 
-@media (min-width: 1440px) {
-  .inputs-layout {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "g1 g3"
-      "g2 g3"
-      "g4 g3"
-      "g5 g5"
-      "g6 g6"
-      "g7 g7";
-  }
-  .inputs-card-1 { grid-area: g1; }
-  .inputs-card-2 { grid-area: g2; }
-  .inputs-card-3 { grid-area: g3; }
-  .inputs-card-4 { grid-area: g4; }
-  .inputs-card-5 { grid-area: g5; }
-  .inputs-card-6 { grid-area: g6; }
-  .inputs-card-7 { grid-area: g7; }
+/* A short page, such as Blank Inputs with its steps collapsed, still puts the Run bar right on top of the footer. */
+main:has(.inputs-page),
+.desk-page-enter:has(.inputs-page) {
+  display: flex;
+  flex-direction: column;
+}
+
+.desk-page-enter:has(.inputs-page),
+.inputs-page {
+  flex: 1 0 auto;
+}
+
+.inputs-page .hs-run-bar {
+  margin-top: auto;
 }
 
 .inputs-card {
@@ -1134,14 +1142,38 @@ svg.lucide {
   border-radius: 1rem;
 }
 
+/* A locked group is one slim row: its header. */
+.inputs-card[data-locked] {
+  padding-block: 4px;
+  outline: none;
+}
+
+.inputs-card[data-locked] .inputs-card-head {
+  margin-bottom: 0;
+}
+
 .inputs-card-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 0.375rem 0.5rem;
   min-height: 2.25rem;
   margin-bottom: 0.5rem;
+}
+
+.inputs-card-rule {
+  color: var(--ar-muted);
+  white-space: nowrap;
+}
+
+/* The actions, then the card's one status chip, at the right of the header. */
+.inputs-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem 0.5rem;
+  margin-left: auto;
 }
 
 .inputs-step {
@@ -1158,33 +1190,156 @@ svg.lucide {
   font-weight: 700;
 }
 
+/*
+ * Fields in rows that always reach the right edge: every field starts at one column's width and grows, so a short last row
+ * stretches too, which grid tracks cannot do. 1 across on phones, 2 from 640 px, 4 from 1024 px and 6 from 1280 px.
+ */
 .inputs-grid {
-  display: grid;
+  --cols: 1;
+  display: flex;
+  flex-wrap: wrap;
   width: 100%;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
+  align-items: stretch;
+}
+
+.inputs-grid > * {
+  flex: 1 1 calc((100% - (var(--cols) - 1) * 8px) / var(--cols) - 0.02px);
+  min-width: 0;
 }
 
 @media (min-width: 640px) {
-  .inputs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .inputs-grid { --cols: 2; }
 }
 
 @media (min-width: 1024px) {
-  .inputs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .inputs-grid { --cols: 4; }
+}
+
+@media (min-width: 1280px) {
+  .inputs-grid { --cols: 6; }
+  /* Product Terms: 5 and 4 rather than a row of 6 and a row of 3. */
+  .inputs-card-5 .inputs-grid { --cols: 5; }
 }
 
 @media (min-width: 1440px) {
-  .inputs-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* All nine Product Terms on one row; the longest label, Decay Reduction Below Floor, takes the spare width. */
+  .inputs-card-5 .inputs-grid { --cols: 10; }
+  .inputs-card-5 .inputs-grid > :nth-child(6) { flex-grow: 5; }
 }
 
-.inputs-grid > .field-wide {
-  grid-column: 1 / -1;
+/* Expiry cards hold the long role chip, so they sit 2 across from 640 px, 3 from 1024, 4 from 1280 and 5 from 1440. */
+@media (min-width: 1024px) {
+  .inputs-grid-expiries { --cols: 3; }
+}
+
+@media (min-width: 1280px) {
+  .inputs-grid-expiries { --cols: 4; }
+}
+
+@media (min-width: 1440px) {
+  .inputs-grid-expiries { --cols: 5; }
+}
+
+.expiry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--ar-border);
+  border-radius: 0.75rem;
+}
+
+.expiry-role {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+  color: var(--ar-muted);
+}
+
+/* Before a count is picked: one slim row, never an empty box. */
+.inputs-slim-row {
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px dashed var(--ar-border);
+  border-radius: 0.75rem;
+  color: var(--ar-muted);
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-caption);
+}
+
+/* Lines a button up with the fields beside it, under where their labels sit. */
+.inputs-action {
+  padding-top: calc(1.125rem + 0.25rem);
 }
 
 .inputs-card .field-label {
   font-size: var(--text-caption);
   line-height: 1.125rem;
+  white-space: nowrap;
+}
+
+/* The unit sits inside the field, right beside the number. */
+.inputs-card input[inputmode="decimal"] {
+  text-align: right;
+}
+
+.inputs-card input.pr-12 {
+  padding-right: 1.75rem;
+}
+
+/* The tip opens across its field, so it never runs off the window. */
+.field-tip {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--ar-muted);
+  cursor: help;
+  outline: none;
+  border-radius: 9999px;
+}
+
+.field-tip:focus-visible {
+  outline: 2px solid #7a1e2c;
+  outline-offset: 2px;
+}
+
+.field-tip-text {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  top: 1.25rem;
+  left: 0;
+  right: 0;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--ar-border);
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: var(--ar-ink);
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-hint);
+  line-height: 1rem;
+}
+
+.field-tip:hover .field-tip-text,
+.field-tip:focus .field-tip-text {
+  display: block;
+}
+
+/* Holds the calendar popup only: never seen, never in the tab order. */
+.date-picker-native {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  min-height: 0 !important;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .inputs-readonly {
@@ -1201,43 +1356,99 @@ svg.lucide {
   white-space: nowrap;
 }
 
-/* Strike and spread rows: a table from 768 px, two fields across on phones. */
+/* Numbers in read-only cells line up on the right, as the fields do. */
+.inputs-num {
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Strike and spread tables: single-line rows of about 40 px across the card; a narrow window scrolls them inside their box. */
+.inputs-table-rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Room for the focus ring of the top and bottom rows. */
+  padding-block: 2px;
+}
+
+.inputs-table {
+  display: flex;
+  flex-direction: column;
+  min-width: 42.5rem;
+  width: 100%;
+}
+
 .strike-row,
 .spread-row {
   display: grid;
-  gap: 4px 8px;
+  gap: 0 8px;
   align-items: center;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 2.5rem;
 }
 
-.strike-row > :first-child,
-.spread-row > :first-child,
+.strike-row {
+  grid-template-columns: minmax(4.5rem, 0.7fr) minmax(6.5rem, 1fr) minmax(7rem, 1fr) minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(6rem, 1fr);
+}
+
+.spread-row {
+  grid-template-columns: minmax(4.5rem, 0.7fr) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr) minmax(14rem, 1.6fr) minmax(6rem, 1fr);
+}
+
+/* The message stays in view when the row scrolls sideways on a phone. */
 .strike-row-error {
   grid-column: 1 / -1;
+  position: sticky;
+  left: 0;
+  width: fit-content;
+  max-width: min(100%, calc(100vw - 4rem));
+  white-space: normal;
 }
 
 .strike-head {
-  display: none;
+  min-height: 1.75rem;
   color: var(--ar-muted);
   font-size: var(--text-hint);
   font-weight: 600;
   white-space: nowrap;
 }
 
-@media (min-width: 768px) {
-  .strike-row {
-    /* Fixed widths for the two choice columns, so every row and the header line up. */
-    grid-template-columns: 4.5rem minmax(5.5rem, 1fr) minmax(6rem, 1fr) 6.5rem 6.5rem minmax(4.5rem, 0.8fr);
-  }
-  .spread-row {
-    grid-template-columns: 4.5rem minmax(4.5rem, 0.8fr) minmax(4.5rem, 0.8fr) minmax(10rem, 1.6fr) minmax(4.5rem, 0.7fr);
-  }
-  .strike-row > :first-child,
-  .spread-row > :first-child {
-    grid-column: auto;
-  }
-  .strike-head {
-    display: grid;
+/* Number columns read from the right under a right-aligned heading. */
+.strike-row.strike-head > :nth-child(2),
+.strike-row.strike-head > :nth-child(3),
+.strike-row.strike-head > :nth-child(6),
+.spread-row.strike-head > :not(:first-child) {
+  text-align: right;
+}
+
+/* A choice is one control: two joined buttons with no gap, the pick shown by the stronger fill. */
+.inputs-card .hs-segment {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  border: 0;
+}
+
+.inputs-card .hs-segment button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 0.5rem;
+}
+
+.inputs-card .hs-segment button:first-child {
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.inputs-card .hs-segment button:last-child {
+  margin-left: -1px;
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
+.inputs-card .hs-segment--invalid button {
+  border-color: #e11d48;
+}
+
+@media (pointer: coarse), (max-width: 1023px) {
+  .inputs-card .hs-segment {
+    height: var(--touch-target);
   }
 }
 

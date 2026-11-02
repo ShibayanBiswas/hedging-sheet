@@ -36,13 +36,13 @@ function useEdgeCasePopups() {
 }
 
 export default function InputsPage() {
-  const { mode, resetInputs, staleInputs } = useDesk();
+  const { mode, resetInputs, staleInputs, simulation, lastRun, stale } = useDesk();
   const router = useRouter();
   useEdgeCasePopups();
 
   return (
     // The Run bar sits flush on the page's bottom edge: the negative margin takes back the main padding below it.
-    <div className="-mb-6 flex w-full flex-col gap-2">
+    <div className="inputs-page -mb-6 flex w-full flex-col gap-2">
       <div className="inputs-intro">
         <h1 className="font-bold tracking-tight text-ink text-h1">Inputs</h1>
         <div className="order-last w-full sm:order-none sm:w-auto sm:min-w-0 sm:max-w-md sm:flex-1">
@@ -58,14 +58,18 @@ export default function InputsPage() {
       </div>
       <InputGroups />
       <div className="hs-run-bar">
+        <div className="min-w-0 flex-1">
+          <RunSimulationButton slim onDone={() => router.push("/summary")} />
+        </div>
         {staleInputs ? (
           <span className="hs-chip hs-chip-maroon shrink-0" data-testid="stale-chip">
             Inputs Changed · Run Again
           </span>
-        ) : null}
-        <div className="min-w-0 flex-1">
-          <RunSimulationButton slim onDone={() => router.push("/summary")} />
-        </div>
+        ) : (
+          <span className="hs-chip shrink-0" data-testid="run-status">
+            {simulation.running ? "Running" : !lastRun ? "Not Run" : stale ? "Inputs Changed" : "Up To Date"}
+          </span>
+        )}
       </div>
     </div>
   );

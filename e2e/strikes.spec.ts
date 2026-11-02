@@ -41,12 +41,12 @@ test.describe("Strikes, spreads and per spread option type", () => {
     }
   });
 
-  test("S2 typing 92,625 in Strike Level makes Strike % read 125.00 at a start of 74,100", async ({ inputs }) => {
+  test("S2 typing 92,625 in Strike Level makes Strike % read 125.000 at a start of 74,100", async ({ inputs }) => {
     await inputs.goto();
     await inputs.fill("spot", "73598.67");
     await inputs.fill("strikePercents-2", "126");
     await inputs.fill("strikeLevel-2", "92625");
-    await expect(inputs.field("strikePercents-2")).toHaveValue("125.00");
+    await expect(inputs.field("strikePercents-2")).toHaveValue("125.000");
   });
 
   test("S3 spot 80,000 makes Strike Level 1 read 110,285", async ({ inputs }) => {

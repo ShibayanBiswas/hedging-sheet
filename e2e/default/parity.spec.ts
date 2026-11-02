@@ -15,8 +15,8 @@ test.describe("Default Values parity", () => {
   test("D1 on load every field is filled, the spot is the mock close and the date is today in India", async ({ page, inputs }) => {
     await inputs.goto();
     await expect(page.getByTestId("mode-default")).toHaveAttribute("aria-selected", "true");
-    await expect(inputs.field("spot")).toHaveValue("76835.78");
-    await expect(inputs.field("valuationDate")).toHaveValue("2026-10-28");
+    await expect(inputs.field("spot")).toHaveValue("76,835.78");
+    await expect(inputs.field("valuationDate")).toHaveValue("28-Oct-2026");
     const empty = await page.locator('main input[data-testid^="input-"]:not([type="checkbox"])').evaluateAll((els) =>
       els.filter((e) => !(e as HTMLInputElement).value && !["input-participations-1", "input-newStrike"].includes((e as HTMLInputElement).dataset.testid ?? "")).map((e) => (e as HTMLInputElement).dataset.testid),
     );
