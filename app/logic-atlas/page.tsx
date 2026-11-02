@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ArrowUpRight, Brain, CheckCircle2, Clock, LineChart, Network, TriangleAlert } from "lucide-react";
 
 import { StageCard } from "@/components/atlas/stage-card";
-import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
 import { Panel, SectionTitle } from "@/components/ui/panel";
+import { TabActions } from "@/components/ui/tab-actions";
 import { useDesk } from "@/lib/context/desk-provider";
 import { fmtRunStamp } from "@/lib/format";
 import { underlyingName } from "@/lib/inputs/draft";
@@ -26,18 +26,17 @@ export default function LogicAtlasPage() {
   return (
     <div className="intel-page flex w-full flex-col gap-4">
       <header className="intel-hero">
-        <div className="relative z-10 flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
+        <div className="tab-heading relative z-10">
+          <div className="tab-heading-title">
             <p className="intel-hero-kicker">Anand Rathi Wealth · Desk Intelligence</p>
             <h1 className="intel-hero-title">Logic Atlas</h1>
           </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
+          <TabActions tab="logic-atlas">
             <span className={cn("hs-chip", staleInputs && "hs-chip-maroon")} data-testid="atlas-status">
               <StatusIcon className="icon-xs" aria-hidden />
               {status}
             </span>
-            <DownloadPdfButton tab="logic-atlas" />
-          </div>
+          </TabActions>
         </div>
         <p className="intel-hero-sub relative z-10">
           How the {underlyingName(inputs)} product flows from the inputs through pricing, the goal seek and the vega hedge to the margin and the payoff.

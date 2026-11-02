@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
+import { TabActions } from "@/components/ui/tab-actions";
 import type { ExportTab } from "@/lib/exports/tab-specs";
 import { cn } from "@/lib/cn";
 
@@ -52,20 +52,15 @@ export function SectionTitle({
   );
 }
 
-export function PageIntro({ title, subtitle, aside, tab }: { title: string; subtitle?: string; aside?: ReactNode; tab?: ExportTab }) {
+export function PageIntro({ title, subtitle, tab }: { title: string; subtitle?: string; tab: ExportTab }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div>
+    <div className="tab-heading mb-4">
+      <div className="tab-heading-title">
         <p className="label-chip">Hedging Sheet</p>
         <h1 className="mt-1 font-bold tracking-tight text-ink text-h1">{title}</h1>
         {subtitle ? <p className="mt-1 max-w-3xl font-ui text-body text-muted">{subtitle}</p> : null}
       </div>
-      {aside || tab ? (
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-          {aside}
-          {tab ? <DownloadPdfButton tab={tab} /> : null}
-        </div>
-      ) : null}
+      <TabActions tab={tab} />
     </div>
   );
 }

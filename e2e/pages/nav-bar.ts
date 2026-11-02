@@ -14,13 +14,13 @@ const PATHS: Record<TabId, RegExp> = {
   "logic-atlas": /\/logic-atlas$/,
 };
 
-/** The top navigation and the Excel download. */
+/** The top navigation, and the Excel download in the heading row of the open tab. */
 export class NavBar {
   readonly downloadExcel: Locator;
   readonly underlyingBadge: Locator;
 
   constructor(private readonly page: Page) {
-    this.downloadExcel = page.getByTestId("download-excel");
+    this.downloadExcel = page.getByTestId("tab-actions").getByTestId("download-excel");
     this.underlyingBadge = page.getByTestId("underlying-badge");
   }
 

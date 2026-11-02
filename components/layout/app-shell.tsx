@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, m } from "framer-motion";
-import { Download, FileSpreadsheet, Loader2, Search, Upload } from "lucide-react";
+import { FileSpreadsheet, Search, Upload } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -12,55 +11,8 @@ import { MarketStrip } from "@/components/layout/market-strip";
 import { SiteNav } from "@/components/layout/site-nav";
 import { useDesk } from "@/lib/context/desk-provider";
 import { useSurfaceUpload } from "@/lib/context/surface-upload-provider";
-import { fmtDeskClock } from "@/lib/format";
 import { underlyingName } from "@/lib/inputs/draft";
 import { useScrollRails } from "@/lib/hooks/use-scroll-rails";
-import { cn } from "@/lib/cn";
-
-function DownloadExcelButton() {
-  const { lastRun, staleInputs } = useDesk();
-  const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
-  const disabled = !lastRun || staleInputs || busy;
-  return (
-    <div className="flex items-center gap-2">
-      <AnimatePresence>
-        {status ? (
-          <m.span key={status} className="hs-chip hidden md:inline-flex" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-            {status}
-          </m.span>
-        ) : null}
-      </AnimatePresence>
-      <button
-        type="button"
-        data-testid="download-excel"
-        disabled={disabled}
-        title={!lastRun ? "Run the simulation first" : staleInputs ? "The inputs have changed; run the simulation again" : "Download every tab as one Excel file"}
-        aria-label="Download Excel"
-        className={cn("btn-animated btn-motion btn-primary btn-compact", disabled && "pointer-events-none opacity-50")}
-        onClick={async () => {
-          if (!lastRun) return;
-          setBusy(true);
-          setStatus(null);
-          try {
-            const { downloadHedgingExcel } = await import("@/lib/excel/excel-runtime");
-            setStatus(`Saved ${await downloadHedgingExcel(lastRun.result, { market: lastRun.market, runAt: fmtDeskClock(new Date(lastRun.at)) })}`);
-          } catch {
-            setStatus("Download Failed");
-          } finally {
-            setBusy(false);
-            window.setTimeout(() => setStatus(null), 5_000);
-          }
-        }}
-      >
-        <span className="relative z-10 inline-flex items-center gap-2">
-          {busy ? <Loader2 className="icon-xs animate-spin" /> : <Download className="icon-xs" />}
-          <span className="hidden xl:inline">Download Excel</span>
-        </span>
-      </button>
-    </div>
-  );
-}
 
 /** Unwinding style header upload shortcut. */
 function HeaderUploadShortcut() {
@@ -139,7 +91,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <kbd className="hidden rounded border border-stone-200 px-1 font-mono text-caption text-stone-600 xl:inline">Ctrl K</kbd>
             </button>
             <HeaderUploadShortcut />
-            <DownloadExcelButton />
           </div>
         </div>
         <SiteNav />

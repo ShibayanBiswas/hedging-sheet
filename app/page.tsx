@@ -6,8 +6,8 @@ import { Eraser, RotateCcw } from "lucide-react";
 
 import { InputGroups } from "@/components/inputs/input-sections";
 import { InputModeSwitch } from "@/components/inputs/input-mode-switch";
-import { DownloadPdfButton } from "@/components/ui/download-pdf-button";
 import { RunSimulationButton } from "@/components/ui/run-simulation-button";
+import { TabActions } from "@/components/ui/tab-actions";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
@@ -45,16 +45,17 @@ export default function InputsPage() {
     <div className="inputs-page -mb-6 flex w-full flex-col gap-2">
       <div className="inputs-intro">
         <h1 className="font-bold tracking-tight text-ink text-h1">Inputs</h1>
-        <div className="order-last w-full sm:order-none sm:w-auto sm:min-w-0 sm:max-w-md sm:flex-1">
+        <div className="inputs-mode">
           <InputModeSwitch />
         </div>
-        <DownloadPdfButton tab="inputs" className="ml-auto sm:ml-0" />
-        <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" onClick={resetInputs} data-testid="reset-inputs">
-          <span className="relative z-10 inline-flex items-center gap-2">
-            {mode === "default" ? <RotateCcw className="icon-sm" /> : <Eraser className="icon-sm" />}
-            {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
-          </span>
-        </button>
+        <TabActions tab="inputs">
+          <button type="button" className="btn-animated btn-motion btn-ghost btn-compact tab-action" onClick={resetInputs} data-testid="reset-inputs">
+            <span className="relative z-10 inline-flex items-center gap-2">
+              {mode === "default" ? <RotateCcw className="icon-sm" aria-hidden /> : <Eraser className="icon-sm" aria-hidden />}
+              {mode === "default" ? "Reset To Defaults" : "Clear All Inputs"}
+            </span>
+          </button>
+        </TabActions>
       </div>
       <InputGroups />
       <div className="hs-run-bar">

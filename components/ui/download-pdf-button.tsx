@@ -7,10 +7,9 @@ import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { useDesk } from "@/lib/context/desk-provider";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { EXPORT_TABS, type ExportTab } from "@/lib/exports/tab-specs";
-import { cn } from "@/lib/cn";
 
 /** Download the whole tab as a PDF. Output tabs need a current run; Inputs, Market Data and Logic Atlas download any time. */
-export function DownloadPdfButton({ tab, className }: { tab: ExportTab; className?: string }) {
+export function DownloadPdfButton({ tab }: { tab: ExportTab }) {
   const { inputs, market, lastRun, staleInputs } = useDesk();
   const { toast } = useDeskDialog();
   const [busy, setBusy] = useState(false);
@@ -23,7 +22,7 @@ export function DownloadPdfButton({ tab, className }: { tab: ExportTab; classNam
       data-testid={`download-pdf-${tab}`}
       disabled={disabled}
       title={disabled && !busy ? "Run the simulation first" : `Download ${meta.name} As A PDF`}
-      className={cn("btn-animated btn-motion btn-ghost btn-compact inline-flex shrink-0 items-center gap-2", className)}
+      className="btn-animated btn-motion btn-ghost btn-compact tab-action"
       onClick={async () => {
         setBusy(true);
         try {
