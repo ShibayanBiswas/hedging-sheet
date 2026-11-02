@@ -23,6 +23,14 @@ export function ungroup(text: string): string | null {
   return text.replace(/,/g, "");
 }
 
+/** The decimals that print these typed values without rounding one away: from `least`, their usual look, up to MAX_DECIMALS. */
+export function fullDigits(values: number[], least = 2): number {
+  const fits = (d: number) => values.every((v) => !Number.isFinite(v) || Math.abs(v - Number(v.toFixed(d))) < 1e-9);
+  let d = least;
+  while (d < MAX_DECIMALS && !fits(d)) d += 1;
+  return d;
+}
+
 function places(digits: number): number {
   return Math.max(0, Math.min(MAX_DECIMALS, Math.round(digits)));
 }

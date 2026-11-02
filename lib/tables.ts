@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/engine/dates";
 import { deriveTerms } from "@/lib/engine/structure";
 import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg, StrikeSide } from "@/lib/engine/types";
-import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, numberText, percentText, type Display } from "@/lib/format";
+import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, fullDigits, numberText, percentText, type Display } from "@/lib/format";
 
 function optionTypeLabel(type: OptionType): string {
   return type === "C" ? "Call" : "Put";
@@ -168,6 +168,8 @@ function headlineTable(id: string, title: string, items: Item[]): TableSpec {
 }
 
 const pct = (key: string, label: string, digits = 2): Column => ({ key, label, kind: "percent", digits });
+/** A percent that comes straight from a typed value: its usual look, widened so none of it is rounded away. */
+const typedPct = (v: number, least = 0) => fullDigits([v * 100], least);
 const cr = (key: string, label: string, digits = 2): Column => ({ key, label, kind: "crore", digits });
 const num = (key: string, label: string, digits = 2): Column => ({ key, label, kind: "number", digits });
 const date = (key: string, label: string): Column => ({ key, label, kind: "date" });
@@ -175,7 +177,7 @@ const text = (key: string, label: string): Column => ({ key, label, kind: "text"
 
 /** "137% · 105,901": the Pricer strike band label. */
 export function strikeLabel(percent: number, strike: number): string {
-  return `${fmtNumber(percent, Number.isInteger(percent) ? 0 : 2)}% · ${fmtNumber(strike, 0)}`;
+  return `${fmtNumber(percent, fullDigits([percent], Number.isInteger(percent) ? 0 : 2))}% · ${fmtNumber(strike, 0)}`;
 }
 
 // ------------------------------------------------------------------ Headlines, shared by the pages and Excel
@@ -344,7 +346,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
       title: `Options Details For ₹${fmtNumber(i.notionalCr, 0)} Crore`,
       columns: [
         num("strike", "Strike", 0),
-        pct("strikePercent", "Strike %", 0),
+        pct("strikePercent", "Strike %", fullDigits(s.legs.map((l) => l.strikePercent), 0)),
         text("option", "Option Type"),
         text("side", "Buy Or Sell"),
         num("units", "Units"),
@@ -432,16 +434,27 @@ export function pricerPayoutTable(r: HedgingResult): KeyValueSpec {
     id: "pricer-payout",
     title: "Payout Construction",
     items: [
-      { label: "Total Coupon", value: h.coupon, kind: "percent", digits: 1 },
+      { label: "Total Coupon", value: h.coupon, kind: "percent", digits: typedPct(h.coupon, 1) },
       ...h.spreadPayouts.map((p, j): Item => ({ label: `Payout From Spread ${j + 1}`, value: p, kind: "percent", digits: 3 })),
       { label: "Decay", value: r.inputs.decay, kind: "number" },
-      { label: "Protection Till", value: deriveTerms(r.inputs).protection, kind: "percent", digits: 0 },
+      { label: "Protection Till", value: deriveTerms(r.inputs).protection, kind: "percent", digits: typedPct(deriveTerms(r.inputs).protection) },
       { label: "Loss At The Protection Point", value: h.protectionLoss, kind: "percent", digits: 1 },
     ],
   };
 }
 
-type Field<T> = { label: string; kind: CellKind; digits?: number; pick: (l: T, r: HedgingResult) => CellValue };
+type Field<T> = {
+  label: string;
+  kind: CellKind;
+  digits?: number;
+  /** A surface parameter typed on Market Data, passed through as it is: `digits` is its usual look, widened for the decimals it holds. */
+  typed?: boolean;
+  pick: (l: T, r: HedgingResult) => CellValue;
+};
+
+function fieldDigits<T>(f: Field<T>, values: CellValue[]): number | undefined {
+  return f.typed ? fullDigits(values.map((v) => (typeof v === "number" ? v * 100 : NaN)), f.digits) : f.digits;
+}
 
 /** Pricer column A, rows 18 to 62, in sheet order. Shared by the leg grid and the Day 1 price grids. */
 const OPTION_FIELDS: Array<Field<OptionPricing>> = [
@@ -460,7 +473,7 @@ const OPTION_FIELDS: Array<Field<OptionPricing>> = [
   { label: "Dividends", kind: "percent", digits: 4, pick: (l) => l.dividends },
   { label: "Forward", kind: "number", pick: (l) => l.forward },
   { label: "Volatility", kind: "percent", pick: (l) => l.volatility },
-  { label: "Volatility Bump", kind: "percent", digits: 1, pick: (l) => l.volBump },
+  { label: "Volatility Bump", kind: "percent", digits: 1, typed: true, pick: (l) => l.volBump },
   { label: "Bid Or Offer", kind: "text", pick: (l) => (l.bidOffer === "B" ? "Bid" : "Offer") },
   { label: "Price In Rupees", kind: "number", pick: (l) => l.price },
   { label: "Price As %", kind: "percent", pick: (l) => l.pricePercent },
@@ -468,11 +481,11 @@ const OPTION_FIELDS: Array<Field<OptionPricing>> = [
 
 const MARGIN_FIELDS: Array<Field<PricerLeg>> = [
   { label: "Incremental Margin", kind: "percent", digits: 1, pick: (l) => l.incrementalMargin },
-  { label: "Incremental Margin Cost", kind: "percent", digits: 1, pick: (l) => l.incrementalMarginCost },
+  { label: "Incremental Margin Cost", kind: "percent", digits: 1, typed: true, pick: (l) => l.incrementalMarginCost },
   { label: "Incremental Cost In Rupees", kind: "number", pick: (l) => l.incrementalCostInr },
   { label: "Incremental Margin Adjusted Price", kind: "number", pick: (l) => l.incrementalAdjustedPrice },
   { label: "Full Margin", kind: "percent", digits: 1, pick: (l) => l.fullMargin },
-  { label: "Full Margin Cost", kind: "percent", digits: 1, pick: (l) => l.fullMarginCost },
+  { label: "Full Margin Cost", kind: "percent", digits: 1, typed: true, pick: (l) => l.fullMarginCost },
   { label: "Full Cost In Rupees", kind: "number", pick: (l) => l.fullCostInr },
   { label: "Full Margin Adjusted Price", kind: "number", pick: (l) => l.fullAdjustedPrice },
   { label: "Spread", kind: "number", pick: (l) => l.units },
@@ -518,7 +531,7 @@ export function pricerGrid(r: HedgingResult): GridSpec {
     rows: PRICER_FIELDS.map((f) => ({
       label: f.label,
       kind: f.kind,
-      digits: f.digits,
+      digits: fieldDigits(f, legs.map((l) => f.pick(l, r))),
       values: legs.map((l) => f.pick(l, r)),
       overridden: f.label === "Volatility" ? legs.map((l) => l.volOverridden) : undefined,
       surface: f.label === "Volatility" ? legs.map((l) => l.surfaceVolatility) : undefined,
@@ -540,19 +553,19 @@ function termSheet(r: HedgingResult): KeyValueSpec {
     { label: "Tenor", value: `${fmtNumber(i.tenorDays, 0)} Days`, kind: "text" },
     { label: `Start ${u} Level`, value: r.structure.startLevel, kind: "number", digits: 0 },
     { label: "Maximum Coupon", value: i.coupon, kind: "percent" },
-    { label: `Target ${u} Rise`, value: terms.target, kind: "percent", digits: 0 },
+    { label: `Target ${u} Rise`, value: terms.target, kind: "percent", digits: typedPct(terms.target) },
   ];
   terms.spreads.forEach((s, j) => {
     items.push({
       label: `Spread ${j + 1}`,
-      value: `${fmtPercent(s.buy, 0)} To ${fmtPercent(s.sell, 0)} At ${fmtNumber(s.participation, 2)} Times`,
+      value: `${fmtPercent(s.buy, typedPct(s.buy))} To ${fmtPercent(s.sell, typedPct(s.sell))} At ${fmtNumber(s.participation, 2)} Times`,
       kind: "text",
     });
   });
   items.push(
-    { label: "Capital Protection", value: `Down To ${fmtPercent(-terms.protection, 0)}`, kind: "text" },
+    { label: "Capital Protection", value: `Down To ${fmtPercent(-terms.protection, typedPct(terms.protection))}`, kind: "text" },
     { label: "Downside Decay", value: `${fmtNumber(i.decay, 2)} Times Below Protection`, kind: "text" },
-    { label: "Decay Floor", value: `${fmtPercent(terms.floorLevel, 0)} Of Start Level`, kind: "text" },
+    { label: "Decay Floor", value: `${fmtPercent(terms.floorLevel, typedPct(terms.floorLevel))} Of Start Level`, kind: "text" },
     { label: "Option Type", value: strikeTypesLabel(i.strikeOptionTypes), kind: "text" },
     { label: "Observation Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
     { label: "Client Internal Rate Of Return", value: r.productDescription.irr, kind: "percent" },
@@ -617,7 +630,7 @@ export function productTables(r: HedgingResult): {
         { label: "Weighted Average Forward", value: g.rhoWeightedForward, kind: "percent" },
         { label: "Rho In Crore", value: g.rhoCr, kind: "crore" },
         { label: "Leverage", value: g.leverage, kind: "number" },
-        { label: "Target Level", value: g.targetLevel, kind: "percent", digits: 0 },
+        { label: "Target Level", value: g.targetLevel, kind: "percent", digits: typedPct(g.targetLevel) },
       ],
       note: "Residual Futures To Be Done is Total Delta Required less Options Delta. The hedge quantity is negative because the options are sold.",
     },
@@ -738,7 +751,7 @@ export function vegaHedgePriceTable(r: HedgingResult, block: "fair" | "exchange"
     id: `d1-${block}`,
     title,
     note,
-    columns: [pct("move", "Move", 0), ...HEDGE_FIELDS.map((f, k) => ({ key: fieldKey(k), label: f.label, kind: f.kind, digits: f.digits }))],
+    columns: [pct("move", "Move", 0), ...HEDGE_FIELDS.map((f, k) => ({ key: fieldKey(k), label: f.label, kind: f.kind, digits: fieldDigits(f, rows.map((h) => f.pick(h, r))) }))],
     rows: rows.map((h) => ({ move: h.move, ...Object.fromEntries(HEDGE_FIELDS.map((f, k) => [fieldKey(k), f.pick(h, r)])) })),
     highlightRow: rows.findIndex((h) => h.move === 0),
   };

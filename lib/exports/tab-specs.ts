@@ -5,7 +5,7 @@ import { EXPIRY_WEEKDAY, medianExpiryIndex, WEEKDAY_NAMES } from "@/lib/engine/s
 import { deriveTerms, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
 import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
-import { MAX_DECIMALS } from "@/lib/format";
+import { fullDigits } from "@/lib/format";
 import { inputHash } from "@/lib/input-hash";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { atlasInsights, atlasOutputs, atlasStages, type VolHistory } from "@/lib/logic-atlas";
@@ -28,14 +28,6 @@ export type ExportContext = {
 
 const num = (v: number): CellValue => (Number.isFinite(v) ? v : null);
 const text = (v: string | null | undefined): CellValue => (v ? v : null);
-
-/** The decimals that print these field values without rounding one away: from `least`, their usual look, up to MAX_DECIMALS. */
-function fullDigits(values: number[], least = 2): number {
-  const fits = (d: number) => values.every((v) => !Number.isFinite(v) || Math.abs(v - Number(v.toFixed(d))) < 1e-9);
-  let d = least;
-  while (d < MAX_DECIMALS && !fits(d)) d += 1;
-  return d;
-}
 
 function inFull(item: KeyValueSpec["items"][number]): KeyValueSpec["items"][number] {
   if (typeof item.value !== "number" || (item.kind !== "percent" && item.kind !== "number")) return item;
