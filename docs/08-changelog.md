@@ -1,5 +1,19 @@
 # 08 · Changelog
 
+## Final Round: Inputs Layout Rework, Single Calculated Tag, Output Tabs Kept As Before
+
+| Area | Change |
+|---|---|
+| Inputs | Every group is one full-width card, stacked in fill order. Fields stretch to fill every row, the last row too. Rates, Product Terms and Volatility each fit one row at 1440 px. Headers are one line. This replaces the two column layout and the 4, 3, 2, 1 grid of Round 11 |
+| Expiries | A grid of compact cards with a role chip, the selector first and Hedge Option Expiry last |
+| Strikes And Spreads | Two full-width tables with one segmented toggle per choice and rows of about 40 px; below 700 px they scroll inside their own box. "-" placeholders in Blank Inputs, and one slim row until a count is picked |
+| Dates | Every date field reads 31-Oct-2026, with a calendar button and keyboard entry in the desk or numeric forms. The native date field could not show that format |
+| Status Chips | One per card. This supersedes the Round 11 tag on both Daily and Annual Volatility |
+| Grouping | One international style, 102,202 and 74,151.04, on screen, in the PDF and in Excel, where Round 11 mixed Indian and international grouping. Fields group once they lose focus |
+| Blank Inputs | Locked groups collapse to a slim header until they open |
+| Run Bar | Edge to edge, resting on the footer, with the status chip on the right |
+| Market Data | The surface buttons are back on their own row under the heading text, undoing the Round 11 compaction. Every other output tab kept its structure |
+
 ## Round 12: Logic Atlas Rebuild, Edge Cases And Full Automation Testing
 
 | Area | Change |
