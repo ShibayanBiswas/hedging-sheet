@@ -72,7 +72,8 @@ function bypassFor(url: string): string | undefined {
   return secret;
 }
 
-const LOCAL_PORT = "3000";
+// 3000 by default. Another app on this laptop can hold it, so E2E_PORT moves the whole run, Lighthouse included.
+const LOCAL_PORT = process.env.E2E_PORT ?? "3000";
 const local = { E2E_PROD: "1", E2E_PORT: LOCAL_PORT, REPORT_DIR: dir };
 
 const STATIC: Step[] = [
@@ -147,7 +148,7 @@ function freeLocalPort(): string {
 
 const otherApp = freeLocalPort();
 if (otherApp) {
-  console.error(`Port ${LOCAL_PORT} belongs to another app, process ${otherApp}. It was left running; stop it and run this again.`);
+  console.error(`Port ${LOCAL_PORT} belongs to another app, process ${otherApp}. It was left running; stop it or set E2E_PORT to a free port, then run this again.`);
   process.exit(2);
 }
 
