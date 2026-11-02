@@ -193,6 +193,8 @@ for (const width of [390, 1440]) {
           });
         }
         await popup.open({ page, inputs });
+        // A click can leave the page behind a popup scrolled by a varying amount.
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
         await settle(page);
         // Only what sits behind a popup: a mask paints on top, so a mask on a field would cover the popup itself. The mock spot and clock are fixed.
         await expect(page).toHaveScreenshot(`popup-${width}-${popup.name}.png`, { mask: [page.getByTestId("market-strip"), page.getByTestId("desk-footer")] });
