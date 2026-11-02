@@ -14,6 +14,15 @@ export const MAX_DECIMALS = 3;
 /** One grouping style everywhere: 102,202 and 74,151.04, on screen, in the PDF and in Excel. */
 export const NUMBER_LOCALE = "en-US";
 
+/**
+ * Typed text without its grouping commas, or null when a comma cannot be grouping. The last comma must have exactly 3 digits
+ * after it and sit before any decimal point: 74,151.04 and 1,02,202 read as numbers; 6,5 is a decimal comma, not 65.
+ */
+export function ungroup(text: string): string | null {
+  if (text.includes(",") && !/^[^.]*,\d{3}(\.\d*)?$/.test(text)) return null;
+  return text.replace(/,/g, "");
+}
+
 function places(digits: number): number {
   return Math.max(0, Math.min(MAX_DECIMALS, Math.round(digits)));
 }

@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/engine/dates";
 import type { VolSurface } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
-import { fmtNumber } from "@/lib/format";
+import { fmtNumber, ungroup } from "@/lib/format";
 import { UNDERLYINGS } from "@/lib/underlyings";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
@@ -45,8 +45,8 @@ function shortDate(ymd: string): string {
 }
 
 function parseVol(text: string): number | null {
-  const raw = text.replace(/[%,\s]/g, "");
-  if (!/^\d*\.?\d+$/.test(raw)) return null;
+  const raw = ungroup(text.replace(/[%\s]/g, ""));
+  if (raw == null || !/^\d*\.?\d+$/.test(raw)) return null;
   const n = Number(raw);
   return n > 0 && n <= MAX_VOL ? n : null;
 }

@@ -7,7 +7,7 @@ import { Calendar, Info, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { deskFade } from "@/lib/motion";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
-import { MAX_DECIMALS, NUMBER_LOCALE } from "@/lib/format";
+import { MAX_DECIMALS, NUMBER_LOCALE, ungroup } from "@/lib/format";
 import { parsePastedDate } from "@/lib/inputs/bulk";
 
 export type FieldCheck = { label: string; message: string; range?: string };
@@ -88,7 +88,7 @@ function toDraft(value: number, kind: NumberKind, digits: number, fixed = false)
 }
 
 function parseDraft(text: string, kind: NumberKind): number | null {
-  const cleaned = text.replace(/[₹,%\s]/g, "");
+  const cleaned = ungroup(text.replace(/[₹%\s]/g, ""));
   if (!cleaned || cleaned === "-" || cleaned === ".") return null;
   if (!/^-?\d*\.?\d+$|^-?\d+\.?$/.test(cleaned)) return null;
   const n = Number(cleaned);
