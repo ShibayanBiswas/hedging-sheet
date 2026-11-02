@@ -441,8 +441,9 @@ textarea {
  * needs no JavaScript to finish, and server and client can never disagree about the visitor's motion preference.
  */
 @keyframes hs-enter {
+  /* Not quite 0: browsers do not count text at opacity 0 as painted, and a fade from 0 would report the page as late. */
   from {
-    opacity: 0;
+    opacity: 0.01;
     transform: translateY(8px);
   }
 }
