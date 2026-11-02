@@ -173,6 +173,8 @@ export function NumberInput({
             onReject?.(reason);
             return;
           }
+          // An unguarded field goes back to its last number once idle, and the message about the bad text goes with it.
+          setBad(false);
           if (!bad && draft.trim()) setDraft(toDraft(value, kind, digits, fixed));
         }}
         onChange={(e) => {
