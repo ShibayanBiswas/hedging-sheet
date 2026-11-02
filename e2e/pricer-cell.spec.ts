@@ -47,4 +47,39 @@ test.describe("Pricer leg volatility cell", () => {
     expect(Object.values(after.overrides)[0]).toBeCloseTo(0.14275, 12);
     expect(after.stale).toBe(false);
   });
+
+  test("Reset brings the surface value back into a typed cell, before and after a run", async ({ page, inputs, nav, outputs }) => {
+    await inputs.goto();
+    await inputs.run();
+    await outputs.pricer.open();
+    const cell = outputs.pricer.gridCell(0);
+    const surface = await cell.inputValue();
+
+    await cell.fill("30");
+    await page.keyboard.press("Tab");
+    await outputs.pricer.resetLegVols.click();
+    await expect(cell).toHaveValue(surface);
+
+    await cell.fill("30");
+    await page.keyboard.press("Tab");
+    await nav.go("inputs");
+    await inputs.run();
+    await outputs.pricer.open();
+    await expect(cell).toHaveValue("30.00");
+    await outputs.pricer.resetLegVols.click();
+    await expect(cell).toHaveValue(surface);
+    expect((await deskState(page)).overrides).toEqual({});
+  });
+
+  test("6,5 goes back to the value the cell had and stores nothing", async ({ page, inputs, outputs }) => {
+    await inputs.goto();
+    await inputs.run();
+    await outputs.pricer.open();
+    const cell = outputs.pricer.gridCell(0);
+    const surface = await cell.inputValue();
+    await cell.fill("6,5");
+    await page.keyboard.press("Tab");
+    await expect(cell).toHaveValue(surface);
+    expect(await deskState(page)).toEqual({ overrides: {}, stale: false });
+  });
 });

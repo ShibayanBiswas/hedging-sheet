@@ -169,6 +169,8 @@ export type StrikeSlot = {
 };
 
 export type PricerLeg = OptionPricing & {
+  /** What the surface gives this leg, whether or not it is overridden; the Pricer cell goes back to it on a reset. */
+  surfaceVolatility: number;
   strikePercent: number;
   blockIndex: number;
   expiryIndex: number;

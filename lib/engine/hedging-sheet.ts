@@ -254,7 +254,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const pricerGrowth = options?.forwardGrowth ?? forwardSellRateForMonth(surface.pricingParams, inputs.valuationDate);
 
   // ------------------------------------------------------------ Pricer legs
-  type LegSetup = { slotIndex: number; expiryIndex: number; maturity: string; vol: number; volBump: number; overridden: boolean };
+  type LegSetup = { slotIndex: number; expiryIndex: number; maturity: string; vol: number; surfaceVol: number; volBump: number; overridden: boolean };
   const setups: LegSetup[] = [];
   strikes.forEach((slot, blockIndex) => {
     dates.forEach((maturity, expiryIndex) => {
@@ -263,13 +263,13 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       const volBump = lookupVolBump(surface.pricingParams, maturity);
       const surfaceVol = interpolateVolPercent(surface, slot.strike, maturity, underlying, inputs.spot) / 100 + volBump;
       const overridden = typeof override === "number" && Number.isFinite(override);
-      setups.push({ slotIndex: blockIndex, expiryIndex, maturity, vol: overridden ? override : surfaceVol, volBump, overridden });
+      setups.push({ slotIndex: blockIndex, expiryIndex, maturity, vol: overridden ? override : surfaceVol, surfaceVol, volBump, overridden });
     });
   });
 
   /** Prices every leg with the Pricer spot bump J7 applied: B27 = B2 × (1 + J7). */
   const priceBook = (spotBump: number): PricerLeg[] =>
-    setups.map(({ slotIndex, expiryIndex, maturity, vol, volBump, overridden }) => {
+    setups.map(({ slotIndex, expiryIndex, maturity, vol, surfaceVol, volBump, overridden }) => {
       const slot = strikes[slotIndex]!;
       const spot = inputs.spot * (1 + spotBump);
       const curve = readRateCurve(curvePoints, maturity);
@@ -314,6 +314,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       const fullCost = fullMargin != null && marginCost != null ? fullMargin * spot * marginCost * t : null;
       return {
         ...priced,
+        surfaceVolatility: surfaceVol,
         strikePercent: slot.percent,
         blockIndex: slotIndex,
         expiryIndex,

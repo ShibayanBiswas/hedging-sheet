@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useRef, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
@@ -190,9 +190,42 @@ export type GridEdit = {
   overrides: Record<string, number>;
 };
 
+/** One editable cell. It shows what the desk holds, follows any change made elsewhere while idle, and commits on leaving. */
+function GridEditCell({ shown, label, testId, onCommit }: { shown: string; label: string; testId: string; onCommit: (value: number) => void }) {
+  const [draft, setDraft] = useState(shown);
+  const [focused, setFocused] = useState(false);
+  /** What it showed on arrival: leaving it unchanged stores nothing, so a shown value is never rounded into an override. */
+  const shownOnFocus = useRef(shown);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the cell is idle
+    if (!focused) setDraft(shown);
+  }, [shown, focused]);
+
+  return (
+    <input
+      className="w-20 rounded-lg border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-caption tabular-nums outline-none focus:border-gold"
+      inputMode="decimal"
+      aria-label={label}
+      value={draft}
+      data-testid={testId}
+      onChange={(e) => setDraft(e.target.value)}
+      onFocus={(e) => {
+        setFocused(true);
+        shownOnFocus.current = e.target.value;
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        if (e.target.value === shownOnFocus.current) return;
+        const text = e.target.value.replace(/[%\s]/g, "");
+        const n = Number(text);
+        if (text && Number.isFinite(n) && n > 0) onCommit(n / 100);
+      }}
+    />
+  );
+}
+
 export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
-  /** What the focused cell showed on arrival: leaving it unchanged stores nothing, so a shown value is never rounded into an override. */
-  const shownOnFocus = useRef("");
   return (
     <TableFrame testId={`table-${spec.id}`} title={spec.title} note={spec.note}>
       <table className="data-table-premium hs-has-groups min-w-full">
@@ -241,27 +274,13 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                   }
                   const key = spec.columnKeys![i]!;
                   const override = edit.overrides[key];
+                  const surface = row.surface?.[i] ?? v;
                   // An override shows as typed; a surface value has many decimals and keeps its 2.
-                  const shown = override != null ? volText(override * 100).text : typeof v === "number" ? (v * 100).toFixed(2) : "";
+                  const shown = override != null ? volText(override * 100).text : typeof surface === "number" ? (surface * 100).toFixed(2) : "";
                   return (
                     <td key={i} className={cn("hs-edit-cell text-right", overridden && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
                       <div className="flex items-center justify-end gap-2">
-                        <input
-                          className="w-20 rounded-lg border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-2 py-1 text-right font-ui text-caption tabular-nums outline-none focus:border-gold"
-                          inputMode="decimal"
-                          aria-label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`}
-                          defaultValue={shown}
-                          data-testid={`grid-edit-${key}`}
-                          onFocus={(e) => {
-                            shownOnFocus.current = e.target.value;
-                          }}
-                          onBlur={(e) => {
-                            if (e.target.value === shownOnFocus.current) return;
-                            const text = e.target.value.replace(/[%\s]/g, "");
-                            const n = Number(text);
-                            if (text && Number.isFinite(n) && n > 0) edit.onChange(key, n / 100);
-                          }}
-                        />
+                        <GridEditCell shown={shown} label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`} testId={`grid-edit-${key}`} onCommit={(value) => edit.onChange(key, value)} />
                         {overridden ? (
                           <button type="button" className="hs-overridden-badge" onClick={() => edit.onChange(key, null)} title="Reset To The Surface">
                             Overridden ×

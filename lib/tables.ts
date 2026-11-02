@@ -61,7 +61,15 @@ export type GridSpec = {
   corner: [string, string];
   groups: Array<{ label: string; span: number }>;
   columnLabels: string[];
-  rows: Array<{ label: string; kind: CellKind; digits?: number; values: CellValue[]; overridden?: boolean[] }>;
+  rows: Array<{
+    label: string;
+    kind: CellKind;
+    digits?: number;
+    values: CellValue[];
+    overridden?: boolean[];
+    /** What each column holds with no override, for a row that can be overridden. */
+    surface?: number[];
+  }>;
   /** Leg keys, one per column, for per-leg edits. */
   columnKeys?: string[];
 };
@@ -513,6 +521,7 @@ export function pricerGrid(r: HedgingResult): GridSpec {
       digits: f.digits,
       values: legs.map((l) => f.pick(l, r)),
       overridden: f.label === "Volatility" ? legs.map((l) => l.volOverridden) : undefined,
+      surface: f.label === "Volatility" ? legs.map((l) => l.surfaceVolatility) : undefined,
     })),
   };
 }

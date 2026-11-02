@@ -51,9 +51,11 @@ describe("Pricer leg volatility cell", () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange.mock.calls[0]![0]).toBe("leg-1");
     expect(onChange.mock.calls[0]![1]).toBeCloseTo(0.14275, 12);
+    // The desk now holds the override, and the run that follows prices it.
+    const held = { ...edit, overrides: { "leg-1": 0.14275 } };
+    rerender(<GridCard spec={spec(0.142678)} edit={held} />);
     tabThrough(legCell());
-    // The run that follows prices the override: the cell's default text is now rounded, what it shows is not.
-    rerender(<GridCard spec={spec(0.14275, true)} edit={edit} />);
+    rerender(<GridCard spec={spec(0.14275, true)} edit={held} />);
     tabThrough(legCell());
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(legCell().value).toBe("14.275");
