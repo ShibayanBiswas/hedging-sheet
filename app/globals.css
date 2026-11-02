@@ -921,7 +921,18 @@ svg.lucide {
   }
 }
 
-/* Scroll rails: a shadow on each side that still has content to scroll to. */
+/* Phones: the links between Logic Atlas stages and the tips behind an icon are 44 px targets too; fields stack one a row, so a taller label lines up with nothing. */
+@media (pointer: coarse), (max-width: 1023px) {
+  .atlas-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+}
+
+/* Scroll rails: a white fade on each side that still has content to scroll to. */
 :has(> .desk-table-scroll) {
   position: relative;
 }
@@ -933,18 +944,18 @@ svg.lucide {
   bottom: 0;
   top: 0;
   z-index: 45;
-  width: 1.5rem;
+  width: var(--space-8);
   pointer-events: none;
 }
 
 :has(> .desk-table-scroll[data-scroll-left])::before {
   left: 0;
-  background: linear-gradient(to right, rgb(var(--accent-rgb) / 0.18), transparent);
+  background-image: linear-gradient(to right, #ffffff, transparent) !important;
 }
 
 :has(> .desk-table-scroll[data-scroll-right])::after {
   right: 0;
-  background: linear-gradient(to left, rgb(var(--accent-rgb) / 0.18), transparent);
+  background-image: linear-gradient(to left, #ffffff, transparent) !important;
 }
 
 /* The section tabs fade at an edge that has more tabs behind it. */
@@ -1307,6 +1318,20 @@ main:has(.inputs-page),
 .field-tip:hover .field-tip-text,
 .field-tip:focus .field-tip-text {
   display: block;
+}
+
+@media (max-width: 639px) {
+  .field-tip {
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    margin-inline: calc((var(--icon-xs) - var(--touch-target)) / 2);
+  }
+
+  .field-tip-text {
+    top: var(--touch-target);
+  }
 }
 
 /* Holds the calendar popup only: never seen, never in the tab order. */

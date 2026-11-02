@@ -55,7 +55,8 @@ export function PairsTable({ items, testId, title }: { items: PairItem[]; testId
   const perRow = wide ? 4 : medium ? 2 : 1;
   const rows = Array.from({ length: Math.ceil(items.length / perRow) }, (_, r) => items.slice(r * perRow, r * perRow + perRow));
   return (
-    <div className="data-table-premium-wrap" data-testid={testId} tabIndex={0} role="region" aria-label={title}>
+    <div className="relative min-w-0">
+    <div className="data-table-premium-wrap desk-table-scroll" data-testid={testId} tabIndex={0} role="region" aria-label={title}>
       <table className="data-table-premium hs-pairs">
         <colgroup>
           {Array.from({ length: perRow }, (_, i) => (
@@ -92,6 +93,7 @@ export function PairsTable({ items, testId, title }: { items: PairItem[]; testId
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 }

@@ -85,6 +85,7 @@ export function VolSurfaceGrid({
 
   return (
     <div className="flex flex-col gap-2">
+      <div className="relative min-w-0">
       <div className="data-table-premium-wrap desk-table-scroll vol-grid-box" data-testid={testId} tabIndex={0} role="region" aria-label="Volatility Surface">
         <table className={cn("data-table-premium vol-grid min-w-full", editing && "vol-grid--editing")}>
           <thead>
@@ -197,6 +198,7 @@ export function VolSurfaceGrid({
             )}
           </tbody>
         </table>
+      </div>
       </div>
       {!loading && !empty ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-ui text-caption text-muted" data-testid={`${testId}-legend`}>

@@ -515,7 +515,8 @@ function StrikesGroup({ open }: { open: number }) {
       )}
       {k.length ? (
         <>
-        <div className="desk-table-scroll inputs-table-rail mt-2" tabIndex={0} role="region" aria-label="Strikes Table">
+        <div className="relative mt-2 min-w-0">
+        <div className="desk-table-scroll inputs-table-rail" tabIndex={0} role="region" aria-label="Strikes Table">
         <div className="inputs-table" role="table" aria-label="Strikes">
           <div className="strike-row strike-head" role="row">
             {["Strike", "Level %", "Level In Points", "Option Type", "Buy Or Sell", "Units"].map((h) => (
@@ -601,7 +602,9 @@ function StrikesGroup({ open }: { open: number }) {
           </AnimatePresence>
         </div>
         </div>
-        <div className="desk-table-scroll inputs-table-rail mt-2" tabIndex={0} role="region" aria-label="Spreads Table">
+        </div>
+        <div className="relative mt-2 min-w-0">
+        <div className="desk-table-scroll inputs-table-rail" tabIndex={0} role="region" aria-label="Spreads Table">
         <div className="inputs-table" role="table" aria-label="Spreads">
           <div className="spread-row strike-head" role="row">
             {["Spread", "Buy Level %", "Sell Level %"].map((h) => (
@@ -659,6 +662,7 @@ function StrikesGroup({ open }: { open: number }) {
               </div>
             );
           })}
+        </div>
         </div>
         </div>
         </>
