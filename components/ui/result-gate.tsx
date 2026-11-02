@@ -29,7 +29,7 @@ export function ResultGate({ children }: { children: (result: HedgingResult) => 
                 data-testid="stale-banner"
               >
                 <AlertTriangle className="icon-xs" aria-hidden />
-                Inputs Changed
+                Inputs Changed · Run Again
               </p>
             ) : null}
             <span className="mx-auto inline-flex rounded-2xl border border-gold/30 p-3 text-gold-dark">

@@ -771,6 +771,21 @@ textarea:focus-visible {
   }
 }
 
+.nav-tab-pending {
+  position: absolute;
+  inset: auto var(--space-2) 2px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  animation: hs-skeleton-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-tab-pending {
+    animation: none;
+  }
+}
+
 /* The status strip joins the header row from 1024 px; below it the footer and the Run bar carry the status. */
 .market-strip {
   border: 0;
@@ -1619,6 +1634,10 @@ main:has(.inputs-page),
   max-height: min(60dvh, 26rem);
 }
 
+.vol-grid-placeholder {
+  height: min(60dvh, 26rem);
+}
+
 /* The first header row is 14 + 16 + 14 px plus its 2 px rule. */
 .vol-grid thead tr:nth-child(2) th {
   top: calc(2.75rem + 2px);
@@ -1632,10 +1651,6 @@ main:has(.inputs-page),
   font-weight: 600;
   color: var(--ar-maroon);
   background-color: var(--ar-panel);
-}
-
-.vol-grid-placeholder {
-  height: min(60dvh, 26rem);
 }
 
 .vol-grid td.vol-grid-note {

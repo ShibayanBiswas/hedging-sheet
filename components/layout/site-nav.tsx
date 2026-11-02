@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { m, useReducedMotion } from "framer-motion";
 
 import { moveFocusWithArrows } from "@/lib/keyboard";
 import { activeNav, NAV_ITEMS } from "@/lib/navigation";
+/** A faint bar under a tab while its page is on the way: every page is rendered per request, so the wait can be felt. */
+function PendingHint() {
+  const { pending } = useLinkStatus();
+  return pending ? <span className="nav-tab-pending" aria-hidden data-testid="nav-pending" /> : null;
+}
+
 /** Primary SP Dashboard tab bar: pill shell, sliding active pill, icon hover. Tabs share the full width. */
 export function SiteNav() {
   const pathname = usePathname();
@@ -56,6 +62,7 @@ export function SiteNav() {
                     <Icon className="icon-nav" aria-hidden />
                   </span>
                   <span className="relative">{item.label}</span>
+                  <PendingHint />
                 </Link>
               </div>
             );
