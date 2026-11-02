@@ -66,7 +66,8 @@ export function fmtCrore(v: unknown, digits = 2): string {
   return croreText(v, digits).text;
 }
 
-const IST_PARTS = new Intl.DateTimeFormat("en-GB", {
+/** en-US for its short months: en-GB prints Sept, and every date field prints Sep. */
+const IST_PARTS = new Intl.DateTimeFormat("en-US", {
   timeZone: "Asia/Kolkata",
   day: "2-digit",
   month: "short",
