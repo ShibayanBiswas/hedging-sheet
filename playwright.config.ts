@@ -7,7 +7,7 @@ import { bypassTarget } from "./scripts/bypass-target";
  * With BASE_URL set, only the read-only prod projects run against that deployment.
  */
 const external = process.env.BASE_URL;
-/** Protected preview deployments need Vercel's automation bypass; the secret comes from the environment only. */
+/** Protected preview deployments need Vercel's automation bypass; e2e/support/bypass.ts sends it, to that origin only. */
 const bypass = external && bypassTarget(external) === "trusted" ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET : undefined;
 const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
@@ -53,7 +53,6 @@ export default defineConfig({
     acceptDownloads: true,
     timezoneId: "Asia/Kolkata",
     locale: "en-IN",
-    extraHTTPHeaders: bypass ? { "x-vercel-protection-bypass": bypass, "x-vercel-set-bypass-cookie": "true" } : undefined,
   },
   projects: external
     ? [

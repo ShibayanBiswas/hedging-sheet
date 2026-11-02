@@ -1,6 +1,7 @@
 import { test as base, expect } from "@playwright/test";
 
 import { DeskDialog, Footer, InputsPage, LogicAtlasPage, MarketDataPage, NavBar, outputPages } from "./pages";
+import { attachBypass, withBypass } from "./support/bypass";
 
 /** 28-Oct-2026 10:00 IST, the same instant the mock server uses for TEST_NOW. */
 const FROZEN_NOW = "2026-10-28T04:30:00.000Z";
@@ -21,6 +22,11 @@ type DeskFixtures = {
  * Against a live deployment the clock stays real, to match the server.
  */
 export const test = base.extend<DeskFixtures>({
+  context: async ({ context }, use) => {
+    await attachBypass(context);
+    await use(context);
+  },
+  request: async ({ request }, use) => use(withBypass(request)),
   page: async ({ page }, use) => {
     if (!process.env.BASE_URL) await page.clock.setFixedTime(new Date(FROZEN_NOW));
     await use(page);

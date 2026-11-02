@@ -10,7 +10,10 @@ permissions:
 jobs:
   test-vercel:
     name: Read-Only Tests Against The Preview
-    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment != 'Production'
+    if: >-
+      github.event.deployment.creator.login == 'vercel[bot]' &&
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment != 'Production'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /** Production and this project's previews on Vercel: the only hosts that may receive the bypass secret. */
-const TRUSTED_HOST = /^hedging-sheet(-[a-z0-9-]+-shibayan-biswas-projects)?\.vercel\.app$/;
+const TRUSTED_HOST = /^hedging-sheet(-[a-z0-9]{9}-shibayan-biswas-projects)?\.vercel\.app$/;
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 
 /**
@@ -20,6 +20,26 @@ export function bypassTarget(rawUrl: string): "trusted" | "local" | "refused" {
   if (url.protocol === "https:" && !url.port && TRUSTED_HOST.test(url.hostname)) return "trusted";
   if (url.protocol === "http:" && LOCAL_HOSTS.includes(url.hostname)) return "local";
   return "refused";
+}
+
+/** The bypass headers for one request: only when its origin is exactly the deployment's, so no other site ever sees them. */
+export function bypassHeaders(requestUrl: string, base: string, secret: string): Record<string, string> {
+  if (new URL(requestUrl, base).origin !== new URL(base).origin) return {};
+  return { "x-vercel-protection-bypass": secret, "x-vercel-set-bypass-cookie": "true" };
+}
+
+/** fetch keeps custom headers across a redirect to another site, so redirects are followed here, within the deployment only. */
+export async function bypassFetch(url: string, base: string, secret: string | undefined, init: RequestInit = {}): Promise<Response> {
+  let target = url;
+  for (let hops = 0; ; hops += 1) {
+    const headers = { ...(init.headers as Record<string, string>), ...(secret ? bypassHeaders(target, base, secret) : {}) };
+    const res = await fetch(target, { ...init, headers, redirect: "manual" });
+    const location = res.status >= 300 && res.status < 400 ? res.headers.get("location") : null;
+    if (!location || hops === 5) return res;
+    const next = new URL(location, target);
+    if (next.origin !== new URL(base).origin) return res;
+    target = next.href;
+  }
 }
 
 /**

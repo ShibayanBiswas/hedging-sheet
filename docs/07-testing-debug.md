@@ -122,13 +122,13 @@ A push or pull request to `main` runs one short job. Everything longer is starte
 |---|---|---|
 | `ci.yml` | A push or pull request to `main`, unless it only touches `docs/**`, markdown or screenshots; a newer push cancels the run it replaces | Typecheck, lint, Vitest without coverage (unit, golden and property tests, not the API layer) and the build |
 | `production-smoke.yml` | After `ci.yml` succeeds on a push to `main`, and on demand. No schedule; a failed or cancelled CI run does not smoke production | `npm run test:vercel -- --smoke`: five Chromium checks against production; opens a GitHub issue when it fails |
-| `vercel-preview.yml` | Each successful preview deployment | `npm run test:vercel` against the preview, with the tests from the default branch |
+| `vercel-preview.yml` | Each successful preview deployment that Vercel reports to GitHub. Vercel posts no such events to this repository today, so it does not run until that changes | `npm run test:vercel` against the preview, with the tests from the default branch |
 | `full-checks.yml` | On demand | `npm run test:all` in the Playwright Linux image, with coverage, knip, the workbook audit and every browser, uploading `reports/`; and `npm run verify:yahoo` against live Yahoo |
 | `playwright.yml` | On demand | Playwright in mock mode against the production build, on Chromium by default; the form can select every browser or the full width list |
 | `visual.yml` | On demand | The Linux visual baselines, in the Playwright image |
 | `lighthouse.yml` | On demand | The desktop and mobile Lighthouse budgets |
 
-The bypass secret is in the repository secrets, so a workflow that holds it runs only code from the default branch: it never checks out a deployed commit or a pull request, it has a read-only token with no saved credentials, and the secret is set on the one step that runs the tests, not on `npm ci`.
+The bypass secret is in the repository secrets, so a workflow that holds it runs only code from the default branch: it never checks out a deployed commit or a pull request, it has a read-only token with no saved credentials, and the secret is set on the one step that runs the tests, not on `npm ci`. `e2e/support/bypass.ts` and `scripts/bypass-target.ts` attach the header only to requests whose origin is exactly the deployment's, and redirects to another site never carry it.
 
 ## Edge cases
 

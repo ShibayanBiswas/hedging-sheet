@@ -103,7 +103,7 @@ npm run report              # the last Playwright HTML report
 - **Structure and Call tests.** `tests/structure.test.ts` pins the start level, strikes, units and sides; `tests/call.test.ts` checks put-call parity on every leg and that a call strike's futures leg makes the book equal to the all Put book.
 - **CI** on a push or pull request to `main` runs one job: typecheck, lint, Vitest (unit, golden and property tests, no coverage upload) and `next build`. It skips pushes that only change `docs/**`, markdown, or screenshots, and it cancels a run that a newer commit has replaced. Playwright, visual baselines and Lighthouse are not part of that job.
 - **Production smoke** is five Chromium checks against [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app) after that CI job succeeds on `main`, and opens a GitHub issue when it fails. There is no schedule.
-- **Vercel Preview** runs `npm run test:vercel` against each preview once Vercel reports it live.
+- **Vercel Preview** runs `npm run test:vercel` against a preview when Vercel reports it live. Vercel posts no such events to this repository today, so it does not run until that changes.
 
 ### Manual workflows
 

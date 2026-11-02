@@ -6,12 +6,11 @@
  *
  * Skips cleanly when the server is down. Prints names, counts and statuses only, never secrets.
  */
-import { bypassTarget } from "./bypass-target";
+import { bypassFetch, bypassTarget } from "./bypass-target";
 
 const BASE = (process.env.BASE_URL ?? "http://localhost:3005").replace(/\/$/, "");
 const bypass = bypassTarget(BASE) === "trusted" ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET : undefined;
-const get = (url: string, init: RequestInit = {}) =>
-  fetch(url, { ...init, headers: { ...(init.headers as Record<string, string>), ...(bypass ? { "x-vercel-protection-bypass": bypass } : {}) } });
+const get = (url: string, init: RequestInit = {}) => bypassFetch(url, BASE, bypass, init);
 const PAGES = ["/", "/summary", "/pricer", "/product", "/vega-hedge", "/margin", "/market-data", "/logic-atlas"];
 const PHASES = ["pre_open", "open", "closed", "holiday_or_weekend"];
 
