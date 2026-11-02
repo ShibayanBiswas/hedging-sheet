@@ -1,4 +1,0 @@
-/* A whole-page screenshot leaves the sticky Run bar over the middle of the page: it rests at its place in the flow instead. */
-.hs-run-bar {
-  position: static !important;
-}

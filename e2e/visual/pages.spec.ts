@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import type { Page } from "@playwright/test";
 
 import { fillBlank } from "../blank/helpers";
@@ -20,15 +18,17 @@ const VIEWPORTS = [
   { width: 1920, height: 1080 },
 ] as const;
 
-const FULL_PAGE_CSS = path.join(process.cwd(), "e2e", "visual", "full-page.css");
+/** A whole-page screenshot leaves the sticky Run bar over the middle of the page: it rests at its place in the flow instead. */
+const restRunBar = (page: Page) => page.addStyleTag({ content: ".hs-run-bar { position: static !important; }" });
 
 async function shootEveryTab(page: Page, nav: { go: (id: (typeof TAB_IDS)[number]) => Promise<void> }, prefix: string) {
+  await restRunBar(page);
   await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
   for (const id of TAB_IDS) {
     await nav.go(id);
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page);
-    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true, stylePath: FULL_PAGE_CSS });
+    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true });
   }
 }
 
@@ -46,8 +46,9 @@ for (const v of VIEWPORTS) {
     test(`visual baselines ${v.width} Blank Inputs, every tab after a run, and the empty start`, async ({ page, inputs, nav }) => {
       test.setTimeout(360_000);
       await inputs.goto("blank");
+      await restRunBar(page);
       await settle(page);
-      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true, stylePath: FULL_PAGE_CSS });
+      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true });
       await fillBlank(inputs);
       await inputs.run();
       await shootEveryTab(page, nav, `blank-${v.width}`);

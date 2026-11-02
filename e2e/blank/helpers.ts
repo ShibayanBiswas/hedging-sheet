@@ -15,7 +15,8 @@ export function fillValue(testId: string): string | undefined {
  * the cross-browser projects run the flows, keyboard and layout checks.
  */
 export function chromiumOnly(testInfo: TestInfo) {
-  testInfo.skip(testInfo.project.name !== "chromium", "Rule and number checks run once, on desktop Chromium.");
+  // chromium-writes counts: default/parity.spec.ts runs only there, so otherwise its D3 and D4 checks run nowhere.
+  testInfo.skip(!testInfo.project.name.startsWith("chromium"), "Rule and number checks run once, on desktop Chromium.");
 }
 
 /** Blank Inputs with the valid fill typed in, except the given test ids. */
