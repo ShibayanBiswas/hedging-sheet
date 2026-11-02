@@ -242,6 +242,8 @@ export function DateInput({
   const picker = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState(() => dateText(value));
   const [focused, setFocused] = useState(false);
+  /** Typed in since the field took focus: an untouched draft may be older than the value, so it never commits. */
+  const dirty = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle, and put a refused entry back
@@ -250,6 +252,8 @@ export function DateInput({
 
   const commit = () => {
     setFocused(false);
+    if (!dirty.current) return;
+    dirty.current = false;
     const text = draft.trim();
     if (!text) {
       if (value) onCommit("");
@@ -277,7 +281,10 @@ export function DateInput({
         spellCheck={false}
         placeholder="Eg 31-Oct-2026"
         value={draft}
-        onChange={(e) => setDraft(e.target.value)}
+        onChange={(e) => {
+          dirty.current = true;
+          setDraft(e.target.value);
+        }}
         onFocus={() => setFocused(true)}
         onBlur={commit}
         onKeyDown={(e) => {
