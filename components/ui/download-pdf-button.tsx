@@ -33,7 +33,7 @@ export function DownloadPdfButton({ tab }: { tab: ExportTab }) {
             import("@/lib/pdf/tab-pdf-props"),
           ]);
           // The page on screen: a current run matches these inputs, and Market Data shows the market as it is now.
-          const props = tabPdfProps(tab, { result: run?.result ?? null, inputs, market, history: dailyVolStatus, runAt: run?.at ?? null, now: new Date() });
+          const props = tabPdfProps(tab, { result: run?.result ?? null, inputs, market, history: dailyVolStatus, staleRun: Boolean(lastRun && staleInputs), runMarket: run?.market, runAt: run?.at ?? null, now: new Date() });
           const blob = await pdf(createElement(TabPdfDocument, props)).toBlob();
           const name = pdfFileName(tab, inputs.valuationDate, istTodayYmd());
           const url = URL.createObjectURL(blob);

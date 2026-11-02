@@ -24,6 +24,10 @@ export type ExportContext = {
   market: MarketData;
   /** The history behind a calculated daily volatility, which the Logic Atlas names. */
   history?: VolHistory | null;
+  /** A run exists but the inputs have moved on: what waits for a run says so, as the page does. */
+  staleRun?: boolean;
+  /** The market the run used, when `market` is the one on the page now: the Insights quote it, as the page does. */
+  runMarket?: MarketData;
 };
 
 const num = (v: number): CellValue => (Number.isFinite(v) ? v : null);
@@ -206,11 +210,11 @@ function marketDataSpecs(market: MarketData, i: Pick<DeskInputs, "valuationDate"
 
 /** The Logic Atlas tab: Flows, Insights and Outputs, as the page shows them. */
 function logicAtlasSpecs(ctx: ExportContext): AnySpec[] {
-  const run = ctx.result ? { result: ctx.result, market: ctx.market } : null;
+  const run = ctx.result ? { result: ctx.result, market: ctx.runMarket ?? ctx.market } : null;
   const stages = atlasStages(ctx.inputs, run, { market: ctx.market, history: ctx.history });
   const titles = Object.fromEntries(stages.map((s) => [s.id, s.title]));
   const names = (ids: string[]) => (ids.length ? ids.map((id) => titles[id]).join(", ") : null);
-  const pending = "Waiting For Run Simulation";
+  const pending = ctx.staleRun ? "Inputs Changed · Run Again" : "Waiting For Run Simulation";
   const insights = atlasInsights(run);
   return [
     {

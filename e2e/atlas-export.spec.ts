@@ -33,4 +33,20 @@ test.describe("Logic Atlas exports name the volatility source as the page does",
     expect(cells.join(" ")).toMatch(CALCULATED);
     expect(cells.join(" ")).not.toMatch(EDITED);
   });
+
+  test("a stale run reads Inputs Changed in the PDF, as on the page", async ({ page, inputs, nav }) => {
+    await inputs.goto();
+    await inputs.run();
+    await nav.go("inputs");
+    await inputs.fill("coupon", "103");
+    await nav.go("logic-atlas");
+    await expect(page.getByTestId("atlas-status")).toContainText("Inputs Changed");
+
+    const [pdf] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-pdf-logic-atlas").click()]);
+    const parser = new PDFParse({ data: new Uint8Array(fs.readFileSync(await pdf.path())) });
+    const { text } = await parser.getText();
+    await parser.destroy();
+    expect(flat(text)).toContain("Inputs Changed · Run Again");
+    expect(flat(text)).not.toContain("Waiting For Run Simulation");
+  });
 });
