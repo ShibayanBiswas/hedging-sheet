@@ -11,7 +11,7 @@ import type { HedgingResult } from "@/lib/engine/types";
 import { fmtNumber, fmtPercent } from "@/lib/format";
 
 const PAYOFF = "#b8860b";
-const UNDERLYING = "#7a1e2c";
+const UNDERLYING = "var(--accent)";
 
 type TooltipRow = { name?: string; value?: number; color?: string; dataKey?: string };
 

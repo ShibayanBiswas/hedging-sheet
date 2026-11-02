@@ -50,7 +50,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
         animate={{ opacity: 1, scale: 1, y: 0 }}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden shadow-[0_28px_80px_-24px_rgba(17,17,17,0.55)] sm:max-w-xl"
+        className="desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden sm:max-w-xl"
         initial={{ opacity: 0, scale: 0.97, y: -14 }}
         role="dialog"
         transition={deskFade}

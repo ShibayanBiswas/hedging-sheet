@@ -19,8 +19,8 @@ export async function audit(page: Page, where: string, opts: AuditOptions): Prom
       const out: string[] = [];
       const vw = window.innerWidth;
       const token = (name: keyof typeof scale) => {
-        const [min, max] = scale[name];
-        return Math.min(max, Math.max(min, min + ((max - min) * (vw - 320)) / 2240));
+        const [phone, wide] = scale[name];
+        return vw < 640 ? phone : wide;
       };
       const RAILS = ".desk-table-scroll, .nav-pill-shell, .horizontal-rail, .logic-module-rail, [data-scroll-rail]";
       const sel = (el: Element): string => {

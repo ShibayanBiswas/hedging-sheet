@@ -33,16 +33,16 @@ export function contextFor(v: Viewport) {
   return { viewport: { width: v.width, height: v.height }, hasTouch: touch, isMobile: v.kind === "phone" };
 }
 
-/** Token sizes in px, as in app/globals.css: min and max between a 320 px and a 2560 px viewport. */
+/** Token sizes in px, as in app/tokens.css: below 640 px, then from 640 px. */
 export const TYPE_SCALE = {
-  display: [28, 44],
-  h1: [24, 34],
-  h2: [20, 26],
-  h3: [17, 21],
-  body: [14, 16],
+  display: [24, 24],
+  h1: [24, 24],
+  h2: [20, 20],
+  h3: [18, 18],
+  body: [12, 14],
   table: [14, 14],
   "table-head": [11, 11],
-  caption: [12, 13],
+  caption: [12, 12],
   hint: [12, 12],
 } as const;
 

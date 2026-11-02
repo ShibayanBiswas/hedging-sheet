@@ -8,6 +8,7 @@ import { DeskKeyProvider } from "@/lib/context/desk-key-provider";
 import { SurfaceUploadProvider } from "@/lib/context/surface-upload-provider";
 import { DeskProvider } from "@/lib/context/desk-provider";
 
+import "./tokens.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

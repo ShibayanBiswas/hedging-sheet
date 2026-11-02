@@ -1,0 +1,136 @@
+/*
+ * Design tokens: the one place for spacing, type, radius, shadow, the accent, motion and numerals.
+ * Tailwind reads them through tailwind.config.ts, so a class such as p-4, text-h2 or rounded-xl lands here too.
+ * lib/pdf and lib/excel keep their own copies of the brand colours, as a PDF or an Excel file cannot read CSS.
+ */
+:root {
+  /* Spacing: 4, 8, 12, 16, 24 and 32 px, with 48 and 64 px for page level gaps. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Type: body 12 px on phones and 14 px from 640 px; headings 18, 20 and 24 px. */
+  --text-body: 0.75rem;
+  --text-caption: 0.75rem;
+  --text-hint: 0.75rem;
+  --text-h3: 1.125rem;
+  --text-h2: 1.25rem;
+  --text-h1: 1.5rem;
+  --text-display: 1.5rem;
+  /* Primary SP Dashboard tables: 14 px cells under 11 px uppercase headers. */
+  --text-table: 0.875rem;
+  --text-table-head: 0.6875rem;
+  --leading-heading: 1.15;
+  --leading-body: 1.5;
+  --leading-caption: 1.4;
+  --font-serif: "Times New Roman", Times, Georgia, serif;
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+  /* Every number lines up in columns. */
+  --numeric: tabular-nums;
+
+  /* Radius. */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadow: surfaces are told apart by borders, so only Run Simulation and focused or invalid fields have one. */
+  --shadow-run: 0 8px 24px -12px rgba(15, 23, 42, 0.35);
+  --shadow-focus: 0 0 0 2px rgb(var(--accent-rgb) / 0.2);
+  --shadow-invalid: 0 0 0 2px rgb(225 29 72 / 0.3);
+  --ar-shadow: none;
+
+  /* The maroon accent and the gold that goes with it. */
+  --accent: #7a1e2c;
+  --accent-rgb: 122 30 44;
+  --accent-dark: #5a1420;
+  --gold-rgb: 212 178 76;
+  --gold-dark-rgb: 138 101 8;
+  --ar-maroon: var(--accent);
+  --ar-gold: rgb(var(--gold-rgb));
+  --ar-gold-light: #e5cf94;
+  --ar-gold-dark: rgb(var(--gold-dark-rgb));
+
+  /* Motion: 150 to 200 ms, on opacity and transform only. */
+  --motion-fast: 150ms;
+  --motion-base: 180ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Icons and touch. */
+  --icon-xs: 0.875rem;
+  --icon-sm: 1rem;
+  --icon-md: 1.25rem;
+  --icon-lg: 1.5rem;
+  --icon-xl: 2rem;
+  --touch-target: 2.75rem;
+
+  /* Page frame: content stops at 1680 px and centres. The gutter is 16 px on phones, 24 from 768 px, 32 from 1280 px. */
+  --space-section: var(--space-4);
+  --content-max: 105rem;
+  --shell-gutter: var(--space-4);
+  --centre-margin: calc((100vw - var(--content-max)) / 2);
+  --shell-pad: max(var(--shell-gutter), var(--centre-margin));
+
+  /* Colours of the surfaces, all white; they are told apart by a 1 px neutral border. */
+  color-scheme: light;
+  --ar-ink: #111111;
+  --ar-muted: #57534e;
+  --ar-subtle: #78716c;
+  --ar-bg: #ffffff;
+  --ar-surface: #ffffff;
+  --ar-panel: #ffffff;
+  --ar-border: #e7e5e4;
+  --ar-input-bg: #ffffff;
+  --ar-header-bg: #ffffff;
+  --ar-nav-bg: #ffffff;
+  --ar-subnav-bg: #ffffff;
+  --ar-table-head-from: #ffffff;
+  --ar-table-head-to: #ffffff;
+  --ar-table-row: #ffffff;
+  --ar-table-row-alt: #ffffff;
+  --ar-table-row-selected: #ffffff;
+  --ar-mesh-top: #ffffff;
+  --ar-mesh-mid: #ffffff;
+  --ar-mesh-bottom: #ffffff;
+  --ar-chart-bg: #ffffff;
+  --ar-chart-plot: #ffffff;
+  --ar-chart-border: rgba(120, 113, 108, 0.2);
+  --ar-chart-tick: #57534e;
+  --ar-chart-label: #44403c;
+  --neon-cyan: var(--ar-gold);
+  --neon-purple: var(--ar-maroon);
+  --neon-amber: #d9a33b;
+  --neon-green: #16a34a;
+  --heat-rgb: var(--accent-rgb);
+
+  /* Controls on white. */
+  --control-fill: rgba(15, 23, 42, 0.04);
+  --control-fill-hover: rgba(15, 23, 42, 0.08);
+  --control-fill-pressed: rgba(15, 23, 42, 0.12);
+  --control-border: rgba(15, 23, 42, 0.16);
+  --control-text: var(--accent-dark);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --text-body: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --shell-gutter: var(--space-6);
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --shell-gutter: var(--space-8);
+  }
+}

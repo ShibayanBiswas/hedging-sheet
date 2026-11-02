@@ -18,7 +18,9 @@ function sources(): Array<{ file: string; text: string }> {
   return out;
 }
 
-const css = fs.readFileSync("app/globals.css", "utf8");
+const globals = fs.readFileSync("app/globals.css", "utf8");
+const tokens = fs.readFileSync("app/tokens.css", "utf8");
+const css = `${tokens}\n${globals}`;
 /** The class lists the CSS composes with @apply. */
 const cssApplied = (css.match(/@apply[^;]*;/g) ?? []).join("\n");
 
@@ -33,12 +35,14 @@ function hits(re: RegExp): string[] {
   return found;
 }
 
+const OFF_SCALE_SPACING = 10;
+
 const SPACING_PROPS = "p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|gap|gap-x|gap-y|space-x|space-y";
 
 describe("design tokens", () => {
   it("font sizes come only from the type scale", () => {
     expect(hits(/(?<![\w-])text-(?:xs|sm|base|lg|xl|[2-9]xl|\[[\d.]+(?:px|rem|em)\])(?![\w-])/g)).toEqual([]);
-    const declared = [...css.matchAll(/font-size:\s*([^;]+);/g)].map((m) => m[1]!.trim());
+    const declared = [...globals.matchAll(/font-size:\s*([^;]+);/g)].map((m) => m[1]!.trim());
     expect(declared.filter((v) => !/^var\(--text-[a-z-]+\)$|^inherit$/.test(v))).toEqual([]);
   });
 
@@ -68,8 +72,47 @@ describe("design tokens", () => {
     expect(css.match(/\d(?:\.\d+)?vh\b/g) ?? []).toEqual([]);
   });
 
-  it("the tokens cover the type, icon and spacing scales", () => {
-    for (const t of ["display", "h1", "h2", "h3", "body", "table", "table-head", "caption"]) expect(css).toContain(`--text-${t}:`);
-    for (const t of ["xs", "sm", "md", "lg", "xl"]) expect(css).toContain(`--icon-${t}:`);
+  it("one token file holds the spacing, type, radius, shadow, accent, motion and numerals", () => {
+    for (const t of ["display", "h1", "h2", "h3", "body", "table", "table-head", "caption"]) expect(tokens).toContain(`--text-${t}:`);
+    for (const t of ["xs", "sm", "md", "lg", "xl"]) expect(tokens).toContain(`--icon-${t}:`);
+    for (const t of [1, 2, 3, 4, 6, 8]) expect(tokens).toContain(`--space-${t}:`);
+    for (const t of ["xs", "sm", "md", "lg", "full"]) expect(tokens).toContain(`--radius-${t}:`);
+    for (const t of ["--shadow-run:", "--shadow-focus:", "--shadow-invalid:", "--accent:", "--accent-rgb:", "--motion-base:", "--numeric: tabular-nums"]) expect(tokens).toContain(t);
+    expect(tokens).not.toMatch(/clamp\(/);
+  });
+
+  it("the type scale is 12 px body on phones, 14 px from 640 px, and headings of 18, 20 and 24 px", () => {
+    expect(tokens).toMatch(/--text-body: 0\.75rem;/);
+    expect(tokens).toMatch(/@media \(min-width: 640px\) \{\s*:root \{\s*--text-body: 0\.875rem;/);
+    expect(tokens).toContain("--text-h3: 1.125rem;");
+    expect(tokens).toContain("--text-h2: 1.25rem;");
+    expect(tokens).toContain("--text-h1: 1.5rem;");
+  });
+
+  it("the accent, radii and motion are written only in the token file", () => {
+    const tsx = sources().map((f) => f.text).join("\n");
+    expect(globals.match(/#7a1e2c|#5a1420|#5c1520|rgba\(122, 30, 44/gi) ?? []).toEqual([]);
+    expect(tsx.match(/#7a1e2c|#5a1420|#5c1520|rgba\(122,\s*30,\s*44/gi) ?? []).toEqual([]);
+    const radii = [...globals.matchAll(/border-radius:\s*([^;]+);/g)].map((m) => m[1]!.trim());
+    expect(radii.filter((v) => !/^(?:(?:var\(--radius-[a-z]+\)|0)\s*)+$|^inherit$/.test(v))).toEqual([]);
+    expect(tsx.match(/\brounded-\[[^\]]+\]/g) ?? []).toEqual([]);
+  });
+
+  it("transitions move opacity and transform only, for 150 to 200 ms", () => {
+    const transitions = [...globals.matchAll(/transition:\s*([^;]+);/g)].map((m) => m[1]!.trim());
+    expect(transitions.filter((v) => !/^(?:(?:transform|opacity) var\(--motion-(?:fast|base)\)(?: var\(--motion-ease\))?,?\s*)+$/.test(v))).toEqual([]);
+    expect(hits(/(?<=["'`\s])transition(?:-all|-colors)?(?=["'`\s]|$)(?!\s*=)/g)).toEqual([]);
+  });
+
+  /**
+   * Values kept off the scale on purpose: the Primary SP Dashboard table padding that S9 to S11 pin, the 40 px strike rows and the
+   * fine run of the Inputs cards. They only go down: lower this number when one is moved onto the scale.
+   */
+  it("off-scale padding, margins and gaps in globals.css stay at their counted number", () => {
+    const offScale = [...globals.matchAll(/(?:padding|margin|gap)[a-z-]*:\s*([^;]+);/g)]
+      .map((m) => m[1]!)
+      .flatMap((v) => v.match(/(?<![\w.-])\d*\.?\d+(?:rem|px|em)\b/g) ?? [])
+      .filter((v) => parseFloat(v) !== 0);
+    expect(offScale.length).toBeLessThanOrEqual(OFF_SCALE_SPACING);
   });
 });

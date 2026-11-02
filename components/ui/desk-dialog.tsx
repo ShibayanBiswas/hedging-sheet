@@ -68,7 +68,7 @@ export function DeskDialog({ open, state, onClose }: { open: boolean; state: Des
             aria-modal="true"
             data-testid="desk-dialog"
             className={cn(
-              "desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden border border-gold/30 shadow-[0_24px_80px_-20px_rgba(122,30,44,0.45)] sm:max-w-lg",
+              "desk-sheet glass relative z-10 flex w-full flex-col overflow-hidden border border-gold/30 sm:max-w-lg",
               meta.glow === "cyan" ? "glass-glow-cyan" : "glass-glow-purple",
             )}
             exit={reduce ? undefined : { opacity: 0, scale: 0.96, y: 8 }}

@@ -2,88 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /*
-   * Design tokens. Type grows linearly from a 320 px viewport to a 2560 px one:
-   * size = min + (max âˆ’ min) Ã— (100vw âˆ’ 320px) Ã· 2240px, clamped to [min, max].
-   */
-  --text-display: clamp(1.75rem, calc(1.75rem + 16 * (100vw - 20rem) / 2240), 2.75rem);
-  --text-h1: clamp(1.5rem, calc(1.5rem + 10 * (100vw - 20rem) / 2240), 2.125rem);
-  --text-h2: clamp(1.25rem, calc(1.25rem + 6 * (100vw - 20rem) / 2240), 1.625rem);
-  --text-h3: clamp(1.0625rem, calc(1.0625rem + 4 * (100vw - 20rem) / 2240), 1.3125rem);
-  --text-body: clamp(0.875rem, calc(0.875rem + 2 * (100vw - 20rem) / 2240), 1rem);
-  /* Primary SP Dashboard tables: 14 px cells under 11 px uppercase headers. */
-  --text-table: 0.875rem;
-  --text-table-head: 0.6875rem;
-  --text-caption: clamp(0.75rem, calc(0.75rem + 1 * (100vw - 20rem) / 2240), 0.8125rem);
-  /* Helper text under a field: 12 px at every width. */
-  --text-hint: 0.75rem;
-  --leading-heading: 1.15;
-  --leading-body: 1.5;
-  --leading-caption: 1.4;
-  --icon-xs: 0.875rem;
-  --icon-sm: 1rem;
-  --icon-md: 1.25rem;
-  --icon-lg: 1.5rem;
-  --icon-xl: 2rem;
-  --space-section: 1rem;
-  --touch-target: 2.75rem;
-  /* Content stops at 1680 px and centres. The gutter is 16 px on phones, 24 from 768 px, 32 from 1280 px. */
-  --content-max: 105rem;
-  --shell-gutter: 1rem;
-  --centre-margin: calc((100vw - var(--content-max)) / 2);
-  --shell-pad: max(var(--shell-gutter), var(--centre-margin));
-
-  color-scheme: light;
-  --font-serif: "Times New Roman", Times, Georgia, serif;
-  --font-sans: "Segoe UI", system-ui, sans-serif;
-  --ar-gold: #d4b24c;
-  --ar-gold-light: #e5cf94;
-  --ar-gold-dark: #8a6508;
-  --ar-maroon: #7a1e2c;
-  --ar-ink: #111111;
-  --ar-muted: #57534e;
-  --ar-subtle: #78716c;
-  /* Every surface is plain white; surfaces are told apart by a 1 px neutral border. */
-  --ar-bg: #ffffff;
-  --ar-surface: #ffffff;
-  --ar-panel: #ffffff;
-  --ar-border: #e7e5e4;
-  --ar-shadow: none;
-  --ar-input-bg: #ffffff;
-  --ar-header-bg: #ffffff;
-  --ar-nav-bg: #ffffff;
-  --ar-subnav-bg: #ffffff;
-  --ar-table-head-from: #ffffff;
-  --ar-table-head-to: #ffffff;
-  --ar-table-row: #ffffff;
-  --ar-table-row-alt: #ffffff;
-  --ar-table-row-selected: #ffffff;
-  --ar-mesh-top: #ffffff;
-  --ar-mesh-mid: #ffffff;
-  --ar-mesh-bottom: #ffffff;
-  --ar-chart-bg: #ffffff;
-  --ar-chart-plot: #ffffff;
-  --ar-chart-border: rgba(120, 113, 108, 0.2);
-  --ar-chart-tick: #57534e;
-  --ar-chart-label: #44403c;
-  --neon-cyan: var(--ar-gold);
-  --neon-purple: var(--ar-maroon);
-  --neon-amber: #d9a33b;
-  --neon-green: #16a34a;
-}
-
-@media (min-width: 768px) {
-  :root {
-    --shell-gutter: 1.5rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  :root {
-    --shell-gutter: 2rem;
-  }
-}
 
 /* Header, tabs, content, Run bar and footer share these side margins, so they line up at every width. */
 .shell-pad {
@@ -150,25 +68,25 @@ textarea {
 
   .glass-glow-cyan {
     box-shadow:
-      0 0 0 1px rgba(212, 178, 76, 0.2) inset,
-      0 12px 40px -12px rgba(212, 178, 76, 0.2),
+      0 0 0 1px rgb(var(--gold-rgb) / 0.2) inset,
+      0 12px 40px -12px rgb(var(--gold-rgb) / 0.2),
       var(--ar-shadow);
   }
 
   .glass-glow-purple {
     box-shadow:
-      0 0 0 1px rgba(122, 30, 44, 0.12) inset,
-      0 12px 40px -12px rgba(122, 30, 44, 0.1),
+      0 0 0 1px rgb(var(--accent-rgb) / 0.12) inset,
+      0 12px 40px -12px rgb(var(--accent-rgb) / 0.1),
       var(--ar-shadow);
   }
 
   .input-glow {
     background: linear-gradient(180deg, rgba(255, 252, 245, 0.95) 0%, var(--ar-input-bg) 100%);
-    border: 1px solid rgba(212, 178, 76, 0.5);
+    border: 1px solid rgb(var(--gold-rgb) / 0.5);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.7) inset,
-      0 8px 22px -14px rgba(122, 30, 44, 0.35),
-      0 0 0 1px rgba(212, 178, 76, 0.08);
+      0 8px 22px -14px rgb(var(--accent-rgb) / 0.35),
+      0 0 0 1px rgb(var(--gold-rgb) / 0.08);
     color: var(--ar-ink);
   }
 
@@ -176,18 +94,18 @@ textarea {
     outline: none;
     border-color: var(--ar-gold);
     box-shadow:
-      0 0 0 3px rgba(212, 178, 76, 0.22),
-      0 10px 28px -12px rgba(122, 30, 44, 0.35);
+      0 0 0 3px rgb(var(--gold-rgb) / 0.22),
+      0 10px 28px -12px rgb(var(--accent-rgb) / 0.35);
   }
 
   .horizontal-rail {
     scrollbar-width: thin;
-    scrollbar-color: rgba(212, 178, 76, 0.45) transparent;
+    scrollbar-color: rgb(var(--gold-rgb) / 0.45) transparent;
   }
 
   .horizontal-rail::-webkit-scrollbar-thumb {
-    background: rgba(212, 178, 76, 0.45);
-    border-radius: 999px;
+    background: rgb(var(--gold-rgb) / 0.45);
+    border-radius: var(--radius-full);
   }
 
   .rail-card {
@@ -206,7 +124,7 @@ textarea {
 
   .chart-tooltip-animated {
     animation: tooltip-pop 0.2s ease-out;
-    box-shadow: 0 0 32px rgba(212, 178, 76, 0.2);
+    box-shadow: 0 0 32px rgb(var(--gold-rgb) / 0.2);
   }
 
   /* Five Probability KPIs â€” equal columns across the full viewport width */
@@ -221,7 +139,7 @@ textarea {
     overflow-x: auto;
     width: 100%;
     scrollbar-width: thin;
-    scrollbar-color: rgba(212, 178, 76, 0.45) transparent;
+    scrollbar-color: rgb(var(--gold-rgb) / 0.45) transparent;
   }
 
   .horizontal-rail-fill-inner {
@@ -247,7 +165,7 @@ textarea {
     border-color: var(--ar-border);
     background:
       linear-gradient(125deg, #fffefb 0%, #faf7ef 38%, #f3ead4 72%, #ebe0c4 100%);
-    box-shadow: 0 18px 44px -30px rgba(122, 30, 44, 0.14);
+    box-shadow: 0 18px 44px -30px rgb(var(--accent-rgb) / 0.14);
   }
 
   @keyframes intel-orb-drift {
@@ -260,8 +178,8 @@ textarea {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 72% 110% at 98% -8%, rgba(212, 178, 76, 0.22), transparent 58%),
-      radial-gradient(ellipse 40% 80% at 0% 100%, rgba(122, 30, 44, 0.06), transparent 55%);
+      radial-gradient(ellipse 72% 110% at 98% -8%, rgb(var(--gold-rgb) / 0.22), transparent 58%),
+      radial-gradient(ellipse 40% 80% at 0% 100%, rgb(var(--accent-rgb) / 0.06), transparent 55%);
     pointer-events: none;
   }
 
@@ -318,7 +236,7 @@ textarea {
     overflow: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba(212, 178, 76, 0.45) transparent;
+    scrollbar-color: rgb(var(--gold-rgb) / 0.45) transparent;
   }
 
   .data-table-premium-wrap::-webkit-scrollbar {
@@ -331,8 +249,8 @@ textarea {
   }
 
   .data-table-premium-wrap::-webkit-scrollbar-thumb {
-    background: rgba(212, 178, 76, 0.45);
-    border-radius: 999px;
+    background: rgb(var(--gold-rgb) / 0.45);
+    border-radius: var(--radius-full);
   }
 
   .data-table-premium {
@@ -349,7 +267,7 @@ textarea {
     line-height: 1rem;
     background: linear-gradient(180deg, var(--ar-table-head-from) 0%, var(--ar-table-head-to) 100%);
     color: var(--ar-maroon);
-    box-shadow: 0 1px 0 rgba(212, 178, 76, 0.35);
+    box-shadow: 0 1px 0 rgb(var(--gold-rgb) / 0.35);
   }
 
   .data-table-premium thead th.text-right {
@@ -384,7 +302,7 @@ textarea {
   }
 
   .data-table-premium tbody tr:hover td {
-    background: rgba(212, 178, 76, 0.1);
+    background: rgb(var(--gold-rgb) / 0.1);
   }
 
   .vol-grid thead th,
@@ -417,17 +335,17 @@ textarea {
     background: linear-gradient(165deg, var(--ar-chart-bg) 0%, var(--ar-chart-plot) 55%, var(--ar-chart-bg) 100%);
     border-color: var(--ar-chart-border);
     box-shadow:
-      inset 0 1px 0 rgba(212, 178, 76, 0.06),
+      inset 0 1px 0 rgb(var(--gold-rgb) / 0.06),
       0 12px 40px -20px rgba(17, 17, 17, 0.12);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .btn-animated:hover {
-      box-shadow: 0 6px 20px -8px rgba(212, 178, 76, 0.45);
+      box-shadow: 0 6px 20px -8px rgb(var(--gold-rgb) / 0.45);
     }
 
     .btn-animated:active {
-      box-shadow: 0 2px 8px -4px rgba(212, 178, 76, 0.35);
+      box-shadow: 0 2px 8px -4px rgb(var(--gold-rgb) / 0.35);
     }
   }
 
@@ -448,8 +366,8 @@ textarea {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.5rem var(--shell-pad);
+    gap: var(--space-3);
+    padding: var(--space-2) var(--shell-pad);
   }
 
   .brand-title {
@@ -460,7 +378,7 @@ textarea {
 
   .chart-plot-surface {
     background: var(--ar-chart-plot);
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
     overflow: visible;
   }
 
@@ -468,7 +386,7 @@ textarea {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(212, 178, 76, 0.08), transparent 55%);
+    background: radial-gradient(ellipse at 50% 0%, rgb(var(--gold-rgb) / 0.08), transparent 55%);
     pointer-events: none;
   }
 
@@ -531,7 +449,7 @@ textarea {
 }
 
 .hs-enter {
-  animation: hs-enter 180ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: hs-enter var(--motion-base) var(--motion-ease) backwards;
   animation-delay: calc(var(--enter-step, 0) * 30ms);
 }
 
@@ -555,7 +473,7 @@ textarea {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(212, 178, 76, 0.55),
+    rgb(var(--gold-rgb) / 0.55),
     transparent
   );
   background-size: 200% 100%;
@@ -568,7 +486,7 @@ textarea {
 }
 
 .btn-motion {
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease;
+  transition: transform var(--motion-base) var(--motion-ease), opacity var(--motion-base) var(--motion-ease);
 }
 
 .btn-motion:hover:not(:disabled) {
@@ -640,7 +558,7 @@ textarea {
   }
 
   .glass {
-    border-radius: 0.85rem;
+    border-radius: var(--radius-md);
   }
   .market-strip {
     font-size: var(--text-caption);
@@ -666,7 +584,7 @@ textarea {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(110deg, transparent 30%, rgba(212, 178, 76, 0.22) 50%, transparent 70%);
+    background: linear-gradient(110deg, transparent 30%, rgb(var(--gold-rgb) / 0.22) 50%, transparent 70%);
     transform: translateX(-100%);
     animation: hs-recalc-sweep 0.9s ease-out infinite;
   }
@@ -690,7 +608,7 @@ textarea {
     top: 0;
     color: var(--ar-gold-dark);
     text-align: center;
-    border-bottom: 1px solid rgba(212, 178, 76, 0.35);
+    border-bottom: 1px solid rgb(var(--gold-rgb) / 0.35);
   }
 
   /* The group row is 14 + 16 + 14 px plus its 1 px rule. */
@@ -757,13 +675,13 @@ textarea {
     display: flex;
     width: 100%;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
     background: #ffffff;
   }
 
   .hs-overridden-cell {
-    box-shadow: inset 0 0 0 2px rgba(212, 178, 76, 0.65);
+    box-shadow: inset 0 0 0 2px rgb(var(--gold-rgb) / 0.65);
   }
 
   .hs-overridden-badge {
@@ -784,13 +702,13 @@ textarea {
   }
 
   .hs-input:focus {
-    border-color: rgba(212, 178, 76, 0.9);
+    border-color: rgb(var(--gold-rgb) / 0.9);
   }
 
   .hs-output {
     @apply rounded-2xl border px-4 py-3 font-ui text-body font-bold tabular-nums;
-    border-color: rgba(212, 178, 76, 0.35);
-    background: linear-gradient(135deg, rgba(212, 178, 76, 0.1), rgba(122, 30, 44, 0.04));
+    border-color: rgb(var(--gold-rgb) / 0.35);
+    background: linear-gradient(135deg, rgb(var(--gold-rgb) / 0.1), rgb(var(--accent-rgb) / 0.04));
     color: var(--ar-ink, #111);
   }
 
@@ -810,7 +728,7 @@ select:focus-visible,
 summary:focus-visible,
 [role="tab"]:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
-  outline: 2px solid #8a6508;
+  outline: 2px solid var(--ar-gold-dark);
   outline-offset: 2px;
 }
 
@@ -819,7 +737,7 @@ input.input-glow:focus-visible,
 select.input-glow:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #8a6508;
+  outline: 2px solid var(--ar-gold-dark);
   outline-offset: 2px;
 }
 
@@ -837,13 +755,13 @@ textarea:focus-visible {
  */
 @media (min-width: 1024px) and (max-width: 1359px) {
   .nav-pill-shell {
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
 
   .nav-pill-shell .nav-tab {
-    gap: 0.25rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+    gap: var(--space-1);
+    padding-left: var(--space-1);
+    padding-right: var(--space-1);
     font-size: var(--text-caption);
     line-height: var(--leading-caption);
   }
@@ -870,8 +788,8 @@ textarea:focus-visible {
 /* Phones: 44 px touch targets in a row with 4 px above and below keep the header within 120 px. */
 @media (max-width: 639px) {
   .brand-header-row {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-1);
   }
 }
 
@@ -884,6 +802,7 @@ textarea:focus-visible {
 body {
   font-size: var(--text-body);
   line-height: var(--leading-body);
+  font-variant-numeric: var(--numeric);
 }
 
 h1,
@@ -964,20 +883,18 @@ svg.lucide {
   max-width: 72ch;
 }
 
-/* Section padding: 16 px on phones, 24 px on tablets, 32 px on desktop. */
-.section-pad {
-  padding: 1rem;
+/* Section padding: 16 px on phones, 24 px on tablets, 32 px on desktop. */ .section-pad { padding: var(--space-4);
 }
 
 @media (min-width: 768px) {
   .section-pad {
-    padding: 1.5rem;
+    padding: var(--space-6);
   }
 }
 
 @media (min-width: 1280px) {
   .section-pad {
-    padding: 2rem;
+    padding: var(--space-8);
   }
 }
 
@@ -1023,12 +940,12 @@ svg.lucide {
 
 :has(> .desk-table-scroll[data-scroll-left])::before {
   left: 0;
-  background: linear-gradient(to right, rgba(122, 30, 44, 0.18), transparent);
+  background: linear-gradient(to right, rgb(var(--accent-rgb) / 0.18), transparent);
 }
 
 :has(> .desk-table-scroll[data-scroll-right])::after {
   right: 0;
-  background: linear-gradient(to left, rgba(122, 30, 44, 0.18), transparent);
+  background: linear-gradient(to left, rgb(var(--accent-rgb) / 0.18), transparent);
 }
 
 /* The section tabs fade at an edge that has more tabs behind it. */
@@ -1060,7 +977,7 @@ svg.lucide {
   width: auto;
   margin-inline: calc(var(--shell-pad) * -1);
   padding-inline: var(--shell-pad);
-  padding-bottom: calc(0.375rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--space-1) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--ar-border);
 }
 
@@ -1068,14 +985,14 @@ svg.lucide {
 .desk-sheet {
   height: 100dvh;
   max-height: 100dvh;
-  border-radius: 1rem 1rem 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 @media (min-width: 640px) {
   .desk-sheet {
     height: auto;
     max-height: 90dvh;
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
   }
 }
 
@@ -1090,7 +1007,7 @@ svg.lucide {
   display: grid;
   width: 100%;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.5rem 1rem;
+  gap: var(--space-6) var(--space-4);
   align-items: start;
 }
 
@@ -1121,7 +1038,7 @@ svg.lucide {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1rem;
+  gap: var(--space-2) var(--space-4);
 }
 
 .tab-heading-title {
@@ -1134,7 +1051,7 @@ svg.lucide {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: var(--space-2);
   max-width: 100%;
   margin-left: auto;
 }
@@ -1162,7 +1079,7 @@ svg.lucide {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1rem;
+  gap: var(--space-2) var(--space-4);
 }
 
 /* The mode toggle stays on the left, beside the title. */
@@ -1182,7 +1099,7 @@ svg.lucide {
 .inputs-layout {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 /* A short page, such as Blank Inputs with its steps collapsed, still puts the Run bar right on top of the footer. */
@@ -1203,13 +1120,13 @@ main:has(.inputs-page),
 
 .inputs-card {
   min-width: 0;
-  padding: 12px;
-  border-radius: 1rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
 }
 
 /* A locked group is one slim row: its header. */
 .inputs-card[data-locked] {
-  padding-block: 4px;
+  padding-block: var(--space-1);
   outline: none;
 }
 
@@ -1221,9 +1138,9 @@ main:has(.inputs-page),
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem 0.5rem;
+  gap: var(--space-1) var(--space-2);
   min-height: 2.25rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 
 .inputs-card-rule {
@@ -1237,7 +1154,7 @@ main:has(.inputs-page),
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.25rem 0.5rem;
+  gap: var(--space-1) var(--space-2);
   margin-left: auto;
 }
 
@@ -1248,9 +1165,9 @@ main:has(.inputs-page),
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  border: 1.5px solid #7a1e2c;
-  color: #7a1e2c;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
   font-size: var(--text-hint);
   font-weight: 700;
 }
@@ -1264,7 +1181,7 @@ main:has(.inputs-page),
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: stretch;
 }
 
@@ -1309,16 +1226,16 @@ main:has(.inputs-page),
 .expiry-card {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-2);
   border: 1px solid var(--ar-border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 .expiry-role {
   align-self: flex-start;
   max-width: 100%;
-  padding: 0 0.5rem;
+  padding: 0 var(--space-2);
   white-space: nowrap;
   color: var(--ar-muted);
 }
@@ -1328,9 +1245,9 @@ main:has(.inputs-page),
   display: flex;
   align-items: center;
   min-height: 2.25rem;
-  padding: 0 0.75rem;
+  padding: 0 var(--space-3);
   border: 1px dashed var(--ar-border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   color: var(--ar-muted);
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
   font-size: var(--text-caption);
@@ -1338,7 +1255,7 @@ main:has(.inputs-page),
 
 /* Lines a button up with the fields beside it, under where their labels sit. */
 .inputs-action {
-  padding-top: calc(1.125rem + 0.25rem);
+  padding-top: calc(1.125rem + var(--space-1));
 }
 
 .inputs-card .field-label {
@@ -1363,11 +1280,11 @@ main:has(.inputs-page),
   color: var(--ar-muted);
   cursor: help;
   outline: none;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 
 .field-tip:focus-visible {
-  outline: 2px solid #7a1e2c;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -1378,9 +1295,9 @@ main:has(.inputs-page),
   top: 1.25rem;
   left: 0;
   right: 0;
-  padding: 0.375rem 0.5rem;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--ar-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   background: #ffffff;
   color: var(--ar-ink);
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
@@ -1412,8 +1329,8 @@ main:has(.inputs-page),
   height: 2.25rem;
   min-width: 0;
   align-items: center;
-  padding: 0 0.75rem;
-  border-radius: 0.75rem;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
   border: 1px dashed var(--ar-border);
   background: var(--ar-panel);
   color: var(--ar-ink);
@@ -1445,7 +1362,7 @@ main:has(.inputs-page),
 .strike-row,
 .spread-row {
   display: grid;
-  gap: 0 8px;
+  gap: 0 var(--space-2);
   align-items: center;
   min-height: 2.5rem;
 }
@@ -1495,16 +1412,16 @@ main:has(.inputs-page),
 .inputs-card .hs-segment button {
   flex: 1 1 0;
   min-width: 0;
-  padding: 0 0.5rem;
+  padding: 0 var(--space-2);
 }
 
 .inputs-card .hs-segment button:first-child {
-  border-radius: 0.75rem 0 0 0.75rem;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 
 .inputs-card .hs-segment button:last-child {
   margin-left: -1px;
-  border-radius: 0 0.75rem 0.75rem 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .inputs-card .hs-segment--invalid button {
@@ -1518,7 +1435,7 @@ main:has(.inputs-page),
 }
 
 .strike-row--error {
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   outline: 1px solid rgba(225, 29, 72, 0.4);
   outline-offset: 2px;
 }
@@ -1531,7 +1448,7 @@ main:has(.inputs-page),
 
 .btn-compact {
   min-height: 2.25rem;
-  padding: 0.375rem 0.75rem;
+  padding: var(--space-1) var(--space-3);
   font-size: var(--text-caption);
 }
 
@@ -1548,7 +1465,7 @@ main:has(.inputs-page),
 }
 
 .sheet-actions {
-  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
 }
 
 /* Fields on dark: a flat dark box with light text {
@@ -1557,18 +1474,14 @@ main:has(.inputs-page),
 }
 
 /* ------------------------------------------------------------------ Market Data */
-:root {
-  --heat-rgb: 122 30 44;
-}
-
 /* Cards 12 px on phones and 16 px above; cells 8 by 12 px. */
 .md-page .section-pad {
-  padding: 0.75rem;
+  padding: var(--space-3);
 }
 
 @media (min-width: 640px) {
   .md-page .section-pad {
-    padding: 1rem;
+    padding: var(--space-4);
   }
 }
 
@@ -1585,18 +1498,18 @@ main:has(.inputs-page),
 .md-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .md-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   height: 2.75rem;
   min-height: 2.75rem;
-  padding: 0 1rem;
+  padding: 0 var(--space-4);
   white-space: nowrap;
 }
 
@@ -1610,11 +1523,11 @@ main:has(.inputs-page),
 }
 
 .md-status {
-  margin: 0 0 0.75rem;
-  border-radius: 0.75rem;
+  margin: 0 0 var(--space-3);
+  border-radius: var(--radius-md);
   border: 1px solid var(--ar-border);
   border-left-width: 4px;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
   font-size: var(--text-body);
   color: var(--ar-ink);
@@ -1636,17 +1549,17 @@ main:has(.inputs-page),
 .md-preview {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  border: 1px solid rgb(212 178 76 / 0.4);
-  border-radius: 1rem;
-  padding: 0.75rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  border: 1px solid rgb(var(--gold-rgb) / 0.4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
 }
 
 /* Label and value pairs: every cell on one line; a narrow window scrolls the table inside its box. */
 
 .hs-pairs tbody th {
-  padding: 0.75rem 1.25rem;
+  padding: var(--space-3) 1.25rem;
   font-size: var(--text-table-head);
   font-weight: 700;
   line-height: 1rem;
@@ -1663,14 +1576,14 @@ main:has(.inputs-page),
 @media (max-width: 639px) {
   .md-page .hs-pairs tbody th,
   .md-page .hs-pairs tbody td {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
   }
 }
 
 /* The volatility grid: no striping, the heat colour is the only background. */
 .md-page .vol-grid--editing tbody td {
-  padding: 0.25rem 0.5rem;
+  padding: var(--space-1) var(--space-2);
 }
 
 .vol-grid thead tr:first-child th.vol-grid-group {
@@ -1714,7 +1627,7 @@ main:has(.inputs-page),
 .vol-grid-skeleton {
   display: block;
   height: 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: #f2eeef;
   animation: hs-skeleton-pulse 1.2s ease-in-out infinite alternate;
 }
@@ -1728,8 +1641,8 @@ main:has(.inputs-page),
 .vol-grid-input {
   width: 4.5rem;
   border: 1px solid var(--ar-border);
-  border-radius: 0.5rem;
-  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   background: var(--ar-input-bg);
   color: var(--ar-ink);
   text-align: right;
@@ -1744,19 +1657,11 @@ main:has(.inputs-page),
 .vol-grid-input--invalid,
 .vol-grid-input--invalid:focus {
   border-color: #e11d48;
-  box-shadow: 0 0 0 2px rgb(225 29 72 / 0.3);
+  box-shadow: var(--shadow-invalid);
 }
 
 
 /* ------------------------------------------------------------------ Controls on white */
-:root {
-  --control-fill: rgba(15, 23, 42, 0.04);
-  --control-fill-hover: rgba(15, 23, 42, 0.08);
-  --control-fill-pressed: rgba(15, 23, 42, 0.12);
-  --control-border: rgba(15, 23, 42, 0.16);
-  --control-text: #5a1420;
-}
-
 .btn-primary,
 .btn-accent,
 .btn-ghost,
@@ -1798,7 +1703,7 @@ main:has(.inputs-page),
 .glass-select:focus-visible,
 .hs-segment button:focus-visible,
 .hs-overridden-badge:focus-visible {
-  outline: 2px solid #7a1e2c;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -1829,8 +1734,8 @@ main:has(.inputs-page),
 }
 
 .hs-chip-maroon {
-  border-color: rgba(122, 30, 44, 0.4);
-  color: #7a1e2c;
+  border-color: rgb(var(--accent-rgb) / 0.4);
+  color: var(--accent);
 }
 
 .glass-select {
@@ -1843,7 +1748,7 @@ main:has(.inputs-page),
 
 .glass-select[aria-invalid="true"] {
   border-color: #e11d48;
-  box-shadow: 0 0 0 2px rgb(244 63 94 / 0.45);
+  box-shadow: var(--shadow-invalid);
 }
 
 .glass-select option {
@@ -1854,14 +1759,14 @@ main:has(.inputs-page),
 /* Run Simulation is the most prominent control: the same faint fill, a 2 px maroon border, maroon bold text and a shadow. */
 .btn-primary.hs-run-btn {
   background: rgba(15, 23, 42, 0.06);
-  border: 2px solid #7a1e2c;
-  color: #7a1e2c;
-  box-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.35);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  box-shadow: var(--shadow-run);
 }
 
 .btn-primary.hs-run-btn:hover:not(:disabled) {
   background: var(--control-fill-pressed);
-  color: #5a1420;
+  color: var(--accent-dark);
 }
 
 /* ------------------------------------------------------------------ White surfaces */
@@ -1908,11 +1813,11 @@ main:has(.inputs-page),
 .atlas-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 2rem 2rem;
+  gap: var(--space-8) var(--space-8);
 }
 
 .atlas-grid {
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 @media (min-width: 1024px) {
@@ -1934,18 +1839,18 @@ main:has(.inputs-page),
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.625rem;
-  border-radius: 1rem;
+  gap: var(--space-2);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--ar-border);
   border-left-width: 4px;
-  padding: 0.875rem 1rem;
+  padding: var(--space-3) var(--space-4);
   scroll-margin-top: 9rem;
   outline: none;
 }
 
 .atlas-card:focus-visible,
 .atlas-card:target {
-  box-shadow: 0 0 0 2px rgba(212, 178, 76, 0.55) !important;
+  box-shadow: 0 0 0 2px rgb(var(--gold-rgb) / 0.55) !important;
 }
 
 .atlas-card--input { border-left-color: #0284c7; }
@@ -1957,9 +1862,9 @@ main:has(.inputs-page),
 .atlas-card__icon {
   display: inline-flex;
   flex-shrink: 0;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--ar-border);
-  padding: 0.5rem;
+  padding: var(--space-2);
 }
 
 .atlas-card--input .atlas-card__icon, .atlas-card--input .atlas-chip { color: #075985; }
@@ -1970,9 +1875,9 @@ main:has(.inputs-page),
 .atlas-chip {
   display: inline-flex;
   align-items: center;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   border: 1px solid currentColor;
-  padding: 0 0.5rem;
+  padding: 0 var(--space-2);
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
   font-size: var(--text-caption);
   font-weight: 700;
@@ -2008,7 +1913,7 @@ main:has(.inputs-page),
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.25rem 0.5rem;
+  gap: var(--space-1) var(--space-2);
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
   font-size: var(--text-caption);
   color: var(--ar-ink);
@@ -2017,22 +1922,22 @@ main:has(.inputs-page),
 .atlas-card__last {
   margin-top: auto;
   border-top: 1px solid var(--ar-border);
-  padding-top: 0.5rem;
+  padding-top: var(--space-2);
 }
 
 .atlas-link {
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   border: 1px solid var(--ar-border);
-  padding: 0 0.5rem;
+  padding: 0 var(--space-2);
   line-height: 1.375rem;
-  color: #7a1e2c;
+  color: var(--accent);
   background: rgba(15, 23, 42, 0.03);
   text-decoration: none;
 }
 
 .atlas-link:hover,
 .atlas-link:focus-visible {
-  border-color: #7a1e2c;
+  border-color: var(--accent);
 }
 
 .atlas-link:active {
@@ -2043,7 +1948,7 @@ main:has(.inputs-page),
   display: grid;
   width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
-  gap: 0.25rem 0.75rem;
+  gap: var(--space-1) var(--space-3);
 }
 
 .atlas-value {
@@ -2051,7 +1956,7 @@ main:has(.inputs-page),
   min-width: 0;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .atlas-value dt {
@@ -2065,9 +1970,9 @@ main:has(.inputs-page),
 }
 
 .atlas-empty {
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   border: 1px dashed var(--ar-border);
-  padding: 1.5rem 1rem;
+  padding: var(--space-6) var(--space-4);
   text-align: center;
   font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
   font-weight: 600;
@@ -2143,7 +2048,7 @@ textarea {
   flex-wrap: wrap;
   width: 100%;
   justify-content: space-between;
-  gap: 0.375rem 1rem;
+  gap: var(--space-1) var(--space-4);
 }
 
 .desk-footer-grid > .footer-cell:last-child {
@@ -2181,7 +2086,7 @@ textarea {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   white-space: nowrap;
 }
 
@@ -2194,7 +2099,7 @@ textarea {
 
 /* An editable grid cell keeps the one-line row height around its input. */
 .data-table-premium tbody td.hs-edit-cell {
-  padding: 0.25rem 0.75rem;
+  padding: var(--space-1) var(--space-3);
 }
 
 /* Fields: white with a 1 px neutral border and no glow; focus shows a maroon border. */
@@ -2205,13 +2110,13 @@ textarea {
 }
 
 .input-glow:focus {
-  border-color: #7a1e2c !important;
-  box-shadow: 0 0 0 2px rgba(122, 30, 44, 0.2) !important;
+  border-color: var(--accent) !important;
+  box-shadow: var(--shadow-focus) !important;
 }
 
 /* Loading placeholder: a soft opacity pulse, still when reduced motion is asked for. */
 .hs-skeleton {
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   background: #f2eeef;
   animation: hs-skeleton-pulse 1.2s ease-in-out infinite alternate;
 }
