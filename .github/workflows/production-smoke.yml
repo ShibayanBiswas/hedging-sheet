@@ -14,23 +14,27 @@ concurrency:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   smoke:
     name: Production Smoke
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # The branches filter above matches the branch name only: a fork's own main would pass it, so the push and the repository are checked here.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       BASE_URL: https://hedging-sheet.vercel.app
       NEXT_TELEMETRY_DISABLED: "1"
-      # Sent as a header so a protected deployment answers; never printed.
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
+      # No ref: on workflow_run this is the default branch, never the commit that triggered CI.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -41,22 +45,33 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:prod
+      - name: Five read-only checks
+        env:
+          # Sent as a header so a protected deployment answers; never printed, and cleaned out of reports/ by test-run.ts.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: npm run test:vercel -- --url "$BASE_URL" --smoke
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: prod-smoke-report
           retention-days: 3
-          path: |
-            playwright-report
-            test-results
+          path: reports
           if-no-files-found: ignore
-      - name: Open an issue when production fails
-        if: failure()
-        env:
+
+  issue:
+    name: Open An Issue When Production Fails
+    needs: smoke
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           gh issue create \
             --title "Production Smoke Failed · $(TZ=Asia/Kolkata date '+%d-%b-%Y %H:%M IST')" \
-            --body "The read-only production checks failed against $BASE_URL. Run, reports and traces: $RUN_URL"
+            --body "The read-only production checks failed against https://hedging-sheet.vercel.app. Run and reports: $RUN_URL"

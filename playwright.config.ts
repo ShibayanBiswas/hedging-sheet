@@ -1,12 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { bypassTarget } from "./scripts/bypass-target";
+
 /**
  * Mock mode by default: scripts/e2e-server.ts runs Next with TEST_MODE=mock against an in-memory Mongo.
  * With BASE_URL set, only the read-only prod projects run against that deployment.
  */
 const external = process.env.BASE_URL;
 /** Protected preview deployments need Vercel's automation bypass; the secret comes from the environment only. */
-const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+const bypass = external && bypassTarget(external) === "trusted" ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET : undefined;
 const port = Number(process.env.E2E_PORT ?? 3006);
 const ci = Boolean(process.env.CI);
 /** scripts/test-run.ts points this at reports/<timestamp>; plain runs keep the usual folders. */
@@ -34,7 +36,8 @@ export default defineConfig({
   globalTeardown: "./e2e/global-teardown.ts",
   reporter: [
     ["list"],
-    ["html", { outputFolder: reports ? `${reports}/playwright-html` : "playwright-report", open: "never" }],
+    // Failed API calls quote their request headers, and this report zips that text where scripts/test-run.ts cannot clean it.
+    ...(bypass ? [] : ([["html", { outputFolder: reports ? `${reports}/playwright-html` : "playwright-report", open: "never" }]] as const)),
     ["junit", { outputFile: reports ? `${reports}/junit-e2e.xml` : "test-results/junit-e2e.xml" }],
   ],
   outputDir: reports ? `${reports}/traces` : "test-results/playwright",
@@ -43,7 +46,8 @@ export default defineConfig({
   ignoreSnapshots: process.platform !== "linux",
   use: {
     baseURL: external ?? `http://localhost:${port}`,
-    trace: "retain-on-failure",
+    // A trace records request headers and is uploaded as an artifact, so there is none while the secret is sent.
+    trace: bypass ? "off" : "retain-on-failure",
     video: full ? "retain-on-failure" : "off",
     screenshot: "only-on-failure",
     acceptDownloads: true,

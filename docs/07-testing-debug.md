@@ -54,7 +54,7 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run test:all` | Typecheck, lint, knip, the copy rules, the workbook mapping and audit, then everything `test:local` runs |
 | `npm run test:local` | A production build on port 3000 with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage and Playwright on Chromium |
 | `npm run test:local:full` | The same with Firefox, WebKit, mobile, every width and Lighthouse; CI always runs this |
-| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects at every width, the crawl on three browsers. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed |
+| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects at every width, the crawl on three browsers. `--smoke` runs only the five checks. Refuses any host but `hedging-sheet.vercel.app`, its previews, and localhost over http. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed, and never to localhost |
 | `npm run verify:yahoo` | Live Yahoo with no mock: both closes, the session status and a year of daily volatility |
 | `npm run report` | Opens the last Playwright HTML report |
 | `npm run fixtures:build` | Rebuilds the generated fixtures; review the diff before committing |
@@ -107,8 +107,10 @@ A failed test keeps its trace, video and screenshot in `test-results/playwright/
 - `summary.md`: every step with Pass or Fail, its time and a link to its report;
 - `coverage/`: the Vitest coverage, with 95% lines and branches enforced on `lib/` in `vitest.config.ts`;
 - `junit-vitest.xml` and `junit-e2e.xml`;
-- `playwright-html/` and `traces/`, with trace, video and screenshot kept on failure;
+- `playwright-html/` and `traces/`, with trace, video and screenshot kept on failure. A run that sends the bypass secret has no trace and no HTML report, because both can hold request headers;
 - `lighthouse/`.
+
+`test:vercel` takes the secret and Vercel's bypass cookie out of everything left in its folder after each step, so the folder is safe to upload. `test:prod` alone does not clean: on a machine with the secret set, treat its `test-results` as private.
 
 Plain `npx playwright test` and `npx vitest` keep writing to `playwright-report` and `test-results`.
 
@@ -119,12 +121,14 @@ A push or pull request to `main` runs one short job. Everything longer is starte
 | Workflow | When | What |
 |---|---|---|
 | `ci.yml` | A push or pull request to `main`, unless it only touches `docs/**`, markdown or screenshots; a newer push cancels the run it replaces | Typecheck, lint, Vitest without coverage (unit, golden and property tests, not the API layer) and the build |
-| `production-smoke.yml` | After `ci.yml` succeeds on a push to `main`, and on demand. No schedule; a failed or cancelled CI run does not smoke production | `npm run test:prod`: five Chromium checks against production; opens a GitHub issue when it fails |
-| `vercel-preview.yml` | Each successful preview deployment | `npm run test:vercel` against the preview |
+| `production-smoke.yml` | After `ci.yml` succeeds on a push to `main`, and on demand. No schedule; a failed or cancelled CI run does not smoke production | `npm run test:vercel -- --smoke`: five Chromium checks against production; opens a GitHub issue when it fails |
+| `vercel-preview.yml` | Each successful preview deployment | `npm run test:vercel` against the preview, with the tests from the default branch |
 | `full-checks.yml` | On demand | `npm run test:all` in the Playwright Linux image, with coverage, knip, the workbook audit and every browser, uploading `reports/`; and `npm run verify:yahoo` against live Yahoo |
 | `playwright.yml` | On demand | Playwright in mock mode against the production build, on Chromium by default; the form can select every browser or the full width list |
 | `visual.yml` | On demand | The Linux visual baselines, in the Playwright image |
 | `lighthouse.yml` | On demand | The desktop and mobile Lighthouse budgets |
+
+The bypass secret is in the repository secrets, so a workflow that holds it runs only code from the default branch: it never checks out a deployed commit or a pull request, it has a read-only token with no saved credentials, and the secret is set on the one step that runs the tests, not on `npm ci`.
 
 ## Edge cases
 

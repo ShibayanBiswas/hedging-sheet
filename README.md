@@ -56,7 +56,7 @@ Names only; values live in `.env.local`, which is git-ignored, and in the Vercel
 | `npm run e2e:perf` and `npm run lhci` | Web vitals and Lighthouse budgets |
 | `npm run e2e:responsive` | The responsive audit at 390, 1024 and 1440 px. `E2E_FULL_WIDTHS=1` adds the other devices |
 | `npm run test:prod` | Five read-only checks against `BASE_URL`: health, the app loads, Run, one Excel download, and a refused write |
-| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the five checks, the market data, strike and crawl specs, and the responsive audit on every width, with the crawl on three browsers; writes `reports/` |
+| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the five checks, the market data, strike and crawl specs, and the responsive audit on every width, with the crawl on three browsers; writes `reports/`. `--smoke` runs only the five checks. Only `hedging-sheet.vercel.app`, its previews and localhost are accepted |
 | `npm run test:prod:responsive` | The responsive audit against `BASE_URL` |
 | `npm run e2e:server` | The mock-mode server the Playwright suite starts |
 | `npm run test:all` | Typecheck, lint, knip, the copy rules, the workbook mapping and audit, then everything `test:local` runs; writes `reports/` |

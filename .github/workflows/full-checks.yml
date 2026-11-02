@@ -4,6 +4,9 @@ name: Full Checks
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   NEXT_TELEMETRY_DISABLED: "1"
 

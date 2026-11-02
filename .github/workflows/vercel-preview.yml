@@ -4,29 +4,39 @@ on:
   # Vercel reports each deployment to GitHub; this runs once a preview is live.
   deployment_status:
 
+permissions:
+  contents: read
+
 jobs:
   test-vercel:
     name: Read-Only Tests Against The Preview
     if: github.event.deployment_status.state == 'success' && github.event.deployment.environment != 'Production'
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      # Sent as a header so the protected preview answers; never printed.
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
+      # The tests come from the default branch. On this event the default checkout is the deployed commit, which may be
+      # anyone's code; the deployment is only a URL to test.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.deployment.sha }}
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:vercel -- --url "${{ github.event.deployment_status.environment_url }}"
+      - name: Read-only tests against the preview
+        env:
+          URL: ${{ github.event.deployment_status.environment_url }}
+          # Sent as a header so the protected preview answers, only to the hosts in scripts/bypass-target.ts; never printed.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: npm run test:vercel -- --url "$URL"
       - uses: actions/upload-artifact@v4
-        if: always()
+        # Not always(): a cancelled run stops before test-run.ts has cleaned reports/.
+        if: failure()
         with:
           name: reports-preview
+          retention-days: 3
           path: reports
           if-no-files-found: ignore

@@ -22,6 +22,9 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   NEXT_TELEMETRY_DISABLED: "1"
 
@@ -46,8 +49,10 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
       - name: Install browsers
+        env:
+          BROWSERS: ${{ inputs.browsers }}
         run: |
-          if [ "${{ inputs.browsers }}" = "all" ]; then
+          if [ "$BROWSERS" = "all" ]; then
             npx playwright install --with-deps chromium firefox webkit
           else
             npx playwright install --with-deps chromium
@@ -56,8 +61,10 @@ jobs:
         env:
           NEXT_PUBLIC_E2E: "1"
       - name: Chromium, or every browser when requested
+        env:
+          BROWSERS: ${{ inputs.browsers }}
         run: |
-          if [ "${{ inputs.browsers }}" = "all" ]; then
+          if [ "$BROWSERS" = "all" ]; then
             npx playwright test --grep-invert "visual baselines"
           else
             npx playwright test --project=chromium --project=chromium-writes --grep-invert "visual baselines"

@@ -4,15 +4,18 @@
  *   npm run test:all                       # static checks, then everything test:local runs
  *   npm run test:local                     # production build on port 3000 against a seeded in-memory Mongo, Chromium only
  *   npm run test:local:full                # the same with Firefox, WebKit, mobile and Lighthouse; CI always runs this
- *   npm run test:vercel -- --url <url>     # read-only checks against a deployment
+ *   npm run test:vercel -- --url <url>     # read-only checks against a deployment; --smoke runs only the five checks
  *
  * The in-memory Mongo is seeded when the server starts and is gone when it stops, so nothing is left behind.
  * test:vercel sends x-vercel-protection-bypass from VERCEL_AUTOMATION_BYPASS_SECRET, read from the environment or
- * .env.local and never printed. It never writes: the deployment's own database is only read.
+ * .env.local and never printed, and only to the hosts in scripts/bypass-target.ts. It never writes: the deployment's
+ * own database is only read.
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+
+import { bypassTarget, scrubSecret } from "./bypass-target";
 
 type Mode = "all" | "local" | "vercel";
 type Step = { name: string; command: string; env?: Record<string, string>; report?: string };
@@ -44,11 +47,11 @@ const rel = (p: string) => path.relative(dir, p).replace(/\\/g, "/");
 function urlArg(): string {
   const i = process.argv.indexOf("--url");
   const url = i > 0 ? process.argv[i + 1] : process.env.BASE_URL;
-  if (!url || !/^https?:\/\//.test(url)) {
-    console.error("test:vercel needs --url https://<deployment>");
+  if (!url || bypassTarget(url) === "refused") {
+    console.error("test:vercel needs --url with hedging-sheet.vercel.app, one of its previews, or localhost over http");
     process.exit(2);
   }
-  return url.replace(/\/$/, "");
+  return new URL(url).origin;
 }
 
 /** The bypass secret from the environment or .env.local, without echoing it. */
@@ -60,6 +63,13 @@ function bypassSecret(): string | undefined {
     .split(/\r?\n/)
     .find((l) => l.startsWith("VERCEL_AUTOMATION_BYPASS_SECRET="));
   return line?.slice("VERCEL_AUTOMATION_BYPASS_SECRET=".length).trim().replace(/^["']|["']$/g, "") || undefined;
+}
+
+/** The secret for this URL, if it may have one. Child processes inherit the environment, so otherwise it leaves there too. */
+function bypassFor(url: string): string | undefined {
+  const secret = bypassTarget(url) === "trusted" ? bypassSecret() : undefined;
+  if (!secret) delete process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  return secret;
 }
 
 const LOCAL_PORT = "3000";
@@ -110,8 +120,9 @@ const LOCAL: Step[] = [
 ];
 
 function vercelSteps(url: string): Step[] {
-  const secret = bypassSecret();
+  const secret = bypassFor(url);
   const env: Record<string, string> = { BASE_URL: url, REPORT_DIR: dir, E2E_FULL_WIDTHS: "1", ...(secret ? { VERCEL_AUTOMATION_BYPASS_SECRET: secret } : {}) };
+  if (process.argv.includes("--smoke")) return [{ name: "Five Read-Only Checks On Chromium", command: "npx playwright test --project=prod", env }];
   return [
     { name: "Pages And APIs Answer", command: "npx tsx scripts/e2e-local.ts", env },
     { name: "Playwright Read Only On Chromium, Firefox And WebKit", command: "npx playwright test", env, report: `${dir}/playwright-html/index.html` },
@@ -130,6 +141,7 @@ function freeLocalPort() {
   }
 }
 
+const sentSecret = mode === "vercel" ? bypassFor(urlArg()) : undefined;
 const outcomes: Outcome[] = [];
 for (const step of steps) {
   freeLocalPort();
@@ -137,6 +149,7 @@ for (const step of steps) {
   const started = Date.now();
   const r = spawnSync(step.command, { shell: true, stdio: "inherit", env: { ...process.env, ...step.env } });
   outcomes.push({ ...step, ok: r.status === 0, seconds: Math.round((Date.now() - started) / 1000) });
+  if (sentSecret) scrubSecret(dir, sentSecret);
 }
 freeLocalPort();
 
@@ -147,7 +160,7 @@ const lines = [
   "",
   `- **Started:** ${stamp.replace("_", " ").replace(/-(\d\d)-(\d\d)$/, ":$1:$2")} IST`,
   `- **Tests From Commit:** ${sha}`,
-  ...(mode === "vercel" ? [`- **Deployment:** ${urlArg()}`, `- **Bypass Header:** ${bypassSecret() ? "Sent" : "Not Set"}`] : [`- **Server:** production build on port ${LOCAL_PORT} with a seeded in-memory Mongo, gone when the run ends`]),
+  ...(mode === "vercel" ? [`- **Deployment:** ${urlArg()}`, `- **Bypass Header:** ${sentSecret ? "Sent" : "Not Set"}`] : [`- **Server:** production build on port ${LOCAL_PORT} with a seeded in-memory Mongo, gone when the run ends`]),
   `- **Result:** ${failed.length ? `${failed.length} of ${outcomes.length} steps failed` : `all ${outcomes.length} steps passed`}`,
   "",
   "| Step | Result | Seconds | Report |",
