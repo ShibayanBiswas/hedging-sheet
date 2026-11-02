@@ -131,14 +131,24 @@ function vercelSteps(url: string): Step[] {
 
 const steps: Step[] = mode === "vercel" ? vercelSteps(urlArg()) : mode === "all" ? [...STATIC, ...LOCAL] : LOCAL;
 
-/** Nothing may be listening on the local port before the run starts its own server. */
-function freeLocalPort() {
-  if (mode === "vercel") return;
+/**
+ * Nothing of this repo's may be listening on the local port before the run starts its own server. Another app on the port is
+ * never stopped: its process id comes back, and the run refuses to start, because Playwright would reuse that server and test the wrong app.
+ */
+function freeLocalPort(): string {
+  if (mode === "vercel") return "";
   if (process.platform === "win32") {
-    spawnSync("powershell", ["-NoProfile", "-Command", `Get-NetTCPConnection -LocalPort ${LOCAL_PORT} -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`], { stdio: "ignore" });
-  } else {
-    spawnSync("sh", ["-c", `lsof -ti tcp:${LOCAL_PORT} | xargs -r kill -9`], { stdio: "ignore" });
+    const script = `Get-NetTCPConnection -LocalPort ${LOCAL_PORT} -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $id = $_.OwningProcess; if ((Get-CimInstance Win32_Process -Filter "ProcessId=$id").CommandLine -like "*$env:TEST_RUN_ROOT*") { Stop-Process -Id $id -Force } else { Write-Output $id } }`;
+    return spawnSync("powershell", ["-NoProfile", "-Command", script], { encoding: "utf8", env: { ...process.env, TEST_RUN_ROOT: process.cwd() } }).stdout.trim();
   }
+  spawnSync("sh", ["-c", `lsof -ti tcp:${LOCAL_PORT} | xargs -r kill -9`], { stdio: "ignore" });
+  return "";
+}
+
+const otherApp = freeLocalPort();
+if (otherApp) {
+  console.error(`Port ${LOCAL_PORT} belongs to another app, process ${otherApp}. It was left running; stop it and run this again.`);
+  process.exit(2);
 }
 
 const sentSecret = mode === "vercel" ? bypassFor(urlArg()) : undefined;
