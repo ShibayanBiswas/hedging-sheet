@@ -71,6 +71,27 @@ test.describe("Pricer leg volatility cell", () => {
     expect((await deskState(page)).overrides).toEqual({});
   });
 
+  test("Reset clears the badge and the highlight at once, and the banner says the results are the last run's", async ({ page, inputs, nav, outputs }) => {
+    await inputs.goto();
+    await inputs.run();
+    await outputs.pricer.open();
+    const cell = outputs.pricer.gridCell(0);
+    await cell.fill("30");
+    await page.keyboard.press("Tab");
+    await nav.go("inputs");
+    await inputs.run();
+    await outputs.pricer.open();
+    const box = cell.locator("xpath=ancestor::td");
+    await expect(page.getByText("Overridden ×")).toHaveCount(1);
+    await expect(box).toHaveClass(/hs-overridden-cell/);
+    await expect(outputs.pricer.staleBanner).toHaveCount(0);
+
+    await outputs.pricer.resetLegVols.click();
+    await expect(page.getByText("Overridden ×")).toHaveCount(0);
+    await expect(box).not.toHaveClass(/hs-overridden-cell/);
+    await expect(outputs.pricer.staleBanner).toContainText("These results use the last run");
+  });
+
   test("6,5 goes back to the value the cell had and stores nothing", async ({ page, inputs, outputs }) => {
     await inputs.goto();
     await inputs.run();

@@ -279,10 +279,10 @@ export function GridCard({ spec, edit }: { spec: GridSpec; edit?: GridEdit }) {
                   // An override shows as typed; a surface value has many decimals and keeps its 2.
                   const shown = override != null ? volText(override * 100).text : typeof surface === "number" ? (surface * 100).toFixed(2) : "";
                   return (
-                    <td key={i} className={cn("hs-edit-cell text-right", overridden && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
+                    <td key={i} className={cn("hs-edit-cell text-right", override != null && "hs-overridden-cell")} data-cell={cell} data-value={rawValue(v)}>
                       <div className="flex items-center justify-end gap-2">
                         <GridEditCell shown={shown} label={`${row.label} for ${spec.columnLabels[i]} leg ${i + 1}`} testId={`grid-edit-${key}`} onCommit={(value) => edit.onChange(key, value)} />
-                        {overridden ? (
+                        {override != null ? (
                           <button type="button" className="hs-overridden-badge" onClick={() => edit.onChange(key, null)} title="Reset To The Surface">
                             Overridden ×
                           </button>
