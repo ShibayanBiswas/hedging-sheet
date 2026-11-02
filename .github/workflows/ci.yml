@@ -3,38 +3,38 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "e2e/**/__screenshots__/**"
   pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "e2e/**/__screenshots__/**"
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
-  test-local:
-    name: Test All On A Local Production Build
+  checks:
+    name: Typecheck, Lint, Vitest And Build
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    # The image the Linux visual baselines were made in, so fonts and rendering match.
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-      options: --ipc=host
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci
-      - name: Lighthouse uses the Chromium that Playwright ships
-        run: echo "CHROME_PATH=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")" >> "$GITHUB_ENV"
-      # Static checks, Vitest with coverage, the workbook audit, Playwright on every browser and Lighthouse.
-      - run: npm run test:all
-        env:
-          CI: "1"
-      - name: The workbook audit leaves docs/workbook-audit.md unchanged
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git diff --exit-code docs/workbook-audit.md
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - uses: actions/setup-node@v4
         with:
-          name: reports-local
-          path: reports
-          if-no-files-found: ignore
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      # Unit, golden and property tests. No coverage report: v8 coverage is the slow part and nothing uploads it.
+      - run: npm run test:ci
+      - run: npm run build

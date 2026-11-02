@@ -15,15 +15,15 @@
 | Structure and Call | `tests/structure.test.ts`, `tests/call.test.ts` | Start level, strikes and units, Strike Level edits, adding and removing strikes, each strike's Buy Or Sell, the book against the payoff for all Put, all Call and mixed, put-call parity on every leg, and each leg's option type in Excel |
 | Strikes | `e2e/strikes.spec.ts`, `e2e/strike-matrix.spec.ts` | S1 to S14, and every strike on the wrong side, a mixed Call and Put book against the all Put book, and removing and adding a strike |
 | Pipeline | `e2e/pipeline` | No stale result after a mode or underlying switch; everything that depends on the underlying, for Nifty and Sensex; no underlying typed in a page or component |
-| Crawls | `e2e/numbers.spec.ts`, `e2e/buttons.spec.ts`, `e2e/layout.spec.ts` | Every cell on every tab against the result from `window.__HS_TEST__`; every button and link with no console error, no failed response and no layout shift above 0.1; white surfaces, single line cells, no pinned column, scroll boxes for long tables and the footer and Inputs gaps at 1440, 1024, 768 and 390 px |
+| Crawls | `e2e/numbers.spec.ts`, `e2e/buttons.spec.ts`, `e2e/layout.spec.ts` | Every cell on every tab against the result from `window.__HS_TEST__`; every button and link with no console error, no failed response and no layout shift above 0.1; white surfaces, single line cells, no pinned column, scroll boxes for long tables and the footer and Inputs gaps at 1440, 1024 and 390 px |
 | Default parity suite | `e2e/default` | D1 to D7: prefilled fields, regression numbers at the mock spot, the table checks, Excel, the run gate, the footer and the surface parameter editor; plus the market data flows |
 | Copy and capitalisation | `e2e/copy-rules.spec.ts`, `e2e/capitalisation.spec.ts` | Spelled out words, no brackets, no "/", the % sign, "-" for not applicable, no spreadsheet wording and capitals on every word, on every page in both modes |
 | Accessibility | `e2e/a11y.spec.ts`, B22 | axe on every page, in both modes, before and after a run and with a popup open; no serious or critical violations |
-| Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 on 12 viewports from 320 by 568 to 2560 by 1440 |
+| Responsive | `e2e/responsive`, `tests/unit/design-tokens.test.ts` | R1 to R11 at 390, 1024 and 1440 px. `E2E_FULL_WIDTHS=1` restores the 12 viewports from 320 by 568 to 2560 by 1440 |
 | Market Data | `e2e/market-data.spec.ts` | At 1440, 1024 and 390 px: no sideways scroll, the sticky grid header with no pinned column, units, the Deep strike, copy, inline edit validation, uploads refused before any request, writes refused without the Desk Key and both downloads |
 | Visual | `e2e/visual` | `toHaveScreenshot` for the 8 tabs at desktop, tablet and phone widths, Linux baselines only, with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
 | Performance | `e2e/perf.spec.ts`, `lighthouserc.json` | LCP under 2.5 s, CLS under 0.1, TBT under 300 ms on Inputs and Pricer; a run under 3 s with mocks |
-| Production | `e2e/prod-smoke.spec.ts` | Read only against `BASE_URL`; Run only, nothing is uploaded or saved |
+| Production | `e2e/prod-smoke.spec.ts` | Five read-only checks against `BASE_URL`: health, the app loads, Run, one Excel download and a refused write; nothing is uploaded or saved |
 
 Rule and number checks that do not depend on the browser engine run once, on desktop Chromium. Firefox, WebKit and Pixel 7 run the flows, the keyboard, layout and accessibility checks.
 
@@ -48,12 +48,13 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run test:visual:linux` | Rewrites the Linux baselines with Docker from any machine |
 | `npm run e2e:perf` | Web vitals and the run time on Chromium |
 | `npm run e2e:responsive` | The responsive audit on Chromium |
-| `npm run test:prod` | The read-only production project; needs `BASE_URL` |
+| `npm run test:prod` | The five read-only production checks; needs `BASE_URL` |
 | `npm run test:prod:responsive` | The responsive audit against `BASE_URL`, read-only, with the real clock |
 | `npm run lhci` | Lighthouse budgets against the mock server |
 | `npm run test:all` | Typecheck, lint, knip, the copy rules, the workbook mapping and audit, then everything `test:local` runs |
-| `npm run test:local` | A production build on port 3000 with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage, Playwright on Chromium, Firefox, WebKit and mobile, and Lighthouse |
-| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects on three browsers. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed |
+| `npm run test:local` | A production build on port 3000 with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage and Playwright on Chromium |
+| `npm run test:local:full` | The same with Firefox, WebKit, mobile, every width and Lighthouse; CI always runs this |
+| `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects at every width, the crawl on three browsers. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed |
 | `npm run verify:yahoo` | Live Yahoo with no mock: both closes, the session status and a year of daily volatility |
 | `npm run report` | Opens the last Playwright HTML report |
 | `npm run fixtures:build` | Rebuilds the generated fixtures; review the diff before committing |
@@ -113,12 +114,17 @@ Plain `npx playwright test` and `npx vitest` keep writing to `playwright-report`
 
 ## CI
 
+A push or pull request to `main` runs one short job. Everything longer is started by hand from the Actions tab, so a push costs minutes rather than hours. A failed manual run keeps its report for 3 days.
+
 | Workflow | When | What |
 |---|---|---|
-| `ci.yml` | Every push and pull request | `npm run test:all` in the Playwright Linux image, so the visual baselines compare like for like; uploads `reports/` |
+| `ci.yml` | A push or pull request to `main`, unless it only touches `docs/**`, markdown or screenshots; a newer push cancels the run it replaces | Typecheck, lint, Vitest without coverage (unit, golden and property tests, not the API layer) and the build |
+| `production-smoke.yml` | After `ci.yml` succeeds on a push to `main`, and on demand. No schedule; a failed or cancelled CI run does not smoke production | `npm run test:prod`: five Chromium checks against production; opens a GitHub issue when it fails |
 | `vercel-preview.yml` | Each successful preview deployment | `npm run test:vercel` against the preview |
-| `production-smoke.yml` | Each successful production deployment, every 6 hours, on demand | `npm run test:vercel` against production; opens a GitHub issue when it fails |
-| `nightly.yml` | 02:00 IST | `npm run test:local` on every browser, and `npm run verify:yahoo` against live Yahoo |
+| `full-checks.yml` | On demand | `npm run test:all` in the Playwright Linux image, with coverage, knip, the workbook audit and every browser, uploading `reports/`; and `npm run verify:yahoo` against live Yahoo |
+| `playwright.yml` | On demand | Playwright in mock mode against the production build, on Chromium by default; the form can select every browser or the full width list |
+| `visual.yml` | On demand | The Linux visual baselines, in the Playwright image |
+| `lighthouse.yml` | On demand | The desktop and mobile Lighthouse budgets |
 
 ## Edge cases
 

@@ -21,6 +21,7 @@ test-results/
 playwright-report/
 blob-report/
 coverage/
+reports/
 *.trace.zip
 .lighthouseci/
 

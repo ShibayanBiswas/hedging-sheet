@@ -1,0 +1,48 @@
+name: Full Checks
+
+# Started by hand from the Actions tab; a push runs only the short job in ci.yml.
+on:
+  workflow_dispatch:
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  test-all:
+    name: Test All On A Local Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # The image the Linux visual baselines were made in, so fonts and rendering match.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Lighthouse uses the Chromium that Playwright ships
+        run: echo "CHROME_PATH=$(node -e "console.log(require('@playwright/test').chromium.executablePath())")" >> "$GITHUB_ENV"
+      # Static checks, Vitest with coverage, the workbook audit, Playwright on every browser and Lighthouse.
+      - run: npm run test:all
+        env:
+          CI: "1"
+      - name: The workbook audit leaves docs/workbook-audit.md unchanged
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git diff --exit-code docs/workbook-audit.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports-local
+          path: reports
+          if-no-files-found: ignore
+
+  live-yahoo:
+    name: Live Yahoo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:yahoo

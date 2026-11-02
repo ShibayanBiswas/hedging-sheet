@@ -15,7 +15,8 @@
 | Validation | The spread-order and floor-level checks are gone: strictly descending strikes already guarantee both |
 | Tests | Named edge case tests in `tests/edge` and `e2e/edge-cases.spec.ts`; golden books for one Call, 1 × 1 × 1 and the maximum 10 expiries × 6 spreads × 10 strikes; 95% lines and branches on `lib/`, enforced; a crawler on Chromium, Firefox and WebKit at 1440, 1280, 1024, 768, 414 and 390 px with no console error and no failed request; visual difference at most 0.1%; Lighthouse Performance 85 and Accessibility 95; Run under 2 s |
 | Commands | `test:all`, `test:local` and `test:vercel -- --url`, each writing `reports/<run>-<timestamp>/` with `summary.md`; `verify:yahoo` against live Yahoo |
-| CI | `ci.yml` runs `test:all`; `vercel-preview.yml`, `production-smoke.yml` (every 6 hours, an issue on failure) and `nightly.yml` (every browser and live Yahoo) |
+| Section Tabs | From 1024 to 1359 px the tabs use caption size, 4 px padding and a 16 px icon, so every tab stays on one line when Segoe UI falls back to a wider face |
+| CI | A push to main runs one job: typecheck, lint, Vitest without coverage, and the build. `full-checks.yml` (`test:all`, live Yahoo), Playwright, visual baselines and Lighthouse are manual. `vercel-preview.yml` tests each preview; `production-smoke.yml` is five checks after that job succeeds, with an issue on failure and no schedule |
 | Debugging | `?trace=1` prints the pipeline to the console in development; [the Round 12 bug log](bug-log-round-12.md) |
 
 ## Round 11: Workbook Fidelity, Dynamic Inputs, Layout And Exports

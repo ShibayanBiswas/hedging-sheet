@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
-/** The widths every layout check runs at. */
-export const WIDTHS = [1440, 1024, 768, 390] as const;
+/** Phone, the 1024 px tab break, and the desk desktop. */
+export const WIDTHS = [1440, 1024, 390] as const;
 
 /** Space between the footer's right edge and its rightmost text. */
 export function footerRightGap(page: Page): Promise<number> {

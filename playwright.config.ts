@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Mock mode by default: scripts/e2e-server.ts runs Next with TEST_MODE=mock against an in-memory Mongo.
- * With BASE_URL set, only the read-only prod project runs against that deployment.
+ * With BASE_URL set, only the read-only prod projects run against that deployment.
  */
 const external = process.env.BASE_URL;
 /** Protected preview deployments need Vercel's automation bypass; the secret comes from the environment only. */
@@ -13,8 +13,8 @@ const ci = Boolean(process.env.CI);
 const reports = process.env.REPORT_DIR;
 
 /**
- * The laptop runs Chromium only on 2 workers with no video. Every browser and width runs in CI, against Vercel,
- * or locally with PW_FULL=1 (npm run test:local:full).
+ * The laptop runs Chromium only on 2 workers with no video. Every browser runs in CI, against Vercel, or locally with
+ * PW_FULL=1 (npm run test:local:full); E2E_FULL_WIDTHS=1 adds the other device widths, as test:local:full and test:vercel do.
  */
 const full = ci || process.env.PW_FULL === "1";
 
@@ -53,7 +53,9 @@ export default defineConfig({
   },
   projects: external
     ? [
-        { name: "prod", testMatch: /(prod-smoke|market-data|strikes|crawl)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        { name: "prod", testMatch: /prod-smoke\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
+        // npm run test:prod is the five smoke checks alone; npm run test:vercel runs every project here.
+        { name: "prod-live", testMatch: /(market-data|strikes|crawl)\.spec\.ts/, use: { ...devices["Desktop Chrome"], ...desktop } },
         { name: "prod-firefox", testMatch: /crawl\.spec\.ts/, use: { ...devices["Desktop Firefox"], ...desktop } },
         { name: "prod-webkit", testMatch: /crawl\.spec\.ts/, use: { ...devices["Desktop Safari"], ...desktop } },
         // Read-only layout checks on live data; the screenshots need the mock data, so R8 stays local.
@@ -75,9 +77,11 @@ export default defineConfig({
     : {
         command: "npx tsx scripts/e2e-server.ts",
         url: `http://localhost:${port}`,
-        // A server already on the port is used rather than a second one started beside it.
-        reuseExistingServer: true,
+        // A second local run attaches to the server already on this port instead of starting another Next and Mongo.
+        reuseExistingServer: !ci,
         timeout: 240_000,
+        // SIGTERM lets e2e-server stop the in-memory database. The default is SIGKILL, which skips that cleanup.
+        gracefulShutdown: { signal: "SIGTERM", timeout: 15_000 },
         env: { E2E_PORT: String(port) },
       },
 });

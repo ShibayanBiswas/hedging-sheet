@@ -88,7 +88,7 @@ const LOCAL: Step[] = [
   {
     name: full ? "Playwright On Chromium, Firefox, WebKit And Mobile" : "Playwright On Chromium",
     command: "npx playwright test",
-    env: full ? { ...local, PW_FULL: "1" } : local,
+    env: full ? { ...local, PW_FULL: "1", E2E_FULL_WIDTHS: "1" } : local,
     report: `${dir}/playwright-html/index.html`,
   },
   ...(full
@@ -111,7 +111,7 @@ const LOCAL: Step[] = [
 
 function vercelSteps(url: string): Step[] {
   const secret = bypassSecret();
-  const env: Record<string, string> = { BASE_URL: url, REPORT_DIR: dir, ...(secret ? { VERCEL_AUTOMATION_BYPASS_SECRET: secret } : {}) };
+  const env: Record<string, string> = { BASE_URL: url, REPORT_DIR: dir, E2E_FULL_WIDTHS: "1", ...(secret ? { VERCEL_AUTOMATION_BYPASS_SECRET: secret } : {}) };
   return [
     { name: "Pages And APIs Answer", command: "npx tsx scripts/e2e-local.ts", env },
     { name: "Playwright Read Only On Chromium, Firefox And WebKit", command: "npx playwright test", env, report: `${dir}/playwright-html/index.html` },
