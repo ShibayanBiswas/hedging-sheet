@@ -19,12 +19,20 @@ export function SiteNav() {
   const section = activeNav(pathname);
   const reduce = useReducedMotion();
   const rail = useRef<HTMLDivElement>(null);
+  const shownFor = useRef<string | null>(null);
 
   // On narrow screens the tabs scroll sideways; keep the current one in view.
   useEffect(() => {
     const el = rail.current;
     const current = el?.querySelector<HTMLElement>('[aria-current="page"]');
     if (!el || !current) return;
+    // Only a new tab moves the rail; next dev runs this effect twice for one page.
+    if (shownFor.current === pathname) return;
+    const first = shownFor.current === null;
+    shownFor.current = pathname;
+    // A press forces hydration and this effect runs inside it, so moving the rail now would pull the tab from under the finger:
+    // the press ends on another tab, the click goes to the rail and nothing opens. A rail already scrolled or pressed stays put.
+    if (first && (el.scrollLeft > 0 || el.querySelector(":active"))) return;
     const left = current.offsetLeft - el.offsetLeft;
     if (left < el.scrollLeft || left + current.offsetWidth > el.scrollLeft + el.clientWidth) {
       el.scrollLeft = Math.max(0, left - (el.clientWidth - current.offsetWidth) / 2);
