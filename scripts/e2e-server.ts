@@ -10,6 +10,8 @@
  * Never touches the live database: MONGODB_URI is replaced by the in-memory server.
  */
 import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 import { MOCK_NOW_ISO } from "../lib/test/mocks/yahoo";
 import { E2E_DESK_KEY } from "../e2e/support/desk-key";
@@ -19,6 +21,10 @@ const PORT = process.env.E2E_PORT ?? "3006";
 const DB = "hedging_sheet_e2e";
 
 async function main() {
+  // next start keeps cached reads on disk, and an expired tag does not survive a restart. This database is new, so anything cached
+  // came from an older one: a surface parameter a test saved would otherwise price the next run.
+  fs.rmSync(path.join(process.cwd(), ".next", "cache", "fetch-cache"), { recursive: true, force: true });
+
   const database = await startTestDatabase(DB);
   console.log(`e2e: in-memory Mongo replica set seeded (${DB})`);
 
