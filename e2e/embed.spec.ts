@@ -22,6 +22,10 @@ async function framed(page: Page, parentOrigin: string, app: string) {
 const post = (page: Page, message: unknown) => page.evaluate((m) => (document.getElementById("app") as HTMLIFrameElement).contentWindow!.postMessage(m, "*"), message);
 
 test.describe("Embed navigation in SP Workstation", () => {
+  // The stand-in Workstation is https and this server is http://localhost: WebKit blocks that frame as mixed content, which no
+  // launch option turns off. The real Workstation and the app are both https.
+  test.skip(({ browserName }) => browserName === "webkit", "WebKit blocks an http://localhost frame in an https page as mixed content");
+
   test("a message from the Workstation changes tab inside the frame, and the run survives with no reload", async ({ page, baseURL }) => {
     const app = page.frameLocator("#app");
     const frame = await framed(page, WORKSTATION, baseURL!);

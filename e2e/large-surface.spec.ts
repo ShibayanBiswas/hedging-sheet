@@ -28,7 +28,8 @@ test.describe("A surface over 100 rows", () => {
     await expect(page.getByTestId("vol-grid")).toBeVisible();
     await expect(page.getByTestId("vol-grid-legend")).toBeVisible();
     const box = page.getByTestId("vol-grid");
-    const dateCell = (ymd: string) => box.locator(`td[data-kind="date"]`).filter({ hasText: new RegExp(`-${ymd.slice(0, 4)}$`) });
+    // Phones show "Apr 39"; the full date is in the title at every width.
+    const dateCell = (ymd: string) => box.locator(`td[data-kind="date"][title$="-${ymd.slice(0, 4)}"]`);
 
     const mounted = await box.locator('td[data-kind="date"]').count();
     expect(mounted, "only a window of the 150 rows is in the page").toBeLessThan(50);

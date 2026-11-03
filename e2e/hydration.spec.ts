@@ -12,7 +12,11 @@ test.describe("First render when the browser's IST date differs from the server'
     test(`no hydration error with the browser's clock ${clock.name}, and the valuation date stays the server's`, async ({ page }) => {
       await page.clock.setFixedTime(new Date(clock.at));
       const errors: string[] = [];
-      page.on("pageerror", (e) => errors.push(e.message));
+      // WebKit reports a fetch cut short by the next page.goto as an access control failure; the app catches every fetch, and
+      // it never asks another origin for anything, so only those are left out.
+      page.on("pageerror", (e) => {
+        if (!/due to access control checks\.$/.test(e.message)) errors.push(e.message);
+      });
       for (const path of PAGES) {
         await page.goto(path);
         await expect(page.getByTestId("strip-valuation")).toHaveText("28-Oct-2026");

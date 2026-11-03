@@ -53,7 +53,8 @@ function measure(page: Page) {
             rb = b.getBoundingClientRect();
           const w = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
           const h = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
-          if (w > 1 && h > 1) overlaps.push(`${card.id}: "${a.textContent?.slice(0, 24) || a.dataset.testid}" on "${b.textContent?.slice(0, 24) || b.dataset.testid}"`);
+          // Joined segments share a border on purpose (margin-left: -1px), which Firefox lays out as 1.00003 px.
+          if (w > 1.5 && h > 1) overlaps.push(`${card.id}: "${a.textContent?.slice(0, 24) || a.dataset.testid}" on "${b.textContent?.slice(0, 24) || b.dataset.testid}"`);
         }
       }
     }
