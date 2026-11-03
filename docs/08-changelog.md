@@ -1,5 +1,16 @@
 # 08 · Changelog
 
+## Final Sign Off: Full Local Run, Linux Baselines, Fixes Found By The Tests
+
+| Area | Change |
+|---|---|
+| Button Hover | Hover only scales a button and no longer lifts it. In Safari, a lift moved the button's edge off a resting pointer, and the button then flickered between hovered and not, so it could not be clicked |
+| Test Server | `scripts/e2e-server.ts` clears `.next/cache/fetch-cache` at start, so a surface parameter saved in an earlier run cannot price the next one |
+| Test Runner | `E2E_PORT` moves `test:all`, `test:local` and Lighthouse off port 3000 when another app holds it. Playwright also writes `results.json`, which keeps skip reasons and measured numbers |
+| Tests | D3 and D4 now run on chromium-writes; before, they ran on no project. A Chrome performance trace of a run checks for long tasks. A hover regression test. Fixes for Firefox's 1 px segment border, phone surface dates, WebKit's mixed content frame and its cancelled fetches |
+| Visual | 98 Linux baselines: every tab at 390, 768, 1440 and 1920 in both modes as whole pages, 13 popups and toasts at 390 and 1440, and the Not Run and Inputs Changed states |
+| Evidence | Every run's summary and totals are in `docs/test-runs`. See [Sign Off · Final](signoff-final.md) |
+
 ## Final Round: Inputs Layout Rework, Single Calculated Tag, Output Tabs Kept As Before
 
 | Area | Change |

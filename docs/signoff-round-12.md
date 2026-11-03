@@ -19,6 +19,15 @@ Logic Atlas rebuild, edge cases, full automation testing on local and Vercel, an
 | 11 | Workbook audit has 0 Mismatches | Done | [Workbook Audit](workbook-audit.md): 10,802 cells, 0 Mismatch |
 | 12 | Production deploy Ready; this page holds CI links, reports and screenshots | Waiting on the push | Before and local after screenshots below |
 
+> **Correction, 03-Nov-2026.** This page overstates what can be shown.
+> - The two "706 pass, 0 fail" runs, and their Lighthouse passes, cannot be verified: `reports/all-2026-10-31_05-05-52` and `reports/all-2026-10-31_06-58-33` no longer exist.
+> - The "99 of 99" Vercel run cannot be verified either: `reports/vercel-2026-10-31_00-38-05` is gone.
+> - The 96.2% and 98.6% coverage figures came from those same missing runs.
+> - The last Round 12 runs that left reports were both at `ec5122c`, after the Final Polish changes. Vitest passed 540 of 540. Playwright on Chromium had 226 passed, 4 failed and 40 did not run (`reports/local-2026-10-31_12-18-11`). So the Round 12 code was not green locally when this page was written.
+> - Rows 5, 7 and 8 should read "not verified".
+>
+> See [Sign Off · Final](signoff-final.md) for runs whose evidence is committed under `docs/test-runs`.
+
 ## Local Runs, Twice In A Row
 
 Both runs are `npm run test:all` on Windows: every static check, then the production build on port 3000 against a seeded in-memory Mongo, which is gone when the run ends. Visual comparisons run on Linux only, which is why 96 tests are skipped here; the Linux baselines were compared separately in the CI image.

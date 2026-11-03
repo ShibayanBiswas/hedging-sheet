@@ -11,6 +11,8 @@
 | Caches | The `surface`, `history`, `history:nifty` and `history:sensex` tags expired on production, then the Vercel CDN and data cache purged |
 | Environment | `MONGODB_URI`, `MONGODB_DB` and `DESK_WRITE_KEY` set for Production and Preview; `NEXT_PUBLIC_E2E` set nowhere; `VERCEL_FORCE_NO_BUILD_CACHE` added for the one redeploy and removed |
 
+> **Correction, 03-Nov-2026.** The CI row leaves out a failure. CI on `3956954`, the final head of pull request 1, failed in Shard 1 (run 40920379549). That failure landed at 23:31, after the pull request was merged at 22:58. CI on the merge, `b076df3`, also failed in Shard 1. The counts in the table below come from the agent's own account; only the job results on GitHub can still be checked.
+
 ## Tests
 
 | Suite | Result |

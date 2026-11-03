@@ -16,4 +16,6 @@
 | [12 Pipeline](12-pipeline.md) | Input to engine to tables and Excel, where every default comes from, and what happens when a source fails |
 | [13 Bug Log](13-bug-log.md) | Every defect found this round, its fix and its regression test |
 | [14 Sign Off](14-sign-off.md) | The release: commit, deployment, test counts, before and after |
+| [Sign Off · Final](signoff-final.md) | The final round and final polish: every run with its evidence, failures and fixes, performance, both checklists |
+| [Test Runs](test-runs/) | Each run's summary, JUnit totals, skip reasons and measured numbers, committed because `reports/` is not |
 | [Database Audit Report](db-audit-report.md) | The inventory before and after the cleanup, the dry run and what was applied |

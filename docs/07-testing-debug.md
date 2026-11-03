@@ -24,8 +24,8 @@
 | Embed navigation | `tests/unit/embed-navigation.test.ts`, `tests/component/embed-navigation.test.tsx`, `e2e/embed.spec.ts` | Accepted and rejected origins, sources and paths, and in a real frame: the run surviving a tab change with no reload, and the footer fitting at 768 by 1024 |
 | Large surface | `e2e/large-surface.spec.ts` | 150 rows: a window of rows in the page, the last row reachable under a sticky header, every row mounted while editing, all 150 in the Excel download; 100 rows or fewer are not virtualised |
 | Market Data | `e2e/market-data.spec.ts` | At 1440, 1024 and 390 px: no sideways scroll, the sticky grid header with no pinned column, units, the Deep strike, copy, inline edit validation, uploads refused before any request, writes refused without the Desk Key and both downloads |
-| Visual | `e2e/visual` | `toHaveScreenshot` for the 8 tabs at desktop, tablet and phone widths, Linux baselines only, with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
-| Performance | `e2e/perf.spec.ts`, `lighthouserc.json` | LCP under 2.5 s, CLS under 0.1, TBT under 300 ms on Inputs and Pricer; a run under 3 s with mocks |
+| Visual | `e2e/visual` | `toHaveScreenshot` for every tab as a whole page at 390, 768, 1440 and 1920 px in both modes after a run, Blank Inputs as it opens, 13 popups and toasts and the Not Run and Inputs Changed states at 390 and 1440 px: 98 Linux baselines, with clocks and spots masked; animation smoke for the mode pill, the run steps and the reveal |
+| Performance | `e2e/perf.spec.ts`, `lighthouserc.json`, `lighthouserc.mobile.json` | LCP under 2 s, CLS under 0.05 and long-task time under 300 ms on Inputs and Pricer; a run of the default book under 1.5 s with no task over 200 ms, by a PerformanceObserver and by a Chrome performance trace; Lighthouse Performance at least 90 on desktop and mobile |
 | Production | `e2e/prod-smoke.spec.ts` | Five read-only checks against `BASE_URL`: health, the app loads, Run, one Excel download and a refused write; nothing is uploaded or saved |
 
 Rule and number checks that do not depend on the browser engine run once, on desktop Chromium. Firefox, WebKit and Pixel 7 run the flows, the keyboard, layout and accessibility checks.
@@ -57,7 +57,7 @@ Rule and number checks that do not depend on the browser engine run once, on des
 | `npm run test:prod:responsive` | The responsive audit against `BASE_URL`, read-only, with the real clock |
 | `npm run lhci` | Lighthouse budgets against the mock server |
 | `npm run test:all` | Typecheck, lint, knip, the copy rules, the workbook mapping and audit, then everything `test:local` runs |
-| `npm run test:local` | A production build on port 3000 with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage and Playwright on Chromium |
+| `npm run test:local` | A production build on port 3000, or `E2E_PORT` when another app holds it, with a seeded in-memory Mongo, gone when the run ends: Vitest with coverage and Playwright on Chromium |
 | `npm run test:local:full` | The same with Firefox, WebKit, mobile, every width and Lighthouse; CI always runs this |
 | `npm run test:vercel -- --url <url>` | Read only against a deployment: every page and API, then the production Playwright projects at every width, the crawl on three browsers. `--smoke` runs only the five checks. Refuses any host but `hedging-sheet.vercel.app`, its previews, and localhost over http. Sends `x-vercel-protection-bypass` from `VERCEL_AUTOMATION_BYPASS_SECRET` in the environment or `.env.local`, never printed, and never to localhost |
 | `npm run verify:yahoo` | Live Yahoo with no mock: both closes, the session status and a year of daily volatility |
@@ -99,7 +99,7 @@ Run one test by name with `npx playwright test -g "B13.2"`, or one project with 
 
 ## Updating snapshots
 
-Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 8 tabs at 3 widths, 24 files. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. A page may differ by at most 0.1% of its pixels. To check the committed baselines from any machine, run `npm run test:visual:linux -- compare`; any difference lands in `test-results/visual-compare` with its diff image. After an intended visual change, and only then, run `npm run test:visual:linux`: it rebuilds the app and rewrites all 24 baselines with Docker in `mcr.microsoft.com/playwright:v1.63.0-noble`, the image the CI visual job runs in, then commit them. When fewer than 24 Linux files are committed, the CI visual job also writes them and uploads the `visual-baselines-linux` artifact instead of failing.
+Baselines live under `e2e/visual/__screenshots__/chromium/linux`: 98 files, listed in `docs/test-runs/13-visual-linux.md`. Other systems skip the screenshot comparison, so fonts rendered on Windows or macOS never fail it. A page may differ by at most 0.1% of its pixels. To check the committed baselines from any machine, run `npm run test:visual:linux -- compare`; any difference lands in `test-results/visual-compare` with its diff image. After an intended visual change, and only then, run `npm run test:visual:linux`: it rebuilds the app and rewrites all the baselines with Docker in `mcr.microsoft.com/playwright:v1.63.0-noble`, the image the CI visual job runs in, then commit them. The manual `visual.yml` job only compares; it cannot write baselines.
 
 ## Reading traces
 
