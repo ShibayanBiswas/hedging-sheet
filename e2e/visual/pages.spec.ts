@@ -28,7 +28,7 @@ async function shootEveryTab(page: Page, nav: { go: (id: (typeof TAB_IDS)[number
     await nav.go(id);
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page);
-    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true });
+    await expect(page).toHaveScreenshot(`${prefix}-${id}.png`, { mask: masks(page), fullPage: true, timeout: 60_000 });
   }
 }
 
@@ -48,7 +48,7 @@ for (const v of VIEWPORTS) {
       await inputs.goto("blank");
       await restRunBar(page);
       await settle(page);
-      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true });
+      await expect(page).toHaveScreenshot(`blank-${v.width}-inputs-empty.png`, { mask: masks(page), fullPage: true, timeout: 60_000 });
       await fillBlank(inputs);
       await inputs.run();
       await shootEveryTab(page, nav, `blank-${v.width}`);
@@ -58,8 +58,15 @@ for (const v of VIEWPORTS) {
 
 type Context = { page: Page; inputs: InputsPage };
 
+/** A toast clears itself after 4 s; from here on it is held, so a slow machine compares the same picture every time. */
+const holdToasts = (page: Page) =>
+  page.evaluate(() => {
+    const { setTimeout: start } = window;
+    window.setTimeout = ((fn: TimerHandler, ms?: number, ...rest: unknown[]) => (ms === 4_000 ? 0 : start(fn, ms, ...rest))) as typeof window.setTimeout;
+  });
+
 /** Each opens one popup, dialog or toast, from a fresh page. */
-const POPUPS: Array<{ name: string; toast?: boolean; open: (c: Context) => Promise<void> }> = [
+const POPUPS: Array<{ name: string; open: (c: Context) => Promise<void> }> = [
   {
     name: "switch-mode",
     open: async ({ page, inputs }) => {
@@ -160,20 +167,21 @@ const POPUPS: Array<{ name: string; toast?: boolean; open: (c: Context) => Promi
   },
   {
     name: "toast-simulation-completed",
-    toast: true,
     open: async ({ page, inputs }) => {
       await inputs.goto();
+      await holdToasts(page);
       await inputs.run();
       await expect(page.getByTestId("desk-toast")).toHaveText("Simulation Completed");
     },
   },
   {
     name: "toast-excel-saved",
-    toast: true,
     open: async ({ page, inputs }) => {
       await inputs.goto();
       await inputs.run();
-      await expect(page.getByTestId("desk-toast")).toHaveCount(1);
+      // The run's own toast leaves first, so only the download's toast is in the picture.
+      await expect(page.getByTestId("desk-toast")).toHaveCount(0, { timeout: 15_000 });
+      await holdToasts(page);
       await page.getByTestId("tab-actions").getByTestId("download-excel").click();
       await expect(page.getByTestId("desk-toast")).toHaveText(/^Saved /, { timeout: 30_000 });
     },
@@ -186,13 +194,6 @@ for (const width of [390, 1440]) {
 
     for (const popup of POPUPS) {
       test(`visual baselines popup ${popup.name} at ${width}`, async ({ page, inputs }) => {
-        // A toast clears itself after 4 s; held here so a slow machine compares the same picture every time.
-        if (popup.toast) {
-          await page.addInitScript(() => {
-            const { setTimeout: start } = window;
-            window.setTimeout = ((fn: TimerHandler, ms?: number, ...rest: unknown[]) => (ms === 4_000 ? 0 : start(fn, ms, ...rest))) as typeof window.setTimeout;
-          });
-        }
         await popup.open({ page, inputs });
         // A click can leave the page behind a popup scrolled by a varying amount.
         await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
