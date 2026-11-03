@@ -241,6 +241,44 @@ test.describe("Final polish rendering", () => {
   });
 });
 
+test.describe("Final polish hover", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("a hovered button only grows, so a pointer resting on its edge never sets it flickering", async ({ page, inputs, isMobile }) => {
+    test.skip(isMobile, "Phones have no hover.");
+    await inputs.goto();
+    await page.getByTestId("mode-blank").click();
+    const ok = page.getByTestId("desk-dialog-ok");
+    await expect(ok).toBeVisible();
+    const box = () => ok.evaluate((e) => ({ ...e.getBoundingClientRect().toJSON(), hover: e.matches(":hover") }) as { top: number; bottom: number; left: number; right: number; hover: boolean });
+    // The popup's entrance settles first: two reads in a row agree.
+    let last = "";
+    await expect
+      .poll(async () => {
+        const now = JSON.stringify(await box());
+        const settled = now === last;
+        last = now;
+        return settled;
+      }, { intervals: [250] })
+      .toBe(true);
+    const rest = await box();
+    await page.mouse.move((rest.left + rest.right) / 2, rest.bottom - 1);
+    await page.waitForTimeout(400);
+    const seen: Array<Awaited<ReturnType<typeof box>>> = [];
+    for (let i = 0; i < 10; i++) {
+      seen.push(await box());
+      await page.waitForTimeout(50);
+    }
+    expect(new Set(seen.map((s) => JSON.stringify(s))).size, "the button holds still under the pointer").toBe(1);
+    const hovered = seen[0]!;
+    expect(hovered.hover).toBe(true);
+    expect(hovered.top).toBeLessThanOrEqual(rest.top + 0.5);
+    expect(hovered.bottom, "the hovered button still covers the pointer").toBeGreaterThanOrEqual(rest.bottom - 0.5);
+    expect(hovered.left).toBeLessThanOrEqual(rest.left + 0.5);
+    expect(hovered.right).toBeGreaterThanOrEqual(rest.right - 0.5);
+  });
+});
+
 test.describe("Final polish first paint", () => {
   test("the server's HTML is visible as it arrives, with no script needed to reveal it", async ({ request }) => {
     for (const path of ["/", "/summary", "/market-data", "/logic-atlas"]) {

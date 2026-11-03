@@ -489,8 +489,12 @@ textarea {
   transition: transform var(--motion-base) var(--motion-ease), opacity var(--motion-base) var(--motion-ease);
 }
 
+/*
+ * Hover only grows a button, never lifts it: a lift moved its lower edge off a resting pointer, and WebKit, which rechecks hover
+ * after every frame, then flipped it between hovered and not for as long as the pointer stayed there.
+ */
 .btn-motion:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.03);
+  transform: scale(1.03);
 }
 
 .btn-motion:active:not(:disabled) {
@@ -499,7 +503,7 @@ textarea {
 
 /* Run Simulation can be as wide as the window, so it moves less. */
 .hs-run-btn.btn-motion:hover:not(:disabled) {
-  transform: translateY(-1px) scale(1.01);
+  transform: scale(1.01);
 }
 
 .hs-run-btn.btn-motion:active:not(:disabled) {
