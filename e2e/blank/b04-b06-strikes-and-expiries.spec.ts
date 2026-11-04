@@ -138,7 +138,7 @@ test.describe("B5 Expiries", () => {
     ] as const) {
       await pasteExpiries(page, QUARTERLY.slice(0, n));
       await expect(inputs.field("hedgeExpiryIndex").locator("option:checked")).toHaveText(`Median · Expiry ${median + 1}`);
-      await expect(page.getByTestId(`expiry-note-${median}`)).toHaveText("Observation And Hedge Option Expiry");
+      await expect(page.getByTestId(`expiry-card-${median}`).getByTestId("expiry-hedge-badge")).toHaveText("Hedge Option Expiry");
     }
     await pasteExpiries(page, QUARTERLY.slice(0, 6));
     await inputs.run();

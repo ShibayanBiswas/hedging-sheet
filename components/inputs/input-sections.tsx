@@ -364,48 +364,59 @@ function ExpiriesGroup({ open }: { open: number }) {
         </>
       }
     >
-      <div className="inputs-grid inputs-grid-expiries">
-        <div className="expiry-card">
-          <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")}>
-            <CountPicker label="Number Of Expiry Dates" value={inputs.expiryCount} min={MIN_EXPIRIES} max={MAX_EXPIRIES} onChange={setCount} testId="input-expiryCount" invalid={Boolean(errorFor("expiryCount"))} />
-          </FieldRow>
-        </div>
-        {count ? null : (
-          <p className="inputs-slim-row" data-testid="expiries-empty">
-            Select Number Of Expiry Dates
-          </p>
-        )}
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="expiry-card" data-testid={`expiry-card-${i}`}>
-            <FieldRow label={`Expiry ${i + 1}`} error={errorFor(`expiryDates.${i}`)}>
-              <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
-            </FieldRow>
-            <span className={cn(notes[i] ? "hint truncate font-ui" : "hs-chip expiry-role")} data-testid={`expiry-note-${i}`} title={notes[i] ?? undefined}>
-              {notes[i] ?? (i === hedgeIndex ? "Observation And Hedge Option Expiry" : "Observation")}
-            </span>
-          </div>
-        ))}
+      <div className="inputs-grid">
+        <FieldRow label="Number Of Expiry Dates" error={errorFor("expiryCount")}>
+          <CountPicker label="Number Of Expiry Dates" value={inputs.expiryCount} min={MIN_EXPIRIES} max={MAX_EXPIRIES} onChange={setCount} testId="input-expiryCount" invalid={Boolean(errorFor("expiryCount"))} />
+        </FieldRow>
         {count ? (
-          <div className="expiry-card">
-            <FieldRow label="Hedge Option Expiry" tip="The Median Expiry Unless Picked">
-              <select
-                className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
-                value={inputs.hedgeExpiryIndex ?? "median"}
-                data-testid="input-hedgeExpiryIndex"
-                aria-label="Hedge Option Expiry"
-                onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
-              >
-                <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
-                {Array.from({ length: count }, (_, i) => (
-                  <option key={i} value={i}>
-                    Expiry {i + 1} · {formatDate(inputs.expiryDates[i])}
-                  </option>
-                ))}
-              </select>
-            </FieldRow>
-          </div>
+          <FieldRow label="Hedge Option Expiry" tip="The Median Expiry Unless Picked">
+            <select
+              className="glass-select h-9 w-full rounded-xl px-3 font-ui text-body"
+              value={inputs.hedgeExpiryIndex ?? "median"}
+              data-testid="input-hedgeExpiryIndex"
+              aria-label="Hedge Option Expiry"
+              onChange={(e) => setInputs({ hedgeExpiryIndex: e.target.value === "median" ? null : Number(e.target.value) })}
+            >
+              <option value="median">Median · Expiry {medianExpiryIndex(count) + 1}</option>
+              {Array.from({ length: count }, (_, i) => (
+                <option key={i} value={i}>
+                  Expiry {i + 1} · {formatDate(inputs.expiryDates[i])}
+                </option>
+              ))}
+            </select>
+          </FieldRow>
         ) : null}
       </div>
+      {count ? (
+        // Every card the same size with the same Observation chip; the hedge expiry is framed and named on its top edge, so it
+        // takes no room inside the card. A snapping note sits under the chip.
+        <div className="expiry-grid mt-2">
+          {Array.from({ length: count }, (_, i) => (
+            <div key={i} className={cn("expiry-card", i === hedgeIndex && "expiry-card-hedge")} data-testid={`expiry-card-${i}`}>
+              {i === hedgeIndex ? (
+                <span className="expiry-hedge-badge" data-testid="expiry-hedge-badge">
+                  Hedge Option Expiry
+                </span>
+              ) : null}
+              <FieldRow label={`Expiry ${i + 1}`} error={errorFor(`expiryDates.${i}`)}>
+                <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
+              </FieldRow>
+              <span className="hs-chip expiry-role" data-testid={`expiry-role-${i}`} title={i === hedgeIndex ? "Observation And Hedge Option Expiry" : undefined}>
+                Observation
+              </span>
+              {notes[i] ? (
+                <span className="hint font-ui" data-testid={`expiry-note-${i}`}>
+                  {notes[i]}
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="inputs-slim-row mt-2" data-testid="expiries-empty">
+          Select Number Of Expiry Dates
+        </p>
+      )}
       <BulkEditDialog<string>
         open={bulk}
         title="Bulk Edit Expiries"

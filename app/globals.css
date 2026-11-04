@@ -1240,26 +1240,57 @@ main:has(.inputs-page),
   .inputs-card-5 .inputs-grid > :nth-child(6) { flex-grow: 5; }
 }
 
-/* Expiry cards hold the long role chip, so they sit 2 across from 640 px, 3 from 1024, 4 from 1280 and 5 from 1440. */
+/*
+ * Expiry date cards on equal tracks, so every card is the same size and a short last row does not stretch.
+ * 1 across on phones, 2 from 640 px, 3 from 1024 px and 6 from 1280 px, so the default 6 expiries sit on one row.
+ */
+.expiry-grid {
+  --cols: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .expiry-grid { --cols: 2; }
+}
+
 @media (min-width: 1024px) {
-  .inputs-grid-expiries { --cols: 3; }
+  .expiry-grid { --cols: 3; }
 }
 
 @media (min-width: 1280px) {
-  .inputs-grid-expiries { --cols: 4; }
-}
-
-@media (min-width: 1440px) {
-  .inputs-grid-expiries { --cols: 5; }
+  .expiry-grid { --cols: 6; }
 }
 
 .expiry-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-2);
   border: 1px solid var(--ar-border);
   border-radius: var(--radius-md);
+}
+
+/* The hedge expiry: a maroon frame with its name set into the top edge, so the card keeps the others' size. */
+.expiry-card-hedge {
+  border-color: rgb(var(--accent-rgb) / 0.6);
+}
+
+.expiry-hedge-badge {
+  position: absolute;
+  top: 0;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  padding: 0 var(--space-1);
+  background: var(--ar-surface);
+  color: var(--accent);
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-size: var(--text-hint);
+  font-weight: 600;
+  line-height: 1rem;
+  white-space: nowrap;
 }
 
 .expiry-role {

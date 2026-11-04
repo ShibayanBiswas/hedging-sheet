@@ -230,21 +230,42 @@ test.describe("Final Inputs at 1440 px", () => {
     expect(await rowsOf(page, 7)).toEqual({ rows: 2, fields: 12 });
   });
 
-  test("expiries: a card grid of 5 across with the hedge dropdown last, dates as 31-Oct-2030, snapping kept", async ({ page, inputs }) => {
+  test("expiries: the count and hedge dropdown on one row, then 6 equal date cards on the next, dates as 31-Oct-2030, snapping kept", async ({ page, inputs }) => {
     await inputs.goto();
     await settle(page);
-    const card = (i: number) => page.getByTestId(`expiry-card-${i}`).boundingBox();
-    const first = (await card(0))!;
-    expect(first.y).toBe((await card(3))!.y);
-    expect((await card(4))!.y).toBeGreaterThan(first.y);
-    await expect(page.getByTestId("expiry-note-2")).toHaveText("Observation And Hedge Option Expiry");
-    await expect(page.getByTestId("expiry-note-0")).toHaveText("Observation");
+    const count = (await inputs.field("expiryCount").boundingBox())!;
+    const hedge = (await inputs.field("hedgeExpiryIndex").boundingBox())!;
+    expect(Math.abs(hedge.y - count.y), "the hedge dropdown on the count's row").toBeLessThanOrEqual(1);
+    const cards = await Promise.all([0, 1, 2, 3, 4, 5].map(async (i) => (await page.getByTestId(`expiry-card-${i}`).boundingBox())!));
+    for (const [i, c] of cards.entries()) {
+      expect(c.y, `card ${i} below the dropdowns`).toBeGreaterThan(count.y + count.height);
+      expect(Math.abs(c.y - cards[0]!.y), `card ${i} on the first card's row`).toBeLessThanOrEqual(1);
+      expect(Math.abs(c.width - cards[0]!.width), `card ${i} as wide as the first`).toBeLessThanOrEqual(1);
+      expect(Math.abs(c.height - cards[0]!.height), `card ${i} as tall as the first`).toBeLessThanOrEqual(1);
+    }
+    // Every card says Observation; the hedge expiry alone is framed and named on its edge.
+    await expect(page.getByTestId("expiry-card-2")).toHaveClass(/expiry-card-hedge/);
+    await expect(page.locator(".expiry-card-hedge")).toHaveCount(1);
+    await expect(page.getByTestId("expiry-card-2").getByTestId("expiry-hedge-badge")).toHaveText("Hedge Option Expiry");
+    await expect(page.getByTestId("expiry-hedge-badge")).toHaveCount(1);
+    for (const i of [0, 1, 2, 3, 4, 5]) await expect(page.getByTestId(`expiry-role-${i}`)).toHaveText("Observation");
+    await expect(page.getByRole("textbox", { name: "Expiry 3 · Observation And Hedge Option Expiry" })).toBeVisible();
     await expect(inputs.field("hedgeExpiryIndex").locator("option:checked")).toHaveText("Median · Expiry 3");
     await expect(page.locator("#group-2")).toContainText("The Median Expiry Unless Picked");
     await expect(inputs.field("expiryDates-2")).toHaveValue("31-Oct-2030");
     await inputs.fill("expiryDates-0", "2030-04-01");
     await expect(inputs.field("expiryDates-0")).toHaveValue("25-Apr-2030");
     await expect(inputs.field("expiryDates-0")).toHaveAttribute("data-value", "2030-04-25");
+    // The snapping note sits under the role, and the row's cards stay one height.
+    await expect(page.getByTestId("expiry-note-0")).toHaveText("Moved To The Last Thursday, 25-Apr-2030");
+    await expect(page.getByTestId("expiry-role-0")).toHaveText("Observation");
+    const heights = await Promise.all([0, 5].map(async (i) => (await page.getByTestId(`expiry-card-${i}`).boundingBox())!.height));
+    expect(Math.abs(heights[0]! - heights[1]!)).toBeLessThanOrEqual(1);
+    // Picking another hedge expiry moves the mark.
+    await inputs.field("hedgeExpiryIndex").selectOption("4");
+    await expect(page.getByTestId("expiry-card-4").getByTestId("expiry-hedge-badge")).toBeVisible();
+    await expect(page.locator(".expiry-card-hedge")).toHaveCount(1);
+    await expect(page.getByTestId("expiry-card-2")).not.toHaveClass(/expiry-card-hedge/);
   });
 
   test("a date field takes the desk format, the numeric forms and the calendar; text that is no date reverts with a popup", async ({ page, inputs, dialog }) => {
