@@ -112,9 +112,11 @@ describe("Inputs modes", () => {
     fireEvent.change(screen.getByTestId("input-expiryCount"), { target: { value: "3" } });
     expect((screen.getByTestId("input-expiryDates-2") as HTMLInputElement).value).toBe("");
     expect(screen.queryByTestId("input-expiryDates-3")).toBeNull();
-    // Three expiries: the median, Expiry 2, is the hedge option's.
-    expect(screen.getByTestId("expiry-note-0")).toHaveTextContent(/^Observation$/);
-    expect(screen.getByTestId("expiry-note-1")).toHaveTextContent("Observation And Hedge Option Expiry");
+    // Three expiries: the median, Expiry 2, is the hedge option's, framed and named on its edge.
+    expect(screen.getByTestId("expiry-role-0")).toHaveTextContent(/^Observation$/);
+    expect(screen.getByTestId("expiry-role-1")).toHaveTextContent(/^Observation$/);
+    expect(screen.getByTestId("expiry-card-1")).toHaveClass("expiry-card-hedge");
+    expect(screen.getByTestId("expiry-card-1")).toContainElement(screen.getByTestId("expiry-hedge-badge"));
     fireEvent.click(screen.getByTestId("input-expiryCount-plus"));
     expect(screen.getByTestId("input-expiryDates-3")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("input-expiryCount-minus"));
