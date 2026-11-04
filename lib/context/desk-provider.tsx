@@ -330,7 +330,9 @@ export function DeskProvider({ today, children }: {
     }
     const u: Underlying = prev.underlying || "Sensex";
     const spot = spotFor(u, levelsRef.current) ?? (Number.isFinite(prev.spot) ? prev.spot : undefined);
-    setInputsState({ ...defaultInputs({ valuationDate: levelsRef.current?.valuationDate ?? istTodayYmd(), spot }), underlying: u });
+    const base = defaultInputs({ valuationDate: levelsRef.current?.valuationDate ?? istTodayYmd(), spot });
+    // The defaults are built for Sensex; a kept Nifty takes its own expiry weekday and hedge strike rule.
+    setInputsState({ ...base, underlying: u, expiryDates: defaultExpiryDates(base.valuationDate, u), hedgeStrike: Number.isFinite(base.spot) ? autoHedgeStrike(base.spot, u) : NaN });
     void computeDailyVol({ underlying: u, windowDays: 365 });
   }, [computeDailyVol]);
 
