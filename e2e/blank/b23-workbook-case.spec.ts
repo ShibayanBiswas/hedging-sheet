@@ -273,6 +273,11 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await inputs.goto();
     for (const id of ["input-valuationDate", "input-spot", "input-hedgeStrike", "input-dailyVol"]) await inputs.fill(id, value(id));
 
+    // Quarterly From First Expiry: Expiry 1 typed as the H4 helper date moves to 31-Jan-2030, then every 3 months is C12 to H12.
+    await inputs.fill("input-expiryDates-0", value("input-expiryDates-0"));
+    await page.getByTestId("expiries-quarterly").click();
+    for (const [i, d] of TYPED.expiryDates.entries()) await expect(inputs.field(`expiryDates-${i}`)).toHaveValue(formatDate(d));
+
     // Bulk Edit Expiries: the helper dates pasted down a column, each moved to its last Thursday.
     await page.getByTestId("expiries-bulk").click();
     const helpers = [0, 1, 2, 3, 4, 5].map((i) => value(`input-expiryDates-${i}`));
