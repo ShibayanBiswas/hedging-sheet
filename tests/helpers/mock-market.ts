@@ -20,7 +20,7 @@ import surface from "../fixtures/surface.json";
 const roundTrip = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 /** /api/dataset reads the seeded documents, normalises them and sends JSON; the client normalises the surface again. */
-function fixtureMarket(): MarketData {
+export function fixtureMarket(): MarketData {
   const { monthKey, ...params } = pricingParams as PricingParams & { monthKey: string };
   void monthKey;
   const sent = roundTrip({ surface: normalizeVolSurface(surface as unknown as VolSurface), params: normalizePricingParams(params) });
@@ -71,6 +71,8 @@ export function blankFillInputs(fill = blankFill.fill as Array<[string, string]>
         d = { ...d, [field]: value };
       }
       if (field === "dailyVol") d = { ...d, dailyVolSource: "overridden" };
+      // A typed hedge strike turns Auto off, as the field does.
+      if (field === "hedgeStrike") d = { ...d, hedgeStrikeAuto: false };
     }
     if (d.hedgeStrikeAuto && d.underlying && Number.isFinite(d.spot)) d = { ...d, hedgeStrike: autoHedgeStrike(d.spot, d.underlying) };
   }

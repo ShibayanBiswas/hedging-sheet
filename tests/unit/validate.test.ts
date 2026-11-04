@@ -134,7 +134,7 @@ describe("Blank Inputs suite, unit level", () => {
   });
 
   it("B5.5 the option expiry is the median, the lower middle one for an even count", () => {
-    expect([1, 2, 3, 4, 5, 6, 7, 8].map(medianExpiryIndex)).toEqual([0, 0, 1, 1, 2, 2, 3, 3]);
+    expect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(medianExpiryIndex)).toEqual([0, 0, 1, 1, 2, 2, 3, 3, 4, 4]);
   });
 
   describe("B6.1 expiry weekday rule", () => {
