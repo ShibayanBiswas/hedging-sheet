@@ -141,7 +141,8 @@ describe("Blank Inputs suite, unit level", () => {
     /** Independent of the engine: walk back from the month's last day to the weekday. */
     const expected = (valuation: string, month: number, weekday: number) => {
       const raw = new Date(`${valuation}T00:00:00Z`);
-      raw.setUTCDate(raw.getUTCDate() + Math.round(month * 30.5));
+      // Summary G4 = G2 + G3 with G3 = months × 30.5: Excel's day is the whole part.
+      raw.setUTCDate(raw.getUTCDate() + Math.floor(month * 30.5));
       const d = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth() + 1, 0));
       while (d.getUTCDay() !== weekday) d.setUTCDate(d.getUTCDate() - 1);
       return d.toISOString().slice(0, 10);

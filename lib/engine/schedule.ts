@@ -25,9 +25,10 @@ export function maturityDate(inputs: Pick<HedgeInputs, "valuationDate" | "tenorD
   return addDays(inputs.valuationDate, Math.round(inputs.tenorDays));
 }
 
-/** The expiry for a month number: the last expiry weekday of the month that valuation date + round(m × 30.5) days falls in. */
+/** The expiry for a month number: the last expiry weekday of the month that valuation date + m × 30.5 days falls in. */
 export function expiryForMonth(valuationDate: string, monthNumber: number, underlying: Underlying): string {
-  const raw = addDays(valuationDate, Math.round(monthNumber * DAYS_PER_MONTH));
+  // Summary G4:M4 = G2:M2 + G3:M3, e.g. H4 = H2 + 41 × 30.5: Excel's day of a fractional date is its whole part, so the half day drops.
+  const raw = addDays(valuationDate, Math.floor(monthNumber * DAYS_PER_MONTH));
   const d = parseYmd(raw);
   return lastWeekdayOfMonth(d.getUTCFullYear(), d.getUTCMonth() + 1, EXPIRY_WEEKDAY[underlying]);
 }

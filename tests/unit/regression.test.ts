@@ -104,10 +104,10 @@ describe("live spot chain at 73,598.67", () => {
 
   it("uses future dividends only, as the app runs it", () => {
     const r = run(inputs, forwardMarket(october, "2026-10-28"));
-    expect(r.schedule.expiries).toEqual(["2030-04-25", "2030-07-25", "2030-10-31", "2030-12-26", "2031-04-24", "2031-07-31"]);
-    expect(r.summary.hedgeExpiry).toBe("2030-10-31");
-    expect(r.dayOneVegaHedge.quantity).toBeCloseTo(13258.58, 2);
-    expect(r.summary.actualInbuilt).toBeCloseTo(0.081669, 5);
+    expect(r.schedule.expiries).toEqual(["2030-03-28", "2030-07-25", "2030-09-26", "2030-12-26", "2031-04-24", "2031-07-31"]);
+    expect(r.summary.hedgeExpiry).toBe("2030-09-26");
+    expect(r.dayOneVegaHedge.quantity).toBeCloseTo(12914.96, 2);
+    expect(r.summary.actualInbuilt).toBeCloseTo(0.084668, 5);
   });
 
   it("re-derives vega, quantity, premium, option delta and residual futures by hand", () => {

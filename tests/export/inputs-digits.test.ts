@@ -28,7 +28,7 @@ const DEFAULT_BOOK: Record<string, string> = {
   "Expiry 4 · Observation::Expiry": "Expiry 4 · Observation",
   "Expiry 4 · Observation::Date": "26-Dec-2030",
   "Expiry 5 · Observation::Expiry": "Expiry 5 · Observation",
-  "Expiry 5 · Observation::Date": "24-Apr-2031",
+  "Expiry 5 · Observation::Date": "27-Mar-2031",
   "Expiry 6 · Observation::Expiry": "Expiry 6 · Observation",
   "Expiry 6 · Observation::Date": "31-Jul-2031",
   "Strike 1::Strike": "Strike 1",

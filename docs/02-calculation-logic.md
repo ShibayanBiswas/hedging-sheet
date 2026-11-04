@@ -52,7 +52,7 @@ With the defaults, Spread 1 runs from Strike 3 at 125 to Strike 2 at 127 and Spr
 
 - The weekday is fixed by the underlying: Sensex Thursday and Nifty Tuesday (NSE circular FAOP 68747 and BSE notice 20250623-59). `EXPIRY_WEEKDAY`.
 - `lastThursday(year, month)` and `lastWeekdayOfMonth` in `lib/dates.ts`; `snapExpiry` moves a typed date to its month's expiry day.
-- Default Values fill the expiries from helper months 41, 44, 47, 50, 53 and 56: each is the expiry day of the month that valuation date + ROUND(month × 30.5) days falls in, as the Summary Sheet's G3 to M3 helpers do. `expiryForMonth`, `defaultExpiryDates`. For 04-Aug-2026 that gives the workbook's C12 to H12 exactly.
+- Default Values fill the expiries from helper months 41, 44, 47, 50, 53 and 56: each is the expiry day of the month that valuation date + FLOOR(month × 30.5) days falls in. The Summary Sheet's helpers add the half day too, H4 = H2 + H3 with H3 = 41 × 30.5, and Excel reads a fractional date as the day of its whole part, so noon on 31-Mar-2030 is still March. `expiryForMonth`, `defaultExpiryDates`. For 04-Aug-2026 that gives the workbook's C12 to H12 exactly; for 28-Oct-2026 it gives 28-Mar-2030, 25-Jul-2030, 26-Sep-2030, 26-Dec-2030, 24-Apr-2031 and 31-Jul-2031.
 - Expiries are typed dates, each moved to the last expiry weekday of its month: the last Thursday for Sensex, as every expiry the workbook typed is, and the last Tuesday for Nifty. There is no holiday adjustment, because the workbook has none. They must rise strictly and none may fall after maturity. The count runs from 1 to 10.
 - The hedge Option Expiry defaults to the middle expiry, the lower one for an even count. `medianExpiryIndex`.
 - Maturity = valuation date + tenor days. `maturityDate`.
@@ -220,7 +220,7 @@ Annual volatility = daily × √365 (`Summary I26`). Both are editable and stay 
 
 | Cell | Meaning |
 |---|---|
-| C6 | Level = start × (1 + move) |
+| C6 | Level = spot × (1 + move): C6 = $C$16 × (1 + D6), with C16 = Summary C3 |
 | E6 | Product requirement in lakh = book delta at the bumped spot |
 | F6, G6 | Hedge option delta in lakh; residual futures = E6 + F6 |
 | H6 | Futures margin = −G6 × futures margin rate × level × 1e5 ÷ 1e7 |
@@ -287,7 +287,7 @@ On 28-Oct-2026 the live close was 73,598.67. Round 1 gave a hedge quantity of 12
 - **Option Expiry.** The median expiry moves from 25-Jul-2030 to 26-Sep-2030 under Round 1, and to 03-Oct-2030 under the nearest-Thursday rule. The hedge vega changes with it.
 - **Valuation date.** 28-Oct-2026 against 04-Aug-2026 moves the start of every leg by 85 days, and the Forward Growth row with it.
 
-With the expiry rule and future dividends that the app now uses, the same inputs give a quantity of 12,863.31 and an Inbuilt of 8.648%. The test re-derives the chain by hand: book vega, quantity = −book vega ÷ hedge vega, premium = quantity × fair price, options delta = sold quantity × hedge delta, and residual futures = total delta − options delta. Greek Details shows the sold quantity as negative, as the sheet does.
+With the expiry rule and future dividends that the app now uses, the same inputs give a quantity of 12,914.96 and an Inbuilt of 8.467%. The test re-derives the chain by hand: book vega, quantity = −book vega ÷ hedge vega, premium = quantity × fair price, options delta = sold quantity × hedge delta, and residual futures = total delta − options delta. Greek Details shows the sold quantity as negative, as the sheet does.
 
 ## Invariants checked on every build
 

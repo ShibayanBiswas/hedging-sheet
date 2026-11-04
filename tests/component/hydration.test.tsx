@@ -77,6 +77,6 @@ describe("first render, server and browser on different IST dates", () => {
   it("does not move the valuation date when the browser's date differs, and the default expiries stay on it", async () => {
     await hydrateAt("2026-11-03T04:30:00.000Z");
     expect((screen.getByTestId("input-valuationDate") as HTMLInputElement).value).toBe("28-Oct-2026");
-    expect((screen.getByTestId("input-expiryDates-0") as HTMLInputElement).value).toBe("25-Apr-2030");
+    expect((screen.getByTestId("input-expiryDates-0") as HTMLInputElement).value).toBe("28-Mar-2030");
   });
 });

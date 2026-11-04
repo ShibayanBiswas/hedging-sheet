@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { lastThursday, lastWeekdayOfMonth, snapToLastWeekday } from "@/lib/dates";
 import { defaultExpiryDates } from "@/lib/engine/defaults";
-import { quarterlyExpiries, snapExpiry } from "@/lib/engine/schedule";
+import { expiryForMonth, quarterlyExpiries, snapExpiry } from "@/lib/engine/schedule";
 
 const day = (ymd: string) => new Date(`${ymd}T00:00:00Z`);
 const plusDays = (ymd: string, n: number) => new Date(day(ymd).getTime() + n * 86_400_000).toISOString().slice(0, 10);
@@ -60,6 +60,15 @@ describe("expiries from the rule", () => {
     const dates = defaultExpiryDates("2026-08-04", "Sensex");
     expect(dates).toEqual(["2030-01-31", "2030-04-25", "2030-07-25", "2030-10-31", "2031-01-30", "2031-04-24"]);
     expect(dates[2]).toBe("2030-07-25");
+  });
+
+  it("drop the half day of an odd month as Excel reads Summary H4 = H2 + 41 × 30.5, so they never cross into the next month", () => {
+    // Rounding the half day up would land on 01-Oct-2030 and 01-Jul-2029; the workbook's helper dates are 30-Sep-2030 and 30-Jun-2029.
+    expect(expiryForMonth("2026-10-28", 47, "Sensex")).toBe("2030-09-26");
+    expect(expiryForMonth("2026-10-28", 47, "Nifty")).toBe("2030-09-24");
+    expect(expiryForMonth("2026-01-27", 41, "Sensex")).toBe("2029-06-28");
+    expect(expiryForMonth("2026-01-27", 41, "Nifty")).toBe("2029-06-26");
+    expect(defaultExpiryDates("2026-08-04", "Nifty")).toEqual(["2030-01-29", "2030-04-30", "2030-07-30", "2030-10-29", "2031-01-28", "2031-04-29"]);
   });
 
   it("snap a typed date to the last expiry weekday of its month, Thursday for Sensex and Tuesday for Nifty", () => {

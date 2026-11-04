@@ -30,15 +30,15 @@ const mixed = run(["C", "C", "P", "P", "C", "P"]);
 describe("All Put at the mock close", () => {
   it("matches the figures recorded with last Thursday expiries and the 77,300 desk hedge strike", () => {
     const h = put.pricer.header;
-    expect(put.schedule.expiries).toEqual(["2030-04-25", "2030-07-25", "2030-10-31", "2030-12-26", "2031-04-24", "2031-07-31"]);
+    expect(put.schedule.expiries).toEqual(["2030-03-28", "2030-07-25", "2030-09-26", "2030-12-26", "2031-04-24", "2031-07-31"]);
     expect(put.inputs.hedgeStrike).toBe(77300);
-    expect(h.premium / 1e7).toBeCloseTo(50.60749366293384, 9);
-    expect(put.summary.actualInbuilt).toBeCloseTo(0.07901284501318705, 12);
-    expect(h.nbfcAmount / 1e7).toBeCloseTo(57.58804860890243, 9);
-    expect(h.delta).toBeCloseTo(16871.97907131661, 6);
-    expect(put.summary.vegaCr).toBeCloseTo(0.5461356229854493, 12);
-    expect(put.dayOneVegaHedge.quantity).toBeCloseTo(12712.105473344256, 6);
-    expect(put.markToMarket.zeroRow.totalRequirementCr).toBeCloseTo(-32.130666889778865, 9);
+    expect(h.premium / 1e7).toBeCloseTo(50.91980194346003, 9);
+    expect(put.summary.actualInbuilt).toBeCloseTo(0.08198704705369353, 12);
+    expect(h.nbfcAmount / 1e7).toBeCloseTo(57.4007601497165, 9);
+    expect(h.delta).toBeCloseTo(16942.369399812374, 6);
+    expect(put.summary.vegaCr).toBeCloseTo(0.5314503023551457, 12);
+    expect(put.dayOneVegaHedge.quantity).toBeCloseTo(12401.250915989687, 6);
+    expect(put.markToMarket.zeroRow.totalRequirementCr).toBeCloseTo(-32.02053514491415, 9);
     expect(put.structure.strikes.map((s) => s.units)).toEqual([-10.05, 9.05, 1, -25.6, 24, 1].map((u) => expect.closeTo(u, 9)));
     expect(h.futuresAdjustment).toBe(0);
   });

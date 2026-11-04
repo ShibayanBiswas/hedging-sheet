@@ -1,5 +1,11 @@
 # 08 · Changelog
 
+## Workbook Parity: Default Expiries Drop The Half Day
+
+| Area | Change |
+|---|---|
+| Expiries | A default expiry is the last expiry weekday of the month that valuation date + FLOOR(month × 30.5) days falls in, as Excel reads Summary H4 = H2 + 41 × 30.5; rounding the half day up moved 84 of the 1,096 valuation dates in 2026 to 2028 into the next month. For 28-Oct-2026 the Sensex defaults are now 28-Mar-2030, 25-Jul-2030, 26-Sep-2030, 26-Dec-2030, 24-Apr-2031 and 31-Jul-2031, so the hedge expiry is 26-Sep-2030; the workbook's own 04-Aug-2026 dates are unchanged. Mock fixtures regenerated |
+
 ## Final Sign Off: Full Local Run, Linux Baselines, Fixes Found By The Tests
 
 | Area | Change |

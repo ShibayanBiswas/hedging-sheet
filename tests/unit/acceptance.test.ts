@@ -100,9 +100,10 @@ describe("solver and book", () => {
 
 describe("expiry rule", () => {
   it("takes the last expiry weekday of the month that valuation date plus months times 30.5 days falls in", () => {
-    // 28-Oct-2026 + 1,251 days = 01-Apr-2030: the last Thursday of April 2030 is the 25th, the last Tuesday the 30th.
-    expect(expiryForMonth("2026-10-28", 41, "Sensex")).toBe("2030-04-25");
-    expect(expiryForMonth("2026-10-28", 41, "Nifty")).toBe("2030-04-30");
+    // Summary H4 = H2 + 41 × 30.5: 28-Oct-2026 + 1,250.5 days is noon on 31-Mar-2030, which Excel reads as 31-Mar-2030.
+    // The last Thursday of March 2030 is the 28th, the last Tuesday the 26th.
+    expect(expiryForMonth("2026-10-28", 41, "Sensex")).toBe("2030-03-28");
+    expect(expiryForMonth("2026-10-28", 41, "Nifty")).toBe("2030-03-26");
   });
 });
 

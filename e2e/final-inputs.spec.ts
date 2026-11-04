@@ -230,7 +230,7 @@ test.describe("Final Inputs at 1440 px", () => {
     expect(await rowsOf(page, 7)).toEqual({ rows: 2, fields: 12 });
   });
 
-  test("expiries: the count and hedge dropdown on one row, then 6 equal date cards on the next, dates as 31-Oct-2030, snapping kept", async ({ page, inputs }) => {
+  test("expiries: the count and hedge dropdown on one row, then 6 equal date cards on the next, dates as 26-Sep-2030, snapping kept", async ({ page, inputs }) => {
     await inputs.goto();
     await settle(page);
     const count = (await inputs.field("expiryCount").boundingBox())!;
@@ -252,7 +252,7 @@ test.describe("Final Inputs at 1440 px", () => {
     await expect(page.getByRole("textbox", { name: "Expiry 3 · Observation And Hedge Option Expiry" })).toBeVisible();
     await expect(inputs.field("hedgeExpiryIndex").locator("option:checked")).toHaveText("Median · Expiry 3");
     await expect(page.locator("#group-2")).toContainText("The Median Expiry Unless Picked");
-    await expect(inputs.field("expiryDates-2")).toHaveValue("31-Oct-2030");
+    await expect(inputs.field("expiryDates-2")).toHaveValue("26-Sep-2030");
     await inputs.fill("expiryDates-0", "2030-04-01");
     await expect(inputs.field("expiryDates-0")).toHaveValue("25-Apr-2030");
     await expect(inputs.field("expiryDates-0")).toHaveAttribute("data-value", "2030-04-25");
