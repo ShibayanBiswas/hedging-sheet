@@ -1,5 +1,7 @@
 # Hedging Sheet Docs
 
+**[Project Complete](PROJECT-COMPLETE.md)**: the close-out, with the final state, production checks and what was left out.
+
 | Doc | What it covers |
 |---|---|
 | [01 Architecture](01-architecture.md) | Stack, layers, state and the Run Simulation flow, the database design, the caching policy, design system, copy rules |
