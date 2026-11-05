@@ -2,6 +2,10 @@
 
 Closed 05-Nov-2026. Live at [hedging-sheet.vercel.app](https://hedging-sheet.vercel.app); source at [ShibayanBiswas/hedging-sheet](https://github.com/ShibayanBiswas/hedging-sheet).
 
+## Excel Code Audit
+
+VERDICT: PASS WITH DOCUMENTED DEVIATIONS — Project Complete. Every Pricer row from 17 to 62 and the A5:V5 header match both reference workbooks; the only fix was a display one, `4f4b2f6`. Full audit: [Excel Code Audit Verdict](EXCEL-CODE-AUDIT-VERDICT.md).
+
 ## Product
 
 The Hedging Sheet for Anand Rathi Wealth prices a structured product's option book and its Day 1 hedge. The desk fills Inputs, presses Run Simulation, and reads the results on Summary Sheet, Pricer, Product Description, Day 1 Vega Hedge, Mark To Market, Market Data and Logic Atlas. Each output tab downloads as Excel and as PDF. Inputs are never stored, and results appear only after a run.

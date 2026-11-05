@@ -2,6 +2,8 @@
 
 **[Project Complete](PROJECT-COMPLETE.md)**: the close-out, with the final state, production checks and what was left out.
 
+**[Excel Code Audit Verdict](EXCEL-CODE-AUDIT-VERDICT.md)**: PASS WITH DOCUMENTED DEVIATIONS — every Pricer row and the whole macro flow checked against both reference workbooks.
+
 | Doc | What it covers |
 |---|---|
 | [01 Architecture](01-architecture.md) | Stack, layers, state and the Run Simulation flow, the database design, the caching policy, design system, copy rules |
