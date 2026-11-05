@@ -11,9 +11,11 @@ test("health endpoint", async ({ request }) => {
   const res = await request.get("/api/health");
   const text = await res.text();
   expect(res.status(), text).toBe(200);
-  const health = JSON.parse(text) as { status: string; database: { connected: boolean; name?: string } };
+  const health = JSON.parse(text) as { status: string; database: { connected: boolean; name?: string; sharedSurface?: { database: string; month: string | null } } };
   expect(health.status).toBe("ok");
   expect(health.database.connected).toBe(true);
+  // The desk prices on the Unwinding Calculator's active surface.
+  expect(health.database.sharedSurface?.month).toMatch(/^\d{4}-\d{2}$/);
   expect(text).not.toMatch(/mongodb(\+srv)?:\/\//);
 });
 

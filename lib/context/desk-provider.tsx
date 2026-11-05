@@ -4,9 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { autoHedgeStrike, defaultExpiryDates, defaultInputs, seedMarketData } from "@/lib/engine/defaults";
-import { istTodayYmd, isValidYmd } from "@/lib/engine/dates";
-import { snapExpiry } from "@/lib/engine/schedule";
+import { istTodayYmd } from "@/lib/engine/dates";
 import { priceBook } from "@/lib/engine/run-engine";
+import { deriveInputs } from "@/lib/inputs/derive";
 import type { HedgingFailure, HedgingResult, MarketData, PricingParams, Underlying, VolSurface } from "@/lib/engine/types";
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
@@ -40,6 +40,8 @@ export type DeskContextValue = {
   refreshLevels: () => Promise<MarketLevels | null>;
   /** Fills only the spot of the chosen underlying. */
   fetchLiveSpot: () => Promise<number | null>;
+  /** When the spot on the page was fetched; null once it is typed instead. */
+  spotFetchedAt: string | null;
   dailyVolStatus: DailyVolStatus;
   computeDailyVol: (override?: { underlying?: Underlying; windowDays?: number }) => Promise<number | null>;
   market: MarketData;
@@ -77,22 +79,6 @@ const WARNING_TITLES: Record<string, string> = {
   "expiry-surface": "Expiries Beyond The Surface",
   "loss-cap": "Loss Reaches 100% Before A 90% Fall",
 };
-
-/**
- * Values that follow other inputs: the auto hedge strike follows the spot and the underlying's rule,
- * and a new underlying moves every expiry to its own last expiry weekday of the month.
- */
-function derive(prev: DeskInputs, next: DeskInputs): DeskInputs {
-  const out = { ...next };
-  if (out.underlying && out.underlying !== prev.underlying) {
-    const u = out.underlying;
-    out.expiryDates = out.expiryDates.map((d) => (isValidYmd(d) ? snapExpiry(d, u) : d));
-    // A typed hedge strike belongs to the old index, so the new one follows its own spot.
-    if (prev.underlying) out.hedgeStrikeAuto = true;
-  }
-  if (out.hedgeStrikeAuto && out.underlying && Number.isFinite(out.spot)) out.hedgeStrike = autoHedgeStrike(out.spot, out.underlying);
-  return out;
-}
 
 function startInputs(mode: InputMode, levels: MarketLevels | null): DeskInputs {
   if (mode === "blank") return blankInputs();
@@ -132,6 +118,7 @@ export function DeskProvider({ today, children }: {
   const [simulation, setSimulation] = useState<SimulationState>({ running: false, step: -1 });
   const [lastRun, setLastRun] = useState<LastRun | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [spotFetch, setSpotFetch] = useState<{ at: string; spot: number; underlying: Underlying } | null>(null);
   const levelsRef = useRef<MarketLevels | null>(null);
   const inputsRef = useRef(inputs);
   const modeRef = useRef<InputMode>("default");
@@ -152,7 +139,7 @@ export function DeskProvider({ today, children }: {
   const setInputs = useCallback((patch: InputsPatch) => {
     setInputsState((prev) => {
       const delta = typeof patch === "function" ? patch(prev) : patch;
-      return derive(prev, { ...prev, ...delta });
+      return deriveInputs(prev, { ...prev, ...delta });
     });
   }, []);
 
@@ -176,7 +163,7 @@ export function DeskProvider({ today, children }: {
           const valuationDate = data.valuationDate ?? prev.valuationDate;
           // Untouched default expiries move with the close's date; typed ones stay.
           const untouched = JSON.stringify(prev.expiryDates) === JSON.stringify(defaultExpiryDates(prev.valuationDate, prev.underlying));
-          return derive(prev, { ...prev, spot, valuationDate, expiryDates: untouched ? defaultExpiryDates(valuationDate, prev.underlying) : prev.expiryDates });
+          return deriveInputs(prev, { ...prev, spot, valuationDate, expiryDates: untouched ? defaultExpiryDates(valuationDate, prev.underlying) : prev.expiryDates });
         });
       }
       return data;
@@ -206,7 +193,8 @@ export function DeskProvider({ today, children }: {
       setLevels(data);
       const spot = spotFor(u, data);
       if (spot == null) throw new Error("No close was returned.");
-      setInputsState((prev) => derive(prev, { ...prev, spot }));
+      setSpotFetch({ at: data.fetchedAt ?? new Date().toISOString(), spot, underlying: u });
+      setInputsState((prev) => deriveInputs(prev, { ...prev, spot }));
       return spot;
     } catch {
       alert("The live close could not be fetched. Type the spot instead.", { variant: "error", title: "Fetch Failed" });
@@ -443,6 +431,13 @@ export function DeskProvider({ today, children }: {
 
   const keys = useMemo(() => splitKeys(inputs), [inputs]);
 
+  const spotFetchedAt =
+    mode === "default"
+      ? (levels?.fetchedAt ?? null)
+      : spotFetch && spotFetch.spot === inputs.spot && spotFetch.underlying === inputs.underlying
+        ? spotFetch.at
+        : null;
+
   const staleInputs = lastRun != null && lastRun.inputsKey !== keys.inputsKey;
   const stale = lastRun != null && (staleInputs || lastRun.overridesKey !== keys.overridesKey || lastRun.marketVersion !== marketVersion);
 
@@ -464,6 +459,7 @@ export function DeskProvider({ today, children }: {
       levelsLoading,
       refreshLevels,
       fetchLiveSpot,
+      spotFetchedAt,
       dailyVolStatus,
       computeDailyVol,
       market,
@@ -482,6 +478,7 @@ export function DeskProvider({ today, children }: {
       stale,
     }),
     [
+      spotFetchedAt,
       mode,
       requestMode,
       inputs,

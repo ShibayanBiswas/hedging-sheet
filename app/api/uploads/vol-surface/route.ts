@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { deskMonthKey, loadActiveParams, ReferenceDataError, saveReferenceData } from "@/lib/data/load";
+import { deskMonthKey, loadActiveParams, loadActiveSurface, ReferenceDataError, saveReferenceData } from "@/lib/data/load";
 import { monthKeySchema, pricingParamsSchema, schemaIssues, volSurfaceSchema } from "@/lib/db/schemas";
-import { deepMismatchCount, normalizeVolSurface } from "@/lib/engine/vol-surface";
+import { deepMismatchCount, normalizeVolSurface, withMonthScalars } from "@/lib/engine/vol-surface";
 import { guardWrite } from "@/lib/server/write-guard";
 import { looksLikeExcel, MAX_UPLOAD_BYTES, uploadProblem } from "@/lib/upload-limits";
 import { parseVolSurfaceFile } from "@/lib/excel/parse-vol-surface";
@@ -16,7 +16,8 @@ const bad = (issue: string, status = 400) => NextResponse.json({ error: issue, i
 
 /**
  * Reads an uploaded surface workbook. With mode=preview the parsed surface is checked and returned and nothing is written;
- * without it the surface, and any surface parameters in the file, replace this month in one transaction.
+ * without it the surface, and any surface parameters in the file, replace this month in one transaction, and the
+ * grid becomes the Unwinding Calculator's active surface, so one file feeds both desks.
  */
 export async function POST(req: Request) {
   const blocked = guardWrite(req, MAX_UPLOAD_BYTES + FORM_OVERHEAD);
@@ -46,6 +47,12 @@ export async function POST(req: Request) {
   }
 
   const params = Object.keys(parsed.params).length ? { ...(await loadActiveParams()).params, ...parsed.params } : null;
+  // A file with one Surface Parameters point, the Unwinding Calculator's layout, keeps the desk's dated
+  // Pricing Params grid and sets that point's bump and forward sell rate from its month onward.
+  if (parsed.surface.pricingParams.length === 1) {
+    const { volBump, fwdSellRate } = parsed.surface.pricingParams[0]!;
+    parsed.surface.pricingParams = withMonthScalars((await loadActiveSurface()).surface.pricingParams, parsed.surface.monthKey, { volBump, fwdSellRate });
+  }
   const surface = normalizeVolSurface(parsed.surface);
   const summary = { expiries: surface.expiries.length, strikePercents: surface.moneyness.length, deepAdjusted: deepMismatchCount(parsed.surface) };
 
@@ -61,7 +68,7 @@ export async function POST(req: Request) {
   const source = `upload ${file.name.replace(/[^\w .-]/g, "").slice(0, 120)}`;
   try {
     const persisted = await saveReferenceData(
-      { surface: parsed.surface, params: params ? { values: params, monthKey: deskMonthKey() } : undefined },
+      { surface: parsed.surface, params: params ? { values: params, monthKey: deskMonthKey() } : undefined, shareGrid: true },
       source,
     );
     return NextResponse.json({ ok: true, surface, params, persisted, summary });

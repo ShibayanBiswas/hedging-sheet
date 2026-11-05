@@ -142,7 +142,8 @@ describe("Edge · Database", () => {
     saved.volsPercent[0][2] = 41.25;
     expect((await postSurface(write("/api/surface", JSON.stringify(saved)))).status).toBe(200);
     const dataset = await (await getDataset()).json();
-    expect(dataset.surfaceSource).toBe("database");
+    // A saved grid is also the Unwinding Calculator's active surface, so it is read back from there.
+    expect(dataset.surfaceSource).toBe("shared");
     expect(dataset.surface.volsPercent[0][2]).toBe(41.25);
   });
 });

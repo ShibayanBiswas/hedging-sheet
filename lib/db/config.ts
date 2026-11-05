@@ -23,6 +23,21 @@ export function resolveDbName(env: Env = process.env): string {
   return explicit || PRODUCTION_DB;
 }
 
+/** The Unwinding Calculator's database on the same cluster: its active Volatility Surface is the desk surface. */
+const UNWINDING_DB = "unwinding_calculator";
+
+/**
+ * Production reads unwinding_calculator. Every other environment takes the matching suffix, such as
+ * unwinding_calculator_preview or unwinding_calculator_test, so only production ever touches the live surface.
+ */
+export function resolveUnwindingDbName(env: Env = process.env): string {
+  const explicit = env.UNWINDING_MONGODB_DB?.trim();
+  if (explicit) return explicit;
+  const own = resolveDbName(env);
+  if (own === PRODUCTION_DB) return UNWINDING_DB;
+  return own.startsWith(`${PRODUCTION_DB}_`) ? `${UNWINDING_DB}${own.slice(PRODUCTION_DB.length)}` : `${UNWINDING_DB}_${own}`;
+}
+
 export function resolveMongoConfig(env: Env = process.env): MongoConfig | null {
   const dbName = resolveDbName(env);
   const directUri = env.MONGODB_URI?.trim();

@@ -6,7 +6,9 @@
 | [02 Calculation Logic](02-calculation-logic.md) | Every sheet formula mapped to the engine function, with cell references |
 | [03 Pricer Logic](03-pricer-logic.md) | The Pricer tab: layout, legs, volatility overrides, Bid or Offer |
 | [04 Input Files](04-input-files.md) | The vol surface upload layout and the surface parameters |
-| [05 MongoDB and Seed](05-mongodb-and-seed.md) | What is stored, the seed fallback and the database scripts |
+| [05 MongoDB and Seed](05-mongodb-and-seed.md) | What is stored, the shared surface, the seed fallback and the database scripts |
+| [Input Parameters Guide](input-parameters-guide.md) | Every Inputs field: meaning, default, rule, Blank Inputs behaviour and where the engine reads it |
+| [Market Data Parameters Guide](market-data-parameters-guide.md) | The surface shared with the Unwinding Calculator, upload and reload, every Surface Parameter, dividends and the collections |
 | [06 Routes and UI](06-routes-and-ui.md) | Shell, tabs, Inputs sections, popups, output tabs and API routes |
 | [07 Testing and Debug](07-testing-debug.md) | Test commands, reports, CI, the edge case tests and the pipeline trace |
 | [08 Changelog](08-changelog.md) | Every round's changes, newest first |
@@ -16,6 +18,7 @@
 | [12 Pipeline](12-pipeline.md) | Input to engine to tables and Excel, where every default comes from, and what happens when a source fails |
 | [13 Bug Log](13-bug-log.md) | Every defect found this round, its fix and its regression test |
 | [14 Sign Off](14-sign-off.md) | The release: commit, deployment, test counts, before and after |
+| [Sign Off · Logic Round](signoff-logic-round.md) | The shared surface, Blank Inputs auto fill, editable Surface Parameters, the Nifty workbook golden, and the production check |
 | [Sign Off · Final](signoff-final.md) | The final round and final polish: every run with its evidence, failures and fixes, performance, both checklists |
 | [Test Runs](test-runs/) | Each run's summary, JUnit totals, skip reasons and measured numbers, committed because `reports/` is not |
 | [Database Audit Report](db-audit-report.md) | The inventory before and after the cleanup, the dry run and what was applied |

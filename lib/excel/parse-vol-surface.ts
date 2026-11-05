@@ -198,7 +198,11 @@ function parseCurveAndDividends(wb: XLSX.WorkBook): { rateCurve?: RatePoint[]; d
         }
       }
       if (!dividends && divCol > 0) {
-        const dateCol = row.findIndex((c, idx) => idx < divCol && text(c) === "date");
+        // The nearest Date header to the left: the rate curve block has a Date header of its own further left.
+        let dateCol = -1;
+        row.forEach((c, idx) => {
+          if (idx < divCol && text(c) === "date") dateCol = idx;
+        });
         if (dateCol >= 0) {
           const points: DividendPoint[] = [];
           for (let r = i + 1; r < grid.length; r++) {

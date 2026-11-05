@@ -237,6 +237,13 @@ export function pricingRowForMonth(params: PricingParamPoint[], valuationDate: s
   return after ?? params[params.length - 1]!;
 }
 
+/** Writes values onto the Pricing Params rows from a month's row onward, as a Surface Parameters save does. */
+export function withMonthScalars(params: PricingParamPoint[], monthKey: string, patch: Partial<Omit<PricingParamPoint, "date">>): PricingParamPoint[] {
+  const row = pricingRowForMonth(params, `${monthKey}-01`);
+  const from = row ? parseYmd(row.date).getTime() : -Infinity;
+  return params.map((p) => (parseYmd(p.date).getTime() >= from ? { ...p, ...patch } : p));
+}
+
 /**
  * The market a live run reads: Pricing Params from the valuation month row onward (the forward grid)
  * and implied dividends on or after the valuation date. Older rows are never looked up by a live expiry.

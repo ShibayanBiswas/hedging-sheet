@@ -15,6 +15,7 @@ export async function GET() {
   return NextResponse.json({ surface, source }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
 
+/** An edited grid is the desk surface: it is saved here and as the Unwinding Calculator's active surface. */
 export async function POST(req: Request) {
   const blocked = guardWrite(req, MAX_BYTES);
   if (blocked) return blocked;
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Volatility Surface is incomplete", issues: ["Keep at least one expiry row before saving."] }, { status: 400 });
   }
   try {
-    const persisted = await saveReferenceData({ surface: read.body as VolSurface }, "desk edit");
+    const persisted = await saveReferenceData({ surface: read.body as VolSurface, shareGrid: true }, "desk edit");
     return NextResponse.json({ ok: true, surface: normalizeVolSurface(read.body as VolSurface), persisted });
   } catch (err) {
     if (err instanceof ReferenceDataError) return NextResponse.json({ error: "Volatility Surface is incomplete", issues: err.issues }, { status: 400 });

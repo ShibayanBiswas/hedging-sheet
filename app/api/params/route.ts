@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { deskMonthKey, loadActiveParams, loadActiveSurface, ReferenceDataError, saveReferenceData } from "@/lib/data/load";
-import { pricingParamsSchema, schemaIssues } from "@/lib/db/schemas";
-import { istTodayYmd, parseYmd } from "@/lib/engine/dates";
-import { pricingRowForMonth } from "@/lib/engine/vol-surface";
+import { deskMonthKey, loadActiveParams, loadActiveSurface, loadMonthParams, ReferenceDataError, saveReferenceData } from "@/lib/data/load";
+import { monthKeySchema, pricingParamsSchema, schemaIssues } from "@/lib/db/schemas";
+import { readSurfaceOnOrBefore } from "@/lib/db/vol-surfaces";
+import { normalizeVolSurface, surfaceMonthLabel, withMonthScalars } from "@/lib/engine/vol-surface";
 import { guardWrite, readJsonBody } from "@/lib/server/write-guard";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,15 @@ export const runtime = "nodejs";
 
 const MAX_BYTES = 1024 * 1024;
 
-export async function GET() {
+/** The active surface parameters, or with ?month=YYYY-MM one month's parameters and Pricing Params grid. */
+export async function GET(req?: Request) {
+  const raw = req ? new URL(req.url).searchParams.get("month") : null;
+  if (raw != null) {
+    const month = monthKeySchema.safeParse(raw);
+    if (!month.success) return NextResponse.json({ error: "Choose the month as YYYY-MM." }, { status: 400 });
+    const { params, pricingParams, storedMonth } = await loadMonthParams(month.data);
+    return NextResponse.json({ params, pricingParams, monthKey: month.data, storedMonth }, { headers: { "Cache-Control": "no-store, max-age=0" } });
+  }
   const { params, source, monthKey } = await loadActiveParams();
   return NextResponse.json({ params, source, monthKey }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
@@ -32,16 +40,16 @@ function readGrid(raw: unknown): GridScalars | null {
 }
 
 /**
- * Surface parameters for the current month: Bid or Offer, the rate caps, the dividend factor and the rate curve,
- * plus the Pricing Params scalars, which are written to every row of the forward grid of this month's surface.
- * Both are saved in one transaction.
+ * Surface parameters for one month, the current month unless monthKey names another: Bid or Offer, the rate caps,
+ * the dividend factor and the rate curve, plus the Pricing Params scalars, which are written to the forward grid
+ * of that month's surface document from the month's row onward. Both are saved in one transaction.
  */
 export async function POST(req: Request) {
   const blocked = guardWrite(req, MAX_BYTES);
   if (blocked) return blocked;
   const read = await readJsonBody(req, MAX_BYTES);
   if (!read.ok) return read.response;
-  const body = read.body as { params?: unknown; grid?: unknown } | null;
+  const body = read.body as { params?: unknown; grid?: unknown; monthKey?: unknown } | null;
   const checked = pricingParamsSchema.safeParse(body?.params);
   if (!checked.success) {
     return NextResponse.json({ error: "Surface parameters are incomplete", issues: schemaIssues(checked.error) }, { status: 400 });
@@ -50,17 +58,20 @@ export async function POST(req: Request) {
   if (body?.grid != null && !grid) {
     return NextResponse.json({ error: "Pricing Params values must be between 0% and 100%." }, { status: 400 });
   }
-  const monthKey = deskMonthKey();
+  const month = body?.monthKey == null ? { success: true as const, data: deskMonthKey() } : monthKeySchema.safeParse(body.monthKey);
+  if (!month.success) return NextResponse.json({ error: "Choose the month as YYYY-MM." }, { status: 400 });
+  const monthKey = month.data;
   const params = checked.data;
   let surface = null;
   if (grid) {
     const active = (await loadActiveSurface()).surface;
-    const row = pricingRowForMonth(active.pricingParams, istTodayYmd());
-    const from = row ? parseYmd(row.date).getTime() : -Infinity;
+    const own = monthKey === active.monthKey ? null : await readSurfaceOnOrBefore(monthKey).catch(() => null);
+    const base = own ? normalizeVolSurface(own) : active;
     surface = {
       ...active,
       monthKey,
-      pricingParams: active.pricingParams.map((p) => (parseYmd(p.date).getTime() >= from ? { ...p, ...grid } : p)),
+      label: monthKey === active.monthKey ? active.label : surfaceMonthLabel(monthKey),
+      pricingParams: withMonthScalars(base.pricingParams, monthKey, grid),
     };
   }
   try {

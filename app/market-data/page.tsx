@@ -14,8 +14,8 @@ import { useDesk } from "@/lib/context/desk-provider";
 import { useSurfaceUpload, type MarketStatus } from "@/lib/context/surface-upload-provider";
 import { formatDate } from "@/lib/engine/dates";
 import { rateCapSellingForward } from "@/lib/engine/rates";
-import type { BidOffer, PricingParams, VolSurface } from "@/lib/engine/types";
-import { pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
+import type { BidOffer, PricingParamPoint, PricingParams, VolSurface } from "@/lib/engine/types";
+import { pricingRowForMonth, referencePriceForUnderlying, SEED_SURFACE, surfaceMonthLabel } from "@/lib/engine/vol-surface";
 import { fmtIstTime, fmtPercent } from "@/lib/format";
 import { QUOTE_UNDERLYING } from "@/lib/underlyings";
 import { downloadSurfaceFile } from "@/lib/excel/excel-runtime";
@@ -27,20 +27,29 @@ const VolSurfaceGrid = dynamic(() => import("@/components/market/vol-surface-gri
 });
 
 const SAMPLE_FILE = "/samples/Hedging_Sheet_Vol_Surface_Sample.xlsx";
+const SOURCE_LABELS: Record<string, string> = { shared: "Shared With The Unwinding Calculator", database: "Desk Database" };
 const now = () => fmtIstTime(new Date().toISOString());
 
 type Grid = { volBump: number; incMargin: number; fullMargin: number; marginCost: number; fwdSellRate: number };
 
-function gridFrom(surface: VolSurface, valuationDate: string, fallbackFwd: number): Grid {
-  const row = pricingRowForMonth(surface.pricingParams, valuationDate);
+/** A month's Pricing Params row; a margin the row lacks takes the built in row of that month. */
+function gridFrom(points: PricingParamPoint[], monthKey: string, fallbackFwd: number): Grid {
+  const at = `${monthKey}-01`;
+  const row = pricingRowForMonth(points, at);
+  const seed = pricingRowForMonth(SEED_SURFACE.pricingParams, at);
   return {
     volBump: row?.volBump ?? 0,
-    incMargin: row?.incMargin ?? 0,
-    fullMargin: row?.fullMargin ?? 0,
-    marginCost: row?.marginCost ?? 0,
+    incMargin: row?.incMargin ?? seed?.incMargin ?? 0,
+    fullMargin: row?.fullMargin ?? seed?.fullMargin ?? 0,
+    marginCost: row?.marginCost ?? seed?.marginCost ?? 0,
     fwdSellRate: row?.fwdSellRate ?? fallbackFwd,
   };
 }
+
+/** Another month opened in the editor; null while it shows the desk month. */
+type MonthData = { monthKey: string; params: PricingParams; pricingParams: PricingParamPoint[] };
+
+const monthName = (key: string) => surfaceMonthLabel(key).replace(" Volatility Surface", "");
 
 /** One height for every toolbar button: 44 px, the touch target. */
 function ToolButton({
@@ -77,10 +86,18 @@ function SurfaceParamsEditor() {
   const [grid, setGrid] = useState<Grid | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<MarketStatus | null>(null);
-  const saved = useMemo(() => gridFrom(market.surface, inputs.valuationDate, market.params.forwardSellRate), [market, inputs.valuationDate]);
-  const params = draft ?? market.params;
+  const [month, setMonth] = useState<MonthData | null>(null);
+  const deskMonth = market.surface.monthKey;
+  const monthKey = month?.monthKey ?? deskMonth;
+  const baseParams = month?.params ?? market.params;
+  const saved = useMemo(
+    () => gridFrom(month?.pricingParams ?? market.surface.pricingParams, monthKey, baseParams.forwardSellRate),
+    [month, market.surface.pricingParams, monthKey, baseParams.forwardSellRate],
+  );
+  const params = draft ?? baseParams;
   const g = grid ?? saved;
   const linked = params.rateCurve.every((p) => p.linkedToPremiumRate) ? "Y" : params.rateCurve.every((p) => !p.linkedToPremiumRate) ? "N" : "M";
+  const sellingCap = rateCapSellingForward(params, inputs.premiumRate);
 
   const edit = (patch: Partial<PricingParams>) => setDraft({ ...params, ...patch });
   const editGrid = (patch: Partial<Grid>) => setGrid({ ...g, ...patch });
@@ -96,7 +113,34 @@ function SurfaceParamsEditor() {
   const cancel = () => {
     setDraft(null);
     setGrid(null);
+    setMonth(null);
     setEditing(false);
+  };
+
+  /** Opens another month: its saved parameters, or for a new month the latest earlier ones it starts from. */
+  const pickMonth = async (key: string) => {
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(key) || key === monthKey) return;
+    if (key === deskMonth) {
+      setMonth(null);
+      setDraft(market.params);
+      setGrid(gridFrom(market.surface.pricingParams, key, market.params.forwardSellRate));
+      setStatus(null);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/params?month=${key}`, { cache: "no-store" });
+      if (!res.ok) throw new Error();
+      const data = (await res.json()) as { params: PricingParams; pricingParams: PricingParamPoint[]; storedMonth: string | null };
+      setMonth({ monthKey: key, params: data.params, pricingParams: data.pricingParams });
+      setDraft(data.params);
+      setGrid(gridFrom(data.pricingParams, key, data.params.forwardSellRate));
+      setStatus({
+        tone: "ok",
+        text: data.storedMonth === key ? `Loaded ${monthName(key)} From Desk Database` : `${monthName(key)} Is New: It Starts From The Latest Earlier Month Until Saved`,
+      });
+    } catch {
+      setStatus({ tone: "error", text: `Not Loaded: ${monthName(key)} Could Not Be Read From The Desk Database.` });
+    }
   };
 
   const save = async () => {
@@ -105,27 +149,28 @@ function SurfaceParamsEditor() {
       setStatus({ tone: "error", text: "Not Saved: Rate Curve Tenors Must Rise Strictly From Zero Or More." });
       return;
     }
-    if (Object.values(g).some((v) => !Number.isFinite(v) || v < 0 || v > 1)) {
-      setStatus({ tone: "error", text: "Not Saved: Volatility Bump, The Margins And The Forward Sell Rate Must Be Between 0% And 100%." });
+    if ([...Object.values(g), params.rateCapSellingForward ?? 0].some((v) => !Number.isFinite(v) || v < 0 || v > 1)) {
+      setStatus({ tone: "error", text: "Not Saved: Volatility Bump, The Margins, The Forward Sell Rate And The Rate Caps Must Be Between 0% And 100%." });
       return;
     }
     setBusy(true);
     try {
-      const res = await writeFetch("/api/params", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ params, grid: g }) });
+      const res = await writeFetch("/api/params", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ params, grid: g, monthKey }) });
       if (!res) return;
       const data = await res.json();
       if (!res.ok) {
         setStatus({ tone: "error", text: `Not Saved: ${data.issues?.[0] ?? data.error ?? "The Save Failed."}` });
         return;
       }
-      applyMarket({ params: data.params, ...(data.surface ? { surface: data.surface } : {}) });
+      if (data.monthKey === deskMonth) applyMarket({ params: data.params, ...(data.surface ? { surface: data.surface } : {}) });
       cancel();
+      const name = monthName(data.monthKey);
       if (data.persisted === false) {
-        setStatus({ tone: "warn", text: `Applied For This Session: Surface Parameters For ${data.monthKey} · ${now()}` });
+        setStatus({ tone: "warn", text: `Applied For This Session: Surface Parameters For ${name} · ${now()}` });
         toast("Surface Parameters Applied For This Session");
       } else {
-        setStatus({ tone: "ok", text: `Saved To Desk Database: Surface Parameters For ${data.monthKey} · ${now()}` });
-        toast(`Surface Parameters Saved For ${data.monthKey}`);
+        setStatus({ tone: "ok", text: `Saved To Desk Database: Surface Parameters For ${name} · ${now()}` });
+        toast(`Surface Parameters Saved For ${name}`);
       }
     } catch {
       setStatus({ tone: "error", text: "Not Saved: The Desk Database Could Not Be Reached." });
@@ -145,7 +190,21 @@ function SurfaceParamsEditor() {
     editing ? <NumberInput kind="percent" digits={2} suffix="%" value={value} onChange={onChange} testId={testId} /> : fmtPercent(value, 2);
 
   const rows: Array<{ label: string; value: ReactNode }> = [
-    { label: "Month", value: market.surface.label.replace(" Volatility Surface", "") },
+    {
+      label: "Month",
+      value: editing ? (
+        <input
+          type="month"
+          value={monthKey}
+          onChange={(e) => void pickMonth(e.target.value)}
+          aria-label="Month"
+          data-testid="param-month"
+          className="input-glow h-9 w-full min-w-0 rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none focus:border-gold"
+        />
+      ) : (
+        market.surface.label.replace(" Volatility Surface", "")
+      ),
+    },
     {
       label: "Bid Or Offer",
       value: editing ? (
@@ -181,7 +240,29 @@ function SurfaceParamsEditor() {
     { label: "Rate Cap While Buying Forward", value: pctCell(params.rateCapBuyingForward, (v) => edit({ rateCapBuyingForward: v }), "param-cap-buying") },
     {
       label: "Rate Cap While Selling Forward",
-      value: fmtPercent(rateCapSellingForward(params, inputs.premiumRate), 2),
+      value: editing ? (
+        <div className="flex items-center gap-1">
+          <div className="min-w-0 flex-1">
+            <NumberInput kind="percent" digits={2} suffix="%" value={sellingCap} onChange={(v) => edit({ rateCapSellingForward: v })} testId="param-cap-selling" />
+          </div>
+          {params.rateCapSellingForward != null ? (
+            <button
+              type="button"
+              className="md-icon-btn btn-ghost btn-animated"
+              title="Follow The Rate Curve"
+              aria-label="Follow The Rate Curve"
+              data-testid="param-cap-selling-reset"
+              onClick={() => edit({ rateCapSellingForward: undefined })}
+            >
+              <RotateCcw className="icon-sm" aria-hidden />
+            </button>
+          ) : null}
+        </div>
+      ) : Number.isFinite(sellingCap) ? (
+        fmtPercent(sellingCap, 2)
+      ) : (
+        <span title="Follows The Premium Growth Rate, Which Is Not Entered Yet">-</span>
+      ),
     },
     {
       label: "Premium Growth Rate Link",
@@ -426,7 +507,7 @@ export default function MarketDataPage() {
           title="Headline"
           items={[
             { label: "Surface", value: surface.label.replace(" Volatility Surface", ""), kind: "text" },
-            { label: "Source", value: datasetSource === "database" ? "Desk Database" : "Built In Surface", kind: "text" },
+            { label: "Source", value: SOURCE_LABELS[datasetSource] ?? "Built In Surface", kind: "text" },
             { label: "Fetched At", value: datasetFetchedAt ? fmtIstTime(datasetFetchedAt) : null, kind: "text" },
             { label: "Bid Or Offer", value: market.params.bidOffer === "O" ? "Offer" : "Bid", kind: "text" },
             { label: "Expiry Rows", value: surface.expiries.length, kind: "integer" },

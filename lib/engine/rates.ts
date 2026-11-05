@@ -78,8 +78,17 @@ export function readRateCurve(points: DatedRate[], maturity: string): CurveRead 
   };
 }
 
-/** 'Pricing Params'!O2 = MarketData!D34 ÷ 100: the rate cap while selling forward is the last curve rate. */
+/**
+ * 'Pricing Params'!O2 = MarketData!D34 ÷ 100: the rate cap while selling forward is the last curve rate,
+ * unless the desk has set its own on Surface Parameters.
+ */
 export function rateCapSellingForward(params: PricingParams, premiumRate: number): number {
+  if (Number.isFinite(params.rateCapSellingForward)) return params.rateCapSellingForward!;
+  return derivedRateCapSellingForward(params, premiumRate);
+}
+
+/** The selling forward cap the rate curve gives: its last point, linked points following the Premium Growth Rate. */
+export function derivedRateCapSellingForward(params: PricingParams, premiumRate: number): number {
   const points = [...params.rateCurve].sort((a, b) => a.years - b.years);
   const last = points[points.length - 1];
   return last ? resolvedRate(last, premiumRate) : premiumRate;

@@ -1,5 +1,28 @@
-import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, spreadCount } from "@/lib/engine/structure";
+import { DEFAULT_TERMS } from "@/lib/engine/defaults";
+import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, spreadCount, strikeUnits } from "@/lib/engine/structure";
 import type { InputMode, DeskInputs } from "@/lib/inputs/draft";
+
+const orDefault = (v: number, fallback: number) => (Number.isFinite(v) ? v : fallback);
+
+/**
+ * Units for the strike table, Pricer row 47, as soon as every Level % and the Start Level are in. A Coupon, Decay or
+ * Decay Reduction Below Floor not entered yet, and a typed participation left empty, read as the Default Values terms
+ * until they are entered, so the units do not wait for the Product Terms step that opens after this one.
+ */
+export function tableUnits(inputs: Pick<DeskInputs, "strikePercents" | "participations" | "coupon" | "decay" | "floorUnits">, start: number): number[] {
+  const k = inputs.strikePercents;
+  if (!Number.isFinite(start) || k.length < MIN_SPREADS + 4 || !k.every(Number.isFinite)) return [];
+  return strikeUnits(
+    {
+      strikePercents: k,
+      participations: inputs.participations.map((p) => (p == null ? null : orDefault(p, 1))),
+      coupon: orDefault(inputs.coupon, DEFAULT_TERMS.coupon),
+      decay: orDefault(inputs.decay, DEFAULT_TERMS.decay),
+      floorUnits: orDefault(inputs.floorUnits, DEFAULT_TERMS.floorUnits),
+    },
+    start,
+  );
+}
 
 type StrikeEdit = Pick<DeskInputs, "strikePercents" | "participations" | "strikeOptionTypes" | "strikeSides">;
 type Terms = Pick<DeskInputs, "coupon" | "decay" | "floorUnits">;

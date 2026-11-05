@@ -12,11 +12,11 @@ import { autoHedgeStrike } from "@/lib/engine/defaults";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
 import { EXPIRY_WEEKDAY, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
-import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
+import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel } from "@/lib/engine/structure";
 import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 import { parseExpiryPaste, parseStrikePaste, type PastedStrike } from "@/lib/inputs/bulk";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
-import { setSpreadCount } from "@/lib/inputs/strikes";
+import { setSpreadCount, tableUnits } from "@/lib/inputs/strikes";
 import { HEDGE_RULE_TEXT, LEVEL_FIELD, QUOTE_UNDERLYING, UNDERLYINGS } from "@/lib/underlyings";
 import { allowedRange, checkFieldEdit, INPUT_SECTIONS, numberFieldRules, unlockedSteps } from "@/lib/validation/inputRules";
 import { fmtIstTime, fmtNumber, fmtPercent } from "@/lib/format";
@@ -178,13 +178,13 @@ function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskI
 // ------------------------------------------------------------------ 1 Underlying And Market
 
 function UnderlyingGroup({ open }: { open: number }) {
-  const { mode, inputs, setInputs, setUnderlying, levels, levelsLoading, refreshLevels, fetchLiveSpot } = useDesk();
+  const { mode, inputs, setInputs, setUnderlying, levelsLoading, refreshLevels, fetchLiveSpot, spotFetchedAt } = useDesk();
   const { alert } = useDeskDialog();
   const errorFor = useFieldError();
   const guard = useGuard();
   const u = underlyingName(inputs);
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  const fetched = levels?.fetchedAt && mode === "default" ? fmtIstTime(levels.fetchedAt) : "-";
+  const fetched = spotFetchedAt ? fmtIstTime(spotFetchedAt) : "-";
   return (
     <Group step={1} icon={LineChart} open={open} status={Number.isFinite(inputs.hedgeStrike) ? <StatusTag edited={!inputs.hedgeStrikeAuto} testId="hedge-strike-status" /> : null}>
       <div className="inputs-grid">
@@ -257,12 +257,12 @@ function UnderlyingGroup({ open }: { open: number }) {
             />
           </div>
         </FieldRow>
-        <FieldRow label="Start Level">
+        <FieldRow label="Start Level" tip="Calculated: The Spot Plus The Start Level Uplift, Rounded Up To The Next 100">
           <output className="inputs-readonly inputs-num" data-testid="start-level">
             {Number.isFinite(start) ? fmtNumber(start, 0) : "-"}
           </output>
         </FieldRow>
-        <FieldRow label="Fetched At">
+        <FieldRow label="Fetched At" tip="Calculated: When The Spot Was Fetched, In India Time">
           <output className="inputs-readonly inputs-num" data-testid="spot-fetched-at">
             {fetched}
           </output>
@@ -464,8 +464,7 @@ function StrikesGroup({ open }: { open: number }) {
   const terms = deriveTerms(inputs);
   const n = k.length ? terms.nSpreads : NaN;
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
-  const unitsReady = Number.isFinite(start) && [...k, inputs.coupon, inputs.decay, inputs.floorUnits].every(Number.isFinite) && inputs.participations.every((p) => p == null || Number.isFinite(p));
-  const units = unitsReady ? strikeUnits(inputs, start) : [];
+  const units = tableUnits(inputs, start);
   const payouts = terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
   const total = payouts.reduce((a, b) => a + b, 0);
 
@@ -530,11 +529,19 @@ function StrikesGroup({ open }: { open: number }) {
         <div className="desk-table-scroll inputs-table-rail" tabIndex={0} role="region" aria-label="Strikes Table">
         <div className="inputs-table" role="table" aria-label="Strikes">
           <div className="strike-row strike-head" role="row">
-            {["Strike", "Level %", "Level In Points", "Option Type", "Buy Or Sell", "Units"].map((h) => (
-              <span key={h} role="columnheader">
-                {h}
-              </span>
-            ))}
+            {["Strike", "Level %", "Level In Points", "Option Type", "Buy Or Sell", "Units"].map((h) => {
+              const calculated = mode === "blank" && ((h === "Level In Points" && Number.isFinite(start)) || (h === "Units" && units.some(Number.isFinite)));
+              return calculated ? (
+                <span key={h} className="inline-flex items-center justify-end gap-2" role="columnheader">
+                  {h}
+                  <StatusTag edited={false} testId={h === "Units" ? "strike-units-status" : "strike-level-status"} />
+                </span>
+              ) : (
+                <span key={h} role="columnheader">
+                  {h}
+                </span>
+              );
+            })}
           </div>
           <AnimatePresence initial={false}>
             {k.map((pct, i) => {

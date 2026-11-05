@@ -70,7 +70,7 @@ export function DeskFooter() {
   const { inputs, levels, datasetSource, datasetLoading } = useDesk();
   const now = useNow();
   const status = marketStatusLabel(levels?.sessionPhase, now);
-  const database = datasetLoading ? "Checking" : datasetSource === "database" ? "Connected" : "Unavailable";
+  const database = datasetLoading ? "Checking" : datasetSource === "database" || datasetSource === "shared" ? "Connected" : "Unavailable";
   const fetched = levels?.fetchedAt ? fmtIstTime(levels.fetchedAt) : "-";
   const icons = [Zap, TrendingUp];
   const spots = UNDERLYINGS.map((name, i) => {

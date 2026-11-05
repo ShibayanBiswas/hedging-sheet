@@ -113,6 +113,8 @@ export type PricingParams = {
   forwardSellRate: number;
   premiumRateSpread: number;
   rateCapBuyingForward: number;
+  /** 'Pricing Params'!O2 when the desk sets it; otherwise the last rate curve point. */
+  rateCapSellingForward?: number;
   dividendBidOfferMultiplier: number;
   /** Pricer Bid or Offer row. */
   bidOffer: BidOffer;

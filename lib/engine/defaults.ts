@@ -10,7 +10,7 @@ import { normalizeVolSurface, SEED_SURFACE } from "@/lib/engine/vol-surface";
 const FALLBACK_DAILY_VOL = 0.009;
 
 /** The product terms. Spot, valuation date and daily volatility come from live data. */
-const DEFAULT_TERMS = {
+export const DEFAULT_TERMS = {
   startLevelUplift: 0.006,
   startLevelRounding: 100,
   nbfcRate: 0.08,
@@ -101,6 +101,7 @@ export function normalizePricingParams(raw: Partial<PricingParams> & { rateCurve
     forwardSellRate: Number(raw.forwardSellRate ?? pricingSeed.forwardSellRate),
     premiumRateSpread: Number(raw.premiumRateSpread ?? pricingSeed.premiumRateSpread),
     rateCapBuyingForward: Number(raw.rateCapBuyingForward ?? pricingSeed.rateCapBuyingForward),
+    ...(Number.isFinite(raw.rateCapSellingForward) ? { rateCapSellingForward: Number(raw.rateCapSellingForward) } : {}),
     dividendBidOfferMultiplier: Number(raw.dividendBidOfferMultiplier ?? pricingSeed.dividendBidOfferMultiplier),
     bidOffer: raw.bidOffer === "O" ? "O" : "B",
     rateCurve: curve,

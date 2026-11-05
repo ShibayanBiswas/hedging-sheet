@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { deskMonthKey } from "@/lib/data/load";
 import { getDb } from "@/lib/db/client";
+import { resolveUnwindingDbName } from "@/lib/db/config";
 import { paramsSummary } from "@/lib/db/pricing-params";
+import { readUnwindingSurface } from "@/lib/db/unwinding-surface";
 import { surfaceSummary } from "@/lib/db/vol-surfaces";
 import { fetchLiveMarketLevels } from "@/lib/market-data";
 
@@ -14,13 +17,14 @@ export async function GET() {
   let database: Record<string, unknown> = { connected: false };
   if (db) {
     try {
-      const [surfaces, params] = await Promise.all([surfaceSummary(db), paramsSummary(db)]);
+      const [surfaces, params, shared] = await Promise.all([surfaceSummary(db), paramsSummary(db), readUnwindingSurface(deskMonthKey()).catch(() => null)]);
       database = {
         connected: true,
         name: db.databaseName,
         collections: { vol_surfaces: surfaces.count, pricing_params: params.count },
         latestSurfaceMonth: surfaces.latestMonth,
         latestParamsMonth: params.latestMonth,
+        sharedSurface: { database: resolveUnwindingDbName(), month: shared?.monthKey ?? null },
       };
     } catch {
       database = { connected: false, name: db.databaseName };

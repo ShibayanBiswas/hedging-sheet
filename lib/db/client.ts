@@ -1,6 +1,6 @@
 import { MongoClient, type ClientSession, type Db } from "mongodb";
 
-import { resolveMongoConfig } from "@/lib/db/config";
+import { resolveMongoConfig, resolveUnwindingDbName } from "@/lib/db/config";
 
 type Cached = { uri: string; dbName: string; client: Promise<MongoClient | null> };
 
@@ -75,8 +75,18 @@ export async function getDb(): Promise<Db | null> {
   return client.db(cached.dbName);
 }
 
-/** Runs every write in one transaction, so a reader never sees half a change. Null when there is no database. */
-export async function withTransaction<T>(work: (db: Db, session: ClientSession) => Promise<T>): Promise<T | null> {
+/** The Unwinding Calculator's database on the same connection, or null when there is no database. Never throws. */
+export async function getUnwindingDb(): Promise<Db | null> {
+  const db = await getDb();
+  const client = await store.__hedgingMongo?.client;
+  return db && client ? client.db(resolveUnwindingDbName()) : null;
+}
+
+/**
+ * Runs every write in one transaction, so a reader never sees half a change. Null when there is no database.
+ * The transaction may also write the Unwinding Calculator's database, which sits on the same cluster.
+ */
+export async function withTransaction<T>(work: (db: Db, session: ClientSession, unwinding: Db) => Promise<T>): Promise<T | null> {
   const db = await getDb();
   const client = await store.__hedgingMongo?.client;
   if (!db || !client) return null;
@@ -84,7 +94,7 @@ export async function withTransaction<T>(work: (db: Db, session: ClientSession) 
   try {
     let out: T | undefined;
     await session.withTransaction(async () => {
-      out = await work(db, session);
+      out = await work(db, session, client.db(resolveUnwindingDbName()));
     });
     return out as T;
   } finally {

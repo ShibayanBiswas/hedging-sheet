@@ -55,6 +55,7 @@ export const pricingParamsSchema = z
     forwardSellRate: finite,
     premiumRateSpread: finite,
     rateCapBuyingForward: finite,
+    rateCapSellingForward: finite.min(0).max(1).optional(),
     dividendBidOfferMultiplier: finite,
     bidOffer: z.enum(["B", "O"]),
     rateCurve: z
@@ -136,6 +137,7 @@ export const VALIDATORS: Record<CollectionName, { $jsonSchema: Record<string, un
         forwardSellRate: num,
         premiumRateSpread: num,
         rateCapBuyingForward: num,
+        rateCapSellingForward: num,
         dividendBidOfferMultiplier: num,
         bidOffer: { enum: ["B", "O"] },
         rateCurve: {

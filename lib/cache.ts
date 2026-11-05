@@ -19,8 +19,11 @@ export const HISTORY_REVALIDATE_SECONDS = 3 * 60 * 60;
 
 const inNextServer = () => Boolean(process.env.NEXT_RUNTIME);
 
-export function cachedRead<A extends string[], R>(read: (...args: A) => Promise<R>, keyParts: string[], tags: string[]): (...args: A) => Promise<R> {
-  const cached = unstable_cache(read, keyParts, { tags });
+/** The Unwinding Calculator saves its surface without telling this app, so that read is refetched every five minutes. */
+export const SHARED_SURFACE_REVALIDATE_SECONDS = 5 * 60;
+
+export function cachedRead<A extends string[], R>(read: (...args: A) => Promise<R>, keyParts: string[], tags: string[], revalidate?: number): (...args: A) => Promise<R> {
+  const cached = unstable_cache(read, keyParts, { tags, revalidate });
   return (...args: A) => (inNextServer() ? cached(...args) : read(...args));
 }
 

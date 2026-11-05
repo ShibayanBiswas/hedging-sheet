@@ -1,15 +1,17 @@
-import { CACHE_TAGS, cachedRead, expireTags } from "@/lib/cache";
+import { CACHE_TAGS, cachedRead, expireTags, SHARED_SURFACE_REVALIDATE_SECONDS } from "@/lib/cache";
 import { withTransaction } from "@/lib/db/client";
 import { readParamsOnOrBefore, replaceParams } from "@/lib/db/pricing-params";
 import { pricingParamsSchema, volSurfaceSchema } from "@/lib/db/schemas";
+import { readUnwindingSurface, sharedGrid, writeUnwindingSurface, type SharedGrid } from "@/lib/db/unwinding-surface";
 import { readSurfaceOnOrBefore, replaceSurface } from "@/lib/db/vol-surfaces";
 import { istTodayYmd } from "@/lib/engine/dates";
 import { normalizePricingParams, seedPricingParams } from "@/lib/engine/defaults";
-import type { PricingParams, VolSurface } from "@/lib/engine/types";
-import { labelSurfaceForDeskMonth, normalizeVolSurface, SEED_SURFACE } from "@/lib/engine/vol-surface";
+import type { PricingParamPoint, PricingParams, VolSurface } from "@/lib/engine/types";
+import { DEFAULT_FWD_SELL_RATE, labelSurfaceForDeskMonth, normalizeVolSurface, pricingRowForMonth, SEED_SURFACE } from "@/lib/engine/vol-surface";
 import { fetchIndexAtDate } from "@/lib/market-data";
 
-export type DatasetSource = "database" | "runtime" | "seed";
+/** shared: the grid is the Unwinding Calculator's active surface. database: this desk's own month document. */
+export type DatasetSource = "shared" | "database" | "runtime" | "seed";
 
 /** Same-instance copy of the last save when the database is unreachable. */
 let runtimeSurface: VolSurface | null = null;
@@ -21,6 +23,7 @@ export function deskMonthKey(today = istTodayYmd()): string {
 
 const cachedSurface = cachedRead((monthKey: string) => readSurfaceOnOrBefore(monthKey), ["surface-on-or-before"], [CACHE_TAGS.surface]);
 const cachedParams = cachedRead((monthKey: string) => readParamsOnOrBefore(monthKey), ["params-on-or-before"], [CACHE_TAGS.surface]);
+const cachedUnwinding = cachedRead((monthKey: string) => readUnwindingSurface(monthKey), ["unwinding-surface"], [CACHE_TAGS.surface], SHARED_SURFACE_REVALIDATE_SECONDS);
 
 const anchorCache = new Map<string, { nifty: number | null; sensex: number | null }>();
 
@@ -34,20 +37,62 @@ async function monthAnchors(monthKey: string): Promise<{ nifty: number | null; s
   return anchors;
 }
 
-/** Show the current month; carry the previous grid with this month's anchors when there is no upload. */
+/**
+ * Show the current month; carry the previous grid with this month's anchors when there is no upload. A current
+ * month without its own anchors takes that month's closes. This is the Unwinding Calculator's presentation too.
+ */
 async function presentSurfaceForDeskMonth(surface: VolSurface): Promise<VolSurface> {
   const todayMonth = deskMonthKey();
-  if (surface.monthKey >= todayMonth) return surface;
-  return labelSurfaceForDeskMonth(surface, todayMonth, await monthAnchors(todayMonth));
+  if (surface.monthKey < todayMonth) return labelSurfaceForDeskMonth(surface, todayMonth, await monthAnchors(todayMonth));
+  if (surface.referenceUnderlyingPrice && surface.referenceSensexPrice) return surface;
+  const anchors = await monthAnchors(surface.monthKey);
+  return normalizeVolSurface({
+    ...surface,
+    referenceUnderlyingPrice: surface.referenceUnderlyingPrice ?? anchors.nifty ?? undefined,
+    referenceSensexPrice: surface.referenceSensexPrice ?? anchors.sensex ?? undefined,
+  });
 }
 
-export async function loadActiveSurface(): Promise<{ surface: VolSurface; source: DatasetSource }> {
+const gridKey = (s: SharedGrid) => JSON.stringify(sharedGrid(s));
+
+/**
+ * Keeps this desk's month document on the shared grid, so the desk database always holds what is priced.
+ * The cache is expired after the write, so the next read sees the mirrored document and writes nothing.
+ */
+async function mirrorSharedGrid(surface: VolSurface, own: VolSurface | null, from: string): Promise<void> {
+  if (own && own.monthKey === surface.monthKey && gridKey(normalizeVolSurface(own)) === gridKey(surface)) return;
   try {
-    const stored = await cachedSurface(deskMonthKey());
-    if (stored) return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(stored)), source: "database" };
+    if (await withTransaction((db, session) => replaceSurface(db, session, surface, `unwinding ${from}`))) expireTags([CACHE_TAGS.surface]);
+  } catch (err) {
+    console.error("[load] surface mirror:", err instanceof Error ? err.message : "write failed");
+  }
+}
+
+/**
+ * The grid is the Unwinding Calculator's active surface; the Pricing Params grid, with its bump, margins and
+ * forward sell rates, is this desk's own. Without a shared surface the desk's own month document is used.
+ */
+export async function loadActiveSurface(): Promise<{ surface: VolSurface; source: DatasetSource }> {
+  const month = deskMonthKey();
+  let own: VolSurface | null = null;
+  try {
+    own = await cachedSurface(month);
   } catch (err) {
     console.error("[load] vol surface:", err instanceof Error ? err.message : "read failed");
   }
+  let shared: SharedGrid | null = null;
+  try {
+    shared = await cachedUnwinding(month);
+  } catch (err) {
+    console.error("[load] shared surface:", err instanceof Error ? err.message : "read failed");
+  }
+  if (shared) {
+    const pricingParams = (own ?? runtimeSurface ?? SEED_SURFACE).pricingParams;
+    const surface = await presentSurfaceForDeskMonth(normalizeVolSurface({ ...shared, pricingParams }));
+    await mirrorSharedGrid(surface, own, shared.monthKey);
+    return { surface, source: "shared" };
+  }
+  if (own) return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(own)), source: "database" };
   if (runtimeSurface) return { surface: await presentSurfaceForDeskMonth(runtimeSurface), source: "runtime" };
   return { surface: await presentSurfaceForDeskMonth(normalizeVolSurface(SEED_SURFACE)), source: "seed" };
 }
@@ -64,18 +109,47 @@ export async function loadActiveParams(): Promise<{ params: PricingParams; sourc
   return { params: seedPricingParams(), source: "seed", monthKey: null };
 }
 
+/**
+ * One month's surface parameters and Pricing Params grid for the editor: that month's documents, or the latest
+ * earlier ones a new month starts from. The active ones when the database cannot be read.
+ */
+export async function loadMonthParams(monthKey: string): Promise<{ params: PricingParams; pricingParams: PricingParamPoint[]; storedMonth: string | null }> {
+  try {
+    const [stored, surface] = await Promise.all([readParamsOnOrBefore(monthKey), readSurfaceOnOrBefore(monthKey)]);
+    if (stored || surface) {
+      return {
+        params: stored ? normalizePricingParams(stored.params) : (await loadActiveParams()).params,
+        pricingParams: surface ? normalizeVolSurface(surface).pricingParams : (await loadActiveSurface()).surface.pricingParams,
+        storedMonth: stored?.monthKey ?? null,
+      };
+    }
+  } catch (err) {
+    console.error("[load] month params:", err instanceof Error ? err.message : "read failed");
+  }
+  const [{ params }, { surface }] = await Promise.all([loadActiveParams(), loadActiveSurface()]);
+  return { params, pricingParams: surface.pricingParams, storedMonth: null };
+}
+
 export class ReferenceDataError extends Error {
   constructor(readonly issues: string[]) {
     super(issues[0] ?? "The data is not valid.");
   }
 }
 
+/** The Unwinding Calculator's one point Pricing Params for a month: this desk's row of that month. */
+function unwindingMonthPoint(surface: VolSurface): PricingParamPoint {
+  const [y, m] = surface.monthKey.split("-").map(Number) as [number, number];
+  const row = pricingRowForMonth(surface.pricingParams, `${surface.monthKey}-01`);
+  return { date: new Date(Date.UTC(y, m, 0)).toISOString(), volBump: row?.volBump ?? 0, fwdSellRate: row?.fwdSellRate ?? DEFAULT_FWD_SELL_RATE };
+}
+
 /**
  * Saves a surface, surface parameters or both in one transaction, after checking the whole of each,
  * then expires the surface cache. Returns false when there is no database: the save then lasts for this instance only.
+ * With shareGrid, an uploaded or edited grid also becomes the Unwinding Calculator's active surface, in the same transaction.
  */
 export async function saveReferenceData(
-  change: { surface?: VolSurface; params?: { values: PricingParams; monthKey: string } },
+  change: { surface?: VolSurface; params?: { values: PricingParams; monthKey: string }; shareGrid?: boolean },
   source: string,
 ): Promise<boolean> {
   // The raw data is checked first: normalizing would quietly fill a missing row with zeros.
@@ -91,8 +165,9 @@ export async function saveReferenceData(
   const params = change.params ? normalizePricingParams(change.params.values) : null;
   check(surface, params);
 
-  const written = await withTransaction(async (db, session) => {
+  const written = await withTransaction(async (db, session, unwinding) => {
     if (surface) await replaceSurface(db, session, surface, source);
+    if (surface && change.shareGrid) await writeUnwindingSurface(unwinding, session, surface, `hedging sheet ${source}`, unwindingMonthPoint(surface));
     if (params) await replaceParams(db, session, params, change.params!.monthKey, source);
     return true;
   });
