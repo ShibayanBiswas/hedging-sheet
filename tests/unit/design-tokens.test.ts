@@ -104,6 +104,13 @@ describe("design tokens", () => {
     expect(hits(/(?<=["'`\s])transition(?:-all|-colors)?(?=["'`\s]|$)(?!\s*=)/g)).toEqual([]);
   });
 
+  it("an overridden Pricer volatility keeps its gold ring over the white table cells", () => {
+    const white = globals.search(/\.data-table-premium tbody td,[^{]*\{[^}]*box-shadow: none !important/);
+    const ring = globals.search(/\.data-table-premium tbody td\.hs-overridden-cell\s*\{\s*box-shadow: inset 0 0 0 2px rgb\(var\(--gold-rgb\) \/ 0\.65\) !important;/);
+    expect(white).toBeGreaterThan(-1);
+    expect(ring).toBeGreaterThan(white);
+  });
+
   /**
    * Values kept off the scale on purpose: the Primary SP Dashboard table padding that S9 to S11 pin, the 40 px strike rows and the
    * fine run of the Inputs cards. They only go down: lower this number when one is moved onto the scale.
