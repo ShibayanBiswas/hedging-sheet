@@ -1454,199 +1454,199 @@ Not Applicable cells carry their reason in the Status column.
 | CR28 | Forward Growth · Sensex | ='Pricing Params'!$H$69 | 0.055 | - | `lib/engine/vol-surface.ts:225` forwardSellRateForMonth | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | CS28 | Forward Growth · Sensex | ='Pricing Params'!$H$69 | 0.055 | - | `lib/engine/vol-surface.ts:225` forwardSellRateForMonth | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A29 | Forward Growth | constant Discount Yield | Discount Yield | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B29 | Discount Yield · Sensex | =IF(B34="OLD",IF(B23=B24,B23,FORECAST(B20,B23:B24,B21:B22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| C29 | Discount Yield · Sensex | =IF(C34="OLD",IF(C23=C24,C23,FORECAST(C20,C23:C24,C21:C22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| D29 | Discount Yield · Sensex | =IF(D34="OLD",IF(D23=D24,D23,FORECAST(D20,D23:D24,D21:D22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| E29 | Discount Yield · Sensex | =IF(E34="OLD",IF(E23=E24,E23,FORECAST(E20,E23:E24,E21:E22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| F29 | Discount Yield · Sensex | =IF(F34="OLD",IF(F23=F24,F23,FORECAST(F20,F23:F24,F21:F22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| G29 | Discount Yield · Sensex | =IF(G34="OLD",IF(G23=G24,G23,FORECAST(G20,G23:G24,G21:G22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| H29 | Discount Yield · Sensex | =IF(H34="OLD",IF(H23=H24,H23,FORECAST(H20,H23:H24,H21:H22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| I29 | Discount Yield · Sensex | =IF(I34="OLD",IF(I23=I24,I23,FORECAST(I20,I23:I24,I21:I22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| J29 | Discount Yield · Sensex | =IF(J34="OLD",IF(J23=J24,J23,FORECAST(J20,J23:J24,J21:J22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| K29 | Discount Yield · Sensex | =IF(K34="OLD",IF(K23=K24,K23,FORECAST(K20,K23:K24,K21:K22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| L29 | Discount Yield · Sensex | =IF(L34="OLD",IF(L23=L24,L23,FORECAST(L20,L23:L24,L21:L22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| M29 | Discount Yield · Sensex | =IF(M34="OLD",IF(M23=M24,M23,FORECAST(M20,M23:M24,M21:M22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| N29 | Discount Yield · Sensex | =IF(N34="OLD",IF(N23=N24,N23,FORECAST(N20,N23:N24,N21:N22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| O29 | Discount Yield · Sensex | =IF(O34="OLD",IF(O23=O24,O23,FORECAST(O20,O23:O24,O21:O22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| P29 | Discount Yield · Sensex | =IF(P34="OLD",IF(P23=P24,P23,FORECAST(P20,P23:P24,P21:P22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Q29 | Discount Yield · Sensex | =IF(Q34="OLD",IF(Q23=Q24,Q23,FORECAST(Q20,Q23:Q24,Q21:Q22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| R29 | Discount Yield · Sensex | =IF(R34="OLD",IF(R23=R24,R23,FORECAST(R20,R23:R24,R21:R22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| S29 | Discount Yield · Sensex | =IF(S34="OLD",IF(S23=S24,S23,FORECAST(S20,S23:S24,S21:S22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| T29 | Discount Yield · Sensex | =IF(T34="OLD",IF(T23=T24,T23,FORECAST(T20,T23:T24,T21:T22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| U29 | Discount Yield · Sensex | =IF(U34="OLD",IF(U23=U24,U23,FORECAST(U20,U23:U24,U21:U22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| V29 | Discount Yield · Sensex | =IF(V34="OLD",IF(V23=V24,V23,FORECAST(V20,V23:V24,V21:V22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| W29 | Discount Yield · Sensex | =IF(W34="OLD",IF(W23=W24,W23,FORECAST(W20,W23:W24,W21:W22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| X29 | Discount Yield · Sensex | =IF(X34="OLD",IF(X23=X24,X23,FORECAST(X20,X23:X24,X21:X22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Y29 | Discount Yield · Sensex | =IF(Y34="OLD",IF(Y23=Y24,Y23,FORECAST(Y20,Y23:Y24,Y21:Y22)), | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Z29 | Discount Yield · Sensex | =IF(Z34="OLD",IF(Z23=Z24,Z23,FORECAST(Z20,Z23:Z24,Z21:Z22)), | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AA29 | Discount Yield · Sensex | =IF(AA34="OLD",IF(AA23=AA24,AA23,FORECAST(AA20,AA23:AA24,AA2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AB29 | Discount Yield · Sensex | =IF(AB34="OLD",IF(AB23=AB24,AB23,FORECAST(AB20,AB23:AB24,AB2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AC29 | Discount Yield · Sensex | =IF(AC34="OLD",IF(AC23=AC24,AC23,FORECAST(AC20,AC23:AC24,AC2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AD29 | Discount Yield · Sensex | =IF(AD34="OLD",IF(AD23=AD24,AD23,FORECAST(AD20,AD23:AD24,AD2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AE29 | Discount Yield · Sensex | =IF(AE34="OLD",IF(AE23=AE24,AE23,FORECAST(AE20,AE23:AE24,AE2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AF29 | Discount Yield · Sensex | =IF(AF34="OLD",IF(AF23=AF24,AF23,FORECAST(AF20,AF23:AF24,AF2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AG29 | Discount Yield · Sensex | =IF(AG34="OLD",IF(AG23=AG24,AG23,FORECAST(AG20,AG23:AG24,AG2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AH29 | Discount Yield · Sensex | =IF(AH34="OLD",IF(AH23=AH24,AH23,FORECAST(AH20,AH23:AH24,AH2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AI29 | Discount Yield · Sensex | =IF(AI34="OLD",IF(AI23=AI24,AI23,FORECAST(AI20,AI23:AI24,AI2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AJ29 | Discount Yield · Sensex | =IF(AJ34="OLD",IF(AJ23=AJ24,AJ23,FORECAST(AJ20,AJ23:AJ24,AJ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AK29 | Discount Yield · Sensex | =IF(AK34="OLD",IF(AK23=AK24,AK23,FORECAST(AK20,AK23:AK24,AK2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AL29 | Discount Yield · Sensex | =IF(AL34="OLD",IF(AL23=AL24,AL23,FORECAST(AL20,AL23:AL24,AL2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AM29 | Discount Yield · Sensex | =IF(AM34="OLD",IF(AM23=AM24,AM23,FORECAST(AM20,AM23:AM24,AM2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AN29 | Discount Yield · Sensex | =IF(AN34="OLD",IF(AN23=AN24,AN23,FORECAST(AN20,AN23:AN24,AN2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AO29 | Discount Yield · Sensex | =IF(AO34="OLD",IF(AO23=AO24,AO23,FORECAST(AO20,AO23:AO24,AO2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AP29 | Discount Yield · Sensex | =IF(AP34="OLD",IF(AP23=AP24,AP23,FORECAST(AP20,AP23:AP24,AP2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AQ29 | Discount Yield · Sensex | =IF(AQ34="OLD",IF(AQ23=AQ24,AQ23,FORECAST(AQ20,AQ23:AQ24,AQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AR29 | Discount Yield · Sensex | =IF(AR34="OLD",IF(AR23=AR24,AR23,FORECAST(AR20,AR23:AR24,AR2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AS29 | Discount Yield · Sensex | =IF(AS34="OLD",IF(AS23=AS24,AS23,FORECAST(AS20,AS23:AS24,AS2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AT29 | Discount Yield · Sensex | =IF(AT34="OLD",IF(AT23=AT24,AT23,FORECAST(AT20,AT23:AT24,AT2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AU29 | Discount Yield · Sensex | =IF(AU34="OLD",IF(AU23=AU24,AU23,FORECAST(AU20,AU23:AU24,AU2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AV29 | Discount Yield · Sensex | =IF(AV34="OLD",IF(AV23=AV24,AV23,FORECAST(AV20,AV23:AV24,AV2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AW29 | Discount Yield · Sensex | =IF(AW34="OLD",IF(AW23=AW24,AW23,FORECAST(AW20,AW23:AW24,AW2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AX29 | Discount Yield · Sensex | =IF(AX34="OLD",IF(AX23=AX24,AX23,FORECAST(AX20,AX23:AX24,AX2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AY29 | Discount Yield · Sensex | =IF(AY34="OLD",IF(AY23=AY24,AY23,FORECAST(AY20,AY23:AY24,AY2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| AZ29 | Discount Yield · Sensex | =IF(AZ34="OLD",IF(AZ23=AZ24,AZ23,FORECAST(AZ20,AZ23:AZ24,AZ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BA29 | Discount Yield · Sensex | =IF(BA34="OLD",IF(BA23=BA24,BA23,FORECAST(BA20,BA23:BA24,BA2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BB29 | Discount Yield · Sensex | =IF(BB34="OLD",IF(BB23=BB24,BB23,FORECAST(BB20,BB23:BB24,BB2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BC29 | Discount Yield · Sensex | =IF(BC34="OLD",IF(BC23=BC24,BC23,FORECAST(BC20,BC23:BC24,BC2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BD29 | Discount Yield · Sensex | =IF(BD34="OLD",IF(BD23=BD24,BD23,FORECAST(BD20,BD23:BD24,BD2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BE29 | Discount Yield · Sensex | =IF(BE34="OLD",IF(BE23=BE24,BE23,FORECAST(BE20,BE23:BE24,BE2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BF29 | Discount Yield · Sensex | =IF(BF34="OLD",IF(BF23=BF24,BF23,FORECAST(BF20,BF23:BF24,BF2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BG29 | Discount Yield · Sensex | =IF(BG34="OLD",IF(BG23=BG24,BG23,FORECAST(BG20,BG23:BG24,BG2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BH29 | Discount Yield · Sensex | =IF(BH34="OLD",IF(BH23=BH24,BH23,FORECAST(BH20,BH23:BH24,BH2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BI29 | Discount Yield · Sensex | =IF(BI34="OLD",IF(BI23=BI24,BI23,FORECAST(BI20,BI23:BI24,BI2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BJ29 | Discount Yield · Sensex | =IF(BJ34="OLD",IF(BJ23=BJ24,BJ23,FORECAST(BJ20,BJ23:BJ24,BJ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BK29 | Discount Yield · Sensex | =IF(BK34="OLD",IF(BK23=BK24,BK23,FORECAST(BK20,BK23:BK24,BK2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BL29 | Discount Yield · Sensex | =IF(BL34="OLD",IF(BL23=BL24,BL23,FORECAST(BL20,BL23:BL24,BL2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BM29 | Discount Yield · Sensex | =IF(BM34="OLD",IF(BM23=BM24,BM23,FORECAST(BM20,BM23:BM24,BM2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BN29 | Discount Yield · Sensex | =IF(BN34="OLD",IF(BN23=BN24,BN23,FORECAST(BN20,BN23:BN24,BN2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BO29 | Discount Yield · Sensex | =IF(BO34="OLD",IF(BO23=BO24,BO23,FORECAST(BO20,BO23:BO24,BO2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BP29 | Discount Yield · Sensex | =IF(BP34="OLD",IF(BP23=BP24,BP23,FORECAST(BP20,BP23:BP24,BP2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BQ29 | Discount Yield · Sensex | =IF(BQ34="OLD",IF(BQ23=BQ24,BQ23,FORECAST(BQ20,BQ23:BQ24,BQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BR29 | Discount Yield · Sensex | =IF(BR34="OLD",IF(BR23=BR24,BR23,FORECAST(BR20,BR23:BR24,BR2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BS29 | Discount Yield · Sensex | =IF(BS34="OLD",IF(BS23=BS24,BS23,FORECAST(BS20,BS23:BS24,BS2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BT29 | Discount Yield · Sensex | =IF(BT34="OLD",IF(BT23=BT24,BT23,FORECAST(BT20,BT23:BT24,BT2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BU29 | Discount Yield · Sensex | =IF(BU34="OLD",IF(BU23=BU24,BU23,FORECAST(BU20,BU23:BU24,BU2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BV29 | Discount Yield · Sensex | =IF(BV34="OLD",IF(BV23=BV24,BV23,FORECAST(BV20,BV23:BV24,BV2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BW29 | Discount Yield · Sensex | =IF(BW34="OLD",IF(BW23=BW24,BW23,FORECAST(BW20,BW23:BW24,BW2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BX29 | Discount Yield · Sensex | =IF(BX34="OLD",IF(BX23=BX24,BX23,FORECAST(BX20,BX23:BX24,BX2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BY29 | Discount Yield · Sensex | =IF(BY34="OLD",IF(BY23=BY24,BY23,FORECAST(BY20,BY23:BY24,BY2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| BZ29 | Discount Yield · Sensex | =IF(BZ34="OLD",IF(BZ23=BZ24,BZ23,FORECAST(BZ20,BZ23:BZ24,BZ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CA29 | Discount Yield · Sensex | =IF(CA34="OLD",IF(CA23=CA24,CA23,FORECAST(CA20,CA23:CA24,CA2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CB29 | Discount Yield · Sensex | =IF(CB34="OLD",IF(CB23=CB24,CB23,FORECAST(CB20,CB23:CB24,CB2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CC29 | Discount Yield · Sensex | =IF(CC34="OLD",IF(CC23=CC24,CC23,FORECAST(CC20,CC23:CC24,CC2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CD29 | Discount Yield · Sensex | =IF(CD34="OLD",IF(CD23=CD24,CD23,FORECAST(CD20,CD23:CD24,CD2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CE29 | Discount Yield · Sensex | =IF(CE34="OLD",IF(CE23=CE24,CE23,FORECAST(CE20,CE23:CE24,CE2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CF29 | Discount Yield · Sensex | =IF(CF34="OLD",IF(CF23=CF24,CF23,FORECAST(CF20,CF23:CF24,CF2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CG29 | Discount Yield · Sensex | =IF(CG34="OLD",IF(CG23=CG24,CG23,FORECAST(CG20,CG23:CG24,CG2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CH29 | Discount Yield · Sensex | =IF(CH34="OLD",IF(CH23=CH24,CH23,FORECAST(CH20,CH23:CH24,CH2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CI29 | Discount Yield · Sensex | =IF(CI34="OLD",IF(CI23=CI24,CI23,FORECAST(CI20,CI23:CI24,CI2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CJ29 | Discount Yield · Sensex | =IF(CJ34="OLD",IF(CJ23=CJ24,CJ23,FORECAST(CJ20,CJ23:CJ24,CJ2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CK29 | Discount Yield · Sensex | =IF(CK34="OLD",IF(CK23=CK24,CK23,FORECAST(CK20,CK23:CK24,CK2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CL29 | Discount Yield · Sensex | =IF(CL34="OLD",IF(CL23=CL24,CL23,FORECAST(CL20,CL23:CL24,CL2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CM29 | Discount Yield · Sensex | =IF(CM34="OLD",IF(CM23=CM24,CM23,FORECAST(CM20,CM23:CM24,CM2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CN29 | Discount Yield · Sensex | =IF(CN34="OLD",IF(CN23=CN24,CN23,FORECAST(CN20,CN23:CN24,CN2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CO29 | Discount Yield · Sensex | =IF(CO34="OLD",IF(CO23=CO24,CO23,FORECAST(CO20,CO23:CO24,CO2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CP29 | Discount Yield · Sensex | =IF(CP34="OLD",IF(CP23=CP24,CP23,FORECAST(CP20,CP23:CP24,CP2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CQ29 | Discount Yield · Sensex | =IF(CQ34="OLD",IF(CQ23=CQ24,CQ23,FORECAST(CQ20,CQ23:CQ24,CQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
-| CR29 | Discount Yield · Sensex | =IF(CR34="OLD",IF(CR23=CR24,CR23,FORECAST(CR20,CR23:CR24,CR2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CS29 | Discount Yield · Sensex | =IF(CS34="OLD",IF(CS23=CS24,CS23,FORECAST(CS20,CS23:CS24,CS2 | 0.065 | - | `lib/engine/rates.ts:92` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| B29 | Discount Yield · Sensex | =IF(B34="OLD",IF(B23=B24,B23,FORECAST(B20,B23:B24,B21:B22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| C29 | Discount Yield · Sensex | =IF(C34="OLD",IF(C23=C24,C23,FORECAST(C20,C23:C24,C21:C22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| D29 | Discount Yield · Sensex | =IF(D34="OLD",IF(D23=D24,D23,FORECAST(D20,D23:D24,D21:D22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| E29 | Discount Yield · Sensex | =IF(E34="OLD",IF(E23=E24,E23,FORECAST(E20,E23:E24,E21:E22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| F29 | Discount Yield · Sensex | =IF(F34="OLD",IF(F23=F24,F23,FORECAST(F20,F23:F24,F21:F22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| G29 | Discount Yield · Sensex | =IF(G34="OLD",IF(G23=G24,G23,FORECAST(G20,G23:G24,G21:G22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| H29 | Discount Yield · Sensex | =IF(H34="OLD",IF(H23=H24,H23,FORECAST(H20,H23:H24,H21:H22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| I29 | Discount Yield · Sensex | =IF(I34="OLD",IF(I23=I24,I23,FORECAST(I20,I23:I24,I21:I22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| J29 | Discount Yield · Sensex | =IF(J34="OLD",IF(J23=J24,J23,FORECAST(J20,J23:J24,J21:J22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| K29 | Discount Yield · Sensex | =IF(K34="OLD",IF(K23=K24,K23,FORECAST(K20,K23:K24,K21:K22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| L29 | Discount Yield · Sensex | =IF(L34="OLD",IF(L23=L24,L23,FORECAST(L20,L23:L24,L21:L22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| M29 | Discount Yield · Sensex | =IF(M34="OLD",IF(M23=M24,M23,FORECAST(M20,M23:M24,M21:M22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| N29 | Discount Yield · Sensex | =IF(N34="OLD",IF(N23=N24,N23,FORECAST(N20,N23:N24,N21:N22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| O29 | Discount Yield · Sensex | =IF(O34="OLD",IF(O23=O24,O23,FORECAST(O20,O23:O24,O21:O22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| P29 | Discount Yield · Sensex | =IF(P34="OLD",IF(P23=P24,P23,FORECAST(P20,P23:P24,P21:P22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Q29 | Discount Yield · Sensex | =IF(Q34="OLD",IF(Q23=Q24,Q23,FORECAST(Q20,Q23:Q24,Q21:Q22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| R29 | Discount Yield · Sensex | =IF(R34="OLD",IF(R23=R24,R23,FORECAST(R20,R23:R24,R21:R22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| S29 | Discount Yield · Sensex | =IF(S34="OLD",IF(S23=S24,S23,FORECAST(S20,S23:S24,S21:S22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| T29 | Discount Yield · Sensex | =IF(T34="OLD",IF(T23=T24,T23,FORECAST(T20,T23:T24,T21:T22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| U29 | Discount Yield · Sensex | =IF(U34="OLD",IF(U23=U24,U23,FORECAST(U20,U23:U24,U21:U22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| V29 | Discount Yield · Sensex | =IF(V34="OLD",IF(V23=V24,V23,FORECAST(V20,V23:V24,V21:V22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| W29 | Discount Yield · Sensex | =IF(W34="OLD",IF(W23=W24,W23,FORECAST(W20,W23:W24,W21:W22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| X29 | Discount Yield · Sensex | =IF(X34="OLD",IF(X23=X24,X23,FORECAST(X20,X23:X24,X21:X22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Y29 | Discount Yield · Sensex | =IF(Y34="OLD",IF(Y23=Y24,Y23,FORECAST(Y20,Y23:Y24,Y21:Y22)), | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Z29 | Discount Yield · Sensex | =IF(Z34="OLD",IF(Z23=Z24,Z23,FORECAST(Z20,Z23:Z24,Z21:Z22)), | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AA29 | Discount Yield · Sensex | =IF(AA34="OLD",IF(AA23=AA24,AA23,FORECAST(AA20,AA23:AA24,AA2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AB29 | Discount Yield · Sensex | =IF(AB34="OLD",IF(AB23=AB24,AB23,FORECAST(AB20,AB23:AB24,AB2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AC29 | Discount Yield · Sensex | =IF(AC34="OLD",IF(AC23=AC24,AC23,FORECAST(AC20,AC23:AC24,AC2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AD29 | Discount Yield · Sensex | =IF(AD34="OLD",IF(AD23=AD24,AD23,FORECAST(AD20,AD23:AD24,AD2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AE29 | Discount Yield · Sensex | =IF(AE34="OLD",IF(AE23=AE24,AE23,FORECAST(AE20,AE23:AE24,AE2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AF29 | Discount Yield · Sensex | =IF(AF34="OLD",IF(AF23=AF24,AF23,FORECAST(AF20,AF23:AF24,AF2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AG29 | Discount Yield · Sensex | =IF(AG34="OLD",IF(AG23=AG24,AG23,FORECAST(AG20,AG23:AG24,AG2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AH29 | Discount Yield · Sensex | =IF(AH34="OLD",IF(AH23=AH24,AH23,FORECAST(AH20,AH23:AH24,AH2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AI29 | Discount Yield · Sensex | =IF(AI34="OLD",IF(AI23=AI24,AI23,FORECAST(AI20,AI23:AI24,AI2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AJ29 | Discount Yield · Sensex | =IF(AJ34="OLD",IF(AJ23=AJ24,AJ23,FORECAST(AJ20,AJ23:AJ24,AJ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AK29 | Discount Yield · Sensex | =IF(AK34="OLD",IF(AK23=AK24,AK23,FORECAST(AK20,AK23:AK24,AK2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AL29 | Discount Yield · Sensex | =IF(AL34="OLD",IF(AL23=AL24,AL23,FORECAST(AL20,AL23:AL24,AL2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AM29 | Discount Yield · Sensex | =IF(AM34="OLD",IF(AM23=AM24,AM23,FORECAST(AM20,AM23:AM24,AM2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AN29 | Discount Yield · Sensex | =IF(AN34="OLD",IF(AN23=AN24,AN23,FORECAST(AN20,AN23:AN24,AN2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AO29 | Discount Yield · Sensex | =IF(AO34="OLD",IF(AO23=AO24,AO23,FORECAST(AO20,AO23:AO24,AO2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AP29 | Discount Yield · Sensex | =IF(AP34="OLD",IF(AP23=AP24,AP23,FORECAST(AP20,AP23:AP24,AP2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AQ29 | Discount Yield · Sensex | =IF(AQ34="OLD",IF(AQ23=AQ24,AQ23,FORECAST(AQ20,AQ23:AQ24,AQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AR29 | Discount Yield · Sensex | =IF(AR34="OLD",IF(AR23=AR24,AR23,FORECAST(AR20,AR23:AR24,AR2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AS29 | Discount Yield · Sensex | =IF(AS34="OLD",IF(AS23=AS24,AS23,FORECAST(AS20,AS23:AS24,AS2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AT29 | Discount Yield · Sensex | =IF(AT34="OLD",IF(AT23=AT24,AT23,FORECAST(AT20,AT23:AT24,AT2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AU29 | Discount Yield · Sensex | =IF(AU34="OLD",IF(AU23=AU24,AU23,FORECAST(AU20,AU23:AU24,AU2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AV29 | Discount Yield · Sensex | =IF(AV34="OLD",IF(AV23=AV24,AV23,FORECAST(AV20,AV23:AV24,AV2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AW29 | Discount Yield · Sensex | =IF(AW34="OLD",IF(AW23=AW24,AW23,FORECAST(AW20,AW23:AW24,AW2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AX29 | Discount Yield · Sensex | =IF(AX34="OLD",IF(AX23=AX24,AX23,FORECAST(AX20,AX23:AX24,AX2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AY29 | Discount Yield · Sensex | =IF(AY34="OLD",IF(AY23=AY24,AY23,FORECAST(AY20,AY23:AY24,AY2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| AZ29 | Discount Yield · Sensex | =IF(AZ34="OLD",IF(AZ23=AZ24,AZ23,FORECAST(AZ20,AZ23:AZ24,AZ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BA29 | Discount Yield · Sensex | =IF(BA34="OLD",IF(BA23=BA24,BA23,FORECAST(BA20,BA23:BA24,BA2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BB29 | Discount Yield · Sensex | =IF(BB34="OLD",IF(BB23=BB24,BB23,FORECAST(BB20,BB23:BB24,BB2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BC29 | Discount Yield · Sensex | =IF(BC34="OLD",IF(BC23=BC24,BC23,FORECAST(BC20,BC23:BC24,BC2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BD29 | Discount Yield · Sensex | =IF(BD34="OLD",IF(BD23=BD24,BD23,FORECAST(BD20,BD23:BD24,BD2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BE29 | Discount Yield · Sensex | =IF(BE34="OLD",IF(BE23=BE24,BE23,FORECAST(BE20,BE23:BE24,BE2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BF29 | Discount Yield · Sensex | =IF(BF34="OLD",IF(BF23=BF24,BF23,FORECAST(BF20,BF23:BF24,BF2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BG29 | Discount Yield · Sensex | =IF(BG34="OLD",IF(BG23=BG24,BG23,FORECAST(BG20,BG23:BG24,BG2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BH29 | Discount Yield · Sensex | =IF(BH34="OLD",IF(BH23=BH24,BH23,FORECAST(BH20,BH23:BH24,BH2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BI29 | Discount Yield · Sensex | =IF(BI34="OLD",IF(BI23=BI24,BI23,FORECAST(BI20,BI23:BI24,BI2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BJ29 | Discount Yield · Sensex | =IF(BJ34="OLD",IF(BJ23=BJ24,BJ23,FORECAST(BJ20,BJ23:BJ24,BJ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BK29 | Discount Yield · Sensex | =IF(BK34="OLD",IF(BK23=BK24,BK23,FORECAST(BK20,BK23:BK24,BK2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BL29 | Discount Yield · Sensex | =IF(BL34="OLD",IF(BL23=BL24,BL23,FORECAST(BL20,BL23:BL24,BL2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BM29 | Discount Yield · Sensex | =IF(BM34="OLD",IF(BM23=BM24,BM23,FORECAST(BM20,BM23:BM24,BM2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BN29 | Discount Yield · Sensex | =IF(BN34="OLD",IF(BN23=BN24,BN23,FORECAST(BN20,BN23:BN24,BN2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BO29 | Discount Yield · Sensex | =IF(BO34="OLD",IF(BO23=BO24,BO23,FORECAST(BO20,BO23:BO24,BO2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BP29 | Discount Yield · Sensex | =IF(BP34="OLD",IF(BP23=BP24,BP23,FORECAST(BP20,BP23:BP24,BP2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BQ29 | Discount Yield · Sensex | =IF(BQ34="OLD",IF(BQ23=BQ24,BQ23,FORECAST(BQ20,BQ23:BQ24,BQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BR29 | Discount Yield · Sensex | =IF(BR34="OLD",IF(BR23=BR24,BR23,FORECAST(BR20,BR23:BR24,BR2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BS29 | Discount Yield · Sensex | =IF(BS34="OLD",IF(BS23=BS24,BS23,FORECAST(BS20,BS23:BS24,BS2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BT29 | Discount Yield · Sensex | =IF(BT34="OLD",IF(BT23=BT24,BT23,FORECAST(BT20,BT23:BT24,BT2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BU29 | Discount Yield · Sensex | =IF(BU34="OLD",IF(BU23=BU24,BU23,FORECAST(BU20,BU23:BU24,BU2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BV29 | Discount Yield · Sensex | =IF(BV34="OLD",IF(BV23=BV24,BV23,FORECAST(BV20,BV23:BV24,BV2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BW29 | Discount Yield · Sensex | =IF(BW34="OLD",IF(BW23=BW24,BW23,FORECAST(BW20,BW23:BW24,BW2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BX29 | Discount Yield · Sensex | =IF(BX34="OLD",IF(BX23=BX24,BX23,FORECAST(BX20,BX23:BX24,BX2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BY29 | Discount Yield · Sensex | =IF(BY34="OLD",IF(BY23=BY24,BY23,FORECAST(BY20,BY23:BY24,BY2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| BZ29 | Discount Yield · Sensex | =IF(BZ34="OLD",IF(BZ23=BZ24,BZ23,FORECAST(BZ20,BZ23:BZ24,BZ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CA29 | Discount Yield · Sensex | =IF(CA34="OLD",IF(CA23=CA24,CA23,FORECAST(CA20,CA23:CA24,CA2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CB29 | Discount Yield · Sensex | =IF(CB34="OLD",IF(CB23=CB24,CB23,FORECAST(CB20,CB23:CB24,CB2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CC29 | Discount Yield · Sensex | =IF(CC34="OLD",IF(CC23=CC24,CC23,FORECAST(CC20,CC23:CC24,CC2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CD29 | Discount Yield · Sensex | =IF(CD34="OLD",IF(CD23=CD24,CD23,FORECAST(CD20,CD23:CD24,CD2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CE29 | Discount Yield · Sensex | =IF(CE34="OLD",IF(CE23=CE24,CE23,FORECAST(CE20,CE23:CE24,CE2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CF29 | Discount Yield · Sensex | =IF(CF34="OLD",IF(CF23=CF24,CF23,FORECAST(CF20,CF23:CF24,CF2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CG29 | Discount Yield · Sensex | =IF(CG34="OLD",IF(CG23=CG24,CG23,FORECAST(CG20,CG23:CG24,CG2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CH29 | Discount Yield · Sensex | =IF(CH34="OLD",IF(CH23=CH24,CH23,FORECAST(CH20,CH23:CH24,CH2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CI29 | Discount Yield · Sensex | =IF(CI34="OLD",IF(CI23=CI24,CI23,FORECAST(CI20,CI23:CI24,CI2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CJ29 | Discount Yield · Sensex | =IF(CJ34="OLD",IF(CJ23=CJ24,CJ23,FORECAST(CJ20,CJ23:CJ24,CJ2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CK29 | Discount Yield · Sensex | =IF(CK34="OLD",IF(CK23=CK24,CK23,FORECAST(CK20,CK23:CK24,CK2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CL29 | Discount Yield · Sensex | =IF(CL34="OLD",IF(CL23=CL24,CL23,FORECAST(CL20,CL23:CL24,CL2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CM29 | Discount Yield · Sensex | =IF(CM34="OLD",IF(CM23=CM24,CM23,FORECAST(CM20,CM23:CM24,CM2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CN29 | Discount Yield · Sensex | =IF(CN34="OLD",IF(CN23=CN24,CN23,FORECAST(CN20,CN23:CN24,CN2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CO29 | Discount Yield · Sensex | =IF(CO34="OLD",IF(CO23=CO24,CO23,FORECAST(CO20,CO23:CO24,CO2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CP29 | Discount Yield · Sensex | =IF(CP34="OLD",IF(CP23=CP24,CP23,FORECAST(CP20,CP23:CP24,CP2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CQ29 | Discount Yield · Sensex | =IF(CQ34="OLD",IF(CQ23=CQ24,CQ23,FORECAST(CQ20,CQ23:CQ24,CQ2 | 0.065 | 0.065 | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Match |
+| CR29 | Discount Yield · Sensex | =IF(CR34="OLD",IF(CR23=CR24,CR23,FORECAST(CR20,CR23:CR24,CR2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CS29 | Discount Yield · Sensex | =IF(CS34="OLD",IF(CS23=CS24,CS23,FORECAST(CS20,CS23:CS24,CS2 | 0.065 | - | `lib/engine/rates.ts:101` pricerDiscountYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A30 | Discount Yield | constant Dividends | Dividends | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&B20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| C30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&C20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| D30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&D20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| E30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&E20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| F30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&F20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| G30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&G20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| H30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&H20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| I30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&I20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| J30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&J20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| K30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&K20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| L30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&L20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| M30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&M20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| N30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&N20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| O30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&O20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| P30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&P20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Q30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Q20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| R30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&R20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| S30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&S20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| T30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&T20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| U30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&U20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| V30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&V20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| W30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&W20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| X30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&X20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Y30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Y20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| Z30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Z20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AA20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AB20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AC20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AD20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AE20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AF20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AG20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AH20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AI20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AJ20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AK20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AL20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AM20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AN20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AO20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AP20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AQ20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AR20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AS20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AT30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AT20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AU30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AU20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AV30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AV20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AW30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AW20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| AX30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AX20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AY30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AY20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| AZ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AZ20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BA20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BB20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BC20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BD20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BE20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BF20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BG20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BH20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BI20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BJ20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BK20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BL20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BM20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BN20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BO20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BP20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BQ20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BR20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BS20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BT30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BT20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BU30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BU20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| BV30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BV20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BW30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BW20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BX30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BX20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BY30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BY20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| BZ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BZ20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CA20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CB20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CC20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CD20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CE20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CF20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CG20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CH20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CI20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CJ20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CK20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CL20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CM20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CN20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CO20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CP20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CQ20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Match |
-| CR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CR20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
-| CS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CS20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:103` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| B30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&B20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| C30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&C20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| D30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&D20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| E30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&E20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| F30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&F20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| G30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&G20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| H30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&H20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| I30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&I20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| J30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&J20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| K30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&K20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| L30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&L20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| M30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&M20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| N30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&N20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| O30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&O20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| P30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&P20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Q30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Q20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| R30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&R20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| S30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&S20,MarketData!$J$26:$J$ | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| T30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&T20,MarketData!$J$26:$J$ | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| U30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&U20,MarketData!$J$26:$J$ | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| V30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&V20,MarketData!$J$26:$J$ | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| W30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&W20,MarketData!$J$26:$J$ | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| X30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&X20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Y30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Y20,MarketData!$J$26:$J$ | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| Z30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&Z20,MarketData!$J$26:$J$ | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AA20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AB20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AC20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AD20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AE20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AF20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AG20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AH20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AI20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AJ20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AK20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AL20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AM20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AN20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AO20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AP20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AQ20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AR20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AS20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AT30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AT20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AU30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AU20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AV30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AV20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AW30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AW20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| AX30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AX20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AY30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AY20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| AZ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&AZ20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BA20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BB20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BC20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BD20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BE20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BF20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BG20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BH20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BI20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BJ20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BK20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BL20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BM20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BN20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BO20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BP20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BQ20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BR20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BS20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BT30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BT20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BU30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BU20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| BV30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BV20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BW30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BW20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BX30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BX20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BY30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BY20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| BZ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&BZ20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CA30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CA20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CB30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CB20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CC30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CC20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CD30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CD20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CE30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CE20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CF30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CF20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CG30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CG20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CH30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CH20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CI30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CI20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CJ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CJ20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CK30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CK20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CL30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CL20,MarketData!$J$26:$J | 0.007146 | 0.007146 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CM30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CM20,MarketData!$J$26:$J | 0.006704 | 0.006704 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CN30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CN20,MarketData!$J$26:$J | 0.006284 | 0.006284 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CO30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CO20,MarketData!$J$26:$J | 0.005886 | 0.005886 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CP30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CP20,MarketData!$J$26:$J | 0.00556 | 0.00556 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CQ30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CQ20,MarketData!$J$26:$J | 0.005289 | 0.005289 | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Match |
+| CR30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CR20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
+| CS30 | Dividends · Sensex | =SUMIF(MarketData!$I$26:$I$1204,"<"&CS20,MarketData!$J$26:$J | 0.005289 | - | `lib/engine/rates.ts:112` dividendYield | tests/golden/g0-workbook.test.ts | Not Applicable: Expiry slots 7 and 8 of each strike block, unused with six expiries |
 | A31 | Dividends | constant Forward | Forward | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | B31 | Forward · Sensex | =EXP(B28*(B20-B26)/365)*B27 | 93080.582069 | 93080.582069 | `lib/engine/hedging-sheet.ts:71` priceOption | tests/golden/products.test.ts | Match |
 | C31 | Forward · Sensex | =EXP(C28*(C20-C26)/365)*C27 | 94266.240651 | 94266.240651 | `lib/engine/hedging-sheet.ts:71` priceOption | tests/golden/products.test.ts | Match |
@@ -7290,872 +7290,872 @@ Not Applicable cells carry their reason in the Status column.
 | O1 | Rate Cap (while buying Fwd) | constant Rate Cap (while selling Fwd) | Rate Cap (while selling Fwd) | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | P1 | Rate Cap (while selling Fwd) | constant Margin Cost | Margin Cost | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
 | Q1 | Margin Cost | constant Fwd Sell rate | Fwd Sell rate | - | - | - | Not Applicable: Label or heading text; the app shows its own Title Case labels |
-| B2 | Dates | constant 2020-03-26 | 2020-03-26 | 2020-03-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B2 | Dates | constant 2020-03-26 | 2020-03-26 | 2020-03-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C2 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D2 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E2 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F2 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G2 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H2 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| M2 | Div - bid/offer | constant 1 | 1 | 1 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| N2 | Rate Cap (while buying Fwd) | constant 0.068 | 0.068 | 0.068 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| O2 | Rate Cap (while selling Fwd) | =MarketData!D34/100 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| P2 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D2 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E2 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F2 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G2 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H2 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| M2 | Div - bid/offer | constant 1 | 1 | 1 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| N2 | Rate Cap (while buying Fwd) | constant 0.068 | 0.068 | 0.068 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| O2 | Rate Cap (while selling Fwd) | =MarketData!D34/100 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| P2 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | Q2 | Fwd Sell rate | constant 0.056 | 0.056 | - | - | - | Not Applicable: Sheet level forward sell rate of 5.6%; no formula reads it. The Pricer reads the dated column H, 5.5% for Aug-2026, which the app reads too and which matches |
-| B3 | Dates | constant 2020-06-25 | 2020-06-25 | 2020-06-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B3 | Dates | constant 2020-06-25 | 2020-06-25 | 2020-06-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C3 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D3 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E3 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F3 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G3 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H3 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B4 | Dates | constant 2020-07-30 | 2020-07-30 | 2020-07-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D3 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E3 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F3 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G3 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H3 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B4 | Dates | constant 2020-07-30 | 2020-07-30 | 2020-07-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C4 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D4 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E4 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F4 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G4 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H4 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B5 | Dates | constant 2020-08-27 | 2020-08-27 | 2020-08-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D4 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E4 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F4 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G4 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H4 | Fwd Sell rate | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B5 | Dates | constant 2020-08-27 | 2020-08-27 | 2020-08-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C5 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D5 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E5 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F5 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G5 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H5 | Fwd Sell rate | constant 0.001 | 0.001 | 0.001 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B6 | Dates | constant 2020-09-24 | 2020-09-24 | 2020-09-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D5 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E5 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F5 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G5 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H5 | Fwd Sell rate | constant 0.001 | 0.001 | 0.001 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B6 | Dates | constant 2020-09-24 | 2020-09-24 | 2020-09-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C6 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D6 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E6 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F6 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G6 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H6 | Fwd Sell rate | constant 0.001 | 0.001 | 0.001 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B7 | Dates | constant 2020-10-29 | 2020-10-29 | 2020-10-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D6 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E6 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F6 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G6 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H6 | Fwd Sell rate | constant 0.001 | 0.001 | 0.001 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B7 | Dates | constant 2020-10-29 | 2020-10-29 | 2020-10-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C7 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D7 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E7 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F7 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G7 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H7 | Fwd Sell rate | constant 0.006 | 0.006 | 0.006 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B8 | Dates | constant 2020-11-25 | 2020-11-25 | 2020-11-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D7 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E7 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F7 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G7 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H7 | Fwd Sell rate | constant 0.006 | 0.006 | 0.006 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B8 | Dates | constant 2020-11-25 | 2020-11-25 | 2020-11-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C8 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D8 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E8 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F8 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G8 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H8 | Fwd Sell rate | constant 0.006 | 0.006 | 0.006 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B9 | Dates | constant 2020-12-31 | 2020-12-31 | 2020-12-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D8 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E8 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F8 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G8 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H8 | Fwd Sell rate | constant 0.006 | 0.006 | 0.006 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B9 | Dates | constant 2020-12-31 | 2020-12-31 | 2020-12-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C9 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D9 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E9 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F9 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G9 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H9 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B10 | Dates | constant 2021-01-28 | 2021-01-28 | 2021-01-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D9 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E9 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F9 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G9 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H9 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B10 | Dates | constant 2021-01-28 | 2021-01-28 | 2021-01-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C10 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D10 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E10 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F10 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G10 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H10 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B11 | Dates | constant 2021-02-25 | 2021-02-25 | 2021-02-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D10 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E10 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F10 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G10 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H10 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B11 | Dates | constant 2021-02-25 | 2021-02-25 | 2021-02-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C11 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D11 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E11 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F11 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G11 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H11 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B12 | Dates | constant 2021-03-25 | 2021-03-25 | 2021-03-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D11 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E11 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F11 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G11 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H11 | Fwd Sell rate | constant 0.0085 | 0.0085 | 0.0085 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B12 | Dates | constant 2021-03-25 | 2021-03-25 | 2021-03-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C12 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D12 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E12 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F12 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G12 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H12 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B13 | Dates | constant 2021-04-29 | 2021-04-29 | 2021-04-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D12 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E12 | Inc. Margin | constant 0.0050000000000000044 | 0.005 | 0.005 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F12 | Full Margin | constant 0.065 | 0.065 | 0.065 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G12 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H12 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B13 | Dates | constant 2021-04-29 | 2021-04-29 | 2021-04-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C13 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D13 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E13 | Inc. Margin | constant 0.011930693069306941 | 0.011931 | 0.011931 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F13 | Full Margin | constant 0.07193069306930694 | 0.071931 | 0.071931 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G13 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H13 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B14 | Dates | constant 2021-05-27 | 2021-05-27 | 2021-05-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D13 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E13 | Inc. Margin | constant 0.011930693069306941 | 0.011931 | 0.011931 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F13 | Full Margin | constant 0.07193069306930694 | 0.071931 | 0.071931 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G13 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H13 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B14 | Dates | constant 2021-05-27 | 2021-05-27 | 2021-05-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C14 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D14 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E14 | Inc. Margin | constant 0.01726586102719034 | 0.017266 | 0.017266 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F14 | Full Margin | constant 0.07726586102719034 | 0.077266 | 0.077266 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G14 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H14 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B15 | Dates | constant 2021-06-24 | 2021-06-24 | 2021-06-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D14 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E14 | Inc. Margin | constant 0.01726586102719034 | 0.017266 | 0.017266 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F14 | Full Margin | constant 0.07726586102719034 | 0.077266 | 0.077266 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G14 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H14 | Fwd Sell rate | constant 0.031 | 0.031 | 0.031 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B15 | Dates | constant 2021-06-24 | 2021-06-24 | 2021-06-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C15 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D15 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E15 | Inc. Margin | constant 0.021768802228412265 | 0.021769 | 0.021769 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F15 | Full Margin | constant 0.08176880222841226 | 0.081769 | 0.081769 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G15 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H15 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B16 | Dates | constant 2021-07-29 | 2021-07-29 | 2021-07-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D15 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E15 | Inc. Margin | constant 0.021768802228412265 | 0.021769 | 0.021769 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F15 | Full Margin | constant 0.08176880222841226 | 0.081769 | 0.081769 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G15 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H15 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B16 | Dates | constant 2021-07-29 | 2021-07-29 | 2021-07-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C16 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D16 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E16 | Inc. Margin | constant 0.026497461928934013 | 0.026497 | 0.026497 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F16 | Full Margin | constant 0.08649746192893401 | 0.086497 | 0.086497 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G16 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H16 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B17 | Dates | constant 2021-08-26 | 2021-08-26 | 2021-08-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D16 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E16 | Inc. Margin | constant 0.026497461928934013 | 0.026497 | 0.026497 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F16 | Full Margin | constant 0.08649746192893401 | 0.086497 | 0.086497 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G16 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H16 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B17 | Dates | constant 2021-08-26 | 2021-08-26 | 2021-08-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C17 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D17 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E17 | Inc. Margin | constant 0.029715639810426547 | 0.029716 | 0.029716 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F17 | Full Margin | constant 0.08971563981042655 | 0.089716 | 0.089716 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G17 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H17 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B18 | Dates | constant 2021-09-30 | 2021-09-30 | 2021-09-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D17 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E17 | Inc. Margin | constant 0.029715639810426547 | 0.029716 | 0.029716 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F17 | Full Margin | constant 0.08971563981042655 | 0.089716 | 0.089716 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G17 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H17 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B18 | Dates | constant 2021-09-30 | 2021-09-30 | 2021-09-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C18 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D18 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E18 | Inc. Margin | constant 0.033183807439824964 | 0.033184 | 0.033184 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F18 | Full Margin | constant 0.09318380743982496 | 0.093184 | 0.093184 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G18 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H18 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B19 | Dates | constant 2021-10-28 | 2021-10-28 | 2021-10-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D18 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E18 | Inc. Margin | constant 0.033183807439824964 | 0.033184 | 0.033184 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F18 | Full Margin | constant 0.09318380743982496 | 0.093184 | 0.093184 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G18 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H18 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B19 | Dates | constant 2021-10-28 | 2021-10-28 | 2021-10-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C19 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D19 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E19 | Inc. Margin | constant 0.035597938144329905 | 0.035598 | 0.035598 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F19 | Full Margin | constant 0.0955979381443299 | 0.095598 | 0.095598 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G19 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H19 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B20 | Dates | constant 2021-11-25 | 2021-11-25 | 2021-11-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D19 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E19 | Inc. Margin | constant 0.035597938144329905 | 0.035598 | 0.035598 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F19 | Full Margin | constant 0.0955979381443299 | 0.095598 | 0.095598 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G19 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H19 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B20 | Dates | constant 2021-11-25 | 2021-11-25 | 2021-11-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C20 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D20 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E20 | Inc. Margin | constant 0.037748538011695934 | 0.037749 | 0.037749 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F20 | Full Margin | constant 0.09774853801169593 | 0.097749 | 0.097749 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G20 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H20 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B21 | Dates | constant 2021-12-30 | 2021-12-30 | 2021-12-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D20 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E20 | Inc. Margin | constant 0.037748538011695934 | 0.037749 | 0.037749 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F20 | Full Margin | constant 0.09774853801169593 | 0.097749 | 0.097749 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G20 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H20 | Fwd Sell rate | constant 0.0345 | 0.0345 | 0.0345 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B21 | Dates | constant 2021-12-30 | 2021-12-30 | 2021-12-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C21 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D21 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E21 | Inc. Margin | constant 0.04012773722627738 | 0.040128 | 0.040128 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F21 | Full Margin | constant 0.10012773722627738 | 0.100128 | 0.100128 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G21 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H21 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B22 | Dates | constant 2022-01-27 | 2022-01-27 | 2022-01-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D21 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E21 | Inc. Margin | constant 0.04012773722627738 | 0.040128 | 0.040128 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F21 | Full Margin | constant 0.10012773722627738 | 0.100128 | 0.100128 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G21 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H21 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B22 | Dates | constant 2022-01-27 | 2022-01-27 | 2022-01-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C22 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D22 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E22 | Inc. Margin | constant 0.04182291666666668 | 0.041823 | 0.041823 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F22 | Full Margin | constant 0.10182291666666668 | 0.101823 | 0.101823 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G22 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H22 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B23 | Dates | constant 2022-02-24 | 2022-02-24 | 2022-02-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D22 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E22 | Inc. Margin | constant 0.04182291666666668 | 0.041823 | 0.041823 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F22 | Full Margin | constant 0.10182291666666668 | 0.101823 | 0.101823 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G22 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H22 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B23 | Dates | constant 2022-02-24 | 2022-02-24 | 2022-02-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C23 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D23 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E23 | Inc. Margin | constant 0.04336092715231789 | 0.043361 | 0.043361 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F23 | Full Margin | constant 0.10336092715231789 | 0.103361 | 0.103361 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G23 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H23 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B24 | Dates | constant 2022-03-31 | 2022-03-31 | 2022-03-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D23 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E23 | Inc. Margin | constant 0.04336092715231789 | 0.043361 | 0.043361 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F23 | Full Margin | constant 0.10336092715231789 | 0.103361 | 0.103361 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G23 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H23 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B24 | Dates | constant 2022-03-31 | 2022-03-31 | 2022-03-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C24 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D24 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E24 | Inc. Margin | constant 0.04509389671361502 | 0.045094 | 0.045094 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F24 | Full Margin | constant 0.10509389671361502 | 0.105094 | 0.105094 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G24 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H24 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B25 | Dates | constant 2022-04-28 | 2022-04-28 | 2022-04-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D24 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E24 | Inc. Margin | constant 0.04509389671361502 | 0.045094 | 0.045094 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F24 | Full Margin | constant 0.10509389671361502 | 0.105094 | 0.105094 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G24 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H24 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B25 | Dates | constant 2022-04-28 | 2022-04-28 | 2022-04-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C25 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D25 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E25 | Inc. Margin | constant 0.04634932533733134 | 0.046349 | 0.046349 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F25 | Full Margin | constant 0.10634932533733134 | 0.106349 | 0.106349 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G25 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H25 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B26 | Dates | constant 2022-05-26 | 2022-05-26 | 2022-05-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D25 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E25 | Inc. Margin | constant 0.04634932533733134 | 0.046349 | 0.046349 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F25 | Full Margin | constant 0.10634932533733134 | 0.106349 | 0.106349 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G25 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H25 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B26 | Dates | constant 2022-05-26 | 2022-05-26 | 2022-05-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C26 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D26 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E26 | Inc. Margin | constant 0.04750359712230216 | 0.047504 | 0.047504 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F26 | Full Margin | constant 0.10750359712230216 | 0.107504 | 0.107504 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G26 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H26 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B27 | Dates | constant 2022-06-30 | 2022-06-30 | 2022-06-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D26 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E26 | Inc. Margin | constant 0.04750359712230216 | 0.047504 | 0.047504 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F26 | Full Margin | constant 0.10750359712230216 | 0.107504 | 0.107504 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G26 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H26 | Fwd Sell rate | constant 0.037000000000000005 | 0.037 | 0.037 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B27 | Dates | constant 2022-06-30 | 2022-06-30 | 2022-06-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C27 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D27 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E27 | Inc. Margin | constant 0.04882191780821919 | 0.048822 | 0.048822 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F27 | Full Margin | constant 0.10882191780821919 | 0.108822 | 0.108822 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G27 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H27 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B28 | Dates | constant 2022-07-28 | 2022-07-28 | 2022-07-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D27 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E27 | Inc. Margin | constant 0.04882191780821919 | 0.048822 | 0.048822 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F27 | Full Margin | constant 0.10882191780821919 | 0.108822 | 0.108822 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G27 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H27 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B28 | Dates | constant 2022-07-28 | 2022-07-28 | 2022-07-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C28 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D28 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E28 | Inc. Margin | constant 0.049788918205804764 | 0.049789 | 0.049789 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F28 | Full Margin | constant 0.10978891820580476 | 0.109789 | 0.109789 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G28 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H28 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B29 | Dates | constant 2022-08-25 | 2022-08-25 | 2022-08-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D28 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E28 | Inc. Margin | constant 0.049788918205804764 | 0.049789 | 0.049789 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F28 | Full Margin | constant 0.10978891820580476 | 0.109789 | 0.109789 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G28 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H28 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B29 | Dates | constant 2022-08-25 | 2022-08-25 | 2022-08-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C29 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D29 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E29 | Inc. Margin | constant 0.05068702290076338 | 0.050687 | 0.050687 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F29 | Full Margin | constant 0.11068702290076338 | 0.110687 | 0.110687 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G29 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H29 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B30 | Dates | constant 2022-09-29 | 2022-09-29 | 2022-09-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D29 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E29 | Inc. Margin | constant 0.05068702290076338 | 0.050687 | 0.050687 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F29 | Full Margin | constant 0.11068702290076338 | 0.110687 | 0.110687 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G29 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H29 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B30 | Dates | constant 2022-09-29 | 2022-09-29 | 2022-09-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C30 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D30 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E30 | Inc. Margin | constant 0.051723507917174186 | 0.051724 | 0.051724 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F30 | Full Margin | constant 0.11172350791717418 | 0.111724 | 0.111724 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G30 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H30 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B31 | Dates | constant 2022-10-27 | 2022-10-27 | 2022-10-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D30 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E30 | Inc. Margin | constant 0.051723507917174186 | 0.051724 | 0.051724 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F30 | Full Margin | constant 0.11172350791717418 | 0.111724 | 0.111724 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G30 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H30 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B31 | Dates | constant 2022-10-27 | 2022-10-27 | 2022-10-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C31 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D31 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E31 | Inc. Margin | constant 0.05249116607773853 | 0.052491 | 0.052491 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F31 | Full Margin | constant 0.11249116607773853 | 0.112491 | 0.112491 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G31 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H31 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B32 | Dates | constant 2022-11-24 | 2022-11-24 | 2022-11-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D31 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E31 | Inc. Margin | constant 0.05249116607773853 | 0.052491 | 0.052491 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F31 | Full Margin | constant 0.11249116607773853 | 0.112491 | 0.112491 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G31 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H31 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B32 | Dates | constant 2022-11-24 | 2022-11-24 | 2022-11-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C32 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D32 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E32 | Inc. Margin | constant 0.05320980615735463 | 0.05321 | 0.05321 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F32 | Full Margin | constant 0.11320980615735463 | 0.11321 | 0.11321 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G32 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H32 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B33 | Dates | constant 2022-12-29 | 2022-12-29 | 2022-12-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D32 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E32 | Inc. Margin | constant 0.05320980615735463 | 0.05321 | 0.05321 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F32 | Full Margin | constant 0.11320980615735463 | 0.11321 | 0.11321 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G32 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H32 | Fwd Sell rate | constant 0.0385 | 0.0385 | 0.0385 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B33 | Dates | constant 2022-12-29 | 2022-12-29 | 2022-12-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C33 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D33 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E33 | Inc. Margin | constant 0.05404605263157895 | 0.054046 | 0.054046 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F33 | Full Margin | constant 0.11404605263157895 | 0.114046 | 0.114046 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G33 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H33 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B34 | Dates | constant 2023-01-25 | 2023-01-25 | 2023-01-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D33 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E33 | Inc. Margin | constant 0.05404605263157895 | 0.054046 | 0.054046 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F33 | Full Margin | constant 0.11404605263157895 | 0.114046 | 0.114046 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G33 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H33 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B34 | Dates | constant 2023-01-25 | 2023-01-25 | 2023-01-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C34 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D34 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E34 | Inc. Margin | constant 0.0546485623003195 | 0.054649 | 0.054649 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F34 | Full Margin | constant 0.1146485623003195 | 0.114649 | 0.114649 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G34 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H34 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B35 | Dates | constant 2023-02-23 | 2023-02-23 | 2023-02-23 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D34 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E34 | Inc. Margin | constant 0.0546485623003195 | 0.054649 | 0.054649 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F34 | Full Margin | constant 0.1146485623003195 | 0.114649 | 0.114649 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G34 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H34 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B35 | Dates | constant 2023-02-23 | 2023-02-23 | 2023-02-23 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C35 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D35 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E35 | Inc. Margin | constant 0.05525826446280993 | 0.055258 | 0.055258 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F35 | Full Margin | constant 0.11525826446280993 | 0.115258 | 0.115258 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G35 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H35 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B36 | Dates | constant 2023-03-30 | 2023-03-30 | 2023-03-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D35 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E35 | Inc. Margin | constant 0.05525826446280993 | 0.055258 | 0.055258 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F35 | Full Margin | constant 0.11525826446280993 | 0.115258 | 0.115258 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G35 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H35 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B36 | Dates | constant 2023-03-30 | 2023-03-30 | 2023-03-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C36 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D36 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E36 | Inc. Margin | constant 0.055947158524426735 | 0.055947 | 0.055947 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F36 | Full Margin | constant 0.11594715852442673 | 0.115947 | 0.115947 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G36 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H36 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B37 | Dates | constant 2023-04-27 | 2023-04-27 | 2023-04-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D36 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E36 | Inc. Margin | constant 0.055947158524426735 | 0.055947 | 0.055947 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F36 | Full Margin | constant 0.11594715852442673 | 0.115947 | 0.115947 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G36 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H36 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B37 | Dates | constant 2023-04-27 | 2023-04-27 | 2023-04-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C37 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D37 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E37 | Inc. Margin | constant 0.056464597478176545 | 0.056465 | 0.056465 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F37 | Full Margin | constant 0.11646459747817654 | 0.116465 | 0.116465 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G37 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H37 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B38 | Dates | constant 2023-05-25 | 2023-05-25 | 2023-05-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D37 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E37 | Inc. Margin | constant 0.056464597478176545 | 0.056465 | 0.056465 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F37 | Full Margin | constant 0.11646459747817654 | 0.116465 | 0.116465 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G37 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H37 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B38 | Dates | constant 2023-05-25 | 2023-05-25 | 2023-05-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C38 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D38 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E38 | Inc. Margin | constant 0.05695467422096319 | 0.056955 | 0.056955 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F38 | Full Margin | constant 0.11695467422096319 | 0.116955 | 0.116955 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G38 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H38 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B39 | Dates | constant 2023-06-29 | 2023-06-29 | 2023-06-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D38 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E38 | Inc. Margin | constant 0.05695467422096319 | 0.056955 | 0.056955 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F38 | Full Margin | constant 0.11695467422096319 | 0.116955 | 0.116955 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G38 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H38 | Fwd Sell rate | constant 0.0395 | 0.0395 | 0.0395 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B39 | Dates | constant 2023-06-29 | 2023-06-29 | 2023-06-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C39 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D39 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E39 | Inc. Margin | constant 0.05746788990825688 | 0.057468 | 0.057468 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F39 | Full Margin | constant 0.11746788990825688 | 0.117468 | 0.117468 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G39 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H39 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B40 | Dates | constant 2023-07-27 | 2023-07-27 | 2023-07-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D39 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E39 | Inc. Margin | constant 0.05746788990825688 | 0.057468 | 0.057468 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F39 | Full Margin | constant 0.11746788990825688 | 0.117468 | 0.117468 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G39 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H39 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B40 | Dates | constant 2023-07-27 | 2023-07-27 | 2023-07-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C40 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D40 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E40 | Inc. Margin | constant 0.05796791443850269 | 0.057968 | 0.057968 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F40 | Full Margin | constant 0.11796791443850269 | 0.117968 | 0.117968 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G40 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H40 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B41 | Dates | constant 2023-08-31 | 2023-08-31 | 2023-08-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D40 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E40 | Inc. Margin | constant 0.05796791443850269 | 0.057968 | 0.057968 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F40 | Full Margin | constant 0.11796791443850269 | 0.117968 | 0.117968 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G40 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H40 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B41 | Dates | constant 2023-08-31 | 2023-08-31 | 2023-08-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C41 | BID | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D41 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E41 | Inc. Margin | constant 0.05848314606741574 | 0.058483 | 0.058483 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F41 | Full Margin | constant 0.11848314606741574 | 0.118483 | 0.118483 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G41 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H41 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B42 | - | constant 2023-09-28 | 2023-09-28 | 2023-09-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D41 | Vol - Bid/Offer | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E41 | Inc. Margin | constant 0.05848314606741574 | 0.058483 | 0.058483 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F41 | Full Margin | constant 0.11848314606741574 | 0.118483 | 0.118483 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G41 | Margin Cost | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H41 | Fwd Sell rate | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B42 | - | constant 2023-09-28 | 2023-09-28 | 2023-09-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C42 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D42 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E42 | - | constant 0.058873417721518995 | 0.058873 | 0.058873 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F42 | - | constant 0.11887341772151899 | 0.118873 | 0.118873 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G42 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H42 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B43 | - | constant 2023-10-26 | 2023-10-26 | 2023-10-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D42 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E42 | - | constant 0.058873417721518995 | 0.058873 | 0.058873 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F42 | - | constant 0.11887341772151899 | 0.118873 | 0.118873 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G42 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H42 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B43 | - | constant 2023-10-26 | 2023-10-26 | 2023-10-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C43 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D43 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E43 | - | constant 0.059245671887881296 | 0.059246 | 0.059246 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F43 | - | constant 0.1192456718878813 | 0.119246 | 0.119246 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G43 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H43 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B44 | - | constant 2023-11-30 | 2023-11-30 | 2023-11-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D43 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E43 | - | constant 0.059245671887881296 | 0.059246 | 0.059246 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F43 | - | constant 0.1192456718878813 | 0.119246 | 0.119246 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G43 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H43 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B44 | - | constant 2023-11-30 | 2023-11-30 | 2023-11-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C44 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D44 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E44 | - | constant 0.059687500000000004 | 0.059688 | 0.059688 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F44 | - | constant 0.1196875 | 0.119688 | 0.119688 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G44 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H44 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B45 | - | constant 2023-12-28 | 2023-12-28 | 2023-12-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D44 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E44 | - | constant 0.059687500000000004 | 0.059688 | 0.059688 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F44 | - | constant 0.1196875 | 0.119688 | 0.119688 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G44 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H44 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B45 | - | constant 2023-12-28 | 2023-12-28 | 2023-12-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C45 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D45 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E45 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F45 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G45 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H45 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B46 | - | constant 2024-01-25 | 2024-01-25 | 2024-01-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D45 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E45 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F45 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G45 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H45 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B46 | - | constant 2024-01-25 | 2024-01-25 | 2024-01-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C46 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D46 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E46 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F46 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G46 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H46 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B47 | - | constant 2024-02-29 | 2024-02-29 | 2024-02-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D46 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E46 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F46 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G46 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H46 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B47 | - | constant 2024-02-29 | 2024-02-29 | 2024-02-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C47 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D47 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E47 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F47 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G47 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H47 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B48 | - | constant 2025-01-30 | 2025-01-30 | 2025-01-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D47 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E47 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F47 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G47 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H47 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B48 | - | constant 2025-01-30 | 2025-01-30 | 2025-01-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C48 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D48 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E48 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F48 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G48 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H48 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B49 | - | constant 2025-02-27 | 2025-02-27 | 2025-02-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D48 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E48 | - | constant 0.060023510971786834 | 0.060024 | 0.060024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F48 | - | constant 0.12002351097178683 | 0.120024 | 0.120024 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G48 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H48 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B49 | - | constant 2025-02-27 | 2025-02-27 | 2025-02-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C49 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D49 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E49 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F49 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G49 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H49 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B50 | - | constant 2025-03-27 | 2025-03-27 | 2025-03-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D49 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E49 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F49 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G49 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H49 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B50 | - | constant 2025-03-27 | 2025-03-27 | 2025-03-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C50 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D50 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E50 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F50 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G50 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H50 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B51 | - | constant 2025-04-24 | 2025-04-24 | 2025-04-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D50 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E50 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F50 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G50 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H50 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B51 | - | constant 2025-04-24 | 2025-04-24 | 2025-04-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C51 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D51 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E51 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F51 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G51 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H51 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B52 | - | constant 2025-05-29 | 2025-05-29 | 2025-05-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D51 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E51 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F51 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G51 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H51 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B52 | - | constant 2025-05-29 | 2025-05-29 | 2025-05-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C52 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D52 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E52 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F52 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G52 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H52 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B53 | - | constant 2025-06-26 | 2025-06-26 | 2025-06-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D52 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E52 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F52 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G52 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H52 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B53 | - | constant 2025-06-26 | 2025-06-26 | 2025-06-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C53 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D53 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E53 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F53 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G53 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H53 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B54 | - | constant 2025-07-31 | 2025-07-31 | 2025-07-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D53 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E53 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F53 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G53 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H53 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B54 | - | constant 2025-07-31 | 2025-07-31 | 2025-07-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C54 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D54 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E54 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F54 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G54 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H54 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B55 | - | constant 2025-08-28 | 2025-08-28 | 2025-08-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D54 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E54 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F54 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G54 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H54 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B55 | - | constant 2025-08-28 | 2025-08-28 | 2025-08-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C55 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D55 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E55 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F55 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G55 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H55 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B56 | - | constant 2025-09-25 | 2025-09-25 | 2025-09-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D55 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E55 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F55 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G55 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H55 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B56 | - | constant 2025-09-25 | 2025-09-25 | 2025-09-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C56 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D56 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E56 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F56 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G56 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H56 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B57 | - | constant 2025-10-30 | 2025-10-30 | 2025-10-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D56 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E56 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F56 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G56 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H56 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B57 | - | constant 2025-10-30 | 2025-10-30 | 2025-10-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C57 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D57 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E57 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F57 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G57 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H57 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B58 | - | constant 2025-11-27 | 2025-11-27 | 2025-11-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D57 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E57 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F57 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G57 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H57 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B58 | - | constant 2025-11-27 | 2025-11-27 | 2025-11-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C58 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D58 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E58 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F58 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G58 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H58 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B59 | - | constant 2025-12-24 | 2025-12-24 | 2025-12-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D58 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E58 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F58 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G58 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H58 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B59 | - | constant 2025-12-24 | 2025-12-24 | 2025-12-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C59 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D59 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E59 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F59 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G59 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H59 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B60 | - | constant 2026-01-29 | 2026-01-29 | 2026-01-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D59 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E59 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F59 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G59 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H59 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B60 | - | constant 2026-01-29 | 2026-01-29 | 2026-01-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C60 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D60 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E60 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F60 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G60 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H60 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B61 | - | constant 2026-02-26 | 2026-02-26 | 2026-02-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D60 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E60 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F60 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G60 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H60 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B61 | - | constant 2026-02-26 | 2026-02-26 | 2026-02-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C61 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D61 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E61 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F61 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G61 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H61 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B62 | - | constant 2026-03-26 | 2026-03-26 | 2026-03-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D61 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E61 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F61 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G61 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H61 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B62 | - | constant 2026-03-26 | 2026-03-26 | 2026-03-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C62 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D62 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E62 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F62 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G62 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H62 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B63 | - | constant 2026-04-30 | 2026-04-30 | 2026-04-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D62 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E62 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F62 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G62 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H62 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B63 | - | constant 2026-04-30 | 2026-04-30 | 2026-04-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C63 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D63 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E63 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F63 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G63 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H63 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B64 | - | constant 2026-05-28 | 2026-05-28 | 2026-05-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D63 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E63 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F63 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G63 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H63 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B64 | - | constant 2026-05-28 | 2026-05-28 | 2026-05-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C64 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D64 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E64 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F64 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G64 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H64 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B65 | - | constant 2026-06-25 | 2026-06-25 | 2026-06-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D64 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E64 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F64 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G64 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H64 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B65 | - | constant 2026-06-25 | 2026-06-25 | 2026-06-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C65 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D65 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E65 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F65 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G65 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H65 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B66 | - | constant 2026-07-30 | 2026-07-30 | 2026-07-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D65 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E65 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F65 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G65 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H65 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B66 | - | constant 2026-07-30 | 2026-07-30 | 2026-07-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C66 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D66 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E66 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F66 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G66 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H66 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B67 | - | constant 2026-08-27 | 2026-08-27 | 2026-08-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D66 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E66 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F66 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G66 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H66 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B67 | - | constant 2026-08-27 | 2026-08-27 | 2026-08-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C67 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D67 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E67 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F67 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G67 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H67 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B68 | - | constant 2026-09-24 | 2026-09-24 | 2026-09-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D67 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E67 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F67 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G67 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H67 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B68 | - | constant 2026-09-24 | 2026-09-24 | 2026-09-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C68 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D68 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E68 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F68 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G68 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H68 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B69 | - | constant 2026-10-29 | 2026-10-29 | 2026-10-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D68 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E68 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F68 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G68 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H68 | - | constant 0.0445 | 0.0445 | 0.0445 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B69 | - | constant 2026-10-29 | 2026-10-29 | 2026-10-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C69 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D69 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E69 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F69 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G69 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H69 | - | constant 0.055 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B70 | - | constant 2026-11-26 | 2026-11-26 | 2026-11-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D69 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E69 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F69 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G69 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H69 | - | constant 0.055 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B70 | - | constant 2026-11-26 | 2026-11-26 | 2026-11-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C70 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D70 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E70 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F70 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G70 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H70 | - | =H69 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B71 | - | constant 2026-12-31 | 2026-12-31 | 2026-12-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D70 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E70 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F70 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G70 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H70 | - | =H69 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B71 | - | constant 2026-12-31 | 2026-12-31 | 2026-12-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C71 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D71 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E71 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F71 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G71 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H71 | - | =H70 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B72 | - | constant 2027-01-28 | 2027-01-28 | 2027-01-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D71 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E71 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F71 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G71 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H71 | - | =H70 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B72 | - | constant 2027-01-28 | 2027-01-28 | 2027-01-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C72 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D72 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E72 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F72 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G72 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H72 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B73 | - | constant 2027-02-25 | 2027-02-25 | 2027-02-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D72 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E72 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F72 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G72 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H72 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B73 | - | constant 2027-02-25 | 2027-02-25 | 2027-02-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C73 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D73 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E73 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F73 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G73 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H73 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B74 | - | constant 2027-03-25 | 2027-03-25 | 2027-03-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D73 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E73 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F73 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G73 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H73 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B74 | - | constant 2027-03-25 | 2027-03-25 | 2027-03-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C74 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D74 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E74 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F74 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G74 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H74 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B75 | - | constant 2027-03-25 | 2027-03-25 | 2027-03-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D74 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E74 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F74 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G74 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H74 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B75 | - | constant 2027-03-25 | 2027-03-25 | 2027-03-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C75 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D75 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E75 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F75 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G75 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H75 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B76 | - | constant 2027-04-29 | 2027-04-29 | 2027-04-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D75 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E75 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F75 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G75 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H75 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B76 | - | constant 2027-04-29 | 2027-04-29 | 2027-04-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C76 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D76 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E76 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F76 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G76 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H76 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B77 | - | constant 2027-05-27 | 2027-05-27 | 2027-05-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D76 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E76 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F76 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G76 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H76 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B77 | - | constant 2027-05-27 | 2027-05-27 | 2027-05-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C77 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D77 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E77 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F77 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G77 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H77 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B78 | - | constant 2027-06-24 | 2027-06-24 | 2027-06-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D77 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E77 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F77 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G77 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H77 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B78 | - | constant 2027-06-24 | 2027-06-24 | 2027-06-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C78 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D78 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E78 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F78 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G78 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H78 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B79 | - | constant 2027-07-29 | 2027-07-29 | 2027-07-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D78 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E78 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F78 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G78 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H78 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B79 | - | constant 2027-07-29 | 2027-07-29 | 2027-07-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C79 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D79 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E79 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F79 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G79 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H79 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B80 | - | constant 2027-08-26 | 2027-08-26 | 2027-08-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D79 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E79 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F79 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G79 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H79 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B80 | - | constant 2027-08-26 | 2027-08-26 | 2027-08-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C80 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D80 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E80 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F80 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G80 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H80 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B81 | - | constant 2027-09-30 | 2027-09-30 | 2027-09-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D80 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E80 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F80 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G80 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H80 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B81 | - | constant 2027-09-30 | 2027-09-30 | 2027-09-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C81 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D81 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E81 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F81 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G81 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H81 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B82 | - | constant 2027-10-28 | 2027-10-28 | 2027-10-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D81 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E81 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F81 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G81 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H81 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B82 | - | constant 2027-10-28 | 2027-10-28 | 2027-10-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C82 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D82 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E82 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F82 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G82 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H82 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B83 | - | constant 2027-11-25 | 2027-11-25 | 2027-11-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D82 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E82 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F82 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G82 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H82 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B83 | - | constant 2027-11-25 | 2027-11-25 | 2027-11-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C83 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D83 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E83 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F83 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G83 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H83 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B84 | - | constant 2027-12-30 | 2027-12-30 | 2027-12-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D83 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E83 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F83 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G83 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H83 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B84 | - | constant 2027-12-30 | 2027-12-30 | 2027-12-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C84 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D84 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E84 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F84 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G84 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H84 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B85 | - | constant 2028-01-27 | 2028-01-27 | 2028-01-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D84 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E84 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F84 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G84 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H84 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B85 | - | constant 2028-01-27 | 2028-01-27 | 2028-01-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C85 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D85 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E85 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F85 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G85 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H85 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B86 | - | constant 2028-02-24 | 2028-02-24 | 2028-02-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D85 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E85 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F85 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G85 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H85 | - | =shared H71 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B86 | - | constant 2028-02-24 | 2028-02-24 | 2028-02-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C86 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D86 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E86 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F86 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G86 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H86 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B87 | - | constant 2028-03-30 | 2028-03-30 | 2028-03-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D86 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E86 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F86 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G86 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H86 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B87 | - | constant 2028-03-30 | 2028-03-30 | 2028-03-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C87 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D87 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E87 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F87 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G87 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H87 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B88 | - | constant 2028-04-27 | 2028-04-27 | 2028-04-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D87 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E87 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F87 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G87 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H87 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B88 | - | constant 2028-04-27 | 2028-04-27 | 2028-04-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C88 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D88 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E88 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F88 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G88 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H88 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B89 | - | constant 2028-05-25 | 2028-05-25 | 2028-05-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D88 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E88 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F88 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G88 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H88 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B89 | - | constant 2028-05-25 | 2028-05-25 | 2028-05-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C89 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D89 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E89 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F89 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G89 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H89 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B90 | - | constant 2028-06-29 | 2028-06-29 | 2028-06-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D89 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E89 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F89 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G89 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H89 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B90 | - | constant 2028-06-29 | 2028-06-29 | 2028-06-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C90 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D90 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E90 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F90 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G90 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H90 | - | =H81 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B91 | - | constant 2028-07-25 | 2028-07-25 | 2028-07-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D90 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E90 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F90 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G90 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H90 | - | =H81 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B91 | - | constant 2028-07-25 | 2028-07-25 | 2028-07-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C91 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D91 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E91 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F91 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G91 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H91 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B92 | - | constant 2028-08-29 | 2028-08-29 | 2028-08-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D91 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E91 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F91 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G91 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H91 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B92 | - | constant 2028-08-29 | 2028-08-29 | 2028-08-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C92 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D92 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E92 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F92 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G92 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H92 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B93 | - | constant 2028-09-26 | 2028-09-26 | 2028-09-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D92 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E92 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F92 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G92 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H92 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B93 | - | constant 2028-09-26 | 2028-09-26 | 2028-09-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C93 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D93 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E93 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F93 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G93 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H93 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B94 | - | constant 2028-10-26 | 2028-10-26 | 2028-10-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D93 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E93 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F93 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G93 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H93 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B94 | - | constant 2028-10-26 | 2028-10-26 | 2028-10-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C94 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D94 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E94 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F94 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G94 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H94 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B95 | - | constant 2028-11-30 | 2028-11-30 | 2028-11-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D94 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E94 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F94 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G94 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H94 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B95 | - | constant 2028-11-30 | 2028-11-30 | 2028-11-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C95 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D95 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E95 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F95 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G95 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H95 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B96 | - | constant 2028-12-28 | 2028-12-28 | 2028-12-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D95 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E95 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F95 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G95 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H95 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B96 | - | constant 2028-12-28 | 2028-12-28 | 2028-12-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C96 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D96 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E96 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F96 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G96 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H96 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B97 | - | constant 2029-01-25 | 2029-01-25 | 2029-01-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D96 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E96 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F96 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G96 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H96 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B97 | - | constant 2029-01-25 | 2029-01-25 | 2029-01-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C97 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D97 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E97 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F97 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G97 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H97 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B98 | - | constant 2029-02-22 | 2029-02-22 | 2029-02-22 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D97 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E97 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F97 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G97 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H97 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B98 | - | constant 2029-02-22 | 2029-02-22 | 2029-02-22 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C98 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D98 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E98 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F98 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G98 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H98 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B99 | - | constant 2029-03-29 | 2029-03-29 | 2029-03-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D98 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E98 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F98 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G98 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H98 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B99 | - | constant 2029-03-29 | 2029-03-29 | 2029-03-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C99 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D99 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E99 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F99 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G99 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H99 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B100 | - | constant 2029-04-26 | 2029-04-26 | 2029-04-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D99 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E99 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F99 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G99 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H99 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B100 | - | constant 2029-04-26 | 2029-04-26 | 2029-04-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C100 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D100 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E100 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F100 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G100 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H100 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B101 | - | constant 2029-05-31 | 2029-05-31 | 2029-05-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D100 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E100 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F100 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G100 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H100 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B101 | - | constant 2029-05-31 | 2029-05-31 | 2029-05-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C101 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D101 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E101 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F101 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G101 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H101 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B102 | - | constant 2029-06-28 | 2029-06-28 | 2029-06-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D101 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E101 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F101 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G101 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H101 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B102 | - | constant 2029-06-28 | 2029-06-28 | 2029-06-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C102 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D102 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E102 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F102 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G102 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H102 | - | =H81 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B103 | - | constant 2029-07-26 | 2029-07-26 | 2029-07-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D102 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E102 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F102 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G102 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H102 | - | =H81 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B103 | - | constant 2029-07-26 | 2029-07-26 | 2029-07-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C103 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D103 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E103 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F103 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G103 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H103 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B104 | - | constant 2029-08-30 | 2029-08-30 | 2029-08-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D103 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E103 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F103 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G103 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H103 | - | =H82 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B104 | - | constant 2029-08-30 | 2029-08-30 | 2029-08-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C104 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D104 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E104 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F104 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G104 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H104 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B105 | - | constant 2029-09-27 | 2029-09-27 | 2029-09-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D104 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E104 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F104 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G104 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H104 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B105 | - | constant 2029-09-27 | 2029-09-27 | 2029-09-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C105 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D105 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E105 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F105 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G105 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H105 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B106 | - | constant 2029-10-25 | 2029-10-25 | 2029-10-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D105 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E105 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F105 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G105 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H105 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B106 | - | constant 2029-10-25 | 2029-10-25 | 2029-10-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C106 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D106 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E106 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F106 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G106 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H106 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B107 | - | constant 2029-11-29 | 2029-11-29 | 2029-11-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D106 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E106 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F106 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G106 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H106 | - | =H85 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B107 | - | constant 2029-11-29 | 2029-11-29 | 2029-11-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C107 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D107 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E107 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F107 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G107 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H107 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B108 | - | constant 2029-12-27 | 2029-12-27 | 2029-12-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D107 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E107 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F107 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G107 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H107 | - | =H84 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B108 | - | constant 2029-12-27 | 2029-12-27 | 2029-12-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C108 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D108 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E108 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F108 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G108 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H108 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B109 | - | constant 2030-01-31 | 2030-01-31 | 2030-01-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D108 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E108 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F108 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G108 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H108 | - | =H83 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B109 | - | constant 2030-01-31 | 2030-01-31 | 2030-01-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C109 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D109 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E109 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F109 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G109 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H109 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B110 | - | constant 2030-02-28 | 2030-02-28 | 2030-02-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D109 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E109 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F109 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G109 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H109 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B110 | - | constant 2030-02-28 | 2030-02-28 | 2030-02-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C110 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D110 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E110 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F110 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G110 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H110 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B111 | - | constant 2030-03-28 | 2030-03-28 | 2030-03-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D110 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E110 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F110 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G110 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H110 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B111 | - | constant 2030-03-28 | 2030-03-28 | 2030-03-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C111 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D111 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E111 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F111 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G111 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H111 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B112 | - | constant 2030-04-25 | 2030-04-25 | 2030-04-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D111 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E111 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F111 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G111 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H111 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B112 | - | constant 2030-04-25 | 2030-04-25 | 2030-04-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C112 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D112 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E112 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F112 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G112 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H112 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B113 | - | constant 2030-05-30 | 2030-05-30 | 2030-05-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D112 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E112 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F112 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G112 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H112 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B113 | - | constant 2030-05-30 | 2030-05-30 | 2030-05-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C113 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D113 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E113 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F113 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G113 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H113 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B114 | - | constant 2030-06-27 | 2030-06-27 | 2030-06-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D113 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E113 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F113 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G113 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H113 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B114 | - | constant 2030-06-27 | 2030-06-27 | 2030-06-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C114 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D114 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E114 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F114 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G114 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H114 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B115 | - | constant 2030-07-25 | 2030-07-25 | 2030-07-25 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D114 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E114 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F114 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G114 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H114 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B115 | - | constant 2030-07-25 | 2030-07-25 | 2030-07-25 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C115 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D115 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E115 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F115 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G115 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H115 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B116 | - | constant 2030-08-29 | 2030-08-29 | 2030-08-29 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D115 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E115 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F115 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G115 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H115 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B116 | - | constant 2030-08-29 | 2030-08-29 | 2030-08-29 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C116 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D116 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E116 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F116 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G116 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H116 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B117 | - | constant 2030-09-26 | 2030-09-26 | 2030-09-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D116 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E116 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F116 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G116 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H116 | - | =shared H108 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B117 | - | constant 2030-09-26 | 2030-09-26 | 2030-09-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C117 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D117 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E117 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F117 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G117 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H117 | - | =H91 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B118 | - | constant 2030-10-31 | 2030-10-31 | 2030-10-31 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D117 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E117 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F117 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G117 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H117 | - | =H91 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B118 | - | constant 2030-10-31 | 2030-10-31 | 2030-10-31 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C118 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D118 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E118 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F118 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G118 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H118 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B119 | - | constant 2030-11-28 | 2030-11-28 | 2030-11-28 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D118 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E118 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F118 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G118 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H118 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B119 | - | constant 2030-11-28 | 2030-11-28 | 2030-11-28 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C119 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D119 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E119 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F119 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G119 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H119 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B120 | - | constant 2030-12-26 | 2030-12-26 | 2030-12-26 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D119 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E119 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F119 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G119 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H119 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B120 | - | constant 2030-12-26 | 2030-12-26 | 2030-12-26 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C120 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D120 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E120 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F120 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G120 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H120 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B121 | - | constant 2031-01-30 | 2031-01-30 | 2031-01-30 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D120 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E120 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F120 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G120 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H120 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B121 | - | constant 2031-01-30 | 2031-01-30 | 2031-01-30 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C121 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D121 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E121 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F121 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G121 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H121 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B122 | - | constant 2031-02-27 | 2031-02-27 | 2031-02-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D121 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E121 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F121 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G121 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H121 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B122 | - | constant 2031-02-27 | 2031-02-27 | 2031-02-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C122 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D122 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E122 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F122 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G122 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H122 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B123 | - | constant 2031-03-27 | 2031-03-27 | 2031-03-27 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D122 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E122 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F122 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G122 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H122 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B123 | - | constant 2031-03-27 | 2031-03-27 | 2031-03-27 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C123 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D123 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E123 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F123 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G123 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H123 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| B124 | - | constant 2031-04-24 | 2031-04-24 | 2031-04-24 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D123 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E123 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F123 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G123 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H123 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| B124 | - | constant 2031-04-24 | 2031-04-24 | 2031-04-24 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 | C124 | - | constant 0 | 0 | - | - | - | Not Applicable: Bid column flag; the app keeps Bid or Offer as one parameter |
-| D124 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| E124 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| F124 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| G124 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
-| H124 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:111` seedPricingParams | scripts/audit-workbook.ts | Match |
+| D124 | - | constant 0 | 0 | 0 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| E124 | - | constant 0.060285605483625285 | 0.060286 | 0.060286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| F124 | - | constant 0.12028560548362528 | 0.120286 | 0.120286 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| G124 | - | constant 0.03 | 0.03 | 0.03 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
+| H124 | - | =shared H117 | 0.055 | 0.055 | `lib/engine/defaults.ts:112` seedPricingParams | scripts/audit-workbook.ts | Match |
 
 ### Product Description
 
