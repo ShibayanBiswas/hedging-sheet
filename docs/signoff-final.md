@@ -1,6 +1,6 @@
 # Sign Off · Final Round And Final Polish
 
-Local test run on the Windows laptop, 02-Nov-2026 22:20 to 03-Nov-2026 19:15 IST. Nothing has been pushed or deployed, so every row that depends on the push says **Waiting On The Push**.
+Local test run on the Windows laptop, 02-Nov-2026 22:20 to 03-Nov-2026 19:15 IST. Nothing had been pushed or deployed then, so every row that depended on the push said **Waiting On The Push**. Those rows now hold production results from 07-Nov-2026, against `55e2739`, which production has served since 05-Nov-2026 13:53 IST: see [Production Results · 55e2739](#production-results--55e2739).
 
 - **Code commit tested:** `a898e8a`, for every app, script and spec file but one. After it, `17b6d80` changed only `e2e/visual/pages.spec.ts`: toast timers are now held from the toast's own step, and whole-page pictures get 60 s. That spec ran on Chromium on Windows (run 17) and in Docker (run 13). The commits after `17b6d80` hold only docs and screenshots.
 - **Evidence:** every number below comes from a run made in this round. Its `summary.md` and JUnit totals, along with skip reasons and measured annotations read from Playwright's JSON report, are committed under [test-runs](test-runs/). The full HTML reports stay in `reports/`, which is gitignored and which `npm run clean:dev` deletes.
@@ -112,7 +112,7 @@ Playwright's JUnit file has no skip reasons, so the runner now also writes a JSO
 
 ## Performance (Local)
 
-These are local numbers on a loaded laptop. Production numbers will be taken after the push.
+These are local numbers on a loaded laptop. Production numbers, on `55e2739`, are under [Production Results · 55e2739](#production-results--55e2739).
 
 | Measure | Target | Measured | Evidence |
 |---|---|---|---|
@@ -159,7 +159,14 @@ The repo's Lighthouse assertions already asked for Performance of at least 0.90 
 | ![Before, Default Values, 768](screenshots/final/before/inputs-default-768.png) | ![After, Default Values, 768](screenshots/final/after/inputs-default-768.png) |
 | ![Before, Default Values, 390](screenshots/final/before/inputs-default-390.png) | ![After, Default Values, 390](screenshots/final/after/inputs-default-390.png) |
 
-After a finished run: [Summary 1440](screenshots/final/after/output-summary-1440.png), [Summary 768](screenshots/final/after/output-summary-768.png), [Summary 390](screenshots/final/after/output-summary-390.png), [Pricer 1440](screenshots/final/after/output-pricer-1440.png), [Pricer 768](screenshots/final/after/output-pricer-768.png), [Pricer 390](screenshots/final/after/output-pricer-390.png). Blank Inputs at [768](screenshots/final/after/inputs-blank-768.png) and [390](screenshots/final/after/inputs-blank-390.png). Production after screenshots: **Waiting On The Push.**
+After a finished run: [Summary 1440](screenshots/final/after/output-summary-1440.png), [Summary 768](screenshots/final/after/output-summary-768.png), [Summary 390](screenshots/final/after/output-summary-390.png), [Pricer 1440](screenshots/final/after/output-pricer-1440.png), [Pricer 768](screenshots/final/after/output-pricer-768.png), [Pricer 390](screenshots/final/after/output-pricer-390.png). Blank Inputs at [768](screenshots/final/after/inputs-blank-768.png) and [390](screenshots/final/after/inputs-blank-390.png).
+
+Production after screenshots, `55e2739` on 07-Nov-2026 21:01 to 21:03 IST, live data, Google Chrome, whole page:
+
+- Inputs in Default Values at [1440](screenshots/final/production/inputs-default-1440.png), [768](screenshots/final/production/inputs-default-768.png) and [390](screenshots/final/production/inputs-default-390.png), and in Blank Inputs at [1440](screenshots/final/production/inputs-blank-1440.png), [768](screenshots/final/production/inputs-blank-768.png) and [390](screenshots/final/production/inputs-blank-390.png);
+- after a Default Values run, Summary Sheet at [1440](screenshots/final/production/output-summary-1440.png), [768](screenshots/final/production/output-summary-768.png) and [390](screenshots/final/production/output-summary-390.png), and Pricer at [1440](screenshots/final/production/output-pricer-1440.png), [768](screenshots/final/production/output-pricer-768.png) and [390](screenshots/final/production/output-pricer-390.png).
+
+No console error was logged while they were taken. Observation 2 shows on production as it does locally: at 390 px, Product Greeks on Summary Sheet and Pot Computation on Pricer keep their values to the right, off screen until the reader scrolls the table sideways.
 
 ## Checklist · Final Round Inputs
 
@@ -173,8 +180,8 @@ After a finished run: [Summary 1440](screenshots/final/after/output-summary-1440
 | 6 | One grouping style, at most 3 decimals | Done | International grouping throughout: "the spot and the strike points group the same way…", `numbers.spec.ts`, and the measure's `indianGrouping` and `longDecimals` |
 | 7 | Locked groups in Blank Inputs collapse to slim rows | Done | "Blank Inputs: … locked steps are slim rows" (at most 56 px, 92 px on phones) and "Select Number Of Strikes is one slim row" |
 | 8 | Output tabs keep their earlier layout, with only the bug fixes | Done, with observations | Baselines read side by side with the old ones (see above). Market Data's buttons are back on their own row (`e847a6f`, "Market Data downloads sit in the heading row and the surface buttons keep their own row…"). Observations 2 and 4 above are open |
-| 9 | Round 12 suite green locally and on Vercel; Inputs baselines refreshed | Partly | Local: see the final run and the Flaky table. Vercel: **Waiting On The Push.** Baselines: all 98 refreshed in Docker, Inputs included. They were made at `a6b5d45`. After the hover fix, every picture compared clean (run 13) |
-| 10 | Production deploy Ready; `docs/signoff-final.md` committed with before and after screenshots | Partly | This page is committed with local after screenshots. Deploy and production screenshots: **Waiting On The Push** |
+| 9 | Round 12 suite green locally and on Vercel; Inputs baselines refreshed | Partly | Local: see the final run and the Flaky table. Vercel: `npm run test:vercel` against production `55e2739` twice, 96 of 97 each time; each failure passed on its rerun and in the other run ([20](test-runs/20-test-vercel-55e2739-run1/totals.md), [21](test-runs/21-test-vercel-55e2739-run2/totals.md), [rerun](test-runs/21-test-vercel-55e2739-run2-rerun/totals.md)). Baselines: all 98 refreshed in Docker, Inputs included. They were made at `a6b5d45`. After the hover fix, every picture compared clean (run 13) |
+| 10 | Production deploy Ready; `docs/signoff-final.md` committed with before and after screenshots | Done | Production is `55e2739`, `dpl_4gTZKZmZhEZ3ccvncKWTHAF4WHbj`, Ready since 05-Nov-2026 13:53 IST. This page holds the local after screenshots and production ones taken on 07-Nov-2026 at 1440, 768 and 390 px (see above) |
 
 ## Checklist · Final Polish
 
@@ -182,13 +189,13 @@ After a finished run: [Summary 1440](screenshots/final/after/output-summary-1440
 |---|---|---|---|
 | 1 | `clean:dev`, local limits, heavy folders excluded, no stray processes | Done, with one change | `scripts/cleanup-dev.ps1`. Chromium only on 2 workers, no video, traces on failure only, a global teardown, `reuseExistingServer`. `.gitignore`, `.vscode/settings.json` and `.cursorignore` exclude the heavy folders. **Changed:** Vitest uses `forks` with 2 at most, not `threads`, because worker threads crash Node on this laptop (`vitest.config.ts`). For the `clean:dev` run and what was left, see the end of this page |
 | 2 | Engine in a Web Worker, large tables virtualised, lazy tabs and exports, bundle under 250 KB | Partly, by decision | The engine runs in `lib/engine/engine.worker.ts`. **Virtualisation is on the surface grid only** (`VIRTUAL_ABOVE = 100`, `large-surface.spec.ts`), because the named tables never reach 100 rows: the largest book has 42 Pricer rows. The chart, the surface grid, the PDF and Excel load on demand; output tabs are split by route. **`next analyze`** replaces `@next/bundle-analyzer`, which sees nothing under Turbopack. Bundle 210.7 KB gzipped at most |
-| 3 | Lighthouse at least 90; Run under 1.5 s | Partly | Lighthouse medians are 100 and 100 on desktop and 91 and 95 on mobile, all at least 90. Run time and long tasks passed 32 of 32 on a quieter laptop, but 21 of 24 at `a898e8a` with the CPU at 100% from other apps. Mobile LCP is not met. See Performance. Production numbers: **Waiting On The Push** |
+| 3 | Lighthouse at least 90; Run under 1.5 s | Partly | Lighthouse medians are 100 and 100 on desktop and 91 and 95 on mobile, all at least 90. Run time and long tasks passed 32 of 32 on a quieter laptop, but 21 of 24 at `a898e8a` with the CPU at 100% from other apps. Mobile LCP is not met. See Performance. Production, `55e2739`, 07-Nov-2026 on a saturated laptop: desktop medians 97 and 100; mobile medians 80 and 89, then 84 and 86 in a second set, both under 90 and not settled, because the drop is mostly load but not proven to be ([22](test-runs/22-lighthouse-production-55e2739.md)); mobile LCP 2.4 to 2.6 s, not met; Run in Google Chrome 1,132 to 1,639 ms, median 1,380 ms ([23](test-runs/23-worker-and-market-data-production-55e2739.md)) |
 | 4 | Download PDF, Reset To Defaults and Download Excel at the far right on every tab and width | Done | `polish-layout.spec.ts` "Final polish layout at {9 widths} px › every tab, before and after Run": one action group in order, within 16 px of the content edge. Run 5, Chromium |
 | 5 | Design tokens everywhere; alignment, hierarchy, states and motion | Partly | `app/tokens.css` and `design-tokens.test.ts` pass. A fresh grep still finds 121 raw px or rem declarations, 39 hex colours and 6 raw shadows in `globals.css`, plus 48 palette colour classes, 8 hex colours and 11 arbitrary sizes in `.tsx` ([10](test-runs/10-design-token-grep.md)). Observations 1, 2, 4 and 5 above are open |
 | 6 | Every page at 9 widths: no overlap, clipping or vacant space | Done on Chromium | `polish-layout.spec.ts` at 360, 390, 414, 768, 1024, 1280, 1440, 1920 and 2560 px with `E2E_FULL_WIDTHS=1`, in run 5. Firefox, WebKit and mobile run the crawl and the Final Inputs layout at 6 widths |
 | 7 | axe 0 serious; contrast AA | Done for what the specs reach | `test:a11y` 6 of 6. Not scanned by axe: the bulk edit dialogs, the command palette, the Desk Key dialog and the toasts |
-| 8 | Baselines refreshed on Linux; CI and Vercel green | Partly | Baselines: Done in Docker. CI and Vercel: **Waiting On The Push.** `visual.yml` only compares and cannot write baselines |
-| 9 | Production Ready; this page holds performance numbers and screenshots | Partly | Numbers and local screenshots are here. Production: **Waiting On The Push** |
+| 8 | Baselines refreshed on Linux; CI and Vercel green | Partly | Baselines: Done in Docker. CI and Production Smoke: success on `4f4b2f6`, the last code commit ([CI 41993282620](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41993282620), [Production Smoke 41993550214](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41993550214)); `55e2739` changed docs only, so CI skipped it. Vercel: `test:vercel` 96 of 97 twice, every failure passed on rerun. `visual.yml` has never been run on GitHub, so the 98 baselines are not yet confirmed on a runner; it only compares and cannot write baselines |
+| 9 | Production Ready; this page holds performance numbers and screenshots | Done | Production is Ready on `55e2739`. Its numbers are under [Production Results · 55e2739](#production-results--55e2739) and its screenshots under Baselines And Screenshots |
 
 ## Where The Spec Was Not Met Or Was Changed By Decision
 
@@ -201,14 +208,37 @@ After a finished run: [Summary 1440](screenshots/final/after/output-summary-1440
 - **A residual security risk:** `scripts/bypass-target.ts` trusts `hedging-sheet-<9 characters>-shibayan-biswas-projects.vercel.app`. That pattern describes this team's previews, but a stranger's Vercel project could be given a name that produces a matching hostname and would then receive the bypass header.
 - **Nightly and scheduled runs are replaced by manual ones.** No workflow has a `schedule`. Production Smoke runs after CI on main or by hand, and the browser suites, Lighthouse and the visual baselines are `workflow_dispatch` only.
 - **Coverage is no longer gated on push.** `ci.yml` runs `npm run test:ci` with no coverage. The 95% gate on `lib` holds only in local `test:local` and `test:all` runs.
-- **Mobile Lighthouse LCP** is about 2.8 s against a 2 s target. It is not asserted in `lighthouserc.mobile.json`.
+- **Mobile Lighthouse LCP** is about 2.8 s against a 2 s target, locally, and 2.4 to 2.6 s on production (medians, 07-Nov-2026). It is not asserted in `lighthouserc.mobile.json`.
 - **Vitest runs on `forks`, not `threads`.**
 
-## Waiting On The Push
+## Production Results · 55e2739
 
-- Production deploy Ready, `npm run test:vercel` against it, and production after screenshots.
-- CI on `main`, the Vercel preview and Production Smoke. Lighthouse and performance against production.
-- `visual.yml` on GitHub, to confirm the 98 baselines on a runner.
+Measured on Saturday 07-Nov-2026, market closed, from the Windows laptop, read only. Production serves `55e2739` (`dpl_4gTZKZmZhEZ3ccvncKWTHAF4WHbj`, Ready since 05-Nov-2026 13:53 IST). Its app code is `4f4b2f6`: the `a898e8a` tested above plus the later expiry and reset commits, the logic round (the Unwinding Calculator's shared surface, Blank Inputs auto fill, editable Surface Parameters) and the Pricer override ring.
+
+Other sessions kept the laptop saturated: Cygwin's load average read 73 to 163, and WMI stopped answering. That slowed the browsers and Lighthouse. It also left each Playwright run waiting in `e2e/global-teardown.ts`, whose `powershell Get-CimInstance` call never returned, so no JUnit or JSON report was written. The totals are counted from each run's list output, one line per test.
+
+| Check | Result | Evidence |
+|---|---|---|
+| Deploy, CI, Production Smoke | Ready. CI and Production Smoke success on `4f4b2f6`; `55e2739` changed docs only, so CI skipped it | [CI 41993282620](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41993282620), [Smoke 41993550214](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41993550214) |
+| `npm run test:vercel`, run 1, 18:59 to 19:21 IST | Pages and APIs 16 of 16. Playwright **96 of 97**: prod 5 of 5, prod-live 27 of 27, prod-firefox 5 of 6, prod-webkit 6 of 6, prod-responsive 53 of 53. The failure, Firefox crawl at 1440 px, came while Firefox drew nothing for 43 s; it passed on rerun and in run 2 | [20](test-runs/20-test-vercel-55e2739-run1/totals.md) |
+| `npm run test:vercel`, run 2, 21:04 to 21:23 IST | Pages and APIs 16 of 16. Playwright **96 of 97**: prod 5 of 5, prod-live 27 of 27, prod-firefox 6 of 6, prod-webkit 6 of 6, prod-responsive 52 of 53. In the failure, R1 to R7 at 2560 px in Blank Inputs, one navigation request to production had no answer in 24 s; it passed on rerun and in run 1 | [21](test-runs/21-test-vercel-55e2739-run2/totals.md) |
+| Reruns of both failures | 2 of 2 passed | [21 rerun](test-runs/21-test-vercel-55e2739-run2-rerun/totals.md) |
+| Lighthouse desktop, 3 runs a page | Performance: Inputs 96, 97 and 99, median 97; Pricer 100, 100 and 100. Accessibility 96 and 100, Best Practices 100, SEO 100. LCP medians 716 and 630 ms, TBT 61 and 23 ms, CLS 0.000 and 0.017. Every assertion passed | [22](test-runs/22-lighthouse-production-55e2739.md) |
+| Lighthouse mobile, 3 runs a page, twice | Performance medians 80 and 89 (spreads 7 and 8), then 84 and 86: **under 0.90 both times**. Accessibility, Best Practices and SEO 100. LCP medians 2,564 and 2,390 ms, then 2,486 and 2,357 ms: **the 2 s target is not met**. TBT medians 665 and 426 ms. CLS 0.008 and 0.000. Mostly the laptop's load, by the evidence in 22, but not proven; it needs a rerun on a quiet machine | [22](test-runs/22-lighthouse-production-55e2739.md) |
+| Engine worker in Google Chrome 156 | Each run starts one dedicated worker at Run. Default Values: 1,380, 1,639 and 1,132 ms to Summary Sheet, median 1,380 ms. The workbook case through Blank Inputs, 53 fields from `tests/fixtures/blank-workbook-fill.json`: 1,267 ms. Summary Sheet showed 86 of 86 cells as numbers each time, with no console error and no long task | [23](test-runs/23-worker-and-market-data-production-55e2739.md) |
+| Market Data, read only | Surface November 2026, source "Shared With The Unwinding Calculator", matching `/api/health` `sharedSurface` (`unwinding_calculator`, 2026-11). The Surface Parameters month picker moved to December (new, from November) and October (loaded from the desk database), then back; Cancel left every row as it was. No request other than GET was sent | [23](test-runs/23-worker-and-market-data-production-55e2739.md) |
+| Screenshots | 12, at 1440, 768 and 390 px | Baselines And Screenshots, above |
+| Region trial, `bom1` | Skipped: previews are behind Vercel Authentication. Production from India: `/api/health` TTFB median 1,671 ms, `/` 480 ms, `/pricer` 418 ms, through `bom1::iad1` | [24](test-runs/24-region-trial-skipped.md) |
+
+**A read can write.** On `55e2739`, `GET /api/dataset`, `GET /api/surface` and `GET /api/params?month=` copy the Unwinding Calculator's grid into `hedging_sheet.vol_surfaces` whenever the desk's month document differs from it, as the logic round designed. No check here posts, uploads or saves, but any page load can be the read that makes that one copy. See [23](test-runs/23-worker-and-market-data-production-55e2739.md).
+
+**Still open:**
+
+- `visual.yml` on GitHub, to confirm the 98 baselines on a runner. It has never been run.
+- `vercel-preview.yml`, which never runs, because Vercel sends this repository no deployment events.
+- Mobile Lighthouse on a quiet machine, to settle the 0.90 gate for `55e2739`.
+
+Runs 18 and 19 tested production on 04-Nov-2026, when it served `819e9a1`. They are kept as history and marked superseded.
 
 ## Clean Up
 

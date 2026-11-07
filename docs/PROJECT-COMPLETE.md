@@ -52,7 +52,7 @@ Details: [Input Parameters Guide](input-parameters-guide.md), [Market Data Param
 | Last code commit | `e3f7c63`; this document follows `9f460ca` |
 | CI | [Run 41979405800](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41979405800), success at 11:49 am IST |
 | Production Smoke | [Run 41979619690](https://github.com/ShibayanBiswas/hedging-sheet/actions/runs/41979619690), success at 11:50 am IST |
-| Vercel production | `e3f7c63` Ready at 11:48 am IST; `9f460ca` Ready at 11:52 am IST |
+| Vercel production | `e3f7c63` Ready at 11:48 am IST; `9f460ca` Ready at 11:52 am IST; `55e2739` Ready at 1:53 pm IST, `dpl_4gTZKZmZhEZ3ccvncKWTHAF4WHbj`, still production on 07-Nov-2026 |
 | Local, 12:27 pm IST | Type check, lint, `test:ci` (78 files, 749 tests), build and `knip` green |
 
 `GET /api/health` at 12:27 pm IST:
@@ -73,13 +73,26 @@ Details: [Input Parameters Guide](input-parameters-guide.md), [Market Data Param
 
 All five wind-up checks passed, so no code changed in this round. The desk's November Pricing Params sit on top of the Unwinding Calculator's October grid, which is presented as November. That composition is intended and is documented in the Market Data Parameters Guide.
 
+### Production Verification · 07-Nov-2026
+
+Read only, against `55e2739`, from the Windows laptop while other sessions kept it saturated. Details are in [Sign Off · Final Round, Production Results](signoff-final.md#production-results--55e2739).
+
+| Check | Result |
+|---|---|
+| `npm run test:vercel`, twice | 96 of 97 each time: Chromium at every width, the crawl on Firefox and WebKit; pages and APIs 16 of 16. Each failure passed on rerun and in the other run ([20](test-runs/20-test-vercel-55e2739-run1/totals.md), [21](test-runs/21-test-vercel-55e2739-run2/totals.md)) |
+| Lighthouse desktop | Performance medians 97 (Inputs) and 100 (Pricer); every assertion passed |
+| Lighthouse mobile | Performance medians 80 and 89, then 84 and 86: under the 0.90 gate, LCP 2.4 to 2.6 s against 2 s. Mostly the laptop's load, not proven; a rerun on a quiet machine is needed ([22](test-runs/22-lighthouse-production-55e2739.md)) |
+| Engine worker | A dedicated worker at Run; Default Values to Summary Sheet in 1,132 to 1,639 ms, the workbook case through Blank Inputs in 1,267 ms; no console error ([23](test-runs/23-worker-and-market-data-production-55e2739.md)) |
+| Market Data | Shared surface November 2026, matching `/api/health`; the Surface Parameters month picker loads December and October, and Cancel leaves the values unchanged; nothing saved |
+| Screenshots | [Production, 1440, 768 and 390 px](screenshots/final/production/) |
+
 ### Known Workbook Deviations
 
 Workbook values that are typed, not formulas: Summary D3, a second spot (the app has one spot; both give Start Level 24,500); Pricer H5 and Summary Q10, pasted Goal Seek results 0.015% from a fresh solve; Summary P10, a stale spread width; the MTM product requirement column, typed for a 100 Crore book; and the "Sensex" label on the Nifty book's Day 1 sheet.
 
 ## Out Of Scope
 
-The manual visual suite will drift where the Blank Inputs strike table now shows Calculated tags; its baselines were not regenerated. Lighthouse and multi-browser runs were not made. A selling forward cap inside an uploaded file is not read; it is set on Surface Parameters.
+The manual visual suite will drift where the Blank Inputs strike table now shows Calculated tags; its baselines were not regenerated. Lighthouse and multi-browser runs were made later, against production on 07-Nov-2026 (see Production Verification); the mobile Lighthouse gate is still open. A selling forward cap inside an uploaded file is not read; it is set on Surface Parameters.
 
 ## Close
 
