@@ -31,7 +31,8 @@ async function processList(): Promise<string> {
   if (process.platform === "win32") {
     // By executable path, not command line: the command line of this very script holds the words it looks for.
     const script = 'Get-CimInstance Win32_Process | ForEach-Object { "$($_.ProcessId) $($_.ParentProcessId) $($_.Name) $($_.ExecutablePath)" }';
-    return (await execFileAsync("powershell.exe", ["-NoProfile", "-Command", script], { windowsHide: true, maxBuffer: 16 * 1024 * 1024 })).stdout;
+    // A hung WMI never answers, so the list is given up after 30 s rather than holding the run's report.
+    return (await execFileAsync("powershell.exe", ["-NoProfile", "-Command", script], { windowsHide: true, timeout: 30_000, maxBuffer: 16 * 1024 * 1024 })).stdout;
   }
   return (await execFileAsync("ps", ["-eo", "pid=,ppid=,args="], { maxBuffer: 16 * 1024 * 1024 })).stdout;
 }

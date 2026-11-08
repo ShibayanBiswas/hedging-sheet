@@ -20,6 +20,7 @@ function measure(page: Page) {
     const mainStyle = getComputedStyle(main);
     const content = main.clientWidth - parseFloat(mainStyle.paddingLeft) - parseFloat(mainStyle.paddingRight);
     const cards = [...document.querySelectorAll<HTMLElement>('main section[id^="group-"]')];
+    const chipsIn = (root: Element) => [...root.querySelectorAll("*")].filter((e) => e.children.length === 0 && /^(Calculated|Edited)$/.test((e.textContent ?? "").trim()));
     const narrow: string[] = [];
     const vacant: string[] = [];
     const overlaps: string[] = [];
@@ -101,7 +102,9 @@ function measure(page: Page) {
       indianGrouping: readable.filter((s) => /\d,\d{2},\d{3}/.test(s)),
       ungrouped: fields.filter((s) => /\d{4,}/.test(noDates(s))),
       longDecimals: readable.filter((s) => /\d\.\d{4,}/.test(s)),
-      statusChips: cards.map((c) => [...c.querySelectorAll("*")].filter((e) => e.children.length === 0 && /^(Calculated|Edited)$/.test((e.textContent ?? "").trim())).length),
+      // A card has one status chip of its own; a table may also mark each derived column once, in its heading.
+      statusChips: cards.map((c) => chipsIn(c).filter((e) => !e.closest('[role="columnheader"]')).length),
+      headerChips: cards.flatMap((c) => [...c.querySelectorAll('[role="columnheader"]')].map((h) => chipsIn(h).length)),
     };
   });
 }
@@ -121,6 +124,7 @@ async function expectSound(page: Page) {
   expect(m.ungrouped, "fields without a thousands separator").toEqual([]);
   expect(m.longDecimals, "more than 3 decimals").toEqual([]);
   for (const [i, n] of m.statusChips.entries()) expect(n, `status chips in group ${i + 1}`).toBeLessThanOrEqual(1);
+  for (const n of m.headerChips) expect(n, "status chips in one column heading").toBeLessThanOrEqual(1);
 }
 
 async function expectOneChipTopRight(page: Page, text: "Calculated" | "Edited") {

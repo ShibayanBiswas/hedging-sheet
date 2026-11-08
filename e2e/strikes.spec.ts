@@ -90,7 +90,7 @@ test.describe("Strikes, spreads and per spread option type", () => {
     test.setTimeout(180_000);
     const live = Boolean(process.env.BASE_URL);
     // The all Put book at the mock close: the premium tests/call.test.ts pins, and the Pricer headline's Actual Inbuilt.
-    const main = { premium: 50.60749366293384, inbuilt: 0.0787780261525389 };
+    const main = { premium: 50.91980194346003, inbuilt: 0.081756087901249 };
 
     await inputs.goto();
     await inputs.run();

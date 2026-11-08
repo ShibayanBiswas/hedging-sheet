@@ -67,11 +67,13 @@ test.describe("B19 Keyboard", () => {
         const el = document.activeElement as HTMLElement | null;
         const group = el?.closest<HTMLElement>('section[id^="group-"]');
         if (!el || !group) return null;
+        // A field's tip sits in its label row above the control, so a field is placed by its own top, label included.
         const r = el.getBoundingClientRect();
+        const field = el.closest("div:has(> div > label.field-label)")?.getBoundingClientRect();
         // Position within the content: sideways rails scroll as focus moves, so add their scroll back.
         let scrolled = 0;
         for (let p = el.parentElement; p; p = p.parentElement) if (p.scrollWidth > p.clientWidth) scrolled += p.scrollLeft;
-        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, group: Number(group.id.slice(6)), top: r.top + window.scrollY, left: r.left + scrolled };
+        return { id: el.dataset.testid ?? el.getAttribute("aria-label") ?? el.tagName, group: Number(group.id.slice(6)), top: (field ?? r).top + window.scrollY, left: r.left + scrolled };
       });
       if (at) seen.push(at);
     }

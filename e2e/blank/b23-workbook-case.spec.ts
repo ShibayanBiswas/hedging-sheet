@@ -98,8 +98,8 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await inputs.fill("input-hedgeStrike", value("input-hedgeStrike"));
     await expect(inputs.field("hedgeStrike")).toHaveValue("76,800");
     await expect(page.getByTestId("hedge-strike-status")).toHaveText("Edited");
-    // Pricer B5 needs the Start Level Uplift, which sits in step 5.
-    await expect(page.getByTestId("start-level")).toHaveText("-");
+    // A spot fills the Start Level Uplift, so Pricer B5 = ROUNDUP(spot × 1.006, −2) shows at once.
+    await expect(page.getByTestId("start-level")).toHaveText("77,300");
 
     // 2 Observation Expiries: the G4 to M4 helper dates move to C12 to H12, each its month's last Thursday.
     await expect(group(2)).toContainText("Select Number Of Expiry Dates");
@@ -157,7 +157,8 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
       await expect(page.getByTestId(`input-spreads-${j}-buy`)).toHaveText(buy!);
       await expect(page.getByTestId(`input-spreads-${j}-sell`)).toHaveText(sell!);
     }
-    await expect(page.getByTestId("strike-units-0")).toHaveText("-");
+    // The Start Level is in from the spot, so the units show already: Pricer B47.
+    await expect(page.getByTestId("strike-units-0")).toHaveText("-10.050");
 
     // 4 Rates: Summary C4 to C6.
     await expectFlagged(page, "input-nbfcRate", "101");
