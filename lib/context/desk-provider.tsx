@@ -11,7 +11,7 @@ import type { HedgingFailure, HedgingResult, MarketData, PricingParams, Underlyi
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
 import { splitKeys } from "@/lib/inputs/run-keys";
-import { correctForRun, type CorrectionContext } from "@/lib/validation/corrections";
+import type { CorrectionContext } from "@/lib/validation/corrections";
 import { fieldSection, fieldTestId, groupBySection, INPUT_SECTIONS, validateDeskInputs, type FieldError } from "@/lib/validation/inputRules";
 import type { MarketLevels } from "@/lib/market-data";
 import { traceEnabled, tracePipeline } from "@/lib/trace";
@@ -374,6 +374,8 @@ export function DeskProvider({ today, children }: {
 
   const runOnce = useCallback(async (): Promise<boolean> => {
     // A value that breaks a rule is corrected, with its note, rather than refused: only empty fields and the like stop a run.
+    // The rules load with the first run, so pages that never run, such as Market Data, do not carry them.
+    const { correctForRun } = await import("@/lib/validation/corrections");
     const fixed = correctForRun(inputsRef.current, { today: istTodayYmd(), spot: spotFor(inputsRef.current.underlying, levelsRef.current) });
     if (fixed.inputs !== inputsRef.current) {
       inputsRef.current = fixed.inputs;
