@@ -15,7 +15,7 @@ export function isCustomBook(inputs: Pick<HedgeInputs, "bookMode">): boolean {
 }
 
 /** A leg's units, Pricer row 47: the quantity, negative where the book sells. */
-export function legUnits(leg: Pick<CustomLeg, "side" | "quantity">): number {
+function legUnits(leg: Pick<CustomLeg, "side" | "quantity">): number {
   return leg.side === "S" ? -leg.quantity : leg.quantity;
 }
 
@@ -184,7 +184,7 @@ export function upsideCash(terms: DerivedTerms): number {
  * A Custom Option Book's checks: 1 to 10 legs, each with a Level % above zero, a Put or Call, a Buy or Sell and a quantity
  * above zero. None of the product rules apply: any order, a repeated level and any mix of sides price as typed.
  */
-export function validateCustomBook(inputs: Pick<HedgeInputs, "customLegs">): ValidationIssue[] {
+function validateCustomBook(inputs: Pick<HedgeInputs, "customLegs">): ValidationIssue[] {
   const legs = inputs.customLegs ?? [];
   const errors: ValidationIssue[] = [];
   if (legs.length < MIN_LEGS || legs.length > MAX_LEGS) {
