@@ -1,7 +1,7 @@
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { MAX_EXPIRIES, MIN_EXPIRIES, snapExpiry } from "@/lib/engine/schedule";
-import { MAX_SPREADS, MIN_SPREADS } from "@/lib/engine/structure";
-import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
+import { MAX_LEG_QUANTITY, MAX_LEGS, MAX_SPREADS, MIN_LEGS, MIN_SPREADS } from "@/lib/engine/structure";
+import type { CustomLeg, OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 
 /** At most this many rows in one paste: 10 expiries, or 10 strikes for 6 spreads. */
 const MAX_PASTE_ROWS = Math.max(MAX_EXPIRIES, MAX_SPREADS + 4);
@@ -93,5 +93,32 @@ export function parseStrikePaste(text: string): BulkResult<PastedStrike> {
   const min = MIN_SPREADS + 4;
   const max = MAX_SPREADS + 4;
   const countError = rows.length < min || rows.length > max ? `Paste ${min} to ${max} strikes, for 1 to ${MAX_SPREADS} spreads.` : null;
+  return { rows, error: countError, ok: !countError && rows.every((r) => !r.error) };
+}
+
+/**
+ * Pasted Custom Option Book legs, one per line: Level %, Put or Call, Buy or Sell, then the Quantity, 1 when left out.
+ * 1 to 10 rows in any order; a level may repeat.
+ */
+export function parseLegPaste(text: string): BulkResult<CustomLeg> {
+  const lines = splitRows(text);
+  if (!lines.length) return { rows: [], error: "Paste one leg per line: Level %, Put Or Call, Buy Or Sell, Quantity.", ok: false };
+  if (lines.length > MAX_LEGS) return { rows: [], error: `At most ${MAX_LEGS} legs can be pasted; this paste has ${lines.length}.`, ok: false };
+  const rows = lines.map((cells): BulkRow<CustomLeg> => {
+    const raw = cells.join(" · ");
+    const percent = Number((cells[0] ?? "").replace(/[%\s]/g, ""));
+    if (!cells[0] || !Number.isFinite(percent)) return { raw, value: null, error: "The level is not a number." };
+    if (!(percent > 0 && percent <= 500)) return { raw, value: null, error: "The level must be above 0% and at most 500%." };
+    const optionType = TYPE[(cells[1] ?? "").toLowerCase()];
+    if (!optionType) return { raw, value: null, error: "Option Type must be Put or Call." };
+    const side = SIDE[(cells[2] ?? "").toLowerCase()];
+    if (!side) return { raw, value: null, error: "Buy Or Sell must be Buy or Sell." };
+    const quantity = cells[3] ? Number(cells[3].replace(/,/g, "")) : 1;
+    if (!(Number.isFinite(quantity) && quantity > 0 && quantity <= MAX_LEG_QUANTITY)) {
+      return { raw, value: null, error: `The quantity must be above 0 and at most ${MAX_LEG_QUANTITY}; Buy Or Sell gives the sign.` };
+    }
+    return { raw, value: { percent, optionType, side, quantity } };
+  });
+  const countError = rows.length < MIN_LEGS ? `Paste ${MIN_LEGS} to ${MAX_LEGS} legs.` : null;
   return { rows, error: countError, ok: !countError && rows.every((r) => !r.error) };
 }

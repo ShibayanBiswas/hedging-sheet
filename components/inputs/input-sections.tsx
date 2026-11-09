@@ -5,6 +5,7 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CalendarClock, Check, ClipboardPaste, CloudDownload, Coins, Gauge, Layers, LineChart, Percent, RefreshCw, RotateCcw, ScrollText, type LucideIcon } from "lucide-react";
 
 import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
+import { BookField, CustomBookActions, CustomBookBody, CustomBookRule } from "@/components/inputs/custom-book";
 import { ChoiceSelect, CountPicker, DateInput, FieldRow, NumberInput, Segmented, Toggle, type FieldCheck } from "@/components/ui/fields";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
@@ -477,6 +478,8 @@ function StrikesGroup({ open }: { open: number }) {
   const units = tableUnits(inputs, start);
   const payouts = terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
   const total = payouts.reduce((a, b) => a + b, 0);
+  // A Custom Option Book replaces the strikes and spreads tables with its legs.
+  const custom = inputs.bookMode === "custom";
 
   const applyPaste = (rows: PastedStrike[]) =>
     setInputs((prev) => {
@@ -497,20 +500,33 @@ function StrikesGroup({ open }: { open: number }) {
       icon={Layers}
       open={open}
       rule={
-        <span className={cn("hs-chip inputs-card-rule", Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 && "hs-chip-maroon")} data-testid="max-coupon">
-          Maximum Upside {Number.isFinite(total) && k.length ? fmtPercent(total) : "-"}
-        </span>
+        custom ? (
+          <CustomBookRule />
+        ) : (
+          <span className={cn("hs-chip inputs-card-rule", Number.isFinite(total) && Math.abs(total - inputs.coupon) > 1e-9 && "hs-chip-maroon")} data-testid="max-coupon">
+            Maximum Upside {Number.isFinite(total) && k.length ? fmtPercent(total) : "-"}
+          </span>
+        )
       }
       actions={
-        <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="strikes-bulk" onClick={() => setBulk(true)}>
-          <span className="relative z-10 inline-flex items-center gap-1">
-            <ClipboardPaste className="icon-xs" aria-hidden />
-            Bulk Edit
-          </span>
-        </button>
+        custom ? (
+          <CustomBookActions />
+        ) : (
+          <button type="button" className="btn-animated btn-motion btn-ghost btn-compact" data-testid="strikes-bulk" onClick={() => setBulk(true)}>
+            <span className="relative z-10 inline-flex items-center gap-1">
+              <ClipboardPaste className="icon-xs" aria-hidden />
+              Bulk Edit
+            </span>
+          </button>
+        )
       }
     >
+      {custom ? (
+        <CustomBookBody errorFor={errorFor} guard={guard} />
+      ) : (
+      <>
       <div className="inputs-grid">
+        <BookField />
         <FieldRow label="Number Of Strikes" tip="Number Of Spreads Plus 4">
           <output className="inputs-readonly inputs-num" data-testid="strike-count">
             {k.length || "-"}
@@ -695,8 +711,10 @@ function StrikesGroup({ open }: { open: number }) {
         </div>
         </>
       ) : null}
+      </>
+      )}
       <BulkEditDialog<PastedStrike>
-        open={bulk}
+        open={bulk && !custom}
         title="Bulk Edit Strikes"
         hint={`Paste ${MIN_SPREADS + 4} to ${MAX_SPREADS + 4} rows from a sheet, highest first: Level %, then Put or Call, then Buy or Sell. Leave Buy Or Sell out to follow the payoff.`}
         placeholder={"137\tPut\tSell\n127\tPut\tBuy\n125\tPut\tBuy\n85\tPut\tSell\n84\tPut\tBuy\n70\tPut\tBuy"}
@@ -737,9 +755,13 @@ function TermsGroup({ open }: { open: number }) {
   const n = terms.nSpreads;
   const u = underlyingName(inputs);
   const has = inputs.strikePercents.length > 0;
+  // A Custom Option Book has no target, coupon, protection, decay or floor: those fields are left out, and the note says so.
+  const custom = inputs.bookMode === "custom";
   return (
     <Group step={5} icon={ScrollText} open={open}>
       <div className="inputs-grid">
+        {custom ? null : (
+        <>
         <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")}>
           <NumberInput
             kind="percent"
@@ -789,10 +811,17 @@ function TermsGroup({ open }: { open: number }) {
           />
         </FieldRow>
         <Num k="floorUnits" label="Decay Reduction Below Floor" digits={2} eg="1" />
+        </>
+        )}
         <Num k="tenorDays" label="Tenor In Days" kind="integer" eg="1,940" />
         <Num k="startLevelUplift" label="Start Level Uplift" kind="percent" suffix="%" eg="0.6" />
         <Num k="notionalCr" label="Notional In Crore" digits={2} eg="100" />
       </div>
+      {custom ? (
+        <p className="inputs-slim-row mt-2" data-testid="terms-not-used">
+          Target Rise, Coupon, Protection, Decay, Decay Floor Level And Decay Reduction Below Floor: Not Used In Custom Option Book
+        </p>
+      ) : null}
     </Group>
   );
 }

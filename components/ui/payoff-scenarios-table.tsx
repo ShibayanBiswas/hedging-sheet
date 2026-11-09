@@ -1,6 +1,6 @@
 "use client";
 
-import { deriveTerms } from "@/lib/engine/structure";
+import { deriveTerms, isCustomBook } from "@/lib/engine/structure";
 import type { HedgingResult } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { fmtCrore, fmtPercent } from "@/lib/format";
@@ -22,6 +22,7 @@ function Badge({ tone, children }: { tone: "sky" | "violet" | "emerald" | "rose"
 /** Payoff scenarios in the Primary SP Dashboard style, with Initial, Target, Protection and Floor rows marked. */
 export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
   const terms = deriveTerms(result.inputs);
+  const custom = isCustomBook(result.inputs);
   const u = result.underlyingLabel;
   const rows = result.productDescription.payoff;
   return (
@@ -40,9 +41,10 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
             <tbody>
               {rows.map((p, i) => {
                 const initial = near(p.performance, 0);
-                const target = near(p.performance, terms.target);
-                const protection = near(p.performance, -terms.protection);
-                const floor = near(p.performance, terms.floorLevel - 1);
+                // A Custom Option Book has no target, protection or floor to mark.
+                const target = !custom && near(p.performance, terms.target);
+                const protection = !custom && near(p.performance, -terms.protection);
+                const floor = !custom && near(p.performance, terms.floorLevel - 1);
                 const row = fmtPercent(p.performance, 2);
                 return (
                   <tr
@@ -80,7 +82,9 @@ export function PayoffScenariosTable({ result }: { result: HedgingResult }) {
         </div>
       </div>
       <p className="mt-2 font-ui text-caption italic text-muted">
-        Levels: every strike, the protection level and 0.01% below it, zero, and every 5% in between.
+        {custom
+          ? "The book's own payoff, each leg's units times its put or call payoff at expiry. Levels: every leg, zero, and every 5% in between."
+          : "Levels: every strike, the protection level and 0.01% below it, zero, and every 5% in between."}
       </p>
     </div>
   );

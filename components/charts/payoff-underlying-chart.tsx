@@ -5,7 +5,7 @@ import { m, useReducedMotion } from "framer-motion";
 import { deskFade } from "@/lib/motion";
 import { Area, ComposedChart, Line, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { clientReturn, deriveTerms } from "@/lib/engine/structure";
+import { clientReturn, deriveTerms, isCustomBook } from "@/lib/engine/structure";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import type { HedgingResult } from "@/lib/engine/types";
 import { fmtNumber, fmtPercent } from "@/lib/format";
@@ -42,21 +42,24 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
   const [moveText, setMoveText] = useState("0");
   const move = Number.isFinite(Number.parseFloat(moveText)) ? Number.parseFloat(moveText) / 100 : 0;
 
+  // A Custom Option Book draws its own payoff, with no protection band, over its legs give or take 20 points.
+  const custom = isCustomBook(inputs);
+  const levels = useMemo(() => result.structure.strikes.map((s) => s.percent / 100 - 1), [result.structure.strikes]);
+  const bottom = custom ? Math.min(-0.6, Math.min(...levels) - 0.2) : -0.6;
+
   const data = useMemo(() => {
-    const top = Math.max(terms.target + 0.2, 0.3);
+    const top = custom ? Math.max(0.6, Math.max(...levels) + 0.2) : Math.max(terms.target + 0.2, 0.3);
     const points = new Set<number>();
-    for (let x = -0.6; x <= top + 1e-9; x += 0.005) points.add(Math.round(x * 10000) / 10000);
-    for (const s of result.structure.strikes) points.add(Math.round((s.percent / 100 - 1) * 10000) / 10000);
-    points.add(Math.round((-terms.protection - 0.0001) * 10000) / 10000);
+    for (let x = bottom; x <= top + 1e-9; x += 0.005) points.add(Math.round(x * 10000) / 10000);
+    for (const z of levels) points.add(Math.round(z * 10000) / 10000);
+    if (!custom) points.add(Math.round((-terms.protection - 0.0001) * 10000) / 10000);
     return [...points]
       .sort((a, b) => a - b)
       .map((z) => ({ z, payoff: clientReturn(inputs, z), level: start * (1 + z) }));
-  }, [inputs, result.structure.strikes, start, terms]);
+  }, [bottom, custom, inputs, levels, start, terms]);
 
-  const kinks = useMemo(
-    () => result.structure.strikes.map((s) => s.percent / 100 - 1).filter((z) => z >= -0.6),
-    [result.structure.strikes],
-  );
+  // A level two legs share is one kink.
+  const kinks = useMemo(() => [...new Set(levels)].filter((z) => z >= bottom), [bottom, levels]);
 
   return (
     <div className="flex w-full flex-col gap-3" data-testid="payoff-chart">
@@ -96,16 +99,18 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
                   <stop offset="100%" stopColor={PAYOFF} stopOpacity={0.03} />
                 </linearGradient>
               </defs>
-              <ReferenceArea
-                x1={-terms.protection}
-                x2={0}
-                yAxisId="payoff"
-                fill="#10b981"
-                fillOpacity={0.08}
-                stroke="#10b981"
-                strokeOpacity={0.25}
-                label={{ value: "Protection", position: "insideTop", fill: "#047857", fontSize: 12, fontWeight: 600 }}
-              />
+              {custom ? null : (
+                <ReferenceArea
+                  x1={-terms.protection}
+                  x2={0}
+                  yAxisId="payoff"
+                  fill="#10b981"
+                  fillOpacity={0.08}
+                  stroke="#10b981"
+                  strokeOpacity={0.25}
+                  label={{ value: "Protection", position: "insideTop", fill: "#047857", fontSize: 12, fontWeight: 600 }}
+                />
+              )}
               <ReferenceLine y={0} yAxisId="payoff" stroke="var(--ar-chart-border)" strokeDasharray="4 4" />
               <ReferenceLine x={move} yAxisId="payoff" stroke={UNDERLYING} strokeOpacity={0.5} strokeDasharray="4 4" />
               <XAxis
@@ -183,10 +188,12 @@ export function PayoffUnderlyingChart({ result }: { result: HedgingResult }) {
           <span className="inline-block h-2.5 w-2.5 rounded-full border-2" style={{ borderColor: PAYOFF }} aria-hidden />
           Strikes · Where The Slope Turns
         </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2.5 w-4 rounded-sm border border-emerald-600" aria-hidden />
-          Protection Band
-        </span>
+        {custom ? null : (
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-block h-2.5 w-4 rounded-sm border border-emerald-600" aria-hidden />
+            Protection Band
+          </span>
+        )}
         <span className="italic">
           Start {u} Level <strong className="not-italic text-ink">{fmtNumber(start, 0)}</strong>
         </span>

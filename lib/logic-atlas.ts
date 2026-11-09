@@ -1,7 +1,7 @@
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { EXPIRY_WEEKDAY, medianExpiryIndex, WEEKDAY_NAMES } from "@/lib/engine/schedule";
-import { deriveTerms, startLevel } from "@/lib/engine/structure";
+import { deriveTerms, isCustomBook, startLevel } from "@/lib/engine/structure";
 import type { HedgingResult, MarketData, Underlying } from "@/lib/engine/types";
 import { fmtCrore, fmtNumber, fmtPercent } from "@/lib/format";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
@@ -69,17 +69,24 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
   const s = opts.market.surface;
   const legs = r?.pricer.legs ?? [];
   const last = <T>(build: (res: HedgingResult) => T): T | null => (r ? build(r) : null);
+  // A Custom Option Book prices its typed legs: no coupon, spreads, protection or decay.
+  const custom = isCustomBook(i);
+  const book = i.customLegs ?? [];
+  const bookLevels = book.map((l) => l.percent).filter(Number.isFinite);
+  const count = (pick: (l: (typeof book)[number]) => boolean) => book.filter(pick).length;
 
   const stages: Array<Omit<AtlasStage, "feeds">> = [
     {
       id: "inputs",
       title: "Inputs",
       kind: "Input",
-      description: `${u} product of ${num(i.notionalCr)} Crore valued on ${date(i.valuationDate)}: coupon ${pct(i.coupon)}, tenor ${num(i.tenorDays, 0)} days, NBFC rate ${pct(i.nbfcRate)} and premium growth rate ${pct(i.premiumRate)}.`,
+      description: custom
+        ? `${u} custom option book of ${num(i.notionalCr)} Crore valued on ${date(i.valuationDate)}: ${book.length} ${book.length === 1 ? "leg" : "legs"}, tenor ${num(i.tenorDays, 0)} days, NBFC rate ${pct(i.nbfcRate)} and premium growth rate ${pct(i.premiumRate)}.`
+        : `${u} product of ${num(i.notionalCr)} Crore valued on ${date(i.valuationDate)}: coupon ${pct(i.coupon)}, tenor ${num(i.tenorDays, 0)} days, NBFC rate ${pct(i.nbfcRate)} and premium growth rate ${pct(i.premiumRate)}.`,
       uses: [],
       rule: "Every Value Typed Or Defaulted On The Inputs Tab, Checked Against Its Allowed Range",
       lastRun: last((res) => [
-        { label: "Coupon", value: pct(res.inputs.coupon) },
+        isCustomBook(res.inputs) ? { label: "Book", value: "Custom Option Book" } : { label: "Coupon", value: pct(res.inputs.coupon) },
         { label: "Notional In Crore", value: num(res.inputs.notionalCr) },
         { label: "Tenor In Days", value: num(res.inputs.tenorDays, 0) },
       ]),
@@ -114,11 +121,17 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       id: "strikes",
       title: "Strikes And Spreads",
       kind: "Calculation",
-      description: has
-        ? `${k.length} strikes for ${terms.nSpreads} ${terms.nSpreads === 1 ? "spread" : "spreads"}, from ${num(Math.max(...k))}% down to ${num(Math.min(...k))}% of the start level: ${calls} call and ${puts} put.`
-        : "No strikes until the number of spreads is picked.",
+      description: custom
+        ? bookLevels.length
+          ? `${book.length} custom option book ${book.length === 1 ? "leg" : "legs"}, from ${num(Math.max(...bookLevels))}% down to ${num(Math.min(...bookLevels))}% of the start level: ${count((l) => l.optionType === "C")} call and ${count((l) => l.optionType === "P")} put, ${count((l) => l.side === "B")} bought and ${count((l) => l.side === "S")} sold.`
+          : "No legs until the number of legs is picked."
+        : has
+          ? `${k.length} strikes for ${terms.nSpreads} ${terms.nSpreads === 1 ? "spread" : "spreads"}, from ${num(Math.max(...k))}% down to ${num(Math.min(...k))}% of the start level: ${calls} call and ${puts} put.`
+          : "No strikes until the number of spreads is picked.",
       uses: ["inputs", "live-close"],
-      rule: "Strike In Points: Start Level Times Strike %, Rounded; Strikes: Spreads Plus 4",
+      rule: custom
+        ? "Strike In Points: Start Level Times Level %, Rounded; Units: Each Leg's Quantity, Negative Where Sold"
+        : "Strike In Points: Start Level Times Strike %, Rounded; Strikes: Spreads Plus 4",
       lastRun: last((res) => [
         { label: "Strikes", value: num(res.structure.strikes.length, 0) },
         { label: "Highest In Points", value: num(Math.max(...res.structure.strikes.map((x) => x.strike)), 0) },
@@ -165,9 +178,11 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       id: "option-pricing",
       title: "Option Pricing",
       kind: "Calculation",
-      description: `${has && n ? k.length * n : "-"} legs: ${has ? k.length : "-"} strikes times ${n || "-"} expiries, each priced on its forward with the surface volatility.`,
+      description: custom
+        ? `${book.length && n ? book.length * n : "-"} legs: ${book.length || "-"} book legs times ${n || "-"} expiries, each priced on its forward with the surface volatility; a call is priced as a call, with no futures leg.`
+        : `${has && n ? k.length * n : "-"} legs: ${has ? k.length : "-"} strikes times ${n || "-"} expiries, each priced on its forward with the surface volatility.`,
       uses: ["strikes", "surface", "forwards", "volatility"],
-      rule: "Black Price On The Forward, Discounted; Each Greek By Bumping Its Input",
+      rule: custom ? "Black Price On The Forward, Discounted, For The Leg's Own Put Or Call; Each Greek By Bumping Its Input" : "Black Price On The Forward, Discounted; Each Greek By Bumping Its Input",
       lastRun: last((res) => [
         { label: "Legs", value: num(legs.length, 0) },
         { label: "Premium In Crore", value: crore(res.summary.totalPremiumCr) },
@@ -177,12 +192,14 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       id: "goal-seek",
       title: "Goal Seek Inbuilt",
       kind: "Check",
-      description: `Finds the Inbuilt that makes the achieved coupon equal the target coupon of ${pct(i.coupon)}.`,
+      description: custom
+        ? "Finds the Inbuilt that makes the pots return the notional at maturity; the legs pay the book's own payoff on top."
+        : `Finds the Inbuilt that makes the achieved coupon equal the target coupon of ${pct(i.coupon)}.`,
       uses: ["option-pricing", "inputs"],
-      rule: "Achieved Coupon Equals The Target Coupon Within One Billionth",
+      rule: custom ? "The Pots Return The Notional Within One Billionth" : "Achieved Coupon Equals The Target Coupon Within One Billionth",
       lastRun: last((res) => [
         { label: "Inbuilt", value: pct(res.summary.actualInbuilt, 3) },
-        { label: "Achieved Coupon", value: pct(res.pricer.header.achievedCoupon) },
+        ...(isCustomBook(res.inputs) ? [] : [{ label: "Achieved Coupon", value: pct(res.pricer.header.achievedCoupon) }]),
         { label: "Iterations", value: num(res.diagnostics.solverIterations, 0) },
       ]),
     },
@@ -228,13 +245,25 @@ export function atlasStages(i: DeskInputs, run: { result: HedgingResult; market:
       id: "payoff",
       title: "Payoff",
       kind: "Output",
-      description: has
-        ? `The client gets the ${pct(i.coupon)} coupon at or above a ${pct(terms.target)} rise, is protected down to -${pct(terms.protection)}, and loses at a decay of ${num(i.decay)} below it.`
-        : "The payoff needs the strikes.",
+      description: custom
+        ? "The client gets the book's own payoff: each leg's units times its put or call payoff at expiry, summed, on top of the notional the pots return."
+        : has
+          ? `The client gets the ${pct(i.coupon)} coupon at or above a ${pct(terms.target)} rise, is protected down to -${pct(terms.protection)}, and loses at a decay of ${num(i.decay)} below it.`
+          : "The payoff needs the strikes.",
       uses: ["inputs", "strikes", "goal-seek"],
-      rule: "Coupon At Or Above The Target; Protection Down To The Protection Level; Decay Below It",
+      rule: custom
+        ? "Book Payoff: Each Leg's Units Times Its Payoff At Expiry, Summed; No Coupon, Protection Or Decay"
+        : "Coupon At Or Above The Target; Protection Down To The Protection Level; Decay Below It",
       lastRun: last((res) => {
         const zero = res.productDescription.payoff.find((p) => Math.abs(p.performance) < 1e-9);
+        if (isCustomBook(res.inputs)) {
+          const returns = res.productDescription.payoff.map((p) => p.clientReturn);
+          return [
+            { label: "Return At 0%", value: pct(zero!.clientReturn) },
+            { label: "Lowest Return Shown", value: pct(Math.min(...returns)) },
+            { label: "Highest Return Shown", value: pct(Math.max(...returns)) },
+          ];
+        }
         return [
           { label: "Return At 0%", value: pct(zero!.clientReturn) },
           { label: "Internal Rate Of Return", value: pct(res.productDescription.irr) },
@@ -257,7 +286,9 @@ export function atlasInsights(run: { result: HedgingResult; market: MarketData }
   out.push({
     id: "inbuilt",
     title: "What Drives The Inbuilt",
-    text: `The Inbuilt of ${pct(s.actualInbuilt, 3)} buys an option book worth ${crore(s.totalPremiumCr)}, which has to pay the ${pct(r.inputs.coupon)} coupon on top of the ${crore(r.productDescription.nbfcCr)} NBFC pot.`,
+    text: isCustomBook(r.inputs)
+      ? `The Inbuilt of ${pct(s.actualInbuilt, 3)} is what is left once the ${crore(r.productDescription.nbfcCr)} NBFC pot and the option book worth ${crore(s.totalPremiumCr)} return the notional; the custom option book pays its own payoff on top.`
+      : `The Inbuilt of ${pct(s.actualInbuilt, 3)} buys an option book worth ${crore(s.totalPremiumCr)}, which has to pay the ${pct(r.inputs.coupon)} coupon on top of the ${crore(r.productDescription.nbfcCr)} NBFC pot.`,
   });
 
   const legs = [...s.legs].sort((a, b) => Math.abs(b.premiumCr) - Math.abs(a.premiumCr));

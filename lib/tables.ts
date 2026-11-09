@@ -1,5 +1,5 @@
 import { formatDate } from "@/lib/engine/dates";
-import { deriveTerms } from "@/lib/engine/structure";
+import { deriveTerms, isCustomBook } from "@/lib/engine/structure";
 import type { HedgeRow, HedgingResult, MarginRow, OptionPricing, OptionType, PricerLeg, StrikeSide } from "@/lib/engine/types";
 import { blank, croreText, dateText, fmtCrore, fmtNumber, fmtPercent, fullDigits, numberText, percentText, volText, type Display } from "@/lib/format";
 
@@ -75,6 +75,16 @@ export type GridSpec = {
 };
 
 type Item = KeyValueSpec["items"][number];
+
+/** How a Custom Option Book pays at maturity. */
+const PAYOFF_RULE = "Each Leg's Units Times Its Put Or Call Payoff At Expiry, Summed";
+/** What a Custom Option Book shows for a product term it does not have. */
+export const NOT_USED = "Not Used In Custom Option Book";
+const notUsed = (label: string): Item => ({ label, value: NOT_USED, kind: "text" });
+/** Names the book on every Custom Option Book table that could be read alone. */
+const BOOK_ITEM: Item = { label: "Book", value: "Custom Option Book", kind: "text" };
+/** The items with these labels read Not Used In Custom Option Book. */
+const markNotUsed = (items: Item[], labels: string[]): Item[] => items.map((item) => (labels.includes(item.label) ? notUsed(item.label) : item));
 
 export type AnySpec = TableSpec | KeyValueSpec | GridSpec;
 
@@ -186,6 +196,7 @@ export function strikeLabel(percent: number, strike: number): string {
 
 export function summaryHeadline(r: HedgingResult): TableSpec {
   const s = r.summary;
+  const custom = isCustomBook(r.inputs);
   return headlineTable("summary-headline", "Headline", [
     { label: "Actual Inbuilt", value: s.actualInbuilt, kind: "percent" },
     { label: "Option Premium In Crore", value: s.totalPremiumCr, kind: "crore" },
@@ -194,31 +205,37 @@ export function summaryHeadline(r: HedgingResult): TableSpec {
     { label: "Hedge Quantity", value: r.dayOneVegaHedge.quantity, kind: "number" },
     { label: "Vega In Crore", value: s.vegaCr, kind: "crore" },
     { label: "Delta In Contracts", value: s.deltaContracts, kind: "number", digits: 0 },
-    { label: "Internal Rate Of Return", value: s.irr, kind: "percent" },
+    // A Custom Option Book has no coupon to earn a return on: its return is the payoff at each level.
+    { label: "Internal Rate Of Return", value: custom ? null : s.irr, kind: "percent" },
+    ...(custom ? [BOOK_ITEM] : []),
   ]);
 }
 
 export function pricerHeadline(r: HedgingResult): TableSpec {
   const h = r.pricer.header;
+  const custom = isCustomBook(r.inputs);
   return headlineTable("pricer-headline", "Headline", [
     { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
     { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
     { label: "Premium In Crore", value: h.premium / 1e7, kind: "crore" },
     { label: "Maturity Payout In Crore", value: h.payout / 1e7, kind: "crore" },
-    { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
+    { label: "Achieved Coupon", value: custom ? null : h.achievedCoupon, kind: "percent" },
     { label: "Delta In Contracts", value: h.delta, kind: "number", digits: 0 },
-    { label: "Internal Rate Of Return", value: h.irr, kind: "percent" },
+    { label: "Internal Rate Of Return", value: custom ? null : h.irr, kind: "percent" },
+    ...(custom ? [BOOK_ITEM] : []),
   ]);
 }
 
 export function productHeadline(r: HedgingResult): TableSpec {
   const d = r.productDescription;
+  const custom = isCustomBook(r.inputs);
   return headlineTable("product-headline", "Headline", [
     { label: "Maturity Value In Crore", value: d.maturityCr, kind: "crore" },
-    { label: "Internal Rate Of Return", value: d.irr, kind: "percent" },
+    { label: "Internal Rate Of Return", value: custom ? null : d.irr, kind: "percent" },
     { label: "Amount With NBFC In Crore", value: d.nbfcCr, kind: "crore" },
     { label: "Premium In Crore", value: d.premiumCr, kind: "crore" },
     { label: "Margin In Crore", value: d.marginCr, kind: "crore" },
+    ...(custom ? [BOOK_ITEM] : []),
   ]);
 }
 
@@ -258,6 +275,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
   const i = r.inputs;
   const s = r.summary;
   const terms = deriveTerms(i);
+  const custom = isCustomBook(i);
 
   const specItems: Item[] = [
     { label: `Target ${u} Rise`, value: terms.target, kind: "percent" },
@@ -278,6 +296,20 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
     { label: "Tenor In Days", value: i.tenorDays, kind: "integer" },
     { label: "Margin", value: s.margin, kind: "percent" },
   );
+  // A Custom Option Book names itself and its legs; the product terms it does not have read Not Used.
+  const customItems: Item[] = [
+    BOOK_ITEM,
+    { label: "Number Of Legs", value: r.structure.strikes.length, kind: "integer" },
+    notUsed(`Target ${u} Rise`),
+    notUsed("Coupon"),
+    { label: "Actual Inbuilt", value: s.actualInbuilt, kind: "percent" },
+    notUsed("Internal Rate Of Return"),
+    notUsed("Spreads And Participation Rates"),
+    notUsed("Protection"),
+    notUsed("Decay"),
+    { label: "Tenor In Days", value: i.tenorDays, kind: "integer" },
+    { label: "Margin", value: s.margin, kind: "percent" },
+  ];
 
   const legRows: Array<Record<string, CellValue>> = s.legs.map((l) => ({
     strike: l.strike,
@@ -290,7 +322,8 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
     premium: l.premiumCr,
   }));
   const none = { strike: null, strikePercent: null, side: null, units: null, quantity: null, price: null };
-  legRows.push({ ...none, option: "Futures Adjustment For Call Strikes", premium: s.futuresAdjustmentCr });
+  // A Custom Option Book's calls are real calls, with no futures leg to adjust for.
+  if (!custom) legRows.push({ ...none, option: "Futures Adjustment For Call Strikes", premium: s.futuresAdjustmentCr });
   legRows.push({ ...none, option: "Total", premium: s.totalPremiumCr });
 
   return [
@@ -306,7 +339,7 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
         { label: "Margin Growth Rate", value: i.marginGrowthRate, kind: "percent" },
       ],
     },
-    { id: "summary-spec", title: "Product Specification", items: specItems },
+    { id: "summary-spec", title: "Product Specification", items: custom ? customItems : specItems },
     {
       id: "summary-expiries",
       title: "Final Expiries",
@@ -401,37 +434,54 @@ export function summaryTables(r: HedgingResult): Array<TableSpec | KeyValueSpec>
 /** The Pricer top block, B5 to V5, in sheet order. */
 export function pricerPotTable(r: HedgingResult): KeyValueSpec {
   const h = r.pricer.header;
+  const items: Item[] = [
+    { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
+    { label: "Coupon", value: h.coupon, kind: "percent" },
+    { label: "Option Expiry", value: h.expiry, kind: "date" },
+    { label: "Mobilisation In Rupees", value: h.mobilisation, kind: "rupee", digits: 0 },
+    { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
+    { label: "Product Cost", value: h.productCost, kind: "percent" },
+    { label: "Inbuilt In Rupees", value: h.inbuiltInr, kind: "rupee" },
+    { label: "Transaction Cost In Rupees", value: h.transactionCostInr, kind: "rupee", digits: 0 },
+    { label: "Net Mobilisation With NBFC In Rupees", value: h.nbfcAmount, kind: "rupee", digits: 0 },
+    { label: "Premium In Rupees", value: h.premium, kind: "rupee", digits: 0 },
+    { label: "NBFC Rate", value: h.nbfcRate, kind: "percent" },
+    { label: "Premium Growth Rate", value: h.premiumRate, kind: "percent" },
+    { label: "Tenor In Days", value: h.tenorDays, kind: "integer" },
+    { label: "Maturity Payout In Rupees", value: h.payout, kind: "rupee", digits: 0 },
+    { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
+    { label: "Delta In Contracts", value: h.delta, kind: "number", digits: 0 },
+    { label: "Vega In Rupees", value: h.vega, kind: "rupee", digits: 0 },
+    { label: "Rho In Rupees", value: h.rho, kind: "rupee", digits: 0 },
+    { label: "Gamma In Contracts", value: h.gamma, kind: "number", digits: 4 },
+    { label: "Internal Rate Of Return", value: h.irr, kind: "percent" },
+    { label: "Margin In Rupees", value: h.margin, kind: "rupee", digits: 0 },
+  ];
   return {
     id: "pricer-pots",
     title: "Pot Computation",
-    items: [
-      { label: `Start ${r.underlyingLabel} Level`, value: h.startLevel, kind: "number", digits: 0 },
-      { label: "Coupon", value: h.coupon, kind: "percent" },
-      { label: "Option Expiry", value: h.expiry, kind: "date" },
-      { label: "Mobilisation In Rupees", value: h.mobilisation, kind: "rupee", digits: 0 },
-      { label: "Actual Inbuilt", value: h.actualInbuilt, kind: "percent" },
-      { label: "Product Cost", value: h.productCost, kind: "percent" },
-      { label: "Inbuilt In Rupees", value: h.inbuiltInr, kind: "rupee" },
-      { label: "Transaction Cost In Rupees", value: h.transactionCostInr, kind: "rupee", digits: 0 },
-      { label: "Net Mobilisation With NBFC In Rupees", value: h.nbfcAmount, kind: "rupee", digits: 0 },
-      { label: "Premium In Rupees", value: h.premium, kind: "rupee", digits: 0 },
-      { label: "NBFC Rate", value: h.nbfcRate, kind: "percent" },
-      { label: "Premium Growth Rate", value: h.premiumRate, kind: "percent" },
-      { label: "Tenor In Days", value: h.tenorDays, kind: "integer" },
-      { label: "Maturity Payout In Rupees", value: h.payout, kind: "rupee", digits: 0 },
-      { label: "Achieved Coupon", value: h.achievedCoupon, kind: "percent" },
-      { label: "Delta In Contracts", value: h.delta, kind: "number", digits: 0 },
-      { label: "Vega In Rupees", value: h.vega, kind: "rupee", digits: 0 },
-      { label: "Rho In Rupees", value: h.rho, kind: "rupee", digits: 0 },
-      { label: "Gamma In Contracts", value: h.gamma, kind: "number", digits: 4 },
-      { label: "Internal Rate Of Return", value: h.irr, kind: "percent" },
-      { label: "Margin In Rupees", value: h.margin, kind: "rupee", digits: 0 },
-    ],
+    // A Custom Option Book's pots return the notional, with no coupon to reach.
+    items: isCustomBook(r.inputs) ? [BOOK_ITEM, ...markNotUsed(items, ["Coupon", "Achieved Coupon", "Internal Rate Of Return"])] : items,
   };
 }
 
 export function pricerPayoutTable(r: HedgingResult): KeyValueSpec {
   const h = r.pricer.header;
+  if (isCustomBook(r.inputs)) {
+    return {
+      id: "pricer-payout",
+      title: "Payout Construction",
+      items: [
+        BOOK_ITEM,
+        { label: "Payoff", value: PAYOFF_RULE, kind: "text" },
+        notUsed("Total Coupon"),
+        notUsed("Spread Payouts"),
+        notUsed("Decay"),
+        notUsed("Protection Till"),
+        notUsed("Loss At The Protection Point"),
+      ],
+    };
+  }
   return {
     id: "pricer-payout",
     title: "Payout Construction",
@@ -518,14 +568,18 @@ const PRICER_FIELDS: Array<Field<PricerLeg>> = [...OPTION_FIELDS, ...MARGIN_FIEL
 
 export function pricerGrid(r: HedgingResult): GridSpec {
   const legs = r.pricer.legs;
+  const custom = isCustomBook(r.inputs);
+  // A Custom Option Book may repeat a level, so each band names its leg.
   const groups = r.structure.strikes.map((s, b) => ({
-    label: strikeLabel(s.percent, s.strike),
+    label: custom ? `Leg ${b + 1} · ${strikeLabel(s.percent, s.strike)}` : strikeLabel(s.percent, s.strike),
     span: legs.filter((l) => l.blockIndex === b).length,
   }));
   return {
     id: "pricer-legs",
     title: "Leg Grid",
-    note: `${legs.length} live legs: ${r.structure.strikes.length} strikes by ${r.schedule.expiries.length} expiries. Each leg is booked in two equal halves, so book totals count every leg twice.`,
+    note: custom
+      ? `${legs.length} live legs: ${r.structure.strikes.length} book legs by ${r.schedule.expiries.length} expiries. Each call is priced as a call, with no futures leg. Each leg is booked in two equal halves, so book totals count every leg twice.`
+      : `${legs.length} live legs: ${r.structure.strikes.length} strikes by ${r.schedule.expiries.length} expiries. Each leg is booked in two equal halves, so book totals count every leg twice.`,
     corner: ["Strike", "Expiry"],
     groups,
     columnLabels: legs.map((l) => formatDate(l.maturity)),
@@ -543,7 +597,42 @@ export function pricerGrid(r: HedgingResult): GridSpec {
 
 // ------------------------------------------------------------------ Product Description
 
+/** "Sell 2 Call At 105%": one Custom Option Book leg in words. */
+function legLine(s: HedgingResult["structure"]["strikes"][number]): string {
+  const q = Math.abs(s.units);
+  return `${s.side === "S" ? "Sell" : "Buy"} ${fmtNumber(q, fullDigits([q], 0))} ${optionTypeLabel(s.optionType)} At ${fmtNumber(s.percent, fullDigits([s.percent], 0))}%`;
+}
+
+/** The Custom Option Book term sheet: the trade, its legs, and Not Used for each product term. */
+function customTermSheet(r: HedgingResult): KeyValueSpec {
+  const i = r.inputs;
+  const u = r.underlyingLabel;
+  return {
+    id: "pd-term-sheet",
+    title: "Term Sheet",
+    items: [
+      { label: "Underlying", value: u, kind: "text" },
+      { label: "Notional", value: `${fmtCrore(i.notionalCr)} Cr`, kind: "text" },
+      { label: "Trade Date", value: i.valuationDate, kind: "date" },
+      { label: "Maturity Date", value: r.schedule.maturityDate, kind: "date" },
+      { label: "Tenor", value: `${fmtNumber(i.tenorDays, 0)} Days`, kind: "text" },
+      { label: `Start ${u} Level`, value: r.structure.startLevel, kind: "number", digits: 0 },
+      BOOK_ITEM,
+      ...r.structure.strikes.map((s, j): Item => ({ label: `Leg ${j + 1}`, value: legLine(s), kind: "text" })),
+      { label: "Payoff", value: PAYOFF_RULE, kind: "text" },
+      notUsed("Maximum Coupon"),
+      notUsed(`Target ${u} Rise`),
+      notUsed("Capital Protection"),
+      notUsed("Downside Decay"),
+      notUsed("Decay Floor"),
+      { label: "Observation Expiries", value: r.schedule.expiries.map((d) => formatDate(d)).join(", "), kind: "text" },
+      notUsed("Client Internal Rate Of Return"),
+    ],
+  };
+}
+
 function termSheet(r: HedgingResult): KeyValueSpec {
+  if (isCustomBook(r.inputs)) return customTermSheet(r);
   const i = r.inputs;
   const u = r.underlyingLabel;
   const terms = deriveTerms(i);
@@ -586,6 +675,8 @@ export function productTables(r: HedgingResult): {
   const d = r.productDescription;
   const u = r.underlyingLabel;
   const g = d.greeks;
+  const custom = isCustomBook(r.inputs);
+  const productOnly = (items: Item[], labels: string[]) => (custom ? markNotUsed(items, labels) : items);
   return {
     termSheet: termSheet(r),
     details: {
@@ -604,7 +695,7 @@ export function productTables(r: HedgingResult): {
     maturity: {
       id: "pd-maturity",
       title: "Maturity Details",
-      items: [
+      items: productOnly([
         { label: "Tenor In Days", value: d.tenorDays, kind: "integer" },
         { label: "NBFC Growth Rate", value: d.nbfcRate, kind: "percent" },
         { label: "Final Amount With NBFC In Crore", value: d.finalNbfcCr, kind: "crore" },
@@ -614,13 +705,13 @@ export function productTables(r: HedgingResult): {
         { label: "Final Margin In Crore", value: d.finalMarginCr, kind: "crore" },
         { label: "Maturity Amount In Crore", value: d.maturityCr, kind: "crore" },
         { label: "Internal Rate Of Return", value: d.irr, kind: "percent" },
-      ],
+      ], ["Internal Rate Of Return"]),
     },
     // Product Description H31:H40, then Leverage in H44 and the target level
     greeks: {
       id: "pd-greeks",
       title: "Greek Details",
-      items: [
+      items: productOnly([
         { label: "Delta", value: g.deltaPercent, kind: "number" },
         { label: "Total Delta Required", value: g.totalDelta, kind: "number", digits: 0 },
         { label: "Options Quantity Required For Vega Hedge", value: g.hedgeQuantity, kind: "number" },
@@ -633,8 +724,10 @@ export function productTables(r: HedgingResult): {
         { label: "Rho In Crore", value: g.rhoCr, kind: "crore" },
         { label: "Leverage", value: g.leverage, kind: "number" },
         { label: "Target Level", value: g.targetLevel, kind: "percent", digits: typedPct(g.targetLevel) },
-      ],
-      note: "Residual Futures To Be Done is Total Delta Required less Options Delta. The hedge quantity is negative because the options are sold.",
+      ], ["Leverage", "Target Level"]),
+      note: custom
+        ? "Residual Futures To Be Done is Total Delta Required less Options Delta. The hedge quantity is negative when the hedge options are sold, as a long vega book needs."
+        : "Residual Futures To Be Done is Total Delta Required less Options Delta. The hedge quantity is negative because the options are sold.",
     },
     rates: {
       id: "pd-rates",
@@ -649,6 +742,7 @@ export function productTables(r: HedgingResult): {
     payoff: {
       id: "pd-payoff",
       title: "Payoff Scenarios",
+      ...(custom ? { note: "Client Return is the book's own payoff: each leg's units times its put or call payoff at expiry, summed, on top of the notional the pots return." } : {}),
       columns: [
         pct("performance", `${u} Performance`),
         pct("clientReturn", "Client Return"),

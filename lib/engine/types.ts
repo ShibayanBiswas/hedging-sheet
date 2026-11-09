@@ -4,6 +4,18 @@ export type OptionType = "P" | "C";
 export type StrikeSide = "B" | "S";
 export type BidOffer = "B" | "O";
 type DailyVolSource = "calculated" | "overridden" | "fallback";
+/** Product Payoff prices the workbook product from its terms; Custom Option Book prices the typed legs as they are. */
+export type BookMode = "product" | "custom";
+
+/** One leg of a Custom Option Book. The quantity is in units per start level of notional, as Pricer row 47; Sell makes it negative. */
+export type CustomLeg = {
+  /** Level as percent of start, 100 for at the start level. */
+  percent: number;
+  optionType: OptionType;
+  side: StrikeSide;
+  /** Always positive. */
+  quantity: number;
+};
 
 export type SpreadInput = {
   /** Buy level as a fraction above the start level, 0.25 for 125 percent. */
@@ -45,6 +57,10 @@ export type HedgeInputs = {
   strikeOptionTypes: OptionType[];
   /** One per strike, highest first. It must match the sign of the derived units: Sell below zero, Buy above. */
   strikeSides: StrikeSide[];
+  /** Absent is Product Payoff, so every saved and fixture input prices as it always has. */
+  bookMode?: BookMode;
+  /** Custom Option Book only: 1 to 10 legs in any order; a level may repeat, as a straddle needs. */
+  customLegs?: CustomLeg[];
 
   expiryCount: number;
   /** Observation expiries, YYYY-MM-DD, each the last expiry weekday of its month. "" marks a blank field. */
@@ -157,7 +173,8 @@ export type OptionPricing = {
   rho: number;
 };
 
-export type StrikeRole = "spread" | "protection" | "outflow" | "floor";
+/** A Custom Option Book strike is a "leg": it has no product role. */
+export type StrikeRole = "spread" | "protection" | "outflow" | "floor" | "leg";
 
 export type StrikeSlot = {
   /** Strike as percent of start, 137. */
@@ -180,7 +197,7 @@ export type PricerLeg = OptionPricing & {
   action: "Buy" | "Sell";
   contracts: number;
   optionValue: number;
-  /** Call strikes only: the futures leg worth contracts × discount × (forward − strike), so the leg values as the put. */
+  /** Product Payoff call strikes only: the futures leg worth contracts × discount × (forward − strike), so the leg values as the put. Zero in a Custom Option Book. */
   futuresAdjustment: number;
   deltaInr: number;
   deltaContracts: number;
