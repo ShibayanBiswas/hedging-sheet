@@ -1,5 +1,14 @@
 # 08 · Changelog
 
+## Expiries: Monthly From First Expiry
+
+| Area | Change |
+|---|---|
+| Expiries | Monthly From First Expiry sits beside Quarterly From First Expiry and fills every expiry one month after the one before, each the last Thursday for Sensex or the last Tuesday for Nifty of its month. Both use `expiriesEvery` in `lib/engine/schedule.ts`; `quarterlyExpiries` is that helper at three months and gives the same dates as before |
+| Number Of Expiry Dates | Raising the count continues the new rows a month apart when the last two dates are a month apart, so rows added after Monthly stay monthly; otherwise three months apart, as before |
+| Tests | Unit tests for both steps, both underlyings and the year end; B5.6 fills monthly and adds rows; the Expiries header actions are checked at 390, 414, 768, 1024, 1280 and 1440 px |
+| Visual | The Inputs baselines at 390 and 768 px in both modes are rewritten: the three Expiries actions take one more header row there. Every other baseline is unchanged |
+
 ## SP Workstation: The Calendar Button Opens Inside The Frame
 
 | Area | Change |

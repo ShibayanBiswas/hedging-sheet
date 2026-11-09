@@ -11,7 +11,7 @@ import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
-import { EXPIRY_WEEKDAY, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
+import { continuationMonths, EXPIRY_WEEKDAY, expiriesEvery, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel } from "@/lib/engine/structure";
 import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 import { parseExpiryPaste, parseStrikePaste, type PastedStrike } from "@/lib/inputs/bulk";
@@ -323,10 +323,10 @@ function ExpiriesGroup({ open }: { open: number }) {
   const setCount = (next: number) =>
     setInputs((prev) => {
       const dates = resizeList(prev.expiryDates, next, "");
-      // New rows continue quarterly from the last filled date.
+      // New rows continue from the last filled date: monthly when the two before are a month apart, otherwise quarterly.
       for (let i = 1; i < next; i++) {
         const before = dates[i - 1];
-        if (!dates[i] && prev.underlying && before && isValidYmd(before)) dates[i] = quarterlyExpiries(before, 2, prev.underlying)[1]!;
+        if (!dates[i] && prev.underlying && before && isValidYmd(before)) dates[i] = expiriesEvery(continuationMonths(dates[i - 2], before), before, 2, prev.underlying)[1]!;
       }
       return { expiryCount: next, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < next ? prev.hedgeExpiryIndex : null };
     });
@@ -345,6 +345,16 @@ function ExpiriesGroup({ open }: { open: number }) {
       }
       actions={
         <>
+          <button
+            type="button"
+            className="btn-animated btn-motion btn-ghost btn-compact"
+            data-testid="expiries-monthly"
+            disabled={!u || !count || !isValidYmd(first)}
+            title="Every Expiry One Month After The One Before"
+            onClick={() => u && first && setInputs({ expiryDates: expiriesEvery(1, first, count, u) })}
+          >
+            <span className="relative z-10">Monthly From First Expiry</span>
+          </button>
           <button
             type="button"
             className="btn-animated btn-motion btn-ghost btn-compact"

@@ -156,6 +156,57 @@ for (const width of WIDTHS) {
       await expectSound(page);
     });
 
+    test("the Expiries header: Monthly, Quarterly and Bulk Edit stay inside the card, each on one line, wrapping whole to the right", async ({ page, inputs }) => {
+      await inputs.goto();
+      await settle(page);
+      const m = await page.getByTestId("group-2").evaluate((card) => {
+        const head = card.querySelector("header")!;
+        const box = card.getBoundingClientRect();
+        const actions = [...head.querySelectorAll<HTMLButtonElement>(".inputs-card-actions button")];
+        const rect = (e: Element) => e.getBoundingClientRect();
+        // Lines of text only: Bulk Edit's icon sits beside its words, not on a line of its own.
+        const lines = (el: Element) => {
+          const tops = new Set<number>();
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+            const range = document.createRange();
+            range.selectNodeContents(n);
+            for (const r of range.getClientRects()) if (r.width > 0) tops.add(Math.round(r.bottom));
+          }
+          return tops.size;
+        };
+        const parts = [head.querySelector("h2")!, head.querySelector(".inputs-card-rule")!, ...actions];
+        const overlaps: string[] = [];
+        for (let i = 0; i < parts.length; i++)
+          for (let j = i + 1; j < parts.length; j++) {
+            const a = rect(parts[i]!),
+              b = rect(parts[j]!);
+            if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5) overlaps.push(`${parts[i]!.textContent} on ${parts[j]!.textContent}`);
+          }
+        // Each row of actions ends at the actions' right edge.
+        const end = rect(head.querySelector(".inputs-card-actions")!).right;
+        const rows = new Map<number, number>();
+        for (const a of actions) rows.set(Math.round(rect(a).top), Math.max(rows.get(Math.round(rect(a).top)) ?? 0, rect(a).right));
+        return {
+          names: actions.map((a) => a.textContent?.trim()),
+          enabled: actions.map((a) => !a.disabled),
+          outside: parts.filter((p) => rect(p).left < box.left - 0.5 || rect(p).right > box.right + 0.5).map((p) => p.textContent),
+          wrapped: actions.filter((a) => lines(a) > 1).map((a) => a.textContent),
+          ragged: [...rows.values()].filter((right) => end - right > 1).length,
+          overlaps,
+          pageWidth: document.documentElement.scrollWidth,
+          windowWidth: document.documentElement.clientWidth,
+        };
+      });
+      expect(m.names).toEqual(["Monthly From First Expiry", "Quarterly From First Expiry", "Bulk Edit"]);
+      expect(m.enabled, "every action is on once Expiry 1 is a date").toEqual([true, true, true]);
+      expect(m.outside, "out of the card").toEqual([]);
+      expect(m.wrapped, "an action on more than one line").toEqual([]);
+      expect(m.ragged, "a row of actions short of the right edge").toBe(0);
+      expect(m.overlaps, "overlaps").toEqual([]);
+      expect(m.pageWidth, "no sideways scroll").toBeLessThanOrEqual(m.windowWidth);
+    });
+
     test("Blank Inputs: the same layout once filled; locked steps are slim rows until then", async ({ page, inputs }) => {
       test.setTimeout(180_000);
       await inputs.goto("blank");
@@ -274,6 +325,8 @@ test.describe("Final Inputs at 1440 px", () => {
 
   test("a date field takes the desk format, the numeric forms and the calendar; text that is no date reverts with a popup", async ({ page, inputs, dialog }) => {
     await inputs.goto();
+    // The close sets the Valuation Date when it arrives; next dev mounts twice and fetches it twice, so wait for both.
+    await page.waitForLoadState("networkidle");
     const field = page.getByRole("textbox", { name: "Valuation Date", exact: true });
     await expect(field).toHaveAttribute("data-testid", "input-valuationDate");
     await field.fill("27-Oct-2026");

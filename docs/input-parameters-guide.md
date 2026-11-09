@@ -30,7 +30,7 @@ Switching mode asks first, then clears the inputs and the last run. An edit that
 | Field | Meaning | Default | Rule | Blank Inputs | Used in |
 |---|---|---|---|---|---|
 | Number Of Expiry Dates | Observation dates of the product | 6 | 1 to 10 | Empty until picked | `expiryCount` |
-| Expiry 1 to n | Final expiries | The last expiry weekday of the months 41, 44, 47, 50, 53 and 56 after the valuation date, the Summary H3 to M3 helpers | After the valuation date, strictly rising; each snaps to its month's last expiry weekday | Empty; Quarterly From First Expiry fills the rest from the first | `defaultExpiryDates`, `snapExpiry`, `validateSchedule`; Summary C12 to I12 |
+| Expiry 1 to n | Final expiries | The last expiry weekday of the months 41, 44, 47, 50, 53 and 56 after the valuation date, the Summary H3 to M3 helpers | After the valuation date, strictly rising; each snaps to its month's last expiry weekday | Empty; Quarterly From First Expiry or Monthly From First Expiry fills the rest from the first, three months or one month apart | `defaultExpiryDates`, `snapExpiry`, `validateSchedule`; Summary C12 to I12 |
 | Hedge Option Expiry | Expiry of the Day 1 vega hedge | The median expiry | One of the expiries | Median until picked | `medianExpiryIndex`; Summary D15, Day1 Vega Hedge C4 |
 
 ## 3 · Strikes And Spreads

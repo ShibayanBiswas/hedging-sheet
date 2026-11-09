@@ -38,13 +38,26 @@ export function snapExpiry(ymd: string, underlying: Underlying): string {
   return snapToLastWeekday(ymd, EXPIRY_WEEKDAY[underlying]);
 }
 
-/** N expiries 3 months apart from the first one's month, each its month's last expiry weekday: Jan, Apr, Jul, Oct. */
-export function quarterlyExpiries(first: string, count: number, underlying: Underlying): string[] {
+/** N expiries a given number of months apart from the first one's month, each its month's last expiry weekday. */
+export function expiriesEvery(months: number, first: string, count: number, underlying: Underlying): string[] {
   const d = parseYmd(first);
   return Array.from({ length: count }, (_, i) => {
-    const m = d.getUTCMonth() + 3 * i;
+    const m = d.getUTCMonth() + months * i;
     return lastWeekdayOfMonth(d.getUTCFullYear() + Math.floor(m / 12), (m % 12) + 1, EXPIRY_WEEKDAY[underlying]);
   });
+}
+
+/** N expiries 3 months apart from the first one's month, each its month's last expiry weekday: Jan, Apr, Jul, Oct. */
+export function quarterlyExpiries(first: string, count: number, underlying: Underlying): string[] {
+  return expiriesEvery(3, first, count, underlying);
+}
+
+/** The step, in months, a new expiry row continues at: monthly after two expiries a month apart, otherwise quarterly. */
+export function continuationMonths(earlier: string | undefined, last: string): 1 | 3 {
+  if (!isValidYmd(earlier) || !isValidYmd(last)) return 3;
+  const a = parseYmd(earlier);
+  const b = parseYmd(last);
+  return (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + b.getUTCMonth() - a.getUTCMonth() === 1 ? 1 : 3;
 }
 
 /** Median expiry; the lower middle one for an even count. Summary D15 = E12. */

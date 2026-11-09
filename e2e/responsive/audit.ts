@@ -191,7 +191,7 @@ export async function audit(page: Page, where: string, opts: AuditOptions): Prom
       };
       const words = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9₹%]/.test(w)).length;
       // Button names the Market Data brief fixes word for word.
-      const namedByBrief = new Set(["Reload From Desk Database", "Quarterly From First Expiry"]);
+      const namedByBrief = new Set(["Reload From Desk Database", "Quarterly From First Expiry", "Monthly From First Expiry"]);
       for (const el of Array.from(document.querySelectorAll("button, a.btn-animated"))) {
         if (!shown(el) || el.matches("[role='tab']") || el.closest(".logic-module-rail")) continue;
         const n = nameOf(el);

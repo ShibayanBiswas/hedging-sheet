@@ -145,6 +145,47 @@ test.describe("B5 Expiries", () => {
     await nav.go("vega-hedge");
     await expect(page.locator('[data-cell$="::Option Expiry"]').first()).toHaveText(formatDate(QUARTERLY[2]));
   });
+
+  test("B5.6 Monthly From First Expiry fills each month's last expiry day across the year end, and added rows keep the step", async ({ page, inputs }) => {
+    const months = (from: string, n: number, step: number) =>
+      Array.from({ length: n }, (_, i) => {
+        const m = Number(from.slice(0, 4)) * 12 + Number(from.slice(5, 7)) - 1 + step * i;
+        return `${Math.floor(m / 12)}-${String((m % 12) + 1).padStart(2, "0")}-01`;
+      });
+    const expectDates = async (firsts: string[], weekday: number) => {
+      for (const [i, d] of firsts.entries()) await expect(inputs.field(`expiryDates-${i}`), `Expiry ${i + 1}`).toHaveAttribute("data-value", lastWeekday(d, weekday));
+    };
+    for (const [underlying, weekday] of [
+      ["Sensex", 4],
+      ["Nifty", 2],
+    ] as const) {
+      await inputs.goto("blank");
+      await inputs.fill("underlying", underlying);
+      await inputs.fill("valuationDate", "2026-10-28");
+      await inputs.fill("expiryCount", "4");
+      const monthly = page.getByTestId("expiries-monthly");
+      await expect(monthly).toHaveText("Monthly From First Expiry");
+      await expect(monthly).toHaveAttribute("title", "Every Expiry One Month After The One Before");
+      // The same rule as Quarterly: off until Expiry 1 is a date.
+      await expect(monthly).toBeDisabled();
+      await expect(page.getByTestId("expiries-quarterly")).toBeDisabled();
+      await inputs.fill("expiryDates-0", "2030-11-05");
+      await expect(monthly).toBeEnabled();
+      await monthly.click();
+      await expectDates(months("2030-11", 4, 1), weekday);
+
+      // One more row, then three more, each a month after the one before.
+      await page.getByTestId("input-expiryCount-plus").click();
+      await inputs.fill("expiryCount", "8");
+      await expectDates(months("2030-11", 8, 1), weekday);
+
+      // Quarterly from the same first expiry, and an added row then continues quarterly.
+      await inputs.fill("expiryCount", "3");
+      await page.getByTestId("expiries-quarterly").click();
+      await inputs.fill("expiryCount", "5");
+      await expectDates(months("2030-11", 5, 3), weekday);
+    }
+  });
 });
 
 test.describe("B6 Weekday rule", () => {
