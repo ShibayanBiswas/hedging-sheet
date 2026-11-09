@@ -2,6 +2,7 @@ import type ExcelJS from "exceljs";
 
 import { seedMarketData } from "@/lib/engine/defaults";
 import { formatDate } from "@/lib/engine/dates";
+import { isCustomBook } from "@/lib/engine/structure";
 import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { AUDIT_SHEET, auditSpecs, EXPORT_TABS, tabSpecs } from "@/lib/exports/tab-specs";
 import { fmtDeskClock, fmtNumber } from "@/lib/format";
@@ -141,7 +142,7 @@ export function buildHedgingExcel(
   const i = result.inputs;
   const runAt = extra.runAt ?? fmtDeskClock(new Date());
   const subtitle = `${result.underlyingLabel} · Valuation Date ${formatDate(i.valuationDate)} · Spot ${fmtNumber(i.spot, 2)}`;
-  const eyebrow = `Anand Rathi Wealth · Hedging Sheet · ${strikeTypesLabel(i.strikeOptionTypes)} · Run ${runAt}`;
+  const eyebrow = `Anand Rathi Wealth · Hedging Sheet · ${isCustomBook(i) ? "Custom Option Book" : strikeTypesLabel(i.strikeOptionTypes)} · Run ${runAt}`;
   const ctx = { result, inputs, market, history: extra.history };
   for (const tab of EXPORT_TABS) {
     const title = tab.id === "product" ? result.productDescription.title : tab.id === "margin" ? "Mark To Market And Margin Requirement" : tab.name;

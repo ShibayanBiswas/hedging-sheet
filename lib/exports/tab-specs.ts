@@ -2,14 +2,14 @@ import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { rateCapSellingForward } from "@/lib/engine/rates";
 import { EXPIRY_WEEKDAY, medianExpiryIndex, WEEKDAY_NAMES } from "@/lib/engine/schedule";
-import { deriveTerms, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
+import { deriveTerms, isCustomBook, rupeeStrike, startLevel, strikeUnits } from "@/lib/engine/structure";
 import type { HedgingResult, MarketData } from "@/lib/engine/types";
 import { DEEP_MONEYNESS, pricingRowForMonth, referencePriceForUnderlying } from "@/lib/engine/vol-surface";
 import { fullDigits } from "@/lib/format";
 import { inputHash } from "@/lib/input-hash";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { atlasInsights, atlasOutputs, atlasStages, type VolHistory } from "@/lib/logic-atlas";
-import { outputTables, type AnySpec, type CellValue, type KeyValueSpec, type TableSpec } from "@/lib/tables";
+import { NOT_USED, outputTables, type AnySpec, type CellValue, type KeyValueSpec, type TableSpec } from "@/lib/tables";
 import { UNDERLYINGS } from "@/lib/underlyings";
 import type { ExportTab } from "@/lib/exports/tab-list";
 
@@ -50,7 +50,32 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
   const terms = deriveTerms(i);
   const has = k.length > 0;
   const kv = (id: string, title: string, items: KeyValueSpec["items"]): KeyValueSpec => ({ id, title, items: items.map(inFull) });
-  return [
+  // A Custom Option Book lists its legs in place of the strikes and spreads, and marks the product terms it does not use.
+  const custom = isCustomBook(i);
+  const legs = i.customLegs ?? [];
+  const customStrikes: TableSpec = {
+    id: "inputs-strikes",
+    title: "3 Strikes And Spreads · Custom Option Book",
+    note: "Each leg is priced as typed: a call is a real call, with no futures leg. Quantity is in units per start level of notional.",
+    columns: [
+      { key: "leg", label: "Leg", kind: "text" },
+      { key: "level", label: "Level %", kind: "number", digits: fullDigits(legs.map((l) => l.percent)) },
+      { key: "points", label: "Level In Points", kind: "integer" },
+      { key: "type", label: "Option Type", kind: "text" },
+      { key: "side", label: "Buy Or Sell", kind: "text" },
+      { key: "quantity", label: "Quantity", kind: "number", digits: fullDigits(legs.map((l) => l.quantity)) },
+    ],
+    rows: legs.map((l, j) => ({
+      leg: `Leg ${j + 1}`,
+      level: num(l.percent),
+      points: Number.isFinite(start) && Number.isFinite(l.percent) ? rupeeStrike(start, l.percent) : null,
+      type: l.optionType === "C" ? "Call" : l.optionType === "P" ? "Put" : null,
+      side: l.side === "B" ? "Buy" : l.side === "S" ? "Sell" : null,
+      quantity: num(l.quantity),
+    })),
+  };
+  const notUsed = (label: string): KeyValueSpec["items"][number] => ({ label, value: NOT_USED, kind: "text" });
+  const specs: AnySpec[] = [
     kv("inputs-market", "1 Underlying And Market", [
       { label: "Underlying", value: text(i.underlying), kind: "text" },
       { label: "Valuation Date", value: text(i.valuationDate), kind: "date" },
@@ -72,7 +97,7 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
         date: isValidYmd(i.expiryDates[j]) ? i.expiryDates[j]! : null,
       })),
     },
-    {
+    custom ? customStrikes : {
       id: "inputs-strikes",
       title: "3 Strikes And Spreads",
       columns: [
@@ -110,12 +135,16 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
       { label: "Margin Growth Rate", value: num(i.marginGrowthRate), kind: "percent", digits: 3 },
     ]),
     kv("inputs-terms", "5 Product Terms", [
-      { label: `Target ${u} Rise`, value: has ? num(terms.target) : null, kind: "percent" },
-      { label: "Coupon", value: num(i.coupon), kind: "percent" },
-      { label: "Protection", value: has ? num(terms.protection) : null, kind: "percent" },
-      { label: "Decay", value: num(i.decay), kind: "number" },
-      { label: "Decay Floor Level", value: has ? num(terms.floorLevel) : null, kind: "percent", digits: 0 },
-      { label: "Decay Reduction Below Floor", value: num(i.floorUnits), kind: "number" },
+      ...(custom
+        ? [notUsed(`Target ${u} Rise`), notUsed("Coupon"), notUsed("Protection"), notUsed("Decay"), notUsed("Decay Floor Level"), notUsed("Decay Reduction Below Floor")]
+        : ([
+            { label: `Target ${u} Rise`, value: has ? num(terms.target) : null, kind: "percent" },
+            { label: "Coupon", value: num(i.coupon), kind: "percent" },
+            { label: "Protection", value: has ? num(terms.protection) : null, kind: "percent" },
+            { label: "Decay", value: num(i.decay), kind: "number" },
+            { label: "Decay Floor Level", value: has ? num(terms.floorLevel) : null, kind: "percent", digits: 0 },
+            { label: "Decay Reduction Below Floor", value: num(i.floorUnits), kind: "number" },
+          ] satisfies KeyValueSpec["items"])),
       { label: "Tenor In Days", value: num(i.tenorDays), kind: "integer" },
       { label: "Start Level Uplift", value: num(i.startLevelUplift), kind: "percent" },
       { label: "Notional In Crore", value: num(i.notionalCr), kind: "number" },
@@ -141,6 +170,7 @@ function inputsSpecs(i: DeskInputs): AnySpec[] {
       { label: "Volatility Multiplier", value: num(i.stressVolMultiplier), kind: "number" },
     ]),
   ];
+  return custom ? specs.filter((spec) => spec.id !== "inputs-spreads") : specs;
 }
 
 /** The Market Data tab: headline, the surface with its reference strikes, the parameters and the rate curve. */

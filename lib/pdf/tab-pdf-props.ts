@@ -1,6 +1,7 @@
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { EXPORT_TABS, tabSpecs, type ExportContext, type ExportTab } from "@/lib/exports/tab-specs";
 import { fmtIstTime, fmtNumber } from "@/lib/format";
+import { isCustomBook } from "@/lib/engine/structure";
 import { underlyingName } from "@/lib/inputs/draft";
 import { specBlocks } from "@/lib/pdf/blocks";
 import type { TabPdfProps } from "@/lib/pdf/tab-pdf";
@@ -16,7 +17,9 @@ export function tabPdfProps(tab: ExportTab, ctx: ExportContext & { runAt: string
   const meta = EXPORT_TABS.find((t) => t.id === tab)!;
   const i = ctx.inputs;
   const valuation = isValidYmd(i.valuationDate) ? formatDate(i.valuationDate) : "-";
-  const subtitle = `${underlyingName(i)} · Valuation Date ${valuation} · Spot ${Number.isFinite(i.spot) ? fmtNumber(i.spot, 2) : "-"}`;
+  // A Custom Option Book says so, since its tables differ from the product's.
+  const book = isCustomBook(i) ? " · Custom Option Book" : "";
+  const subtitle = `${underlyingName(i)}${book} · Valuation Date ${valuation} · Spot ${Number.isFinite(i.spot) ? fmtNumber(i.spot, 2) : "-"}`;
   const when = ctx.runAt ? `Run ${fmtIstTime(ctx.runAt)}` : `Generated ${fmtIstTime(ctx.now.toISOString())}`;
   return {
     title: meta.name,
