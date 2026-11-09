@@ -3,11 +3,16 @@ import type { HedgeInputs, OptionType, StrikeSide, Underlying } from "@/lib/engi
 
 export type InputMode = "default" | "blank";
 
+/** A Custom Option Book leg as the desk edits it: the Option Type and side may be unset and the numbers blank (NaN). */
+export type DeskLeg = { percent: number; optionType: OptionType | ""; side: StrikeSide | ""; quantity: number };
+
 /** Inputs as the desk edits them: the underlying and each strike's Option Type and side may be unset, and any number may be blank (NaN). */
-export type DeskInputs = Omit<HedgeInputs, "underlying" | "strikeOptionTypes" | "strikeSides"> & {
+export type DeskInputs = Omit<HedgeInputs, "underlying" | "strikeOptionTypes" | "strikeSides" | "customLegs"> & {
   underlying: Underlying | "";
   strikeOptionTypes: Array<OptionType | "">;
   strikeSides: Array<StrikeSide | "">;
+  /** Absent until the book is first switched to Custom Option Book; each book keeps its own entries across a switch. */
+  customLegs?: DeskLeg[];
 };
 
 export const INPUT_MODES: Array<{ id: InputMode; label: string; subtitle: string }> = [
@@ -66,7 +71,14 @@ export function underlyingName(inputs: Pick<DeskInputs, "underlying">): string {
   return inputs.underlying || "Underlying";
 }
 
-/** Inputs the engine can price: the underlying and every strike's Option Type and side are chosen. */
+/**
+ * Inputs the engine can price: the underlying and every strike's Option Type and side are chosen. A Custom Option Book
+ * needs every leg's instead, since it never reads the product strikes.
+ */
 export function isPriceable(inputs: DeskInputs): inputs is DeskInputs & HedgeInputs {
+  if (inputs.bookMode === "custom") {
+    const legs = inputs.customLegs ?? [];
+    return inputs.underlying !== "" && legs.length > 0 && legs.every((l) => l.optionType !== "" && l.side !== "");
+  }
   return inputs.underlying !== "" && inputs.strikeOptionTypes.every((t) => t !== "") && inputs.strikeSides.every((t) => t !== "");
 }

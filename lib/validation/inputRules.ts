@@ -1,7 +1,7 @@
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily } from "@/lib/engine/volatility";
 import { MAX_EXPIRIES, MIN_EXPIRIES, validateSchedule } from "@/lib/engine/schedule";
-import { MAX_SPREADS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
+import { MAX_LEG_QUANTITY, MAX_LEGS, MAX_SPREADS, MIN_LEGS, MIN_SPREADS, validateStructure } from "@/lib/engine/structure";
 import type { HedgeInputs } from "@/lib/engine/types";
 import { NUMBER_LOCALE } from "@/lib/format";
 import { blankInputs, underlyingName, type DeskInputs } from "@/lib/inputs/draft";
@@ -77,6 +77,9 @@ const rules: NumberRule[] = [
 
 const STRIKE_RULE = { min: 0, max: 500 } as const;
 const PARTICIPATION_RULE = { min: 0, max: 100 } as const;
+const QUANTITY_RULE = { min: 0, max: MAX_LEG_QUANTITY } as const;
+/** Product terms a Custom Option Book does not use: they are never required and never checked there. */
+const PRODUCT_ONLY_KEYS = new Set<keyof DeskInputs>(["coupon", "decay", "floorUnits"]);
 
 export type NumberFieldRule = {
   field: string;
@@ -111,6 +114,12 @@ export function numberFieldRules(inputs: DeskInputs): NumberFieldRule[] {
   inputs.participations.forEach((p, j) => {
     if (p === null) return;
     out.push({ field: `participations.${j}`, label: `Spread ${j + 1} Participation Rate`, section: "Strikes And Spreads", ...PARTICIPATION_RULE, minInclusive: false, integer: false, percent: false });
+  });
+  (inputs.customLegs ?? []).forEach((_, i) => {
+    out.push(
+      { field: `customLegs.${i}.percent`, label: `Leg ${i + 1} Level %`, section: "Strikes And Spreads", ...STRIKE_RULE, minInclusive: false, integer: false, percent: false },
+      { field: `customLegs.${i}.quantity`, label: `Leg ${i + 1} Quantity`, section: "Strikes And Spreads", ...QUANTITY_RULE, minInclusive: false, integer: false, percent: false },
+    );
   });
   return out;
 }
@@ -228,6 +237,24 @@ function mapEngineField(field: string): { field: string; section: InputSection; 
   return { field: m?.field ?? field, section: m?.section ?? "Product Terms", label: m?.label ?? field };
 }
 
+/** The field rules of a Custom Option Book: 1 to 10 legs, each with a Level %, a Put or Call, a Buy or Sell and a quantity. */
+function legErrors(legs: NonNullable<DeskInputs["customLegs"]>): FieldError[] {
+  const out: FieldError[] = [];
+  const section: InputSection = "Strikes And Spreads";
+  if (!legs.length) out.push({ field: "legCount", label: "Number Of Legs", section, kind: "required", message: "Pick the number of legs." });
+  else if (legs.length > MAX_LEGS) out.push({ field: "legCount", label: "Number Of Legs", section, kind: "invalid", message: `Use ${MIN_LEGS} to ${MAX_LEGS} legs.` });
+  legs.forEach((leg, i) => {
+    const name = `Leg ${i + 1}`;
+    const level = checkNumber(leg.percent, STRIKE_RULE, `${name} Level %`);
+    if (level) out.push({ field: `customLegs.${i}.percent`, label: `${name} Level %`, section, ...level });
+    if (!leg.optionType) out.push({ field: `customLegs.${i}.optionType`, label: `${name} Option Type`, section, kind: "required", message: "Select Put or Call." });
+    if (!leg.side) out.push({ field: `customLegs.${i}.side`, label: `${name} Buy Or Sell`, section, kind: "required", message: "Select Buy or Sell." });
+    const quantity = checkNumber(leg.quantity, QUANTITY_RULE, `${name} Quantity`);
+    if (quantity) out.push({ field: `customLegs.${i}.quantity`, label: `${name} Quantity`, section, ...quantity });
+  });
+  return out;
+}
+
 /**
  * Every field-level rule, in section order. Pure: the UI and the tests share it.
  * `today` is the India calendar date, so the valuation date cannot be in the future.
@@ -248,7 +275,9 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
     push({ field: "valuationDate", label: "Valuation Date", section: "Underlying And Market", kind: "invalid", message: "Valuation Date cannot be in the future.", fix: "Use today or an earlier date." });
   }
 
+  const custom = inputs.bookMode === "custom";
   for (const rule of rules) {
+    if (custom && PRODUCT_ONLY_KEYS.has(rule.key)) continue;
     const label = rule.label(u);
     const r = checkNumber(inputs[rule.key] as number, rule, label);
     if (r) push({ field: String(rule.key), label, section: rule.section, ...r });
@@ -274,40 +303,44 @@ export function validateDeskInputs(inputs: DeskInputs, opts: { today: string }):
     }
   }
 
-  // Strikes and spreads
-  const k = inputs.strikePercents;
-  const n = k.length - 4;
-  const spreadsOk = n >= MIN_SPREADS && n <= MAX_SPREADS;
-  if (!k.length) {
-    push({ field: "spreadCount", label: "Number Of Spreads", section: "Strikes And Spreads", kind: "required", message: "Pick the number of spreads." });
-  } else if (!spreadsOk) {
-    push({ field: "spreadCount", label: "Number Of Spreads", section: "Strikes And Spreads", kind: "invalid", message: `Use ${MIN_SPREADS} to ${MAX_SPREADS} spreads.` });
-  }
-  k.forEach((v, i) => {
-    const label = `Strike ${i + 1}`;
-    const r = checkNumber(v, STRIKE_RULE, label);
-    if (r) push({ field: `strikePercents.${i}`, label, section: "Strikes And Spreads", ...r });
-    if (!inputs.strikeOptionTypes[i]) {
-      push({ field: `strikeOptionTypes.${i}`, label: `Strike ${i + 1} Option Type`, section: "Strikes And Spreads", kind: "required", message: "Select Put or Call." });
+  // Strikes and spreads. A Custom Option Book has its legs instead, and none of the product's rules across fields.
+  if (custom) {
+    for (const e of legErrors(inputs.customLegs ?? [])) push(e);
+  } else {
+    const k = inputs.strikePercents;
+    const n = k.length - 4;
+    const spreadsOk = n >= MIN_SPREADS && n <= MAX_SPREADS;
+    if (!k.length) {
+      push({ field: "spreadCount", label: "Number Of Spreads", section: "Strikes And Spreads", kind: "required", message: "Pick the number of spreads." });
+    } else if (!spreadsOk) {
+      push({ field: "spreadCount", label: "Number Of Spreads", section: "Strikes And Spreads", kind: "invalid", message: `Use ${MIN_SPREADS} to ${MAX_SPREADS} spreads.` });
     }
-    if (!inputs.strikeSides[i]) {
-      push({ field: `strikeSides.${i}`, label: `Strike ${i + 1} Buy Or Sell`, section: "Strikes And Spreads", kind: "required", message: "Select Buy or Sell." });
-    }
-  });
-  inputs.participations.forEach((p, j) => {
-    if (p == null) return;
-    const label = `Spread ${j + 1} Participation Rate`;
-    const r = checkNumber(p, PARTICIPATION_RULE, label);
-    if (r) push({ field: `participations.${j}`, label, section: "Strikes And Spreads", ...r });
-  });
+    k.forEach((v, i) => {
+      const label = `Strike ${i + 1}`;
+      const r = checkNumber(v, STRIKE_RULE, label);
+      if (r) push({ field: `strikePercents.${i}`, label, section: "Strikes And Spreads", ...r });
+      if (!inputs.strikeOptionTypes[i]) {
+        push({ field: `strikeOptionTypes.${i}`, label: `Strike ${i + 1} Option Type`, section: "Strikes And Spreads", kind: "required", message: "Select Put or Call." });
+      }
+      if (!inputs.strikeSides[i]) {
+        push({ field: `strikeSides.${i}`, label: `Strike ${i + 1} Buy Or Sell`, section: "Strikes And Spreads", kind: "required", message: "Select Buy or Sell." });
+      }
+    });
+    inputs.participations.forEach((p, j) => {
+      if (p == null) return;
+      const label = `Spread ${j + 1} Participation Rate`;
+      const r = checkNumber(p, PARTICIPATION_RULE, label);
+      if (r) push({ field: `participations.${j}`, label, section: "Strikes And Spreads", ...r });
+    });
 
-  // Rules across fields, once the fields they read are filled.
-  const strikesFilled = spreadsOk && k.every((v) => Number.isFinite(v) && v > 0);
-  const termsFilled = strikesFilled && Number.isFinite(inputs.coupon) && Number.isFinite(inputs.decay) && Number.isFinite(inputs.floorUnits);
-  if (termsFilled && inputs.participations.every((p) => p == null || Number.isFinite(p))) {
-    for (const issue of validateStructure(inputs as HedgeInputs)) {
-      const mapped = mapEngineField(issue.field);
-      push({ ...mapped, kind: "invalid", message: issue.message, code: issue.code, fix: issue.fix });
+    // Rules across fields, once the fields they read are filled.
+    const strikesFilled = spreadsOk && k.every((v) => Number.isFinite(v) && v > 0);
+    const termsFilled = strikesFilled && Number.isFinite(inputs.coupon) && Number.isFinite(inputs.decay) && Number.isFinite(inputs.floorUnits);
+    if (termsFilled && inputs.participations.every((p) => p == null || Number.isFinite(p))) {
+      for (const issue of validateStructure(inputs as HedgeInputs)) {
+        const mapped = mapEngineField(issue.field);
+        push({ ...mapped, kind: "invalid", message: issue.message, code: issue.code, fix: issue.fix });
+      }
     }
   }
   const scheduleFilled =
@@ -352,7 +385,7 @@ export function fieldSection(field: string): InputSection {
   const key = field.split(".")[0]!;
   const rule = rules.find((r) => r.key === key);
   if (rule) return rule.section;
-  if (/^(strike|participations|spreads|spreadCount)/.test(key)) return "Strikes And Spreads";
+  if (/^(strike|participations|spreads|spreadCount|customLegs|legCount)/.test(key)) return "Strikes And Spreads";
   if (key.startsWith("expiry") || key === "hedgeExpiryIndex") return "Observation Expiries";
   if (key === "underlying" || key === "valuationDate") return "Underlying And Market";
   if (key === "dailyVol" || key === "historyWindowDays") return "Volatility";
