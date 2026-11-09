@@ -1,8 +1,35 @@
-import type { HedgeInputs, SpreadInput, StrikeRole, StrikeSide, StrikeSlot, ValidationIssue } from "@/lib/engine/types";
+import type { CustomLeg, HedgeInputs, SpreadInput, StrikeRole, StrikeSide, StrikeSlot, ValidationIssue } from "@/lib/engine/types";
 
 export const MIN_SPREADS = 1;
 /** Up to 6 spreads, so the product has 5 to 10 strikes. */
 export const MAX_SPREADS = 6;
+/** A Custom Option Book has 1 to 10 legs. */
+export const MIN_LEGS = 1;
+export const MAX_LEGS = 10;
+/** A leg's quantity, in units per start level of notional, runs above 0 to this. */
+export const MAX_LEG_QUANTITY = 1000;
+
+/** Custom Option Book: the typed legs are the book. Anything else, an absent mode included, is the Product Payoff. */
+export function isCustomBook(inputs: Pick<HedgeInputs, "bookMode">): boolean {
+  return inputs.bookMode === "custom";
+}
+
+/** A leg's units, Pricer row 47: the quantity, negative where the book sells. */
+export function legUnits(leg: Pick<CustomLeg, "side" | "quantity">): number {
+  return leg.side === "S" ? -leg.quantity : leg.quantity;
+}
+
+/**
+ * The Custom Option Book's own payoff per unit of notional at a performance level: each leg's units times its put or call
+ * payoff at expiry, summed. A call is a real call, with no futures leg. Levels are the typed Level %, so a leg pays exactly 0 at its own level.
+ */
+export function customBookReturn(legs: CustomLeg[], performance: number): number {
+  const s = 1 + performance;
+  return legs.reduce((acc, leg) => {
+    const k = leg.percent / 100;
+    return acc + legUnits(leg) * (leg.optionType === "C" ? Math.max(s - k, 0) : Math.max(k - s, 0));
+  }, 0);
+}
 
 /** Excel ROUNDUP(x, -2) for a positive step such as 100. */
 function roundUpTo(x: number, step: number): number {
@@ -122,8 +149,19 @@ export function derivedSides(inputs: Pick<HedgeInputs, "strikePercents" | "parti
 /**
  * The option book, one leg per strike, using the rounded rupee strikes as the Pricer row 47 does.
  * Each strike takes its own option type; a call strike carries a futures leg, so it replicates the put's payoff.
+ * A Custom Option Book has one slot per leg, its units the signed quantity and its type the leg's own.
  */
 export function buildStrikes(inputs: HedgeInputs, start: number): StrikeSlot[] {
+  if (isCustomBook(inputs)) {
+    return (inputs.customLegs ?? []).map((leg) => ({
+      percent: leg.percent,
+      strike: rupeeStrike(start, leg.percent),
+      roles: ["leg"],
+      units: legUnits(leg),
+      optionType: leg.optionType,
+      side: leg.side,
+    }));
+  }
   const n = deriveTerms(inputs).nSpreads;
   const kOf = (i: number) => rupeeStrike(start, inputs.strikePercents[i]!);
   const units = strikeUnits(inputs, start);
@@ -142,8 +180,53 @@ export function upsideCash(terms: DerivedTerms): number {
   return terms.spreads.reduce((acc, s) => acc + (s.sell - s.buy) * s.participation, 0);
 }
 
+/**
+ * A Custom Option Book's checks: 1 to 10 legs, each with a Level % above zero, a Put or Call, a Buy or Sell and a quantity
+ * above zero. None of the product rules apply: any order, a repeated level and any mix of sides price as typed.
+ */
+export function validateCustomBook(inputs: Pick<HedgeInputs, "customLegs">): ValidationIssue[] {
+  const legs = inputs.customLegs ?? [];
+  const errors: ValidationIssue[] = [];
+  if (legs.length < MIN_LEGS || legs.length > MAX_LEGS) {
+    errors.push({
+      field: "legCount",
+      code: "leg-count",
+      message: `The book has ${legs.length} legs. A Custom Option Book needs ${MIN_LEGS} to ${MAX_LEGS} legs.`,
+      fix: `Use the Number Of Legs stepper to pick a count from ${MIN_LEGS} to ${MAX_LEGS}.`,
+    });
+    return errors;
+  }
+  legs.forEach((leg, i) => {
+    const name = `Leg ${i + 1}`;
+    if (!(Number.isFinite(leg.percent) && leg.percent > 0)) {
+      errors.push({
+        field: `customLegs.${i}.percent`,
+        code: "leg-level",
+        message: `${name} Level % is ${Number.isFinite(leg.percent) ? leg.percent : "blank"}. Every leg needs a level above zero.`,
+        fix: `Enter ${name} as a % of the start level, such as 100.`,
+      });
+    }
+    if (leg.optionType !== "P" && leg.optionType !== "C") {
+      errors.push({ field: `customLegs.${i}.optionType`, code: "leg-type", message: `${name} has no Option Type.`, fix: `Pick Put or Call for ${name}.` });
+    }
+    if (leg.side !== "B" && leg.side !== "S") {
+      errors.push({ field: `customLegs.${i}.side`, code: "leg-side", message: `${name} has no Buy Or Sell.`, fix: `Pick Buy or Sell for ${name}.` });
+    }
+    if (!(Number.isFinite(leg.quantity) && leg.quantity > 0)) {
+      errors.push({
+        field: `customLegs.${i}.quantity`,
+        code: "leg-quantity",
+        message: `${name} Quantity is ${Number.isFinite(leg.quantity) ? leg.quantity : "blank"}. Every leg needs a quantity above zero; Buy Or Sell gives the sign.`,
+        fix: `Enter a quantity above zero for ${name}, such as 1.`,
+      });
+    }
+  });
+  return errors;
+}
+
 /** Edge cases that block pricing. Each carries a code and a fix for the popup. */
 export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
+  if (isCustomBook(inputs)) return validateCustomBook(inputs);
   const errors: ValidationIssue[] = [];
   const k = inputs.strikePercents;
   const n = k.length - 4;
@@ -252,8 +335,10 @@ export function validateStructure(inputs: HedgeInputs): ValidationIssue[] {
 /**
  * Client return at a performance level. Product Description column K with each constant
  * taken from the inputs: upside capped at the coupon, zero to the protection, then decay with the floor.
+ * A Custom Option Book returns its own payoff instead.
  */
 export function clientReturn(inputs: HedgeInputs, performance: number): number {
+  if (isCustomBook(inputs)) return customBookReturn(inputs.customLegs ?? [], performance);
   const terms = deriveTerms(inputs);
   const p = performance;
   if (p >= -terms.protection) {
@@ -285,8 +370,10 @@ export function bookReturn(inputs: HedgeInputs, strikes: StrikeSlot[], start: nu
 /**
  * Largest gap between the payoff table and the option book at every kink and between kinks,
  * skipping the one point outflow band where the book spreads the protection drop.
+ * A Custom Option Book's payoff is the book itself, so there is no gap.
  */
 export function payoffBookGap(inputs: HedgeInputs, strikes: StrikeSlot[], start: number): number {
+  if (isCustomBook(inputs)) return 0;
   const terms = deriveTerms(inputs);
   const points = new Set<number>();
   for (const k of strikes) {
@@ -313,11 +400,24 @@ export function preTaxIrr(clientReturnValue: number, tenorDays: number): number 
   return fv ** (365 / tenorDays) - 1;
 }
 
-/** Payoff levels: every strike, protection, protection less 0.01, zero, and every 5 percent. */
+/**
+ * Payoff levels: every strike, protection, protection less 0.01, zero, and every 5 percent.
+ * A Custom Option Book: every leg level, zero, and every 5 percent from -50% or 10 points below the lowest leg, to +50% or
+ * 10 points above the highest.
+ */
 export function payoffLevels(inputs: HedgeInputs, strikes: StrikeSlot[]): number[] {
-  const terms = deriveTerms(inputs);
   const set = new Set<number>();
   const key = (x: number) => Math.round(x * 1e6) / 1e6;
+  if (isCustomBook(inputs)) {
+    const levels = strikes.map((s) => s.percent / 100 - 1);
+    for (const x of levels) set.add(key(x));
+    set.add(0);
+    const lo = Math.ceil(Math.min(-0.5, Math.min(...levels) - 0.1) * 20 - 1e-9);
+    const hi = Math.floor(Math.max(0.5, Math.max(...levels) + 0.1) * 20 + 1e-9);
+    for (let j = lo; j <= hi; j++) set.add(key(j / 20));
+    return [...set].sort((a, b) => b - a);
+  }
+  const terms = deriveTerms(inputs);
   for (const s of strikes) set.add(key(s.percent / 100 - 1));
   set.add(key(-terms.protection));
   set.add(key(-terms.protection - 0.0001));

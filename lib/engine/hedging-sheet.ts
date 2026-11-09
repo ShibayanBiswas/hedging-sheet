@@ -9,6 +9,7 @@ import {
   buildStrikes,
   clientReturn,
   deriveTerms,
+  isCustomBook,
   payoffBookGap,
   payoffLevels,
   preTaxIrr,
@@ -155,6 +156,7 @@ function validateInputs(
   const shape = checkInputShape(inputs);
   if (shape.length) return { errors: shape, warnings, dates: [] };
   const errors: ValidationIssue[] = [];
+  const custom = isCustomBook(inputs);
   const positive: Array<[keyof HedgeInputs, string, string]> = [
     ["spot", "Spot", "Click Refresh From Yahoo or type the spot."],
     ["notionalCr", "Notional in Crore", "Enter the notional, such as 100."],
@@ -163,7 +165,8 @@ function validateInputs(
     ["hedgeStrike", "Hedge Strike", "Turn on Auto From Spot or type the strike."],
     ["decay", "Decay", "Enter the downside participation, such as 1.6."],
   ];
-  for (const [key, label, fix] of positive) {
+  // A Custom Option Book has no coupon and no decay.
+  for (const [key, label, fix] of positive.filter(([key]) => !custom || (key !== "coupon" && key !== "decay"))) {
     const v = inputs[key] as number;
     if (!(typeof v === "number" && Number.isFinite(v) && v > 0)) {
       errors.push({ field: key, code: `${key}-positive`, message: `${label} must be above zero.`, fix });
@@ -172,7 +175,7 @@ function validateInputs(
   const schedule = validateSchedule(inputs);
   errors.push(...schedule.errors);
   errors.push(...validateStructure(inputs));
-  if (!errors.length) {
+  if (!errors.length && !custom) {
     const fall = totalLossFall(inputs);
     if (fall != null) {
       warnings.push({
@@ -233,8 +236,10 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   const bidOffer: BidOffer = params.bidOffer ?? "B";
   // The listed hedge option follows the downside legs, which are always puts.
   const hedgeType: OptionType = "P";
+  // A Custom Option Book prices its legs as typed: no spreads, no upside cash, and a call is a real call.
+  const custom = isCustomBook(inputs);
   const terms = deriveTerms(inputs);
-  const cash = upsideCash(terms);
+  const cash = custom ? 0 : upsideCash(terms);
   const start = startLevel(inputs);
   const strikes = buildStrikes(inputs, start);
   const underlying = inputs.underlying;
@@ -300,7 +305,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       const priced = priceOption(request);
       // A call strike holds the call and a short futures leg worth discount × (forward − strike): together the put.
       // Its Greeks are the combined position's, which by parity are the put's; vega and gamma are the same either way.
-      const combined = slot.optionType === "C" ? priceOption({ ...request, optionType: "P" }) : priced;
+      // A Custom Option Book call is the call alone, with its own Greeks.
+      const combined = slot.optionType === "C" && !custom ? priceOption({ ...request, optionType: "P" }) : priced;
       // Pricer B55 = B47 × E5 ÷ B5 ÷ (2 × COUNTIF(B25:I25, "P"))
       const contracts = (slot.units * notional) / start / (HALVES * nLive);
       const pp = pricingParamOnOrBefore(surface.pricingParams, maturity);
@@ -599,16 +605,19 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     marginFraction = next;
     if (loopResidual < 1e-9) break;
   }
+  // A Custom Option Book's pots return the notional; its legs pay the book's payoff on top.
   const target = `${(inputs.coupon * 100).toFixed(2)}%`;
   if (!converged) {
     return {
       ok: false,
       errors: [
         {
-          field: "coupon",
+          field: custom ? "legCount" : "coupon",
           code: "goal-seek",
-          message: `Could Not Solve: no Inbuilt makes the achieved coupon equal the target of ${target} after ${solverIterations} tries.`,
-          fix: "Lower the Coupon, widen the spreads or raise their participation, then run again.",
+          message: custom
+            ? `Could Not Solve: no Inbuilt makes the pots return the notional after ${solverIterations} tries.`
+            : `Could Not Solve: no Inbuilt makes the achieved coupon equal the target of ${target} after ${solverIterations} tries.`,
+          fix: custom ? "Check the leg quantities and the rates, then run again." : "Lower the Coupon, widen the spreads or raise their participation, then run again.",
         },
       ],
       warnings,
@@ -621,10 +630,14 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       ok: false,
       errors: [
         {
-          field: "coupon",
+          field: custom ? "legCount" : "coupon",
           code: "goal-seek",
-          message: `Could Not Solve: the Inbuilt that pays the target of ${target} is ${share}% of the notional, outside -100% to 100%.`,
-          fix: "Check the Premium Growth Rate, the Margin Growth Rate and the Coupon, then run again.",
+          message: custom
+            ? `Could Not Solve: the Inbuilt that returns the notional is ${share}% of the notional, outside -100% to 100%.`
+            : `Could Not Solve: the Inbuilt that pays the target of ${target} is ${share}% of the notional, outside -100% to 100%.`,
+          fix: custom
+            ? "Lower the leg quantities, or check the Premium Growth Rate and the Margin Growth Rate, then run again."
+            : "Check the Premium Growth Rate, the Margin Growth Rate and the Coupon, then run again.",
         },
       ],
       warnings,
@@ -635,6 +648,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   // Pricer P5 = O5 ÷ E5 − 1; U5 = (1 + P5)^(365/N5) − 1
   const achievedCoupon = payout / notional - 1;
   const irr = (1 + achievedCoupon) ** (365 / tenor) - 1;
+  // Terms of the product only: a Custom Option Book has none, so they stay blank rather than show a made up number.
+  const productOnly = (v: number) => (custom ? NaN : v);
   // Pricer J5 = E5 − H5 − I5 − V5; F5 = H5 ÷ E5
   const nbfcAmount = notional - inbuilt - transactionCostInr - marginInr;
   const actualInbuilt = inbuilt / notional;
@@ -680,7 +695,9 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   // Product Description H35 = H33 × Summary M24; H36 = H32 − H35
   const optionsDelta = hedgeQty * hedgeDelta;
   const years = Math.round(tenor / 365);
-  const title = `${years} Year ${underlying} Accelerator Senior Debt For ₹${inputs.notionalCr} Crore With ${inputs.decay} Times Leverage`;
+  const title = custom
+    ? `${years} Year ${underlying} Custom Option Book For ₹${inputs.notionalCr} Crore`
+    : `${years} Year ${underlying} Accelerator Senior Debt For ₹${inputs.notionalCr} Crore With ${inputs.decay} Times Leverage`;
 
   const payoff = payoffLevels(inputs, strikes).map((performance) => {
     const value = clientReturn(inputs, performance);
@@ -693,7 +710,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
   });
 
   // Pricer C13 = (H10 − G10) × K10; C14 = L10 × (J10 − I10)
-  const spreadPayouts = terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
+  const spreadPayouts = custom ? [] : terms.spreads.map((s) => (s.sell - s.buy) * s.participation);
 
   return {
     ok: true,
@@ -704,13 +721,13 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     structure: {
       startLevel: start,
       strikes,
-      spreadParticipations: terms.spreads.map((s) => s.participation),
-      maxCoupon: spreadPayouts.reduce((a, b) => a + b, 0),
+      spreadParticipations: custom ? [] : terms.spreads.map((s) => s.participation),
+      maxCoupon: productOnly(spreadPayouts.reduce((a, b) => a + b, 0)),
     },
     pricer: {
       header: {
         startLevel: start,
-        coupon: inputs.coupon,
+        coupon: productOnly(inputs.coupon),
         expiry: hedgeExpiry,
         mobilisation: notional,
         actualInbuilt,
@@ -723,19 +740,19 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         premiumRate,
         tenorDays: tenor,
         payout,
-        achievedCoupon,
+        achievedCoupon: productOnly(achievedCoupon),
         delta: bookDelta,
         vega: bookVega,
         rho: bookRho,
         gamma: bookGamma,
-        irr,
+        irr: productOnly(irr),
         margin: marginInr,
         // Pricer K7 = SUM of every delta column ÷ 1e5, at bump 0.
         deltaLakh: bookDelta / LAKH,
         spreadPayouts,
         futuresAdjustment,
         // Pricer E14 = E13 × E12
-        protectionLoss: terms.protection * inputs.decay,
+        protectionLoss: productOnly(terms.protection * inputs.decay),
       },
       legs,
       halves: HALVES,
@@ -743,7 +760,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
     summary: {
       actualInbuilt,
       // Summary F10 = (1 + D10)^(365/O10) − 1
-      irr: (1 + inputs.coupon) ** (365 / tenor) - 1,
+      irr: productOnly((1 + inputs.coupon) ** (365 / tenor) - 1),
       margin: marginFraction,
       optionExpiry: hedgeExpiry,
       // Summary E15 = Pricer Q5; F15 = Q5 × B2 ÷ E5
@@ -786,7 +803,7 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       finalMarginCr,
       maturityCr,
       // Product Description D49 = (D48 ÷ D31)^(365/D41) − 1
-      irr: (maturityCr / inputs.notionalCr) ** (365 / tenor) - 1,
+      irr: productOnly((maturityCr / inputs.notionalCr) ** (365 / tenor) - 1),
       weightedCompRate,
       // Product Description P28 and Q28
       weightedHalfYearlyRate: weightedCompRate == null ? null : 2 * ((1 + weightedCompRate) ** (1 / 2) - 1),
@@ -802,8 +819,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
         vegaCr: (bookVega / CRORE) * -1,
         rhoWeightedForward,
         rhoCr: (bookRho / CRORE) * -1,
-        leverage: inputs.decay,
-        targetLevel: terms.target,
+        leverage: productOnly(inputs.decay),
+        targetLevel: productOnly(terms.target),
       },
       payoff,
     },
@@ -813,7 +830,8 @@ export function computeHedgingSheet(inputs: HedgeInputs, market: MarketData, opt
       timings,
       solverIterations,
       solverTrace,
-      goalSeekResidual: achievedCoupon - inputs.coupon,
+      // A Custom Option Book's goal seek targets an achieved coupon of 0: the pots return the notional.
+      goalSeekResidual: custom ? achievedCoupon : achievedCoupon - inputs.coupon,
       curvePoints,
       loopPasses,
       loopResidual,

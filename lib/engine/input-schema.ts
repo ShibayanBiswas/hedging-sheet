@@ -48,10 +48,29 @@ const hedgeInputSchema = z.object({
   stressVolMultiplier: finite("Volatility Multiplier").positive(),
   legVolOverrides: z.record(z.string(), z.number()),
   hedgeVolOverride: z.number().nullable(),
+  bookMode: z.enum(["product", "custom"]).optional(),
+});
+
+/**
+ * A Custom Option Book prices only its legs: the product's strikes, sides and Decay Reduction Below Floor are kept for a switch
+ * back but never read, so they may be blank. The legs' own rules, with popup codes, live in validateCustomBook.
+ */
+const customInputSchema = hedgeInputSchema.extend({
+  floorUnits: z.union([z.number(), z.nan()]),
+  strikeOptionTypes: z.array(z.enum(["P", "C", ""])),
+  strikeSides: z.array(z.enum(["B", "S", ""])),
+  customLegs: z.array(
+    z.object({
+      percent: z.union([z.number(), z.nan()]),
+      optionType: z.enum(["P", "C", ""]),
+      side: z.enum(["B", "S", ""]),
+      quantity: z.union([z.number(), z.nan()]),
+    }),
+  ),
 });
 
 export function checkInputShape(inputs: HedgeInputs): ValidationIssue[] {
-  const parsed = hedgeInputSchema.safeParse(inputs);
+  const parsed = (inputs.bookMode === "custom" ? customInputSchema : hedgeInputSchema).safeParse(inputs);
   if (parsed.success) return [];
   return parsed.error.issues.map((issue) => ({ field: issue.path.join("."), message: issue.message, code: "shape" }));
 }
