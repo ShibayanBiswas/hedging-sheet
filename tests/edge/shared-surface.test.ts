@@ -11,6 +11,7 @@ import { parseVolSurfaceFile } from "@/lib/excel/parse-vol-surface";
 import type { VolSurface } from "@/lib/engine/types";
 import { normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { resetWriteGuard } from "@/lib/server/write-guard";
+import { fetchIndexAtDate } from "@/lib/market-data";
 import { MOCK_NOW_ISO } from "@/lib/test/mocks/yahoo";
 
 import unwindingOctober from "../fixtures/unwinding-surface-october.json";
@@ -28,11 +29,15 @@ const grid = (s: VolSurface) => {
 let harness: Awaited<ReturnType<typeof startApiHarness>>;
 let client: MongoClient;
 let unwinding: Db;
+/** The Yahoo closes on or before 1-Oct-2026: the month's Reference Prices, whatever the surface itself carries. */
+let anchors: Awaited<ReturnType<typeof fetchIndexAtDate>>;
+const anchored = (s: VolSurface) => ({ ...grid(s), nifty: anchors.niftyLevel, sensex: anchors.sensexLevel });
 
 beforeAll(async () => {
   harness = await startApiHarness();
   vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ["Date"] });
   vi.setSystemTime(new Date(MOCK_NOW_ISO));
+  anchors = await fetchIndexAtDate("2026-10-01");
   client = new MongoClient(process.env.MONGODB_URI!);
   await client.connect();
   unwinding = client.db(resolveUnwindingDbName());
@@ -61,7 +66,9 @@ describe("Shared Surface · The Unwinding Calculator's Active Surface Is The Des
   it("Prices On The Unwinding Grid And Anchors, With This Desk's Pricing Params Grid", async () => {
     const body = await (await getDataset()).json();
     expect(body.surfaceSource).toBe("shared");
-    expect(grid(body.surface)).toEqual(grid(UNWINDING));
+    // The grid is Unwinding's; the Reference Prices are Yahoo's closes for the 1st, not the ones the document carries.
+    expect(anchors.sensexLevel).not.toBe(UNWINDING.referenceSensexPrice);
+    expect(grid(body.surface)).toEqual(anchored(UNWINDING));
     expect(body.surface.deepStrike).toBe(500);
     expect(body.surface.volsPercent.every((row: number[]) => row[0] === row[1])).toBe(true);
     expect(body.surface.pricingParams).toEqual(normalizeVolSurface(fixtureSurface as VolSurface).pricingParams);
@@ -71,7 +78,7 @@ describe("Shared Surface · The Unwinding Calculator's Active Surface Is The Des
     await getDataset();
     const mirrored = await harness.db.collection(COLLECTIONS.volSurfaces).findOne({ monthKey: "2026-10" });
     expect(mirrored?.source).toBe("unwinding 2026-10");
-    expect(grid(mirrored as unknown as VolSurface)).toEqual(grid(UNWINDING));
+    expect(grid(mirrored as unknown as VolSurface)).toEqual(anchored(UNWINDING));
   });
 
   it("An Edited Grid Becomes The Unwinding Calculator's Active Surface Too", async () => {
@@ -91,7 +98,7 @@ describe("Shared Surface · The Unwinding Calculator's Active Surface Is The Des
     await unwinding.collection(COLLECTIONS.volSurfaces).deleteMany({});
     const body = await (await getDataset()).json();
     expect(body.surfaceSource).toBe("database");
-    expect(grid(body.surface)).toEqual(grid(fixtureSurface as VolSurface));
+    expect(grid(body.surface)).toEqual(anchored(fixtureSurface as VolSurface));
   });
 
   it("One File Feeds Both Desks: The Unwinding Upload Sample Parses To Its Active Grid", () => {

@@ -1,5 +1,16 @@
 # 08 · Changelog
 
+## Market Data: Reference Prices From The 1st, No Coverage Popup, The Forward Sell Rate In The Docs
+
+| Area | Change |
+|---|---|
+| Reference Prices | The Reference Nifty and Sensex Prices are always the Yahoo closes on or before the 1st of the current month, for an uploaded surface as for a carried one; the surface's own prices stand only when Yahoo returns none. The Unwinding Calculator and Swap Product read them the same way |
+| Price Date | A close on or before a date now carries the India date of the session it came from: 1-Nov-2026 is a Sunday, so its close is dated 30-Oct-2026 |
+| Surface Coverage | Expiries before the surface's first row or after its last no longer open the Expiries Beyond The Surface popup, which every default run raised on the shared surface. The Pricer says so above its Leg Grid, beside the volatilities |
+| Pricer | In Custom Option Book the page subtitle speaks of the legs and the notional, not the target payout |
+| Docs | The Forward Sell Rate is the valuation month's row of this desk's Pricing Params grid, which Market Data shows: 5.50% for a November 2026 valuation on the built in grid. The 6.50% and 6.60% quoted before came from a November document since removed and from the Unwinding Calculator's file, which this desk does not read for it |
+| Tests | The shared surface tests expect Yahoo's 1-Oct closes as the Reference Prices; the no-write test reads once first, since the first read after an upload mirrors the month with them; B5.3 checks the Pricer note and no popup; the popup's two Linux baselines are gone |
+
 ## Expiries: Monthly From First Expiry
 
 | Area | Change |

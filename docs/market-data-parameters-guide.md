@@ -27,7 +27,7 @@ The Market Data headline shows Source: Shared With The Unwinding Calculator, Des
 |---|---|---|
 | Deep | A far out of the money strike used only to interpolate | Always ₹500 for Nifty and Sensex; its volatility always equals the 55% column of its row (`normalizeVolSurface`) |
 | Moneyness | Strike Change % columns, 55% to 150% | A column's strike is moneyness × the index anchor |
-| Reference Nifty Price, Reference Sensex Price | The 100% anchors | From the surface file; a carried month takes its first session's closes |
+| Reference Nifty Price, Reference Sensex Price | The 100% anchors | Always the Yahoo closes on or before the 1st of the current month, for an uploaded surface as for a carried one; the surface file's own prices stand only when Yahoo returns none |
 | Expiries | One row per expiry | Sorted; an expiry beyond the last row reads the last row |
 | Volatilities | Percent points, 13.39 means 13.39% | Above 0 and at most 200 |
 
@@ -55,7 +55,7 @@ Edit Parameters opens every row; Save posts to `/api/params` and writes the chos
 | Incremental Margin | 6.03% | Yes | `pricingParams[].incMargin` | Pricer rows 38 to 41 |
 | Full Margin | 12.03% | Yes | `pricingParams[].fullMargin` | Pricer rows 43 to 46 |
 | Margin Cost | 3.00% | Yes | `pricingParams[].marginCost` | Pricer margin cost rows |
-| Forward Sell Rate | The month's Pricing Params row (6.50% saved for November 2026; the Unwinding Calculator's October file says 6.60%) | Yes | `pricingParams[].fwdSellRate`, and `pricing_params.forwardSellRate` | Pricer B28 forward growth, `forwardSellRateForMonth`; the workbooks' Premium Rate is this plus 1% |
+| Forward Sell Rate | The valuation month's row of this desk's Pricing Params grid, which Market Data shows as Forward Sell Rate This Month. Until a month is saved the built in workbook grid applies: 4.45% to September 2026, then 5.50% (5.50% for a November 2026 valuation, read 09-Nov-2026). The Unwinding Calculator's file gives the grid only; its Forward Sell Rate is not read | Yes | `pricingParams[].fwdSellRate`, and `pricing_params.forwardSellRate` | Pricer B28 forward growth, `forwardSellRateForMonth`; the workbooks' Premium Rate is this plus 1% |
 | Dividend Bid Or Offer Factor | 1.00 | Yes | `pricing_params.dividendBidOfferMultiplier` | Pricer B30, 'Pricing Params'!M2 |
 | Rate Cap While Buying Forward | 6.80% | Yes | `pricing_params.rateCapBuyingForward` | Pricer B29: a put on Offer and a call on Bid, 'Pricing Params'!N2 |
 | Rate Cap While Selling Forward | The last rate curve point: the Premium Growth Rate while it is linked, 'Pricing Params'!O2 | Yes: a typed cap is stored; Follow The Rate Curve clears it. Shows "-" only while it follows a Premium Growth Rate not entered yet | `pricing_params.rateCapSellingForward`, optional | Pricer B29: a put on Bid and a call on Offer (`rateCapSellingForward`) |

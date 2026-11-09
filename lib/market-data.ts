@@ -262,19 +262,15 @@ async function fetchYahooBars(
   return [];
 }
 
-function closeOnOrBefore(bars: DatedClose[], isoDate: string): number | null {
-  let bestTs = -1;
-  let best: number | null = null;
+function closeOnOrBefore(bars: DatedClose[], isoDate: string): DatedClose | null {
+  let best: DatedClose | null = null;
   for (const bar of bars) {
-    if (bar.ymd <= isoDate && bar.ts >= bestTs) {
-      bestTs = bar.ts;
-      best = bar.close;
-    }
+    if (bar.ymd <= isoDate && bar.ts >= (best?.ts ?? -1)) best = bar;
   }
   return best;
 }
 
-async function fetchYahooCloseOnOrBefore(symbol: string, isoDate: string): Promise<number | null> {
+async function fetchYahooCloseOnOrBefore(symbol: string, isoDate: string): Promise<DatedClose | null> {
   const found = await fetchYahooClosesOnOrBefore(symbol, [isoDate]);
   return found.get(isoDate.slice(0, 10)) ?? null;
 }
@@ -287,9 +283,9 @@ async function fetchYahooClosesOnOrBefore(
   symbol: string,
   isoDates: string[],
   now: Date = deskNow(),
-): Promise<Map<string, number>> {
+): Promise<Map<string, DatedClose>> {
   const dates = [...new Set(isoDates.map((day) => day.slice(0, 10)))].filter(Boolean).sort();
-  const out = new Map<string, number>();
+  const out = new Map<string, DatedClose>();
   if (!dates.length) return out;
   const start = new Date(`${dates[0]}T00:00:00Z`);
   const end = new Date(`${dates[dates.length - 1]}T00:00:00Z`);
@@ -385,15 +381,16 @@ export async function fetchIndexAtDate(isoDate: string): Promise<{
     };
   }
 
-  const [niftyLevel, sensexLevel] = await Promise.all([
+  const [nifty, sensex] = await Promise.all([
     fetchYahooCloseOnOrBefore("^NSEI", isoDate),
     fetchYahooCloseOnOrBefore("^BSESN", isoDate),
   ]);
   return {
-    niftyLevel,
-    sensexLevel,
-    source: niftyLevel != null || sensexLevel != null ? "yahoo" : "missing",
-    priceAsOfDate: isoDate,
+    niftyLevel: nifty?.close ?? null,
+    sensexLevel: sensex?.close ?? null,
+    source: nifty || sensex ? "yahoo" : "missing",
+    // The India date of the bar used: a weekend or holiday date reads the session before it.
+    priceAsOfDate: nifty?.ymd ?? sensex?.ymd ?? null,
     spotKind: "last_close",
   };
 }

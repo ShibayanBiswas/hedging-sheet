@@ -38,18 +38,18 @@ async function monthAnchors(monthKey: string): Promise<{ nifty: number | null; s
 }
 
 /**
- * Show the current month; carry the previous grid with this month's anchors when there is no upload. A current
- * month without its own anchors takes that month's closes. This is the Unwinding Calculator's presentation too.
+ * Show the current month; carry the previous grid when there is no upload. The Reference Nifty and Sensex Prices are
+ * always the Yahoo closes on or before the 1st of the month, for an uploaded surface as for a carried one; the
+ * surface's own prices stand only when Yahoo has none. This is the Unwinding Calculator's presentation too.
  */
 async function presentSurfaceForDeskMonth(surface: VolSurface): Promise<VolSurface> {
   const todayMonth = deskMonthKey();
   if (surface.monthKey < todayMonth) return labelSurfaceForDeskMonth(surface, todayMonth, await monthAnchors(todayMonth));
-  if (surface.referenceUnderlyingPrice && surface.referenceSensexPrice) return surface;
   const anchors = await monthAnchors(surface.monthKey);
   return normalizeVolSurface({
     ...surface,
-    referenceUnderlyingPrice: surface.referenceUnderlyingPrice ?? anchors.nifty ?? undefined,
-    referenceSensexPrice: surface.referenceSensexPrice ?? anchors.sensex ?? undefined,
+    referenceUnderlyingPrice: anchors.nifty ?? surface.referenceUnderlyingPrice ?? undefined,
+    referenceSensexPrice: anchors.sensex ?? surface.referenceSensexPrice ?? undefined,
   });
 }
 

@@ -74,9 +74,11 @@ const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve,
 /** Each progress step shows at least this long, so the steps can be read. */
 const STEP_MS = 120;
 
-/** Run warnings shown as a popup after the simulation, by code. */
+/**
+ * Run warnings shown as a popup after the simulation, by code. Expiries outside the surface are not one: the default
+ * book runs past the shared surface's last row on every run, so the Pricer notes it beside the volatilities instead.
+ */
 const WARNING_TITLES: Record<string, string> = {
-  "expiry-surface": "Expiries Beyond The Surface",
   "loss-cap": "Loss Reaches 100% Before A 90% Fall",
 };
 

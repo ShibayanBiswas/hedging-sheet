@@ -134,6 +134,8 @@ describe("upload preview", () => {
 
 describe("a run writes nothing", () => {
   it("loading the market, the closes, the volatility and pricing the book leave the database unchanged", async () => {
+    // The first read after an upload mirrors the month once with its Yahoo Reference Prices; from then on reads write nothing.
+    await getDataset();
     const before = await snapshot();
     const dataset = await (await getDataset()).json();
     await getLevels();

@@ -98,7 +98,8 @@ describe("index at a date", () => {
   it("takes the close on or before the date, from one cached history request per index", async () => {
     const calls = serve(chart([["2025-03-03", 70000], ["2025-03-04", 70100], ["2025-03-06", 70300]]));
     const first = await fetchIndexAtDate("2025-03-05");
-    expect(first).toMatchObject({ sensexLevel: 70100, niftyLevel: 70100, source: "yahoo", priceAsOfDate: "2025-03-05" });
+    // 5 March has no bar, so the close and its date are 4 March's.
+    expect(first).toMatchObject({ sensexLevel: 70100, niftyLevel: 70100, source: "yahoo", priceAsOfDate: "2025-03-04" });
     const asked = calls.length;
     await fetchIndexAtDate("2025-03-05");
     expect(calls.length).toBe(asked);

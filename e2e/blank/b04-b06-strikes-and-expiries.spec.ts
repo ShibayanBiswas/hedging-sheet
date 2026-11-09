@@ -99,18 +99,21 @@ test.describe("B5 Expiries", () => {
     }
   });
 
-  test("B5.3 an expiry beyond the surface runs with a warning; expiries inside it run without one", async ({ page, inputs, nav }) => {
+  test("B5.3 an expiry beyond the surface runs with no popup and a note on the Pricer; expiries inside it have no note", async ({ page, inputs, nav }) => {
     await fillBlank(inputs);
-    await inputs.runButton.click();
-    await inputs.dialog.expectTitle("Expiries Beyond The Surface");
-    await inputs.dialog.dismissAll();
-    await expect(page).toHaveURL(/\/summary$/);
-    await nav.go("inputs");
-    await pasteExpiries(page, ["2027-01-28", "2027-04-29", "2027-07-29", "2027-10-28", "2028-01-27", "2028-04-27"]);
     await inputs.runButton.click();
     await expect(page).toHaveURL(/\/summary$/);
     await expect(page.getByTestId("desk-toast")).toHaveText("Simulation Completed");
     await expect(inputs.dialog.root).toHaveCount(0);
+    await nav.go("pricer");
+    await expect(page.getByTestId("surface-coverage-note")).toContainText("after the last surface row");
+    await nav.go("inputs");
+    await pasteExpiries(page, ["2027-01-28", "2027-04-29", "2027-07-29", "2027-10-28", "2028-01-27", "2028-04-27"]);
+    await inputs.runButton.click();
+    await expect(page).toHaveURL(/\/summary$/);
+    await expect(inputs.dialog.root).toHaveCount(0);
+    await nav.go("pricer");
+    await expect(page.getByTestId("surface-coverage-note")).toHaveCount(0);
   });
 
   test("B5.4 for each count the Pricer shows one column per strike and expiry", async ({ page, inputs, nav }, testInfo) => {

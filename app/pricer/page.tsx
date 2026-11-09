@@ -16,10 +16,16 @@ export default function PricerPage() {
       <PageIntro
         tab="pricer"
         title="Pricer"
-        subtitle="The option book that replicates the payoff. Every leg is priced on the vol surface and the Inbuilt is solved so the three pots reach the target payout."
+        subtitle={
+          inputs.bookMode === "custom"
+            ? "The custom option book, leg by leg. Every leg is priced on the vol surface and the Inbuilt is solved so the pots return the notional."
+            : "The option book that replicates the payoff. Every leg is priced on the vol surface and the Inbuilt is solved so the three pots reach the target payout."
+        }
       />
       <ResultGate>
         {(r) => {
+          // Expiries outside the surface take its nearest row's volatility: said here, beside the volatilities, not in a popup.
+          const coverage = r.warnings.filter((w) => w.code === "expiry-surface");
           return (
             <>
               <Panel>
@@ -51,6 +57,11 @@ export default function PricerPage() {
                 >
                   Leg Grid
                 </SectionTitle>
+                {coverage.map((w) => (
+                  <p key={w.message} className="hint mb-2 font-ui" data-testid="surface-coverage-note">
+                    {w.message}
+                  </p>
+                ))}
                 <GridCard
                   spec={pricerGrid(r)}
                   edit={{

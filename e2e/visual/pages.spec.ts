@@ -112,14 +112,6 @@ const POPUPS: Array<{ name: string; open: (c: Context) => Promise<void> }> = [
     },
   },
   {
-    name: "expiries-beyond-surface",
-    open: async ({ inputs }) => {
-      await fillBlank(inputs);
-      await inputs.runButton.click();
-      await inputs.dialog.expectTitle("Expiries Beyond The Surface");
-    },
-  },
-  {
     name: "priced-on-loaded-surface",
     open: async ({ page, inputs }) => {
       await inputs.goto();

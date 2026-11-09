@@ -41,7 +41,7 @@ The Hedging Sheet for Anand Rathi Wealth prices a structured product's option bo
 
 Default Values starts on Sensex, today, the live close, the calculated daily volatility and the desk terms. Blank Inputs starts empty and unlocks step by step. A spot fills Hedge Strike, Start Level and Fetched At, and Level In Points and Units follow the strikes, tagged Calculated.
 
-Surface Parameters, all editable on Market Data, with their defaults: Month (current), Bid Or Offer (Bid), Volatility Bump (0.00%), Incremental Margin (6.03%), Full Margin (12.03%), Margin Cost (3.00%), Forward Sell Rate (6.50% for November 2026), Dividend Bid Or Offer Factor (1.00), Rate Cap While Buying Forward (6.80%), Rate Cap While Selling Forward (the last rate curve point, or a typed cap), Premium Growth Rate Link (All Points Linked) and the rate curve points.
+Surface Parameters, all editable on Market Data, with their defaults: Month (current), Bid Or Offer (Bid), Volatility Bump (0.00%), Incremental Margin (6.03%), Full Margin (12.03%), Margin Cost (3.00%), Forward Sell Rate (the valuation month's Pricing Params row: 5.50% for November 2026 on the built in grid), Dividend Bid Or Offer Factor (1.00), Rate Cap While Buying Forward (6.80%), Rate Cap While Selling Forward (the last rate curve point, or a typed cap), Premium Growth Rate Link (All Points Linked) and the rate curve points.
 
 Details: [Input Parameters Guide](input-parameters-guide.md), [Market Data Parameters Guide](market-data-parameters-guide.md), [Sign Off · Logic Round](signoff-logic-round.md).
 
