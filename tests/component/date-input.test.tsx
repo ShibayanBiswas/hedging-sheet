@@ -63,10 +63,11 @@ describe("DateInput", () => {
     expect(onCommit).toHaveBeenCalledWith("");
   });
 
-  it("the calendar picker still commits on its own", () => {
+  it("a day picked from the calendar commits on its own, with no typing in the field", () => {
     const { onCommit } = setup("2026-10-27");
-    const picker = document.querySelector<HTMLInputElement>('input[type="date"]')!;
-    fireEvent.change(picker, { target: { value: "2026-11-30" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open Calendar For Valuation Date" }));
+    fireEvent.click(screen.getByRole("button", { name: "Next Month" }));
+    fireEvent.click(screen.getByRole("gridcell", { name: "Monday 30-Nov-2026" }));
     expect(onCommit).toHaveBeenCalledWith("2026-11-30");
   });
 });

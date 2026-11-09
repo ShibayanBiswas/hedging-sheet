@@ -1,5 +1,12 @@
 # 08 · Changelog
 
+## SP Workstation: The Calendar Button Opens Inside The Frame
+
+| Area | Change |
+|---|---|
+| Dates | The calendar button on the Valuation Date and every expiry opened the browser's own date picker through `showPicker()`, which Chrome refuses with a SecurityError in a frame from another origin, so inside SP Workstation the button did nothing. It now opens the desk's own calendar, `components/ui/calendar-popover.tsx`: the same look in every browser, framed or not, with month and year navigation, the keyboard, today and the field's date marked, and placed below or above its field inside the window, at 390 px and in a short frame too. A pick commits as before, so snapping, the Reverted popups and the status chips are unchanged. The hidden native date field is gone |
+| Tests | `tests/component/calendar-popover.test.tsx`; `e2e/calendar-embed.spec.ts` frames the app from another origin and picks dates in Blank Inputs on Chromium, Firefox and WebKit |
+
 ## Workbook Parity: Default Expiries Drop The Half Day
 
 | Area | Change |

@@ -120,7 +120,7 @@ function measure(page: Page, tab: TabId) {
 
       // Touch targets on phones.
       if (vw < PHONE_BELOW) {
-        const targets = document.querySelectorAll<HTMLElement>("a[href], button, select, input:not([type='hidden']):not(.date-picker-native), [role='tab'], [role='radio'], summary, .field-tip");
+        const targets = document.querySelectorAll<HTMLElement>("a[href], button, select, input:not([type='hidden']), [role='tab'], [role='radio'], summary, .field-tip");
         for (const el of targets) {
           if (!shown(el)) continue;
           const hit = el.matches("input[type='checkbox']") ? (el.closest("label") ?? el) : el;

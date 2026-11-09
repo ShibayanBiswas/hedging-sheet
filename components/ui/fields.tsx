@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useId, useRef, useState, type Rea
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Calendar, Info, Minus, Plus } from "lucide-react";
 
+import { CalendarPopover } from "@/components/ui/calendar-popover";
 import { cn } from "@/lib/cn";
 import { deskFade } from "@/lib/motion";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
@@ -241,7 +242,9 @@ export function DateInput({
   ariaLabel?: string;
 }) {
   const contextId = useContext(FieldIdContext);
-  const picker = useRef<HTMLInputElement>(null);
+  const row = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const [calendar, setCalendar] = useState(false);
   const [draft, setDraft] = useState(() => dateText(value));
   const [focused, setFocused] = useState(false);
   /** Typed in since the field took focus: an untouched draft may be older than the value, so it never commits. */
@@ -271,7 +274,7 @@ export function DateInput({
   };
 
   return (
-    <div className="relative flex w-full items-center gap-1">
+    <div ref={row} className="flex w-full items-center gap-1">
       <input
         type="text"
         id={ariaLabel ? undefined : contextId}
@@ -299,22 +302,29 @@ export function DateInput({
         )}
       />
       <button
+        ref={button}
         type="button"
         aria-label={`Open Calendar For ${label}`}
         title={`Open Calendar For ${label}`}
+        aria-haspopup="dialog"
+        aria-expanded={calendar}
         className="glass-control inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-        onClick={() => {
-          try {
-            picker.current?.showPicker();
-          } catch {
-            picker.current?.focus();
-          }
-        }}
+        onClick={() => setCalendar((open) => !open)}
       >
         <Calendar className="icon-sm" aria-hidden />
       </button>
-      {/* Only the calendar popup comes from this control: it never shows its own date format. */}
-      <input ref={picker} type="date" className="date-picker-native" tabIndex={-1} aria-hidden="true" value={isValidYmd(value) ? value : ""} onChange={(e) => onCommit(e.target.value)} />
+      {calendar ? (
+        <CalendarPopover
+          value={isValidYmd(value) ? value : ""}
+          label={label}
+          anchor={row}
+          toggle={button}
+          onPick={(ymd) => {
+            if (ymd !== value) onCommit(ymd);
+          }}
+          onClose={() => setCalendar(false)}
+        />
+      ) : null}
     </div>
   );
 }

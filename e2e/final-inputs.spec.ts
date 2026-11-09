@@ -29,7 +29,7 @@ function measure(page: Page) {
       if (box.width / content < 0.98) narrow.push(`${card.id} is ${Math.round(box.width)} of ${Math.round(content)} px`);
 
       // Rows of controls outside the scrolling tables: each row's last control ends near the card's right edge.
-      const controls = [...card.querySelectorAll<HTMLElement>('input:not([type="date"]):not([type="checkbox"]), select, output, button, label:has(input[type="checkbox"]), [data-testid$="-empty"]')].filter((c) => shown(c) && !c.closest('[role="table"], header'));
+      const controls = [...card.querySelectorAll<HTMLElement>('input:not([type="checkbox"]), select, output, button, label:has(input[type="checkbox"]), [data-testid$="-empty"]')].filter((c) => shown(c) && !c.closest('[role="table"], header'));
       const rows: Array<{ top: number; bottom: number; right: number }> = [];
       for (const c of controls.map((x) => x.getBoundingClientRect()).sort((a, b) => a.top - b.top)) {
         const row = rows.find((x) => c.top < x.bottom - 1 && c.bottom > x.top + 1);
@@ -44,7 +44,7 @@ function measure(page: Page) {
       }
 
       // No text or control may sit on another within the card.
-      const parts = [...card.querySelectorAll<HTMLElement>('input:not([type="date"]), select, button, output, label, h2, .hs-chip, p')].filter((e) => shown(e));
+      const parts = [...card.querySelectorAll<HTMLElement>('input, select, button, output, label, h2, .hs-chip, p')].filter((e) => shown(e));
       for (let i = 0; i < parts.length; i++) {
         for (let j = i + 1; j < parts.length; j++) {
           const a = parts[i]!,
@@ -79,14 +79,14 @@ function measure(page: Page) {
     const tallRows = rows.filter((r) => r.getBoundingClientRect().height > 48).map((r) => `${r.dataset.testid ?? r.textContent?.slice(0, 20)} is ${Math.round(r.getBoundingClientRect().height)} px`);
     const wrappedRows = rows.filter((r) => [...r.querySelectorAll('[role="cell"], [role="columnheader"]')].some((c) => lines(c) > 1 && !c.querySelector("input, button"))).map((r) => r.textContent?.slice(0, 30) ?? "");
 
-    // Every value the user can read: page text, field values and dropdown choices, with the hidden calendar control left out.
+    // Every value the user can read: page text, field values and dropdown choices.
     const texts: string[] = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       const p = n.parentElement!;
       if (!p.closest("script, style") && (n.textContent ?? "").trim()) texts.push(n.textContent!.trim());
     }
-    const fields = [...document.querySelectorAll<HTMLInputElement>('main input:not([type="date"]):not([type="checkbox"])')].map((f) => f.value).filter(Boolean);
+    const fields = [...document.querySelectorAll<HTMLInputElement>('main input:not([type="checkbox"])')].map((f) => f.value).filter(Boolean);
     const options = [...document.querySelectorAll("main select option")].map((o) => o.textContent ?? "");
     const readable = [...texts, ...fields, ...options];
     const noDates = (s: string) => s.replace(/\d{2}-[A-Z][a-z]{2}-\d{4}/g, "");
@@ -219,7 +219,7 @@ test.describe("Final Inputs at 1440 px", () => {
   /** The rows of field tops within a group. */
   const rowsOf = (page: Page, step: number) =>
     page.getByTestId(`group-${step}`).evaluate((card) => {
-      const tops = [...card.querySelectorAll<HTMLElement>('input:not([type="date"]):not([type="checkbox"]), select')].filter((e) => !e.closest('[role="table"]')).map((e) => Math.round(e.getBoundingClientRect().top));
+      const tops = [...card.querySelectorAll<HTMLElement>('input:not([type="checkbox"]), select')].filter((e) => !e.closest('[role="table"]')).map((e) => Math.round(e.getBoundingClientRect().top));
       return { rows: new Set(tops).size, fields: tops.length };
     });
 
@@ -290,20 +290,22 @@ test.describe("Final Inputs at 1440 px", () => {
     await dialog.close();
     await expect(field).toHaveValue("26-Oct-2026");
 
-    // The calendar: a real button in the tab order, and the native control behind it only ever holds the picked date.
+    // The calendar: a real button in the tab order that opens the desk's own calendar on the field's month, no native control.
     const open = page.getByRole("button", { name: "Open Calendar For Valuation Date" });
     await expect(open).toBeVisible();
     await page.keyboard.press("Escape");
     await open.focus();
     expect(await open.evaluate((b) => getComputedStyle(b).outlineStyle)).not.toBe("none");
-    const picker = page.getByTestId("group-1").locator('input[type="date"]');
-    await expect(picker).toHaveValue("2026-10-26");
-    await expect(picker).toHaveAttribute("tabindex", "-1");
-    await picker.evaluate((el: HTMLInputElement) => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(el, "2026-10-20");
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-    });
+    await expect(page.locator('input[type="date"]')).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    const calendar = page.getByRole("dialog", { name: "Choose Valuation Date" });
+    await expect(calendar.getByRole("grid")).toHaveAccessibleName("October 2026");
+    await expect(calendar.getByRole("gridcell", { selected: true })).toHaveAccessibleName("Monday 26-Oct-2026");
+    await expect(calendar.getByRole("gridcell", { selected: true })).toBeFocused();
+    await calendar.getByRole("gridcell", { name: "Tuesday 20-Oct-2026" }).click();
+    await expect(calendar).toHaveCount(0);
     await expect(field).toHaveValue("20-Oct-2026");
+    await expect(open).toBeFocused();
   });
 
   test("strikes and spreads: full-width tables, one toggle per choice, the Calculated chip once in the Participation Rate heading", async ({ page, inputs }) => {
