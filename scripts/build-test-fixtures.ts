@@ -13,7 +13,7 @@ import { MOCK_NOW_ISO, MOCK_SPOTS } from "../lib/test/mocks/yahoo";
 async function main() {
   process.env.TEST_MODE = "mock";
   process.env.TEST_NOW = MOCK_NOW_ISO;
-  const { fetchDailyVolatility } = await import("../lib/market-data");
+  const { fetchDailyVolatility, fetchIndexAtDate } = await import("../lib/market-data");
   const dir = path.join(process.cwd(), "tests", "fixtures");
   fs.mkdirSync(dir, { recursive: true });
   const write = (name: string, data: unknown) => {
@@ -22,11 +22,14 @@ async function main() {
   };
 
   const market = seedMarketData();
+  // A month's Reference Prices are the closes on or before its 1st, as the app presents every surface.
+  const anchors = await fetchIndexAtDate("2026-10-01");
   write("surface.json", {
     ...market.surface,
     monthKey: "2026-10",
     label: "October 2026 Volatility Surface",
-    referenceSensexPrice: MOCK_SPOTS["^BSESN"],
+    referenceUnderlyingPrice: anchors.niftyLevel,
+    referenceSensexPrice: anchors.sensexLevel,
   });
   write("pricing-params.json", { ...market.params, monthKey: "2026-10" });
 

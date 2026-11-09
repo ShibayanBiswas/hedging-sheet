@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { seedMarketData } from "@/lib/engine/defaults";
 import { computeHedgingSheet } from "@/lib/engine/hedging-sheet";
-import { forwardMarket } from "@/lib/engine/vol-surface";
-import type { HedgeInputs } from "@/lib/engine/types";
+import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
+import type { HedgeInputs, MarketData } from "@/lib/engine/types";
 
 import workbookFill from "../fixtures/blank-workbook-fill.json";
 import { blankFillInputs, fixtureMarket, priceLikeTheApp } from "../helpers/mock-market";
@@ -54,12 +55,19 @@ describe("G0 through Blank Inputs: the workbook's own values typed field by fiel
   });
 
   it("price as Run prices them only with the valuation month's forward sell rate and the dividends after the valuation date", () => {
-    // Run reads the 4.45% August row, not H69's 5.50%, and drops the dividends dated before 04-Aug-2026. Pinning H69 and keeping
-    // every dividend on the same path gives G0 back, so those two documented rules are the whole gap.
+    // Run reads the 4.45% August row, not H69's 5.50%, and drops the dividends dated before 04-Aug-2026. It also anchors the
+    // month on Yahoo's closes on or before the 1st rather than the workbook's MarketData prices. With the workbook's anchors
+    // put back, pinning H69 and keeping every dividend gives G0 back, so those documented rules are the whole gap.
     const app = priceLikeTheApp(typed);
     expect(app.pricer.legs[0]!.forwardGrowth).toBeCloseTo(0.0445, 12);
-    const pinned = computeHedgingSheet(typed, forwardMarket(fixtureMarket(), typed.valuationDate), G0_OPTIONS);
-    const full = computeHedgingSheet(typed, fixtureMarket(), G0_OPTIONS);
+    const workbook = seedMarketData().surface;
+    expect(fixtureMarket().surface.referenceSensexPrice).not.toBe(workbook.referenceSensexPrice);
+    const anchoredLikeTheWorkbook = (): MarketData => {
+      const m = fixtureMarket();
+      return { ...m, surface: normalizeVolSurface({ ...m.surface, referenceUnderlyingPrice: workbook.referenceUnderlyingPrice, referenceSensexPrice: workbook.referenceSensexPrice }) };
+    };
+    const pinned = computeHedgingSheet(typed, forwardMarket(anchoredLikeTheWorkbook(), typed.valuationDate), G0_OPTIONS);
+    const full = computeHedgingSheet(typed, anchoredLikeTheWorkbook(), G0_OPTIONS);
     if (!pinned.ok || !full.ok) throw new Error("did not price");
     const g = run(g0, undefined, G0_OPTIONS);
     expect(full.summary.actualInbuilt).toBeCloseTo(g.summary.actualInbuilt, 9);
