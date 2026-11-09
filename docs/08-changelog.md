@@ -1,5 +1,12 @@
 # 08 · Changelog
 
+## Inputs: A Late Close Never Overwrites A Typed Value
+
+| Area | Change |
+|---|---|
+| Late Fills | The close and the volatility history fill only what nobody typed while they were on their way: a Valuation Date, Spot or volatility typed before a slow answer lands stays, and one nobody typed still fills. In `next dev` the doubled mount request used to reset the Valuation Date mid-typing, and one slow answer could do the same on the built app |
+| Tests | `e2e/late-fill.spec.ts` holds the close and the history back at the test server and types before they land |
+
 ## Market Data: Reference Prices From The 1st, No Coverage Popup, The Forward Sell Rate In The Docs
 
 | Area | Change |

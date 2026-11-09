@@ -70,6 +70,9 @@ const DeskContext = createContext<DeskContextValue | null>(null);
 
 const neverChanges = () => () => undefined;
 
+/** Equal, with blank numbers equal to each other. */
+const same = (a: unknown, b: unknown) => a === b || (typeof a === "number" && typeof b === "number" && Number.isNaN(a) && Number.isNaN(b));
+
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 /** Each progress step shows at least this long, so the steps can be read. */
 const STEP_MS = 120;
@@ -151,8 +154,12 @@ export function DeskProvider({ today, children }: {
     return level != null && level > 0 ? level : null;
   };
 
-  /** State is only set after the fetch settles, so this is safe to start from an effect. Blank mode never fills from it. */
+  /**
+   * State is only set after the fetch settles, so this is safe to start from an effect. Blank mode never fills from it, and a
+   * late answer fills only what nobody changed while it was on its way: a Spot or Valuation Date typed meanwhile stays.
+   */
   const loadLevels = useCallback(async (): Promise<MarketLevels | null> => {
+    const before = inputsRef.current;
     try {
       const res = await fetch("/api/market/levels", { cache: "no-store" });
       const data = (await res.json()) as MarketLevels;
@@ -160,11 +167,13 @@ export function DeskProvider({ today, children }: {
       setLevels(data);
       if (modeRef.current === "default") {
         setInputsState((prev) => {
-          const spot = spotFor(prev.underlying, data);
-          if (spot == null || !prev.underlying) return prev;
-          const valuationDate = data.valuationDate ?? prev.valuationDate;
+          const close = spotFor(prev.underlying, data);
+          if (close == null || !prev.underlying) return prev;
+          const spot = same(prev.spot, before.spot) ? close : prev.spot;
+          const dateTyped = prev.valuationDate !== before.valuationDate;
+          const valuationDate = dateTyped ? prev.valuationDate : (data.valuationDate ?? prev.valuationDate);
           // Untouched default expiries move with the close's date; typed ones stay.
-          const untouched = JSON.stringify(prev.expiryDates) === JSON.stringify(defaultExpiryDates(prev.valuationDate, prev.underlying));
+          const untouched = !dateTyped && JSON.stringify(prev.expiryDates) === JSON.stringify(defaultExpiryDates(prev.valuationDate, prev.underlying));
           return deriveInputs(prev, { ...prev, spot, valuationDate, expiryDates: untouched ? defaultExpiryDates(valuationDate, prev.underlying) : prev.expiryDates });
         });
       }
@@ -227,12 +236,14 @@ export function DeskProvider({ today, children }: {
         return null;
       }
       const w = override?.windowDays ?? inputsRef.current.historyWindowDays;
+      const before = inputsRef.current.dailyVol;
       setDailyVolStatus((s) => ({ ...s, loading: true, error: null }));
       const vol = await fetchDailyVol(u, w);
-      if (vol != null) setInputs({ dailyVol: vol, dailyVolSource: "calculated", historyWindowDays: w });
+      // A volatility typed while the history was on its way stays.
+      if (vol != null) setInputsState((prev) => (same(prev.dailyVol, before) ? deriveInputs(prev, { ...prev, dailyVol: vol, dailyVolSource: "calculated", historyWindowDays: w }) : prev));
       return vol;
     },
-    [alert, fetchDailyVol, setInputs],
+    [alert, fetchDailyVol],
   );
 
   const loadDataset = useCallback(async (): Promise<MarketData | null> => {
