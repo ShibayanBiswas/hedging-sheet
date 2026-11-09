@@ -1446,7 +1446,7 @@ main:has(.inputs-page),
 .hs-calendar-grid,
 .hs-calendar-row {
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
 }
 
 .hs-calendar-row {
