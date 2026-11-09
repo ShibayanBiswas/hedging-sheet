@@ -38,6 +38,8 @@ backups/
 
 # misc
 .DS_Store
+# Claude Code agent worktrees: a whole second checkout of this repo
+.claude/worktrees/
 *.log
 
 .vercel

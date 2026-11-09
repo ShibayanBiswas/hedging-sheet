@@ -6,7 +6,7 @@ mode="${1:-update}"
 mkdir -p /work
 cd /src
 tar --exclude=./node_modules --exclude=./.next --exclude=./.git --exclude=./test-results --exclude=./playwright-report \
-  --exclude=./reports --exclude=./.scratch --exclude='./.env*' --exclude=./backups -cf - . | (cd /work && tar xf -)
+  --exclude=./reports --exclude=./.scratch --exclude=./.claude --exclude='./.env*' --exclude=./backups -cf - . | (cd /work && tar xf -)
 cd /work
 npm ci --no-audit --no-fund
 NEXT_PUBLIC_E2E=1 npm run build
