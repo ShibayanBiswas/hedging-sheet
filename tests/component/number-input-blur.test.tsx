@@ -51,16 +51,34 @@ describe("NumberInput after leaving the field with bad text", () => {
     expect(input).not.toHaveAttribute("aria-invalid");
   });
 
-  it("a guarded field still reverts a value its rule refuses", () => {
+  it("a value its rule corrects stays out while typed, then becomes the corrected value on leaving, with no popup", () => {
     const onReject = vi.fn();
     const onChange = vi.fn();
-    const refused = { label: "Decay", message: "Too high." };
-    render(<NumberInput value={1.25} onChange={onChange} check={() => refused} onReject={onReject} ariaLabel="Decay" />);
+    const onCorrect = vi.fn();
+    const lowered = { value: 1.6, note: "Lowered To The Decay, 1.60" };
+    render(<NumberInput value={1.25} onChange={onChange} correct={(v) => (v > 1.6 ? lowered : null)} onCorrect={onCorrect} onReject={onReject} ariaLabel="Decay" />);
     const input = screen.getByLabelText("Decay") as HTMLInputElement;
-    typeThenLeave(input, "99");
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: "99" } });
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    act(() => input.blur());
     expect(onChange).not.toHaveBeenCalled();
-    expect(onReject).toHaveBeenCalledWith(refused);
-    expect(input.value).toBe("1.25");
+    expect(onCorrect).toHaveBeenCalledWith(lowered);
+    expect(onReject).not.toHaveBeenCalled();
+  });
+
+  it("a whole number field with a rule takes a decimal, for the rule to round it", () => {
+    const onCorrect = vi.fn();
+    render(<NumberInput kind="integer" value={1940} onChange={() => undefined} correct={(v) => (Number.isInteger(v) ? null : { value: Math.round(v), note: "Rounded" })} onCorrect={onCorrect} ariaLabel="Tenor" />);
+    typeThenLeave(screen.getByLabelText("Tenor"), "1940.4");
+    expect(onCorrect).toHaveBeenCalledWith({ value: 1940, note: "Rounded" });
+  });
+
+  it("any keystroke tells the field it is being edited, so its note can go", () => {
+    const onEdit = vi.fn();
+    render(<NumberInput value={1.25} onChange={() => undefined} onEdit={onEdit} ariaLabel="Decay" />);
+    fireEvent.change(screen.getByLabelText("Decay"), { target: { value: "1.3" } });
+    expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
   it("an external invalid mark stays after the blur", () => {

@@ -6,20 +6,22 @@ import { CalendarClock, Check, ClipboardPaste, CloudDownload, Coins, Gauge, Laye
 
 import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
 import { BookField, CustomBookActions, CustomBookBody, CustomBookRule } from "@/components/inputs/custom-book";
-import { ChoiceSelect, CountPicker, DateInput, FieldRow, NumberInput, Segmented, Toggle, type FieldCheck } from "@/components/ui/fields";
+import { isStrikeNote, noteTestId, useCorrect } from "@/components/inputs/field-corrections";
+import { ChoiceSelect, CountPicker, DateInput, FieldNote, FieldRow, NumberInput, Segmented, Toggle } from "@/components/ui/fields";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
 import { autoHedgeStrike } from "@/lib/engine/defaults";
 import { formatDate, isValidYmd } from "@/lib/engine/dates";
 import { annualVolFromDaily, dailyVolFromAnnual } from "@/lib/engine/volatility";
-import { continuationMonths, EXPIRY_WEEKDAY, expiriesEvery, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, snapExpiry, WEEKDAY_NAMES } from "@/lib/engine/schedule";
+import { continuationMonths, EXPIRY_WEEKDAY, expiriesEvery, MAX_EXPIRIES, medianExpiryIndex, MIN_EXPIRIES, quarterlyExpiries, resizeList, WEEKDAY_NAMES } from "@/lib/engine/schedule";
 import { deriveTerms, derivedSides, MAX_SPREADS, MIN_SPREADS, percentFromLevel, rupeeStrike, startLevel } from "@/lib/engine/structure";
 import type { OptionType, StrikeSide, Underlying } from "@/lib/engine/types";
 import { parseExpiryPaste, parseStrikePaste, type PastedStrike } from "@/lib/inputs/bulk";
 import { underlyingName, type DeskInputs } from "@/lib/inputs/draft";
 import { setSpreadCount, tableUnits } from "@/lib/inputs/strikes";
 import { HEDGE_RULE_TEXT, LEVEL_FIELD, QUOTE_UNDERLYING, UNDERLYINGS } from "@/lib/underlyings";
-import { allowedRange, checkFieldEdit, INPUT_SECTIONS, numberFieldRules, unlockedSteps } from "@/lib/validation/inputRules";
+import { correctExpiryDate, correctNumber, correctSide, correctValuationDate } from "@/lib/validation/corrections";
+import { INPUT_SECTIONS, unlockedSteps } from "@/lib/validation/inputRules";
 import { fmtIstTime, fmtNumber, fmtPercent } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
@@ -29,28 +31,6 @@ import { cn } from "@/lib/cn";
 function useFieldError() {
   const { visibleErrors } = useDesk();
   return (field: string) => visibleErrors.find((e) => e.field === field)?.message ?? null;
-}
-
-/** The rule check behind each typed number: a breaking value never reaches the inputs, and leaving the field reverts it with a popup. */
-function useGuard() {
-  const { inputs } = useDesk();
-  const { alert } = useDeskDialog();
-  return useCallback(
-    (field: string) => ({
-      check: (v: number) => checkFieldEdit(inputs, field, v),
-      onReject: (r: FieldCheck) => {
-        const rule = numberFieldRules(inputs).find((x) => x.field === field);
-        const range = r.range ?? (rule ? allowedRange(rule) : undefined);
-        alert(r.message, {
-          variant: "error",
-          title: `${r.label || rule?.label || "Value"} Reverted`,
-          fix: range ? `Allowed: ${range}. The field is back to its last valid value.` : "The field is back to its last valid value.",
-          onClose: () => focusField(field),
-        });
-      },
-    }),
-    [alert, inputs],
-  );
 }
 
 /**
@@ -140,11 +120,11 @@ function FetchButton({ onClick, loading, label, busyLabel, doneLabel, icon: Icon
   );
 }
 
-/** A number field bound to one input key, guarded by its rule. */
+/** A number field bound to one input key, corrected by its rules. */
 function KeyNumber({ k, kind, digits, suffix, eg }: { k: keyof DeskInputs; kind?: "number" | "percent" | "integer"; digits?: number; suffix?: string; eg: string }) {
   const { inputs, setInputs } = useDesk();
   const errorFor = useFieldError();
-  const guard = useGuard();
+  const fix = useCorrect();
   return (
     <NumberInput
       kind={kind}
@@ -156,15 +136,16 @@ function KeyNumber({ k, kind, digits, suffix, eg }: { k: keyof DeskInputs; kind?
       testId={`input-${String(k)}`}
       invalid={Boolean(errorFor(String(k)))}
       placeholder={`Eg ${eg}`}
-      {...guard(String(k))}
+      {...fix(String(k), (v) => setInputs({ [k]: v } as Partial<DeskInputs>))}
     />
   );
 }
 
 function Num({ k, label, hint, ...rest }: { k: keyof DeskInputs; label: string; hint?: string; kind?: "number" | "percent" | "integer"; digits?: number; suffix?: string; eg: string }) {
   const errorFor = useFieldError();
+  const { notes } = useDesk();
   return (
-    <FieldRow label={label} error={errorFor(String(k))} hint={hint}>
+    <FieldRow label={label} error={errorFor(String(k))} hint={hint} note={notes[String(k)]} noteTestId={noteTestId(String(k))}>
       <KeyNumber k={k} {...rest} />
     </FieldRow>
   );
@@ -179,10 +160,10 @@ function withStrike(prev: DeskInputs, index: number, pct: number): Partial<DeskI
 // ------------------------------------------------------------------ 1 Underlying And Market
 
 function UnderlyingGroup({ open }: { open: number }) {
-  const { mode, inputs, setInputs, setUnderlying, levelsLoading, refreshLevels, fetchLiveSpot, spotFetchedAt } = useDesk();
+  const { mode, inputs, setInputs, setUnderlying, levelsLoading, refreshLevels, fetchLiveSpot, spotFetchedAt, notes, setNote, correctionContext } = useDesk();
   const { alert } = useDeskDialog();
   const errorFor = useFieldError();
-  const guard = useGuard();
+  const fix = useCorrect();
   const u = underlyingName(inputs);
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
   const fetched = spotFetchedAt ? fmtIstTime(spotFetchedAt) : "-";
@@ -192,17 +173,21 @@ function UnderlyingGroup({ open }: { open: number }) {
         <FieldRow label="Underlying" error={errorFor("underlying")}>
           <ChoiceSelect<Underlying> value={inputs.underlying} testId="input-underlying" invalid={Boolean(errorFor("underlying"))} onChange={setUnderlying} options={UNDERLYINGS.map((x) => ({ value: x, label: x }))} />
         </FieldRow>
-        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} tip={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
+        <FieldRow label="Valuation Date" error={errorFor("valuationDate")} note={notes.valuationDate} noteTestId={noteTestId("valuationDate")} tip={mode === "default" ? "Today In India, Or The Last Close" : "Today Or An Earlier Date"}>
           <DateInput
             label="Valuation Date"
             testId="input-valuationDate"
             invalid={Boolean(errorFor("valuationDate"))}
             value={inputs.valuationDate}
-            onCommit={(valuationDate) => setInputs({ valuationDate })}
+            onCommit={(typed) => {
+              const c = typed ? correctValuationDate(inputs, typed, correctionContext) : null;
+              setNote("valuationDate", c?.note ?? null);
+              setInputs({ valuationDate: c?.value ?? typed });
+            }}
             onUnreadable={() => alert("Enter a date such as 31-Oct-2026.", { variant: "error", title: "Valuation Date Reverted", fix: "The field is back to its last valid value.", onClose: () => focusField("valuationDate") })}
           />
         </FieldRow>
-        <FieldRow label={`${u} Spot`} error={errorFor("spot")}>
+        <FieldRow label={`${u} Spot`} error={errorFor("spot")} note={notes.spot} noteTestId={noteTestId("spot")}>
           <div className="flex items-center gap-1">
             <div className="min-w-0 flex-1">
               <NumberInput
@@ -213,7 +198,7 @@ function UnderlyingGroup({ open }: { open: number }) {
                 testId="input-spot"
                 invalid={Boolean(errorFor("spot"))}
                 placeholder={mode === "default" && levelsLoading ? "Fetching The Close" : "Eg 73,500"}
-                {...guard("spot")}
+                {...fix("spot", (v) => setInputs({ spot: v ?? NaN }))}
               />
             </div>
             {mode === "blank" ? (
@@ -236,7 +221,7 @@ function UnderlyingGroup({ open }: { open: number }) {
             )}
           </div>
         </FieldRow>
-        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} tip={inputs.underlying ? HEDGE_RULE_TEXT[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
+        <FieldRow label="Hedge Strike" error={errorFor("hedgeStrike")} note={notes.hedgeStrike} noteTestId={noteTestId("hedgeStrike")} tip={inputs.underlying ? HEDGE_RULE_TEXT[inputs.underlying] : "Auto From Spot Once The Underlying Is Picked"}>
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
               <NumberInput
@@ -247,7 +232,7 @@ function UnderlyingGroup({ open }: { open: number }) {
                 testId="input-hedgeStrike"
                 invalid={Boolean(errorFor("hedgeStrike"))}
                 placeholder="Eg 77,300"
-                {...guard("hedgeStrike")}
+                {...fix("hedgeStrike", (v) => setInputs({ hedgeStrike: v ?? NaN, hedgeStrikeAuto: false }))}
               />
             </div>
             <Toggle
@@ -275,28 +260,20 @@ function UnderlyingGroup({ open }: { open: number }) {
 
 // ------------------------------------------------------------------ 2 Observation Expiries
 
-/** One expiry date. It commits on leaving the field: the date moves to its month's last expiry weekday, then the rules run. */
-function ExpiryField({ i, hedge, onSnap }: { i: number; hedge: boolean; onSnap: (i: number, note: string | null) => void }) {
-  const { inputs, setInputs } = useDesk();
+/**
+ * One expiry date. It commits on leaving the field: the date moves to its month's last expiry weekday, then into its place
+ * after the one before and before the one after, and the note says where it went. Text that is no date reverts with a popup.
+ */
+function ExpiryField({ i, hedge }: { i: number; hedge: boolean }) {
+  const { inputs, setInputs, setNote } = useDesk();
   const { alert } = useDeskDialog();
   const errorFor = useFieldError();
   const revert = (message: string, label: string) =>
     alert(message, { variant: "error", title: `${label} Reverted`, fix: "The field is back to its last valid value.", onClose: () => focusField(`expiryDates.${i}`) });
   const commit = (typed: string) => {
-    if (!typed) {
-      onSnap(i, null);
-      setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: "" }) }));
-      return;
-    }
-    const u = inputs.underlying;
-    const snapped = u ? snapExpiry(typed, u) : typed;
-    const check = checkFieldEdit(inputs, `expiryDates.${i}`, snapped);
-    if (check) {
-      revert(check.message, check.label);
-      return;
-    }
-    onSnap(i, u && snapped !== typed ? `Moved To The Last ${WEEKDAY_NAMES[EXPIRY_WEEKDAY[u]]}, ${formatDate(snapped)}` : null);
-    setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: snapped }) }));
+    const c = typed ? correctExpiryDate(inputs, i, typed) : { value: "", note: "" };
+    setNote(`expiryDates.${i}`, c.note || null);
+    setInputs((prev) => ({ expiryDates: Object.assign([...prev.expiryDates], { [i]: c.value }) }));
   };
   return (
     <DateInput
@@ -312,16 +289,17 @@ function ExpiryField({ i, hedge, onSnap }: { i: number; hedge: boolean; onSnap: 
 }
 
 function ExpiriesGroup({ open }: { open: number }) {
-  const { inputs, setInputs } = useDesk();
+  const { inputs, setInputs, notes, clearNotes } = useDesk();
   const errorFor = useFieldError();
-  const [notes, setNotes] = useState<Record<number, string | null>>({});
   const [bulk, setBulk] = useState(false);
+  const clearExpiryNotes = (from = 0) => clearNotes((f) => f.startsWith("expiryDates.") && Number(f.split(".")[1]) >= from);
   const count = Number.isInteger(inputs.expiryCount) ? inputs.expiryCount : 0;
   const hedgeIndex = inputs.hedgeExpiryIndex ?? medianExpiryIndex(count);
   const u = inputs.underlying;
   const first = inputs.expiryDates[0];
 
-  const setCount = (next: number) =>
+  const setCount = (next: number) => {
+    clearExpiryNotes(next);
     setInputs((prev) => {
       const dates = resizeList(prev.expiryDates, next, "");
       // New rows continue from the last filled date: monthly when the two before are a month apart, otherwise quarterly.
@@ -331,6 +309,7 @@ function ExpiriesGroup({ open }: { open: number }) {
       }
       return { expiryCount: next, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < next ? prev.hedgeExpiryIndex : null };
     });
+  };
 
   const parse = useCallback((text: string) => parseExpiryPaste(text, { valuationDate: inputs.valuationDate, underlying: u || QUOTE_UNDERLYING }), [inputs.valuationDate, u]);
 
@@ -352,7 +331,11 @@ function ExpiriesGroup({ open }: { open: number }) {
             data-testid="expiries-monthly"
             disabled={!u || !count || !isValidYmd(first)}
             title="Every Expiry One Month After The One Before"
-            onClick={() => u && first && setInputs({ expiryDates: expiriesEvery(1, first, count, u) })}
+            onClick={() => {
+              if (!u || !first) return;
+              clearExpiryNotes();
+              setInputs({ expiryDates: expiriesEvery(1, first, count, u) });
+            }}
           >
             <span className="relative z-10">Monthly From First Expiry</span>
           </button>
@@ -362,7 +345,11 @@ function ExpiriesGroup({ open }: { open: number }) {
             data-testid="expiries-quarterly"
             disabled={!u || !count || !isValidYmd(first)}
             title="Every Expiry Three Months After The One Before"
-            onClick={() => u && first && setInputs({ expiryDates: quarterlyExpiries(first, count, u) })}
+            onClick={() => {
+              if (!u || !first) return;
+              clearExpiryNotes();
+              setInputs({ expiryDates: quarterlyExpiries(first, count, u) });
+            }}
           >
             <span className="relative z-10">Quarterly From First Expiry</span>
           </button>
@@ -410,14 +397,14 @@ function ExpiriesGroup({ open }: { open: number }) {
                 </span>
               ) : null}
               <FieldRow label={`Expiry ${i + 1}`} error={errorFor(`expiryDates.${i}`)}>
-                <ExpiryField i={i} hedge={i === hedgeIndex} onSnap={(j, note) => setNotes((n) => ({ ...n, [j]: note }))} />
+                <ExpiryField i={i} hedge={i === hedgeIndex} />
               </FieldRow>
               <span className="hs-chip expiry-role" data-testid={`expiry-role-${i}`} title={i === hedgeIndex ? "Observation And Hedge Option Expiry" : undefined}>
                 Observation
               </span>
-              {notes[i] ? (
-                <span className="hint font-ui" data-testid={`expiry-note-${i}`}>
-                  {notes[i]}
+              {notes[`expiryDates.${i}`] ? (
+                <span className="hint font-ui" data-testid={`expiry-note-${i}`} aria-live="polite">
+                  {notes[`expiryDates.${i}`]}
                 </span>
               ) : null}
             </div>
@@ -438,7 +425,7 @@ function ExpiriesGroup({ open }: { open: number }) {
         parse={parse}
         render={(d) => [formatDate(d)]}
         onApply={(dates) => {
-          setNotes({});
+          clearExpiryNotes();
           setInputs((prev) => ({ expiryCount: dates.length, expiryDates: dates, hedgeExpiryIndex: prev.hedgeExpiryIndex != null && prev.hedgeExpiryIndex < dates.length ? prev.hedgeExpiryIndex : null }));
         }}
         onClose={() => setBulk(false)}
@@ -466,9 +453,9 @@ function setAt<T>(list: T[], i: number, v: T): T[] {
 }
 
 function StrikesGroup({ open }: { open: number }) {
-  const { mode, inputs, setInputs } = useDesk();
+  const { mode, inputs, setInputs, notes, setNote, clearNotes, correctionContext } = useDesk();
   const errorFor = useFieldError();
-  const guard = useGuard();
+  const fix = useCorrect();
   const reduce = useReducedMotion();
   const [bulk, setBulk] = useState(false);
   const k = inputs.strikePercents;
@@ -481,7 +468,8 @@ function StrikesGroup({ open }: { open: number }) {
   // A Custom Option Book replaces the strikes and spreads tables with its legs.
   const custom = inputs.bookMode === "custom";
 
-  const applyPaste = (rows: PastedStrike[]) =>
+  const applyPaste = (rows: PastedStrike[]) => {
+    clearNotes(isStrikeNote);
     setInputs((prev) => {
       const count = rows.length - 4;
       const parts: Array<number | null> = prev.participations.slice(0, count - 1).map((p) => p ?? (mode === "blank" ? NaN : 1));
@@ -493,6 +481,7 @@ function StrikesGroup({ open }: { open: number }) {
       }
       return next;
     });
+  };
 
   return (
     <Group
@@ -522,7 +511,7 @@ function StrikesGroup({ open }: { open: number }) {
       }
     >
       {custom ? (
-        <CustomBookBody errorFor={errorFor} guard={guard} />
+        <CustomBookBody errorFor={errorFor} />
       ) : (
       <>
       <div className="inputs-grid">
@@ -540,7 +529,10 @@ function StrikesGroup({ open }: { open: number }) {
             max={MAX_SPREADS}
             testId="input-spreadCount"
             invalid={Boolean(errorFor("spreadCount"))}
-            onChange={(c) => setInputs((prev) => setSpreadCount(prev, c, mode))}
+            onChange={(c) => {
+              clearNotes(isStrikeNote);
+              setInputs((prev) => setSpreadCount(prev, c, mode));
+            }}
           />
         </FieldRow>
       </div>
@@ -573,6 +565,7 @@ function StrikesGroup({ open }: { open: number }) {
             {k.map((pct, i) => {
               const error = errorFor(`strikePercents.${i}`) ?? errorFor(`strikeOptionTypes.${i}`) ?? errorFor(`strikeSides.${i}`);
               const level = Number.isFinite(start) && Number.isFinite(pct) ? rupeeStrike(start, pct) : NaN;
+              const toStrike = (v: number | null) => setInputs((prev) => withStrike(prev, i, v ?? NaN));
               return (
                 <m.div
                   key={i}
@@ -598,7 +591,7 @@ function StrikesGroup({ open }: { open: number }) {
                       placeholder="-"
                       onChange={(v) => setInputs((prev) => withStrike(prev, i, v))}
                       onBlankChange={() => setInputs((prev) => withStrike(prev, i, NaN))}
-                      {...guard(`strikePercents.${i}`)}
+                      {...fix(`strikePercents.${i}`, toStrike)}
                     />
                   </span>
                   <span role="cell">
@@ -610,6 +603,8 @@ function StrikesGroup({ open }: { open: number }) {
                       testId={`input-strikeLevel-${i}`}
                       placeholder="-"
                       onChange={(v) => setInputs((prev) => withStrike(prev, i, percentFromLevel(v, start)))}
+                      {...fix(`strikePercents.${i}`, toStrike)}
+                      correct={(points) => correctNumber(inputs, `strikePercents.${i}`, percentFromLevel(points, start), correctionContext)}
                     />
                   </span>
                   <span role="cell">
@@ -629,12 +624,18 @@ function StrikesGroup({ open }: { open: number }) {
                       options={SIDES}
                       testId={`input-strikeSides-${i}`}
                       invalid={Boolean(errorFor(`strikeSides.${i}`))}
-                      onChange={(v) => setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, v) }))}
+                      onChange={(v) => {
+                        const c = correctSide(inputs, i, v);
+                        setNote(`strikeSides.${i}`, c?.note ?? null);
+                        setInputs((prev) => ({ strikeSides: setAt(prev.strikeSides, i, c?.value ?? v) }));
+                      }}
                     />
                   </span>
                   <output className="inputs-readonly inputs-num" role="cell" aria-label={`Strike ${i + 1} Units`} data-testid={`strike-units-${i}`}>
                     {Number.isFinite(units[i]) ? fmtNumber(units[i]!, 3) : "-"}
                   </output>
+                  <FieldNote note={notes[`strikePercents.${i}`]} testId={noteTestId(`strikePercents.${i}`)} className="strike-row-note" />
+                  <FieldNote note={notes[`strikeSides.${i}`]} testId={noteTestId(`strikeSides.${i}`)} className="strike-row-note" />
                   {error ? (
                     <p className="hs-error strike-row-error" role="alert" data-testid={`strike-error-${i}`}>
                       {error}
@@ -690,14 +691,24 @@ function StrikesGroup({ open }: { open: number }) {
                       testId={`input-participations-${j}`}
                       onChange={(v) => setInputs((prev) => ({ participations: setAt(prev.participations, j, v) }))}
                       onBlankChange={() => setInputs((prev) => ({ participations: setAt(prev.participations, j, isTop ? null : NaN) }))}
-                      {...guard(`participations.${j}`)}
+                      {...fix(`participations.${j}`, (v) => setInputs((prev) => ({ participations: setAt(prev.participations, j, v) })))}
                     />
                   </span>
-                  {isTop && !derived ? <ResetIcon label="Reset To Calculated" testId={`spread-${j}-reset`} onClick={() => setInputs((prev) => ({ participations: setAt(prev.participations, j, null) }))} /> : null}
+                  {isTop && !derived ? (
+                    <ResetIcon
+                      label="Reset To Calculated"
+                      testId={`spread-${j}-reset`}
+                      onClick={() => {
+                        setNote(`participations.${j}`, null);
+                        setInputs((prev) => ({ participations: setAt(prev.participations, j, null) }));
+                      }}
+                    />
+                  ) : null}
                 </span>
                 <output className="inputs-readonly inputs-num" role="cell">
                   {Number.isFinite(payouts[j]) ? fmtPercent(payouts[j]!) : "-"}
                 </output>
+                <FieldNote note={notes[`participations.${j}`]} testId={noteTestId(`participations.${j}`)} className="strike-row-note" />
                 {error ? (
                   <p className="hs-error strike-row-error" role="alert" data-testid={participationError ? `participation-error-${j}` : `spread-error-${j}`}>
                     {error}
@@ -749,47 +760,51 @@ function RatesGroup({ open }: { open: number }) {
 // ------------------------------------------------------------------ 5 Product Terms
 
 function TermsGroup({ open }: { open: number }) {
-  const { inputs, setInputs } = useDesk();
+  const { inputs, setInputs, notes } = useDesk();
   const errorFor = useFieldError();
+  const fix = useCorrect();
   const terms = deriveTerms(inputs);
   const n = terms.nSpreads;
   const u = underlyingName(inputs);
   const has = inputs.strikePercents.length > 0;
   // A Custom Option Book has no target, coupon, protection, decay or floor: those fields are left out, and the note says so.
   const custom = inputs.bookMode === "custom";
+  /** Protection sets the protection strike and keeps the outflow step below it. */
+  const setProtection = (v: number) =>
+    setInputs((prev) => {
+      const gap = prev.strikePercents[n + 1]! - prev.strikePercents[n + 2]!;
+      const width = Number.isFinite(gap) && gap > 0 ? gap : 1;
+      const next = [...prev.strikePercents];
+      next[n + 1] = 100 * (1 - v);
+      next[n + 2] = next[n + 1]! - width;
+      return { strikePercents: next };
+    });
   return (
     <Group step={5} icon={ScrollText} open={open}>
       <div className="inputs-grid">
         {custom ? null : (
         <>
-        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")}>
+        <FieldRow label={`Target ${u} Rise`} error={errorFor("strikePercents.0")} note={notes.target} noteTestId={noteTestId("target")}>
           <NumberInput
             kind="percent"
             value={has ? terms.target : NaN}
             disabled={!has}
             onChange={(v) => setInputs((prev) => withStrike(prev, 0, 100 * (1 + v)))}
             onBlankChange={() => setInputs((prev) => withStrike(prev, 0, NaN))}
+            {...fix("target", (v) => setInputs((prev) => withStrike(prev, 0, v == null ? NaN : 100 * (1 + v))))}
             suffix="%"
             testId="input-target"
             placeholder="Eg 37"
           />
         </FieldRow>
         <Num k="coupon" label="Coupon" kind="percent" suffix="%" eg="102.5" />
-        <FieldRow label="Protection" error={errorFor("protection")}>
+        <FieldRow label="Protection" error={errorFor("protection")} note={notes.protection} noteTestId={noteTestId("protection")}>
           <NumberInput
             kind="percent"
             value={has ? terms.protection : NaN}
             disabled={!has}
-            onChange={(v) =>
-              setInputs((prev) => {
-                const gap = prev.strikePercents[n + 1]! - prev.strikePercents[n + 2]!;
-                const width = Number.isFinite(gap) && gap > 0 ? gap : 1;
-                const next = [...prev.strikePercents];
-                next[n + 1] = 100 * (1 - v);
-                next[n + 2] = next[n + 1]! - width;
-                return { strikePercents: next };
-              })
-            }
+            onChange={setProtection}
+            {...fix("protection", (v) => v != null && setProtection(v))}
             suffix="%"
             testId="input-protection"
             invalid={Boolean(errorFor("protection"))}
@@ -797,13 +812,14 @@ function TermsGroup({ open }: { open: number }) {
           />
         </FieldRow>
         <Num k="decay" label="Decay" digits={2} eg="1.6" />
-        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")}>
+        <FieldRow label="Decay Floor Level" error={errorFor("floorLevel")} note={notes.floorLevel} noteTestId={noteTestId("floorLevel")}>
           <NumberInput
             kind="percent"
             value={has ? terms.floorLevel : NaN}
             disabled={!has}
             onChange={(v) => setInputs((prev) => withStrike(prev, n + 3, 100 * v))}
             onBlankChange={() => setInputs((prev) => withStrike(prev, n + 3, NaN))}
+            {...fix("floorLevel", (v) => setInputs((prev) => withStrike(prev, n + 3, v == null ? NaN : 100 * v)))}
             suffix="%"
             testId="input-floorLevel"
             invalid={Boolean(errorFor("floorLevel"))}
@@ -829,16 +845,16 @@ function TermsGroup({ open }: { open: number }) {
 // ------------------------------------------------------------------ 6 Volatility
 
 function VolatilityGroup({ open }: { open: number }) {
-  const { mode, inputs, setInputs, computeDailyVol, dailyVolStatus } = useDesk();
+  const { mode, inputs, setInputs, computeDailyVol, dailyVolStatus, notes } = useDesk();
   const errorFor = useFieldError();
-  const guard = useGuard();
+  const fix = useCorrect();
   const u = underlyingName(inputs);
   const edited = inputs.dailyVolSource !== "calculated";
   const shown = Number.isFinite(inputs.dailyVol);
   return (
     <Group step={6} icon={Gauge} open={open} status={shown ? <StatusTag edited={edited} testId="daily-vol-status" /> : null}>
       <div className="inputs-grid">
-        <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")}>
+        <FieldRow label={`${u} Daily Volatility`} error={errorFor("dailyVol")} note={notes.dailyVol} noteTestId={noteTestId("dailyVol")}>
           <NumberInput
             kind="percent"
             digits={3}
@@ -849,10 +865,10 @@ function VolatilityGroup({ open }: { open: number }) {
             testId="input-dailyVol"
             invalid={Boolean(errorFor("dailyVol"))}
             placeholder="Eg 0.88"
-            {...guard("dailyVol")}
+            {...fix("dailyVol", (v) => setInputs({ dailyVol: v ?? NaN, dailyVolSource: "overridden" }))}
           />
         </FieldRow>
-        <FieldRow label={`${u} Annual Volatility`}>
+        <FieldRow label={`${u} Annual Volatility`} note={notes.annualVol} noteTestId={noteTestId("annualVol")}>
           <NumberInput
             kind="percent"
             digits={3}
@@ -860,7 +876,7 @@ function VolatilityGroup({ open }: { open: number }) {
             onChange={(v) => setInputs({ dailyVol: dailyVolFromAnnual(v), dailyVolSource: "overridden" })}
             onBlankChange={() => setInputs({ dailyVol: NaN, dailyVolSource: "overridden" })}
             suffix="%"
-            {...guard("annualVol")}
+            {...fix("annualVol", (v) => setInputs({ dailyVol: v == null ? NaN : dailyVolFromAnnual(v), dailyVolSource: "overridden" }))}
             testId="input-annualVol"
             placeholder="Eg 16.9"
           />

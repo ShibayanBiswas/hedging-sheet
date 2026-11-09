@@ -11,7 +11,7 @@ Inputs are never stored. Results appear only after Run Simulation. Every number 
 | Default Values | Sensex, today's India date or the last close, the live Yahoo close, the 365 day calculated daily volatility and every desk term below. |
 | Blank Inputs | Every field empty: numbers blank, dates and choices unset. Steps unlock in order: Observation Expiries once Underlying and Valuation Date are in, Strikes And Spreads once every expiry is in, the rest once every strike is in (`unlockedSteps`). |
 
-Switching mode asks first, then clears the inputs and the last run. An edit that breaks a field's range is reverted with a popup naming the allowed range (`checkFieldEdit`).
+Switching mode asks first, then clears the inputs and the last run, and every correction note. A value that breaks a rule is corrected, not refused: see [Corrections](#corrections-what-a-bad-entry-becomes).
 
 ## 1 · Underlying And Market
 
@@ -87,6 +87,69 @@ Switching mode asks first, then clears the inputs and the last run. An edit that
 | Exchange Forward And Discount Rates | The exchange price of the hedge | 3.48% each | 0% to 100% | Day1 Vega Hedge I2 and I3 |
 | Stressed Forward And Discount Rates | The stressed price of the hedge | 3.48% each | 0% to 100% | Day1 Vega Hedge L2 and L3 |
 | Shock Sigmas, Shock Days, Volatility Multiplier | The stress move | 6, 2 and 1.25 | Sigmas 0 to 20, days 1 to 30, multiplier 0 to 10 | Day1 Vega Hedge stressed price |
+
+## Corrections: What A Bad Entry Becomes
+
+A value that breaks a rule is corrected when it is committed, on leaving the field or Enter, to the nearest valid value, or to its Default Values value where nothing is nearer. A note under the field says what it became, such as "Lowered To The Decay, 1.60", and stays until that field is edited again. Only the field being committed changes: a rule across fields corrects the one just typed, never another the desk typed. No popup opens and Run Simulation is never refused for a value it can correct. It works the same in Default Values and Blank Inputs and in both books. The rules live in `lib/validation/corrections.ts`.
+
+Run Simulation first corrects whatever is still broken across fields, such as a Buy Or Sell the payoff no longer gives once Product Terms are in, on the field each rule names (`correctForRun`), notes it, then runs. Blank Inputs stay blank: an empty field is never filled.
+
+Not corrected, and still refused:
+
+| Case | What happens |
+|---|---|
+| An empty required field in Blank Inputs | Run Simulation lists it in the Missing Or Invalid Inputs popup |
+| Text that is no number, such as "abc", "1e999" or "NaN" | The field goes back to its last value with a "… Reverted" popup |
+| Text that is no date, such as 30-Feb-2026 | The date goes back to its last value with a "… Reverted" popup |
+| Underlying, the Number Of Expiry Dates, Spreads or Legs, Option Type, a leg's Buy Or Sell | Picked from a list, so nothing can break; Run lists any left unpicked |
+
+### Every Number Against Its Own Range
+
+The ranges are the rules in each section above (`numberFieldRules`). In order:
+
+| Rule | Corrected to | Note |
+|---|---|---|
+| Below zero, on a field that only makes sense positive: Spot, Hedge Strike, Coupon, Decay, Tenor In Days, Notional In Crore, Daily and Annual Volatility, Shock Sigmas, Shock Days, Volatility Multiplier, a strike, a participation, a leg's Level % and Quantity | Its absolute value, a sign typo | Made Positive, 76,835.78 |
+| A decimal in a whole number field: Tenor In Days, Shock Days | Rounded to the nearest whole number | Rounded To A Whole Number, 1,940 |
+| A Hedge Strike off its 100 steps | The nearest multiple of 100 | Rounded To The Nearest 100, 77,400 |
+| Above the field's maximum | The maximum | Lowered To The Maximum, 100.000% |
+| Below 0% on a field where 0% is allowed: the rates, costs, margins, Start Level Uplift and Decay Reduction Below Floor | 0, its minimum | Raised To The Minimum, 0.000% |
+| Zero, or below the minimum after the steps above, on a positive-only field | The Default Values value: Coupon 102.500%, Decay 1.60, Tenor 1,940, Notional 100.00, Daily Volatility 0.900%, Shock Sigmas 6, Shock Days 2, Volatility Multiplier 1.25, a participation 1.00, a leg's Level 100.000% and Quantity 1.00 | Set To The Default, 102.500% |
+| A Spot of zero | The last close of the underlying, when it has arrived | Set To The Last Close, 76,835.78 |
+| A Hedge Strike of zero | The auto hedge strike from the Spot | Set To The Auto Hedge Strike, 77,300 |
+| A zero with nothing to fall back on, such as a Spot before any close | The field keeps what it had | Kept, It Must Be Above Zero, 76,835.78 |
+
+### Rules Across Fields
+
+| Field committed | Rule | Corrected to | Note |
+|---|---|---|---|
+| Valuation Date | Not after today | Today | Moved To Today, 28-Oct-2026 |
+| Valuation Date | Before Expiry 1 | The day before Expiry 1 | Moved Before Expiry 1, 27-Mar-2030 |
+| Expiry n | On its month's last expiry weekday, Thursday for Sensex and Tuesday for Nifty | That day | Moved To The Last Thursday, 25-Apr-2030 |
+| Expiry n | After the Valuation Date and after Expiry n − 1 | The first expiry after it | Moved After Expiry 1, 25-Apr-2030; Moved After The Valuation Date, 29-Oct-2026 |
+| Expiry n | Before Expiry n + 1 | The last expiry before it | Moved Before Expiry 3, 29-Aug-2030 |
+| Expiry n | On or before the maturity, Valuation Date plus Tenor In Days | The last expiry on or before it | Moved Before The Maturity, 29-Jan-2032 |
+| Expiry n | No expiry month left between its neighbours | It keeps what it had | Kept, No Expiry Month Between Expiry 1 And Expiry 3 |
+| Tenor In Days | Long enough to reach the last expiry | The days from the Valuation Date to it | Raised To Reach Expiry 6, 1,737 |
+| Strike n (Product Payoff) | Strictly below Strike n − 1 and above Strike n + 1 | One point inside the neighbour it crossed, or the middle of a gap narrower than a point | Lowered Below Strike 1, 136.000%; Raised Above Strike 3, 126.000% |
+| Strike n | No room between its neighbours | It keeps what it had | Kept, No Room Between Strike 1 And Strike 3, 127.000% |
+| Strike n | Zero | Its role's Default Values level when that fits: target 137, protection 85, outflow 84, floor 70; else as above | Set To The Default, 70.000% |
+| Protection strike, Strike n + 2 | At most 100%, so Protection is at least 0% | 100% | Lowered To Zero Protection, 100.000% |
+| Target Rise | Strike 1 above Strike 2 | As Strike 1 | Raised Above Strike 2, 28.000% |
+| Protection | 0% to below 100%; the protection strike below the lowest spread level and the outflow strike above the floor | The nearest Protection that keeps every strike in order, one point inside | Lowered To Keep The Strikes In Order, 28.000%; Raised To The Minimum, 0.000% |
+| Decay Floor Level | Below the outflow strike and above zero | As the floor strike | Lowered Below Strike 5, 83.000% |
+| Lower spread Participation Rate | Leaves the Calculated top spread a share of the Coupon | The most that does, to 2 decimals | Lowered To Leave Room For The Top Spread, 51.24 |
+| Lower spread Participation Rate, with the top spread typed | The spreads pay the Coupon exactly | The value that does | Set To Reach The Coupon Exactly, 1.00 |
+| Top spread Participation Rate | The spreads pay the Coupon exactly | Back to Calculated | Back To Calculated, 10.05 |
+| Coupon | Above what the lower spreads pay, so the Calculated top spread keeps a share | The smallest Coupon above it, in 0.001% steps | Raised Above What The Lower Spreads Pay, 2.001% |
+| Coupon, with the top spread typed | What the spreads pay | That | Set To What The Spreads Pay, 82.000% |
+| Decay Reduction Below Floor | At most the Decay | The Decay | Lowered To The Decay, 1.60 |
+| Decay | At least the Decay Reduction Below Floor | The Decay Reduction Below Floor | Raised To The Decay Reduction Below Floor, 1.00 |
+| Buy Or Sell, once every strike and term is in | The side the payoff needs | That side | Set To Sell, The Payoff Needs It |
+
+**Why strikes are clamped and not re-sorted.** The Product Payoff reads its strikes by position: Strike 1 is the target, then the spread levels, then protection, outflow and floor. Sorting a typed strike into place would hand it another row's role, so the payoff would change in a way the desk did not type. Clamping keeps the row's role and moves the level the least. One point is the step the desk's own levels use, 85 and 84 for protection and outflow.
+
+**At Run Simulation.** Whatever is still broken is corrected on the field the rule names: a strike out of order on the lower strike of the pair, a Coupon the Calculated top spread cannot reach on the Coupon, one a typed top spread misses on the top spread (back to Calculated), a Buy Or Sell on its strike, an expiry past the maturity on the expiry. A Custom Option Book has no order between its legs and none of the product's rules: only each leg's own range applies.
 
 ## Where Each Value Flows
 

@@ -5,11 +5,13 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ClipboardPaste, Plus, X } from "lucide-react";
 
 import { BulkEditDialog } from "@/components/inputs/bulk-edit-dialog";
-import { ChoiceSelect, CountPicker, FieldRow, NumberInput, Segmented, type FieldCheck } from "@/components/ui/fields";
+import { isStrikeNote, noteTestId, useCorrect } from "@/components/inputs/field-corrections";
+import { ChoiceSelect, CountPicker, FieldNote, FieldRow, NumberInput, Segmented } from "@/components/ui/fields";
 import { useDesk } from "@/lib/context/desk-provider";
 import { MAX_LEGS, MIN_LEGS, percentFromLevel, rupeeStrike, startLevel } from "@/lib/engine/structure";
 import type { BookMode, CustomLeg, OptionType, StrikeSide } from "@/lib/engine/types";
 import { parseLegPaste } from "@/lib/inputs/bulk";
+import { correctNumber } from "@/lib/validation/corrections";
 import { addLeg, legsText, removeLeg, setLegCount, switchBook, TEMPLATES, type TemplateId } from "@/lib/inputs/custom-legs";
 import type { DeskLeg } from "@/lib/inputs/draft";
 import { fmtNumber } from "@/lib/format";
@@ -28,18 +30,28 @@ const SIDES: Array<{ value: StrikeSide; label: string }> = [
   { value: "S", label: "Sell" },
 ];
 
-/** What the Strikes And Spreads group hands its body: the inline error of a field and the rule check of a typed number. */
+/** What the Strikes And Spreads group hands its body: the inline error of a field. */
 type FieldTools = {
   errorFor: (field: string) => string | null;
-  guard: (field: string) => { check: (v: number) => FieldCheck | null; onReject: (r: FieldCheck) => void };
 };
+
+const isLegNote = (f: string) => f.startsWith("customLegs.");
 
 /** Product Payoff prices the product from its terms; Custom Option Book prices the legs typed below. Each keeps its own entries. */
 export function BookField() {
-  const { mode, inputs, setInputs } = useDesk();
+  const { mode, inputs, setInputs, clearNotes } = useDesk();
   return (
     <FieldRow label="Book" tip="Product Payoff Prices The Product From Its Terms; Custom Option Book Prices Any Legs You Type">
-      <Segmented<BookMode> label="Book" value={inputs.bookMode ?? "product"} options={BOOKS} testId="book-mode" onChange={(next) => setInputs((prev) => switchBook(prev, next, mode))} />
+      <Segmented<BookMode>
+        label="Book"
+        value={inputs.bookMode ?? "product"}
+        options={BOOKS}
+        testId="book-mode"
+        onChange={(next) => {
+          clearNotes(isStrikeNote);
+          setInputs((prev) => switchBook(prev, next, mode));
+        }}
+      />
     </FieldRow>
   );
 }
@@ -62,7 +74,7 @@ const legText = (legs: DeskLeg[]) =>
 
 /** Add Leg and the Bulk Edit Strikes paste of whole legs. */
 export function CustomBookActions() {
-  const { mode, inputs, setInputs } = useDesk();
+  const { mode, inputs, setInputs, clearNotes } = useDesk();
   const [bulk, setBulk] = useState(false);
   const legs = inputs.customLegs ?? [];
   return (
@@ -95,7 +107,10 @@ export function CustomBookActions() {
         columns={["Level %", "Option Type", "Buy Or Sell", "Quantity"]}
         parse={parseLegPaste}
         render={(l) => [`${l.percent}%`, l.optionType === "C" ? "Call" : "Put", l.side === "S" ? "Sell" : "Buy", fmtNumber(l.quantity, 2)]}
-        onApply={(rows) => setInputs({ customLegs: rows })}
+        onApply={(rows) => {
+          clearNotes(isLegNote);
+          setInputs({ customLegs: rows });
+        }}
         onClose={() => setBulk(false)}
         testId="bulk-strikes"
       />
@@ -104,8 +119,9 @@ export function CustomBookActions() {
 }
 
 /** The Custom Option Book in Strikes And Spreads: the book switch, the leg count and templates, then one row per leg. */
-export function CustomBookBody({ errorFor, guard }: FieldTools) {
-  const { mode, inputs, setInputs } = useDesk();
+export function CustomBookBody({ errorFor }: FieldTools) {
+  const { mode, inputs, setInputs, notes, clearNotes, correctionContext } = useDesk();
+  const fix = useCorrect();
   const reduce = useReducedMotion();
   const legs = inputs.customLegs ?? [];
   const start = Number.isFinite(inputs.spot) && Number.isFinite(inputs.startLevelUplift) ? startLevel(inputs) : NaN;
@@ -126,7 +142,10 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
             max={MAX_LEGS}
             testId="input-legCount"
             invalid={Boolean(errorFor("legCount"))}
-            onChange={(c) => setInputs((prev) => ({ customLegs: setLegCount(prev.customLegs ?? [], c, mode) }))}
+            onChange={(c) => {
+              clearNotes(isLegNote);
+              setInputs((prev) => ({ customLegs: setLegCount(prev.customLegs ?? [], c, mode) }));
+            }}
           />
         </FieldRow>
         <FieldRow label="Template" tip="Fills The Legs Around 100% Of The Start Level, With 5% Wings And Quantity 1">
@@ -138,6 +157,7 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
             onChange={(id) => {
               const t = TEMPLATES.find((x) => x.id === id)!;
               const filled = t.legs.map((l) => ({ ...l }));
+              clearNotes(isLegNote);
               setInputs({ customLegs: filled });
               setApplied({ id, key: JSON.stringify(filled) });
             }}
@@ -179,7 +199,10 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
                           data-testid={`custom-remove-leg-${i}`}
                           disabled={legs.length <= MIN_LEGS}
                           className="glass-control inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
-                          onClick={() => setInputs((prev) => ({ customLegs: removeLeg(prev.customLegs ?? [], i) }))}
+                          onClick={() => {
+                            clearNotes(isLegNote);
+                            setInputs((prev) => ({ customLegs: removeLeg(prev.customLegs ?? [], i) }));
+                          }}
                         >
                           <X className="icon-xs" aria-hidden />
                         </button>
@@ -195,7 +218,7 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
                           placeholder="-"
                           onChange={(v) => setLeg(i, { percent: v })}
                           onBlankChange={() => setLeg(i, { percent: NaN })}
-                          {...guard(`customLegs.${i}.percent`)}
+                          {...fix(`customLegs.${i}.percent`, (v) => setLeg(i, { percent: v ?? NaN }))}
                         />
                       </span>
                       <span role="cell">
@@ -207,6 +230,8 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
                           testId={`input-customLegs-${i}-level`}
                           placeholder="-"
                           onChange={(v) => setLeg(i, { percent: percentFromLevel(v, start) })}
+                          {...fix(`customLegs.${i}.percent`, (v) => setLeg(i, { percent: v ?? NaN }))}
+                          correct={(points) => correctNumber(inputs, `customLegs.${i}.percent`, percentFromLevel(points, start), correctionContext)}
                         />
                       </span>
                       <span role="cell">
@@ -239,9 +264,11 @@ export function CustomBookBody({ errorFor, guard }: FieldTools) {
                           placeholder="-"
                           onChange={(v) => setLeg(i, { quantity: v })}
                           onBlankChange={() => setLeg(i, { quantity: NaN })}
-                          {...guard(`customLegs.${i}.quantity`)}
+                          {...fix(`customLegs.${i}.quantity`, (v) => setLeg(i, { quantity: v ?? NaN }))}
                         />
                       </span>
+                      <FieldNote note={notes[`customLegs.${i}.percent`]} testId={noteTestId(`customLegs.${i}.percent`)} className="strike-row-note" />
+                      <FieldNote note={notes[`customLegs.${i}.quantity`]} testId={noteTestId(`customLegs.${i}.quantity`)} className="strike-row-note" />
                       {error ? (
                         <p className="hs-error strike-row-error" role="alert" data-testid={`leg-error-${i}`}>
                           {error}

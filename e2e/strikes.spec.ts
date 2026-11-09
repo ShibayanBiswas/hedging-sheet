@@ -75,14 +75,14 @@ test.describe("Strikes, spreads and per spread option type", () => {
     await expect(inputs.field("participations-1")).toHaveValue("11.06");
   });
 
-  test("S6 participation 12 shows the coupon error under the field, with no popup, and disables Run", async ({ page, inputs }) => {
+  test("S6 a top participation of 12, which pays 122.00% against the 102.50% Coupon, goes back to Calculated with a note and Run stays on", async ({ page, inputs }) => {
     await inputs.goto();
     await inputs.fill("participations-1", "12");
-    await expect(page.getByTestId("participation-error-1")).toHaveText("The Spreads Pay 122.00%, Above The Coupon Of 102.50%");
-    await expect(inputs.dialog.root).toHaveCount(0);
-    await expect(inputs.runButton).toBeDisabled();
-    await page.getByTestId("spread-1-reset").click();
+    await expect(page.getByTestId("note-participations-1")).toHaveText("Back To Calculated, 10.05");
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
+    await expect(inputs.field("participations-1")).toHaveValue("10.05");
     await expect(page.getByTestId("participation-error-1")).toHaveCount(0);
+    await expect(inputs.dialog.root).toHaveCount(0);
     await expect(inputs.runButton).toBeEnabled();
   });
 

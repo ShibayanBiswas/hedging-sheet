@@ -1564,7 +1564,8 @@ main:has(.inputs-page),
 }
 
 /* The message stays in view when the row scrolls sideways on a phone. */
-.strike-row-error {
+.strike-row-error,
+.strike-row-note {
   grid-column: 1 / -1;
   position: sticky;
   left: 0;

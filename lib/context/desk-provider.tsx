@@ -11,6 +11,7 @@ import type { HedgingFailure, HedgingResult, MarketData, PricingParams, Underlyi
 import { forwardMarket, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { blankInputs, isPriceable, type DeskInputs, type InputMode } from "@/lib/inputs/draft";
 import { splitKeys } from "@/lib/inputs/run-keys";
+import { correctForRun, type CorrectionContext } from "@/lib/validation/corrections";
 import { fieldSection, fieldTestId, groupBySection, INPUT_SECTIONS, validateDeskInputs, type FieldError } from "@/lib/validation/inputRules";
 import type { MarketLevels } from "@/lib/market-data";
 import { traceEnabled, tracePipeline } from "@/lib/trace";
@@ -57,6 +58,14 @@ export type DeskContextValue = {
   fieldErrors: FieldError[];
   /** The field errors to show inline right now. */
   visibleErrors: FieldError[];
+  /** What a correction did to a field, shown under it until that field is edited again. Keyed by field, such as floorUnits. */
+  notes: Record<string, string>;
+  /** Sets or, with null, clears a field's note. */
+  setNote: (field: string, note: string | null) => void;
+  /** Clears the notes of every field the test picks, such as the strike rows after a new Number Of Spreads. */
+  clearNotes: (pick: (field: string) => boolean) => void;
+  /** Today and the last close, which the corrections read. */
+  correctionContext: CorrectionContext;
   simulation: SimulationState;
   runSimulation: () => Promise<boolean>;
   lastRun: LastRun | null;
@@ -124,6 +133,7 @@ export function DeskProvider({ today, children }: {
   const [lastRun, setLastRun] = useState<LastRun | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [spotFetch, setSpotFetch] = useState<{ at: string; spot: number; underlying: Underlying } | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const levelsRef = useRef<MarketLevels | null>(null);
   const inputsRef = useRef(inputs);
   const modeRef = useRef<InputMode>("default");
@@ -301,6 +311,7 @@ export function DeskProvider({ today, children }: {
       setModeState(next);
       setLastRun(null);
       setSubmitted(false);
+      setNotes({});
       const start = startInputs(next, levelsRef.current);
       inputsRef.current = start;
       setInputsState(start);
@@ -325,6 +336,7 @@ export function DeskProvider({ today, children }: {
   const resetInputs = useCallback(() => {
     const prev = inputsRef.current;
     setSubmitted(false);
+    setNotes({});
     if (modeRef.current === "blank") {
       setInputsState(blankInputs());
       return;
@@ -361,6 +373,13 @@ export function DeskProvider({ today, children }: {
   const visibleErrors = useMemo(() => (submitted ? shownErrors : shownErrors.filter((e) => e.kind === "invalid")), [shownErrors, submitted]);
 
   const runOnce = useCallback(async (): Promise<boolean> => {
+    // A value that breaks a rule is corrected, with its note, rather than refused: only empty fields and the like stop a run.
+    const fixed = correctForRun(inputsRef.current, { today: istTodayYmd(), spot: spotFor(inputsRef.current.underlying, levelsRef.current) });
+    if (fixed.inputs !== inputsRef.current) {
+      inputsRef.current = fixed.inputs;
+      setInputsState(fixed.inputs);
+      setNotes((n) => ({ ...n, ...fixed.notes }));
+    }
     const current = inputsRef.current;
     const errors = validateDeskInputs(current, { today: istTodayYmd() });
     if (errors.length || !isPriceable(current)) {
@@ -444,6 +463,22 @@ export function DeskProvider({ today, children }: {
 
   const keys = useMemo(() => splitKeys(inputs), [inputs]);
 
+  const setNote = useCallback((field: string, note: string | null) => {
+    setNotes((n) => {
+      if ((n[field] ?? null) === note) return n;
+      const next = { ...n };
+      if (note) next[field] = note;
+      else delete next[field];
+      return next;
+    });
+  }, []);
+  const clearNotes = useCallback(
+    (pick: (field: string) => boolean) => setNotes((n) => (Object.keys(n).some(pick) ? Object.fromEntries(Object.entries(n).filter(([f]) => !pick(f))) : n)),
+    [],
+  );
+  const closeSpot = spotFor(inputs.underlying, levels);
+  const correctionContext = useMemo<CorrectionContext>(() => ({ today: ruleToday, spot: closeSpot }), [ruleToday, closeSpot]);
+
   const spotFetchedAt =
     mode === "default"
       ? (levels?.fetchedAt ?? null)
@@ -484,6 +519,10 @@ export function DeskProvider({ today, children }: {
       applyMarket,
       fieldErrors,
       visibleErrors,
+      notes,
+      setNote,
+      clearNotes,
+      correctionContext,
       simulation,
       runSimulation,
       lastRun,
@@ -513,6 +552,10 @@ export function DeskProvider({ today, children }: {
       applyMarket,
       fieldErrors,
       visibleErrors,
+      notes,
+      setNote,
+      clearNotes,
+      correctionContext,
       simulation,
       runSimulation,
       lastRun,

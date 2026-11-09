@@ -1,4 +1,4 @@
-import { formatDate } from "../../lib/engine/dates";
+import { daysBetween, formatDate } from "../../lib/engine/dates";
 import { snapExpiry } from "../../lib/engine/schedule";
 import { outputTables, specCells } from "../../lib/tables";
 import workbookFill from "../../tests/fixtures/blank-workbook-fill.json";
@@ -8,7 +8,7 @@ import { blankFillInputs, priceLikeTheApp } from "../../tests/helpers/mock-marke
 import { expect, test } from "../fixtures";
 import type { InputsPage } from "../pages";
 import { close, readAllOutputs, type CellRead } from "../support/tables";
-import { chromiumOnly, expectFlagged } from "./helpers";
+import { chromiumOnly, expectCorrected } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
@@ -66,7 +66,7 @@ async function fillGroup(inputs: InputsPage, from: string, to: string) {
 }
 
 test.describe("B23 The workbook's own case through Blank Inputs", () => {
-  test("B23.1 typed group by group: the steps unlock in order, derived fields follow the workbook, bad values revert, and Run shows the engine's numbers", async ({ page, inputs, nav, outputs }, testInfo) => {
+  test("B23.1 typed group by group: the steps unlock in order, derived fields follow the workbook, bad values are corrected with a note, and Run shows the engine's numbers", async ({ page, inputs, nav, outputs }, testInfo) => {
     chromiumOnly(testInfo);
     test.setTimeout(900_000);
     const group = (n: number) => page.getByTestId(`group-${n}`);
@@ -89,12 +89,12 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await inputs.fill("input-valuationDate", value("input-valuationDate"));
     await expect(inputs.field("valuationDate")).toHaveValue("04-Aug-2026");
     await expectOpen(2);
-    await expectFlagged(page, "input-spot", "-5");
+    await expectCorrected(page, "input-spot", "-5", { value: 5, note: "Made Positive, 5.00" });
     await inputs.fill("input-spot", value("input-spot"));
     // No workbook rule: H23 is typed. The app's Sensex rule is the Start Level's, ROUNDUP(76,799 × 1.006, −2) = 77,300.
     await expect(inputs.field("hedgeStrike")).toHaveValue("77,300");
     await expect(page.getByTestId("hedge-strike-status")).toHaveText("Calculated");
-    await expectFlagged(page, "input-hedgeStrike", "76850");
+    await expectCorrected(page, "input-hedgeStrike", "76850", { value: 76900, note: "Rounded To The Nearest 100, 76,900" });
     await inputs.fill("input-hedgeStrike", value("input-hedgeStrike"));
     await expect(inputs.field("hedgeStrike")).toHaveValue("76,800");
     await expect(page.getByTestId("hedge-strike-status")).toHaveText("Edited");
@@ -118,13 +118,13 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
       const snapped = snapExpiry(typed, "Sensex");
       expect(snapped, `Summary ${"CDEFGH"[i]}12`).toBe(WB["Summary Sheet"]![`${"CDEFGH"[i]}12`]);
       if (i === 2) {
-        // A date that does not fall after Expiry 2 reverts with a popup.
+        // A date that does not fall after Expiry 2, 25-Apr-2030, moves to the first expiry after it, with a note.
         const field = inputs.field(`expiryDates-${i}`);
         await field.fill("2030-03-01");
         await field.blur();
-        await inputs.dialog.expectTitle("Expiry 3 Reverted");
-        await inputs.dialog.close();
-        await expect(field).toHaveValue("");
+        await expect(field).toHaveValue("30-May-2030");
+        await expect(page.getByTestId("expiry-note-2")).toHaveText("Moved After Expiry 2, 30-May-2030");
+        await expect(inputs.dialog.root).toHaveCount(0);
       }
       await inputs.fill(`input-expiryDates-${i}`, typed);
       await expect(inputs.field(`expiryDates-${i}`)).toHaveValue(formatDate(snapped));
@@ -142,10 +142,10 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await expect(group(3)).not.toContainText("Select Number Of Strikes");
     // Number Of Spreads + 4: target, two spread levels, protection, outflow and floor.
     await expect(page.getByTestId("strike-count")).toHaveText("6");
-    await expectFlagged(page, "input-strikePercents-0", "600");
+    await expectCorrected(page, "input-strikePercents-0", "600", { value: 500, note: "Lowered To The Maximum, 500.000%" });
     await fillGroup(inputs, "input-strikePercents-0", "input-strikeSides-5");
     await expectOpen(3);
-    await expectFlagged(page, "input-participations-0", "0");
+    await expectCorrected(page, "input-participations-0", "0", { value: 1, note: "Set To The Default, 1.00" });
     await inputs.fill("input-participations-0", value("input-participations-0"));
     await expectOpen(7);
     // Summary G10 to J10, and L10 = (D10 − (H10 − G10) × K10) ÷ (J10 − I10) once the Coupon is in.
@@ -161,14 +161,16 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await expect(page.getByTestId("strike-units-0")).toHaveText("-10.050");
 
     // 4 Rates: Summary C4 to C6.
-    await expectFlagged(page, "input-nbfcRate", "101");
+    await expectCorrected(page, "input-nbfcRate", "101", { value: 1, note: "Lowered To The Maximum, 100.000%" });
     await fillGroup(inputs, "input-nbfcRate", "input-marginGrowthRate");
 
     // 5 Product Terms: Summary C10, D10, M10, N10, O10, C15 and Pricer AP17 and AP47.
     await expect(inputs.field("target")).toHaveValue(/^37(\.0+)?$/);
     await expect(inputs.field("protection")).toHaveValue(/^15(\.0+)?$/);
     await expect(inputs.field("floorLevel")).toHaveValue(/^70(\.0+)?$/);
-    await expectFlagged(page, "input-tenorDays", "1.5");
+    // 1.5 rounds to 2 days, which falls short of the last expiry, so the tenor reaches it instead.
+    const reach = daysBetween(value("input-valuationDate"), WB["Summary Sheet"]!.H12 as string);
+    await expectCorrected(page, "input-tenorDays", "1.5", { value: reach, note: `Raised To Reach Expiry 6, ${reach.toLocaleString("en-US")}` });
     await fillGroup(inputs, "input-coupon", "input-notionalCr");
     await expect(page.getByTestId("start-level")).toHaveText("77,300");
     const pricer = WB["Pricer"]!;
@@ -185,14 +187,14 @@ test.describe("B23 The workbook's own case through Blank Inputs", () => {
     await expect(page.getByTestId("max-coupon")).toHaveText("Maximum Upside 102.50%");
 
     // 6 Volatility: Summary I25, and I26 = I25 × √365.
-    await expectFlagged(page, "input-dailyVol", "11");
+    await expectCorrected(page, "input-dailyVol", "11", { value: 0.1, note: "Lowered To The Maximum, 10.000%" });
     await inputs.fill("input-dailyVol", value("input-dailyVol"));
     expect(near(num(await inputs.field("annualVol").inputValue()), 100 * (WB["Summary Sheet"]!.I26 as number), 3)).toBe(true);
     await expect(page.getByTestId("daily-vol-status")).toHaveText("Edited");
 
     // 7 Margin And Desk Terms: Summary C18 to E18 and J29, MTM H2, Day1 Vega Hedge I2 to L3 and the shock terms.
-    await expectFlagged(page, "input-exposureMargin", "101");
-    await expectFlagged(page, "input-stressDays", "2.5");
+    await expectCorrected(page, "input-exposureMargin", "101", { value: 1, note: "Lowered To The Maximum, 100.000%" });
+    await expectCorrected(page, "input-stressDays", "2.5", { value: 3, note: "Rounded To A Whole Number, 3" });
     await fillGroup(inputs, "input-transactionCost", "input-stressVolMultiplier");
     await inputs.dialog.dismissAll();
 

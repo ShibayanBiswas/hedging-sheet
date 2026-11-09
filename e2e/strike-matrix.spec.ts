@@ -7,18 +7,17 @@ const SIDES = ["S", "B", "B", "S", "B", "B"] as const;
 const flip = (s: "B" | "S") => (s === "B" ? "S" : "B");
 
 test.describe("per strike Option Type and Buy Or Sell", () => {
-  test("each strike on the wrong side shows the error under it and blocks Run, and the right side clears it", async ({ page, inputs }) => {
+  test("each strike set to the wrong side goes back to the side the payoff needs, with a note, and Run stays on", async ({ page, inputs }) => {
     test.setTimeout(180_000);
     await inputs.goto("default");
     for (let i = 0; i < SIDES.length; i++) {
       await expect(page.getByTestId(`input-strikeSides-${i}`)).toHaveAttribute("data-value", SIDES[i]);
       await inputs.fill(`input-strikeSides-${i}`, flip(SIDES[i]));
-      await expect(page.getByTestId(`strike-error-${i}`)).toHaveText(`This Strike Must Be A ${SIDES[i] === "B" ? "Buy" : "Sell"} To Give The Product Payoff`);
-      await expect(inputs.runButton).toBeDisabled();
-      await expect(inputs.dialog.root).toHaveCount(0);
-      await inputs.fill(`input-strikeSides-${i}`, SIDES[i]);
+      await expect(page.getByTestId(`input-strikeSides-${i}`)).toHaveAttribute("data-value", SIDES[i]);
+      await expect(page.getByTestId(`note-strikeSides-${i}`)).toHaveText(`Set To ${SIDES[i] === "B" ? "Buy" : "Sell"}, The Payoff Needs It`);
       await expect(page.getByTestId(`strike-error-${i}`)).toHaveCount(0);
       await expect(inputs.runButton).toBeEnabled();
+      await expect(inputs.dialog.root).toHaveCount(0);
     }
   });
 

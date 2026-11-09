@@ -1,5 +1,14 @@
 # 08 · Changelog
 
+## Inputs: A Bad Entry Is Corrected With A Note, Not Refused
+
+| Area | Change |
+|---|---|
+| Corrections | A value that breaks a rule is corrected on leaving the field or Enter, to the nearest valid value or its Default Values value, with a note under the field until it is edited again: Decay Reduction Below Floor above the Decay is lowered to the Decay, a strike out of order is clamped one point inside its neighbour and keeps its row's role, a participation that leaves the top spread nothing is lowered to leave it a share, a typed top spread goes back to Calculated, an expiry not after the one before moves to the first expiry after it, a rate is clamped to its range, a decimal in a whole number field is rounded, a sign typo is made positive. Only the field being committed changes. `lib/validation/corrections.ts`; the full list is in the [Input Parameters Guide](input-parameters-guide.md#corrections-what-a-bad-entry-becomes) |
+| Run | Run Simulation corrects whatever is still broken across fields, such as a Buy Or Sell the payoff no longer gives once the terms are in, notes it, and runs. Run is never off for a value it can correct; only empty fields still stop it. Blank Inputs stay blank |
+| Popups | "… Reverted", "Please Fix This Input" and "Coupon Not Reachable" no longer open for a typed value. Text that is no number or date still reverts with a popup |
+| Tests | Unit tests for every rule with fast-check over every number field and strike, component tests for the notes, B24 for Blank Inputs group by group, `e2e/auto-correct.spec.ts` for Default Values, the Custom Option Book, mode switches and a reload. B3 to B10, B23, S6, the strike side matrix, round 11 and the Default Values invalid cases now expect the correction instead of a popup or a block |
+
 ## Inputs: A Late Close Never Overwrites A Typed Value
 
 | Area | Change |

@@ -1,14 +1,19 @@
 import type { Page } from "@playwright/test";
 
 import { formatDate } from "../../lib/engine/dates";
+import { correctExpiryDate, correctNumber } from "../../lib/validation/corrections";
+import { blankFillInputs } from "../../tests/helpers/mock-market";
 import { expect, test } from "../fixtures";
 import { readShape } from "../support/tables";
-import { chromiumOnly, expectFlagged, fillBlank, fillValue } from "./helpers";
+import { chromiumOnly, expectCorrected, fillBlank, fillValue } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
 
 const STRIKES = [0, 1, 2, 3, 4, 5].map((i) => Number(fillValue(`input-strikePercents-${i}`)));
+const filled = blankFillInputs();
+/** What lib/validation/corrections makes of a strike typed on the filled page. */
+const strikeFix = (i: number, v: number) => correctNumber(filled, `strikePercents.${i}`, v, { today: "2026-10-28", spot: filled.spot })!;
 
 /** Independent of the engine: the last given weekday of a date's month. */
 function lastWeekday(ymd: string, weekday: number): string {
@@ -34,40 +39,34 @@ test.describe("B4 Strikes", () => {
     await fillBlank(inputs);
   });
 
-  test("B4.1 strikes out of order at each adjacent pair open a popup naming both strikes", async ({ inputs }, testInfo) => {
+  // Strikes keep their row's role, so one out of order is clamped one point inside the neighbour it crossed, not re-sorted.
+  test("B4.1 a strike typed above the strike before is clamped below it at each adjacent pair, with a note and no popup", async ({ page, inputs }, testInfo) => {
     chromiumOnly(testInfo);
     for (let i = 0; i < 5; i++) {
       await test.step(`Strike ${i + 2} above Strike ${i + 1}`, async () => {
-        await inputs.fill(`strikePercents-${i + 1}`, String(STRIKES[i]! + 1));
-        await inputs.dialog.expectTitle("Please Fix This Input");
-        await expect(inputs.dialog.root).toContainText(`Strike ${i + 2} at`);
-        await expect(inputs.dialog.root).toContainText(`below Strike ${i + 1} at`);
-        await inputs.dialog.close();
-        await expect(inputs.field(`strikePercents-${i + 1}`)).toHaveAttribute("aria-invalid", "true");
+        const fix = strikeFix(i + 1, STRIKES[i]! + 1);
+        // The protection strike stops at 100%, zero protection, before it meets Strike 3.
+        expect(fix.note).toMatch(i === 2 ? /^Lowered To Zero Protection, / : new RegExp(`^Lowered Below Strike ${i + 1}, `));
+        await expectCorrected(page, `input-strikePercents-${i + 1}`, String(STRIKES[i]! + 1), fix);
+        expect(fix.value).toBeLessThan(STRIKES[i]!);
         await inputs.fill(`strikePercents-${i + 1}`, String(STRIKES[i + 1]));
       });
     }
   });
 
-  test("B4.2 equal strikes are rejected", async ({ inputs }) => {
-    await inputs.fill("strikePercents-3", String(STRIKES[2]));
-    await inputs.dialog.expectTitle("Please Fix This Input");
-    await expect(inputs.dialog.root).toContainText("strictly descending");
-    await inputs.dialog.close();
-    await expect(inputs.field("strikePercents-3")).toHaveAttribute("aria-invalid", "true");
+  test("B4.2 a strike equal to the one before is clamped one point below it", async ({ page }) => {
+    const fix = strikeFix(2, STRIKES[1]!);
+    expect(fix).toEqual({ value: STRIKES[1]! - 1, note: `Lowered Below Strike 2, ${(STRIKES[1]! - 1).toFixed(3)}%` });
+    await expectCorrected(page, "input-strikePercents-2", String(STRIKES[1]), fix);
   });
 
-  test("B4.3 a strike of zero or below reverts with a popup", async ({ page }) => {
-    for (const v of ["0", "-5"]) await expectFlagged(page, "input-strikePercents-5", v);
-    await expect(page.getByTestId("input-strikePercents-5")).toHaveAttribute("data-value", String(STRIKES[5]));
+  test("B4.3 a floor strike of zero takes its default, and a negative one is made positive", async ({ page }) => {
+    await expectCorrected(page, "input-strikePercents-5", "0", { value: 70, note: "Set To The Default, 70.000%" });
+    await expectCorrected(page, "input-strikePercents-5", "-5", { value: 5, note: "Made Positive, 5.000%" });
   });
 
-  test("B4.4 fixing the order clears the error and the run goes ahead", async ({ inputs, outputs }) => {
-    await inputs.fill("strikePercents-2", "128");
-    await inputs.dialog.dismissAll(3_000);
-    await expect(inputs.field("strikePercents-2")).toHaveAttribute("aria-invalid", "true");
-    await inputs.fill("strikePercents-2", String(STRIKES[2]));
-    await expect(inputs.field("strikePercents-2")).not.toHaveAttribute("aria-invalid", "true");
+  test("B4.4 a strike out of order never blocks the run", async ({ page, inputs, outputs }) => {
+    await expectCorrected(page, "input-strikePercents-2", "128", strikeFix(2, 128));
     await inputs.run();
     await outputs.summary.expectResults();
   });
@@ -86,16 +85,16 @@ test.describe("B5 Expiries", () => {
     }
   });
 
-  test("B5.2 a date that does not fall after the one before reverts with a popup", async ({ page, inputs }) => {
+  test("B5.2 a date that does not fall after the one before moves to the first expiry after it, with a note", async ({ page, inputs }) => {
     await fillBlank(inputs);
-    const before = await page.getByTestId("input-expiryDates-2").inputValue();
-    // 01-Jun-2030 moves to 27-Jun-2030, before Expiry 2; 10-Jul-2030 moves to 25-Jul-2030, equal to it.
+    // 01-Jun-2030 moves to 27-Jun-2030 and 10-Jul-2030 to 25-Jul-2030, neither after Expiry 2, so both become 29-Aug-2030.
     for (const v of ["2030-06-01", "2030-07-10"]) {
+      const fix = correctExpiryDate(filled, 2, v);
+      expect(fix).toEqual({ value: "2030-08-29", note: "Moved After Expiry 2, 29-Aug-2030" });
       await inputs.fill("expiryDates-2", v);
-      await inputs.dialog.expectTitle("Expiry 3 Reverted");
-      await expect(inputs.dialog.root).toContainText("Expiry 3 must fall after Expiry 2.");
-      await inputs.dialog.close();
-      await expect(page.getByTestId("input-expiryDates-2")).toHaveValue(before);
+      await expect(page.getByTestId("input-expiryDates-2")).toHaveValue("29-Aug-2030");
+      await expect(page.getByTestId("expiry-note-2")).toHaveText(fix.note);
+      await expect(inputs.dialog.root).toHaveCount(0);
     }
   });
 

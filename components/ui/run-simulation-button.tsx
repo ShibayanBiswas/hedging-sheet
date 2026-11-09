@@ -4,15 +4,13 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2, Play } from "lucide-react";
 
 import { SIMULATION_STEPS, useDesk } from "@/lib/context/desk-provider";
-import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
 import { cn } from "@/lib/cn";
 import { deskFade } from "@/lib/motion";
 
 /** Gradient run button with a step progress state, in the Primary and Unwinding run style. */
 export function RunSimulationButton({ className, compact, slim, onDone }: { className?: string; compact?: boolean; slim?: boolean; onDone?: () => void }) {
-  const { simulation, runSimulation, lastRun, stale, fieldErrors } = useDesk();
-  // Shown inline under the participation; Run stays off until it is fixed.
-  const blocked = fieldErrors.some((e) => e.code != null && INLINE_ONLY_CODES.has(e.code));
+  // A value that breaks a rule never keeps Run off: the run corrects it first and notes the field.
+  const { simulation, runSimulation, lastRun, stale } = useDesk();
   const reduce = useReducedMotion();
   const running = simulation.running;
   const label = running ? SIMULATION_STEPS[Math.max(0, simulation.step)] : lastRun && !stale ? "Run Simulation Again" : "Run Simulation";
@@ -22,7 +20,7 @@ export function RunSimulationButton({ className, compact, slim, onDone }: { clas
     <button
       type="button"
       data-testid={compact ? "run-simulation-compact" : "run-simulation"}
-      disabled={running || blocked}
+      disabled={running}
       onClick={async () => {
         const ok = await runSimulation();
         if (ok) onDone?.();

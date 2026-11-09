@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures";
 import { hook } from "../pipeline/helpers";
 import { OUTPUT_TAB_IDS, readCells, schema } from "../support/tables";
-import { chromiumOnly, expectFlagged, fillBlank } from "./helpers";
+import { chromiumOnly, expectCorrected, fillBlank } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
@@ -47,32 +47,29 @@ test.describe("B7 Spreads", () => {
     await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
   });
 
-  test("B7.2 editing a strike moves its spread, and a typed participation shows Edited", async ({ page, inputs }) => {
+  test("B7.2 editing a strike moves its spread, and a typed top participation that misses the Coupon goes back to Calculated", async ({ page, inputs }) => {
     await inputs.fill("strikePercents-0", "140");
     await expect(page.getByTestId("input-spreads-1-sell")).toHaveText("40.00%");
     expect(await value(page, "input-target")).toBeCloseTo(0.4, 12);
-    await inputs.fill("participations-1", "8");
-    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Edited");
+    await expectCorrected(page, "input-participations-1", "8", { value: (1.025 - 0.02) / 0.13, note: "Back To Calculated, 7.73" });
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
   });
 
-  test("B7.3 Reset To Calculated puts the top participation back", async ({ page, inputs }) => {
-    await inputs.fill("participations-1", "8");
-    await inputs.dialog.dismissAll(3_000);
+  test("B7.3 the rate that reaches the Coupon exactly pins the top spread, Edited, and Reset To Calculated puts it back", async ({ page, inputs }) => {
+    // The field already shows 10.05, so the same text would be no edit at all: 10.050 is the same rate, typed.
+    await inputs.fill("participations-1", "10.050");
+    await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Edited");
     await page.getByTestId("spread-1-reset").click();
     await expect(page.getByTestId("spread-1-participation-status")).toHaveText("Calculated");
     expect(await value(page, "input-participations-1")).toBeCloseTo((1.025 - 0.02) / 0.1, 9);
   });
 
-  test("B7.4 a sell level not above its buy level is rejected", async ({ page, inputs }) => {
-    // Spread 1 sells at Strike 2 and buys at Strike 3: equal strikes leave it no width.
-    await inputs.fill("strikePercents-1", "125");
-    await inputs.dialog.expectTitle("Please Fix This Input");
-    await expect(inputs.dialog.root).toContainText("strictly descending");
-    await inputs.dialog.close();
-    await inputs.runButton.click();
-    await inputs.dialog.expectTitle("Missing Or Invalid Inputs");
-    await inputs.dialog.close();
-    await expect(page.getByTestId("strip-simulation")).toHaveText("Not Run");
+  test("B7.4 a sell level at its buy level is raised one point above it, and the run goes ahead", async ({ page, inputs, outputs }) => {
+    // Spread 1 sells at Strike 2 and buys at Strike 3: equal strikes would leave it no width.
+    await expectCorrected(page, "input-strikePercents-1", "125", { value: 126, note: "Raised Above Strike 3, 126.000%" });
+    await expect(page.getByTestId("input-spreads-0-sell")).toHaveText("26.00%");
+    await inputs.run();
+    await outputs.summary.expectResults();
   });
 
   test("B7.5 spreads share their boundary strike, so they can neither overlap nor leave a gap", async ({ page, inputs }) => {
@@ -81,9 +78,9 @@ test.describe("B7 Spreads", () => {
     await expect(page.getByTestId("input-spreads-1-buy")).toHaveText("28.00%");
   });
 
-  test("B7.6 a participation of zero or below reverts with a popup", async ({ page }) => {
-    for (const v of ["0", "-1"]) await expectFlagged(page, "input-participations-0", v);
-    expect(await value(page, "input-participations-0")).toBe(1);
+  test("B7.6 a participation of zero takes the default and a negative one is made positive", async ({ page }) => {
+    await expectCorrected(page, "input-participations-0", "0", { value: 1, note: "Set To The Default, 1.00" });
+    await expectCorrected(page, "input-participations-0", "-1.5", { value: 1.5, note: "Made Positive, 1.50" });
   });
 });
 
@@ -113,26 +110,30 @@ test.describe("B8 Option Type", () => {
 });
 
 test.describe("B9 Coupon and solver", () => {
-  test("B9.1 an unreachable coupon opens Coupon Not Reachable with a suggestion", async ({ inputs }) => {
+  test("B9.1 a participation that leaves the top spread nothing is lowered to the most that leaves it a share", async ({ page, inputs }) => {
     await fillBlank(inputs);
-    await inputs.fill("participations-0", "60");
-    await inputs.dialog.expectTitle("Coupon Not Reachable");
-    await expect(inputs.dialog.root).toContainText("How To Fix");
-    await expect(inputs.dialog.root).toContainText("Raise the Coupon");
-    await inputs.dialog.close();
-    await expect(inputs.field("coupon")).toHaveAttribute("aria-invalid", "true");
+    // Spread 1 is 2 points wide: at 51.25 it alone would pay the 102.5% Coupon.
+    await expectCorrected(page, "input-participations-0", "60", { value: 51.24, note: "Lowered To Leave Room For The Top Spread, 51.24" });
+    await expect(inputs.field("coupon")).not.toHaveAttribute("aria-invalid", "true");
+    expect(await value(page, "input-participations-1")).toBeGreaterThan(0);
   });
 
-  test("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9", async ({ page, inputs }) => {
+  test("B9.2 a coupon at the reachable boundary converges with a residual below 1e-9; Run sets the side the payoff then needs", async ({ page, inputs }) => {
     await fillBlank(inputs);
     await inputs.fill("coupon", "2.01");
-    // Just above the 2% the lower spread pays, the top participation is 0.001, so Strike 2 must now be sold.
+    // Just above the 2% the lower spread pays, the top participation is 0.001, so Strike 2 must now be sold. The Buy typed
+    // in Strike And Spreads is not this commit's to change: it shows under the strike, and Run corrects it with a note.
     await expect(page.getByTestId("strike-error-1")).toHaveText("This Strike Must Be A Sell To Give The Product Payoff");
-    await expect(inputs.runButton).toBeDisabled();
-    await inputs.fill("input-strikeSides-1", "S");
+    await expect(inputs.runButton).toBeEnabled();
     await inputs.run();
     const r = (await hook(page)).result!;
     expect(Math.abs(r.diagnostics.goalSeekResidual)).toBeLessThan(1e-9);
+    expect((await hook(page)).inputs.strikeSides[1]).toBe("S");
+  });
+
+  test("B9.3 a coupon below what the lower spreads pay is raised just above it", async ({ page, inputs }) => {
+    await fillBlank(inputs);
+    await expectCorrected(page, "input-coupon", "1", { value: 0.02001, note: "Raised Above What The Lower Spreads Pay, 2.001%" });
   });
 });
 
@@ -141,28 +142,24 @@ test.describe("B10 Protection and floor", () => {
     await fillBlank(inputs);
   });
 
-  test("B10.1 protection that puts the strike above 100% is rejected; 0% is a product with no protection", async ({ inputs }) => {
-    await inputs.fill("protection", "-5");
-    await expect(inputs.field("protection")).toHaveAttribute("aria-invalid", "true");
-    await inputs.dialog.dismissAll(3_000);
+  test("B10.1 protection below 0% is raised to 0%, a product with no protection; one past the floor keeps the strikes in order", async ({ page, inputs }) => {
+    await expectCorrected(page, "input-protection", "-5", { value: 0, note: "Raised To The Minimum, 0.000%" });
     await inputs.fill("protection", "0");
     await expect(inputs.field("protection")).not.toHaveAttribute("aria-invalid", "true");
+    // The outflow strike sits one point below protection and must stay above the 70% floor: 72% and 71% is as low as it goes.
+    await expectCorrected(page, "input-protection", "30", { value: 0.28, note: "Lowered To Keep The Strikes In Order, 28.000%" });
+    expect(await value(page, "input-strikePercents-3")).toBeCloseTo(72, 9);
+    expect(await value(page, "input-strikePercents-4")).toBeCloseTo(71, 9);
   });
 
-  test("B10.2 a floor at or above protection less the step is rejected", async ({ inputs }) => {
-    await inputs.fill("floorLevel", "84");
-    await inputs.dialog.expectTitle("Please Fix This Input");
-    await expect(inputs.dialog.root).toContainText("Strike 6 at 84% is not below Strike 5");
-    await inputs.dialog.close();
-    await expect(inputs.field("strikePercents-5")).toHaveAttribute("aria-invalid", "true");
+  test("B10.2 a floor at or above the outflow strike is lowered one point below it", async ({ page }) => {
+    await expectCorrected(page, "input-floorLevel", "84", { value: 0.83, note: "Lowered Below Strike 5, 83.000%" });
+    expect(await value(page, "input-strikePercents-5")).toBeCloseTo(83, 9);
   });
 
-  test("B10.3 a Decay Reduction Below Floor above the Decay is rejected", async ({ inputs }) => {
-    await inputs.fill("floorUnits", "2");
-    await inputs.dialog.expectTitle("Please Fix This Input");
-    await expect(inputs.dialog.root).toContainText("A Decay Reduction Below Floor of 2 exceeds the Decay of 1.6");
-    await inputs.dialog.close();
-    await expect(inputs.field("floorUnits")).toHaveAttribute("aria-invalid", "true");
+  test("B10.3 a Decay Reduction Below Floor above the Decay is lowered to the Decay, and a Decay below it raised to it", async ({ page }) => {
+    await expectCorrected(page, "input-floorUnits", "2", { value: 1.6, note: "Lowered To The Decay, 1.60" });
+    await expectCorrected(page, "input-decay", "1.2", { value: 1.6, note: "Raised To The Decay Reduction Below Floor, 1.60" });
   });
 
   test("B10.4 the Decay Floor Level is Strike 6, both ways", async ({ page, inputs }) => {
@@ -172,11 +169,10 @@ test.describe("B10 Protection and floor", () => {
     expect(await value(page, "input-floorLevel")).toBeCloseTo(0.72, 12);
   });
 
-  test("B10.5 a start level uplift of zero is accepted and a negative one reverts", async ({ page, inputs }) => {
+  test("B10.5 a start level uplift of zero is accepted and a negative one is raised to 0%", async ({ page, inputs }) => {
     await inputs.fill("startLevelUplift", "0");
     await expect(inputs.field("startLevelUplift")).not.toHaveAttribute("aria-invalid", "true");
-    await expectFlagged(page, "input-startLevelUplift", "-1");
-    expect(await value(page, "input-startLevelUplift")).toBe(0);
+    await expectCorrected(page, "input-startLevelUplift", "-1", { value: 0, note: "Raised To The Minimum, 0.000%" });
   });
 });
 

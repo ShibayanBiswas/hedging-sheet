@@ -13,6 +13,19 @@ import { parsePastedDate } from "@/lib/inputs/bulk";
 
 export type FieldCheck = { label: string; message: string; range?: string };
 
+/** What a rule makes of a typed value: the value it becomes, null for a participation back to Calculated, and the note. */
+export type FieldCorrection = { value: number | null; note: string };
+
+/** What a correction did, under its field until the field is edited again. */
+export function FieldNote({ note, testId, className }: { note?: string | null; testId?: string; className?: string }) {
+  if (!note) return null;
+  return (
+    <p className={cn("hint field-note font-ui", className)} data-testid={testId} aria-live="polite">
+      {note}
+    </p>
+  );
+}
+
 /** FieldRow shares its id with the input inside, so the label names the input. */
 const FieldIdContext = createContext<string | undefined>(undefined);
 
@@ -34,6 +47,8 @@ export function FieldRow({
   hint,
   tip,
   error,
+  note,
+  noteTestId,
   htmlFor,
 }: {
   label: ReactNode;
@@ -42,6 +57,9 @@ export function FieldRow({
   /** Helper text kept behind an icon before the label, so the field stays one compact unit and the tab order reads left to right. */
   tip?: string;
   error?: string | null;
+  /** What a correction did to the value, such as "Lowered To The Decay, 1.60". */
+  note?: string | null;
+  noteTestId?: string;
   htmlFor?: string;
 }) {
   const labelId = useId();
@@ -58,6 +76,7 @@ export function FieldRow({
       <div className="min-w-0" role="group" aria-labelledby={labelId}>
         <FieldIdContext.Provider value={forId}>{children}</FieldIdContext.Provider>
         {hint ? <p className="hint mt-1 font-ui">{hint}</p> : null}
+        <FieldNote note={note} testId={noteTestId} className="mt-1" />
         <AnimatePresence initial={false}>
           {error ? (
             <m.p
@@ -112,12 +131,20 @@ export function NumberInput({
   onBlankChange,
   ariaLabel,
   fixed = false,
-  check,
+  correct,
+  onCorrect,
+  onEdit,
   onReject,
 }: {
-  /** The rule check of a typed value: a result keeps the value out of the inputs, and on leaving the field it reverts. */
-  check?: (v: number) => FieldCheck | null;
-  /** Told why a typed value was reverted, to open the popup. */
+  /**
+   * The rules of a typed value. A correction keeps the value out of the inputs while it is typed, and on leaving the field
+   * or Enter onCorrect applies the corrected value with its note. A whole number field then takes decimals too, to round them.
+   */
+  correct?: (v: number) => FieldCorrection | null;
+  onCorrect?: (c: FieldCorrection) => void;
+  /** Any keystroke: the field's note goes, as the value it described is being replaced. */
+  onEdit?: () => void;
+  /** Told that text which is no number went back to the last value, to open the popup. */
   onReject?: (result: FieldCheck) => void;
   value: number;
   onChange: (v: number) => void;
@@ -140,7 +167,7 @@ export function NumberInput({
   const [draft, setDraft] = useState(() => toDraft(value, kind, digits, fixed));
   const [focused, setFocused] = useState(false);
   const [bad, setBad] = useState(false);
-  const [rejected, setRejected] = useState<FieldCheck | null>(null);
+  const [pending, setPending] = useState<FieldCorrection | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror outside changes while the field is idle
@@ -158,17 +185,23 @@ export function NumberInput({
         disabled={disabled}
         placeholder={placeholder}
         value={draft}
-        aria-invalid={bad || invalid || rejected != null || undefined}
+        aria-invalid={bad || invalid || pending != null || undefined}
         onFocus={() => setFocused(true)}
         onKeyDown={(e) => {
           if (e.key === "Enter") e.currentTarget.blur();
         }}
         onBlur={() => {
           setFocused(false);
-          // A guarded field never keeps a value it cannot use: it goes back to the last valid one and says why.
-          const reason = rejected ?? (bad && onReject ? { label: "", message: kind === "integer" ? "Enter a whole number." : "Enter a number." } : null);
+          // A value a rule corrects becomes the corrected value, with its note.
+          if (pending) {
+            setPending(null);
+            setBad(false);
+            onCorrect?.(pending);
+            return;
+          }
+          // A guarded field never keeps text that is no number: it goes back to the last value and says why.
+          const reason = bad && onReject ? { label: "", message: kind === "integer" && !correct ? "Enter a whole number." : "Enter a number." } : null;
           if (reason) {
-            setRejected(null);
             setBad(false);
             setDraft(toDraft(value, kind, digits, fixed));
             onReject?.(reason);
@@ -181,24 +214,25 @@ export function NumberInput({
         onChange={(e) => {
           const text = e.target.value;
           setDraft(text);
+          onEdit?.();
           if (!text.trim()) {
             setBad(false);
-            setRejected(null);
+            setPending(null);
             onBlankChange?.();
             return;
           }
-          const parsed = parseDraft(text, kind);
+          const parsed = parseDraft(text, correct && kind === "integer" ? "number" : kind);
           setBad(parsed == null);
           if (parsed == null) return;
-          const result = check?.(parsed) ?? null;
-          setRejected(result);
-          if (!result) onChange(parsed);
+          const fix = correct?.(parsed) ?? null;
+          setPending(fix);
+          if (!fix) onChange(parsed);
         }}
         className={cn(
           "input-glow h-9 w-full rounded-xl border border-[color:var(--ar-border)] bg-[color:var(--ar-input-bg)] px-3 font-ui text-body tabular-nums outline-none focus:border-gold",
           PLACEHOLDER,
           suffix && "pr-12",
-          (bad || invalid || rejected) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
+          (bad || invalid || pending) && "border-rose-500 ring-2 ring-rose-400/60 focus:border-rose-500",
           disabled && "cursor-not-allowed opacity-60",
         )}
       />
@@ -209,7 +243,7 @@ export function NumberInput({
       ) : null}
       {bad ? (
         <p className="hs-error mt-1" role="alert">
-          {kind === "integer" ? "Enter a whole number." : "Enter a number."}
+          {kind === "integer" && !correct ? "Enter a whole number." : "Enter a number."}
         </p>
       ) : null}
     </div>

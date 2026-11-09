@@ -87,21 +87,20 @@ test.describe("Round 11 · Inputs", () => {
     await expect(page.getByTestId("input-strikePercents-0")).toHaveAttribute("data-value", "140");
   });
 
-  test("an invalid edit opens a popup and the field reverts; a valid one sticks", async ({ page, inputs, dialog }) => {
+  test("an edit that breaks a rule is corrected with a note and no popup; a valid one sticks", async ({ page, inputs, dialog }) => {
     await inputs.goto();
     const field = page.getByTestId("input-hedgeStrike");
-    const before = await field.getAttribute("data-value");
     await inputs.fill("input-hedgeStrike", "77350");
-    await dialog.expectTitle("Hedge Strike Reverted");
-    await expect(dialog.root).toContainText("multiple of 100");
-    await dialog.close();
-    await expect(field).toHaveAttribute("data-value", before!);
-    await inputs.fill("input-hedgeStrike", "77400");
     await expect(field).toHaveAttribute("data-value", "77400");
+    await expect(page.getByTestId("note-hedgeStrike")).toHaveText("Rounded To The Nearest 100, 77,400");
+    await expect(dialog.root).toHaveCount(0);
+    await inputs.fill("input-hedgeStrike", "77500");
+    await expect(field).toHaveAttribute("data-value", "77500");
+    await expect(page.getByTestId("note-hedgeStrike")).toHaveCount(0);
     await inputs.fill("input-nbfcRate", "150");
-    await dialog.expectTitle("NBFC Rate Reverted");
-    await dialog.close();
-    await expect(page.getByTestId("input-nbfcRate")).toHaveAttribute("data-value", "0.08");
+    await expect(page.getByTestId("input-nbfcRate")).toHaveAttribute("data-value", "1");
+    await expect(page.getByTestId("note-nbfcRate")).toHaveText("Lowered To The Maximum, 100.000%");
+    await expect(dialog.root).toHaveCount(0);
   });
 
   test("Run checks everything: the popup lists each problem as a link to its field", async ({ page, inputs, dialog }) => {

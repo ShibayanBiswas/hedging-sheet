@@ -10,16 +10,20 @@ import { RunSimulationButton } from "@/components/ui/run-simulation-button";
 import { TabActions } from "@/components/ui/tab-actions";
 import { useDeskDialog } from "@/lib/context/desk-dialog-provider";
 import { focusField, useDesk } from "@/lib/context/desk-provider";
+import { CORRECTED_AT_RUN } from "@/lib/validation/corrections";
 import { INLINE_ONLY_CODES } from "@/lib/validation/inputRules";
 
-/** Rules across fields open a popup the moment a typed value breaks them. Empty fields wait for Run Simulation. */
+/**
+ * Rules across fields that nothing corrects open a popup the moment a value breaks them. A rule Run Simulation corrects shows
+ * under its field instead, and empty fields wait for Run Simulation.
+ */
 function useEdgeCasePopups() {
   const { fieldErrors } = useDesk();
   const { alert } = useDeskDialog();
   const shown = useRef(new Set<string>());
 
   useEffect(() => {
-    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code && !INLINE_ONLY_CODES.has(e.code));
+    const current = fieldErrors.filter((e) => e.kind === "invalid" && e.code && !INLINE_ONLY_CODES.has(e.code) && !CORRECTED_AT_RUN.has(e.code));
     const keys = new Set(current.map((e) => `${e.code}:${e.field}`));
     // Forget fixed issues so they can pop again if they come back.
     for (const k of [...shown.current]) if (!keys.has(k)) shown.current.delete(k);

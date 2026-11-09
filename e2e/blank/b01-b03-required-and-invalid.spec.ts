@@ -1,15 +1,18 @@
 import { blankInputs } from "../../lib/inputs/draft";
+import { correctNumber, correctValuationDate } from "../../lib/validation/corrections";
 import { fieldTestId, INPUT_SECTIONS, numberFieldRules, requiredFields, validateDeskInputs, type NumberFieldRule } from "../../lib/validation/inputRules";
 import { blankFillInputs } from "../../tests/helpers/mock-market";
 import { expect, test } from "../fixtures";
 import { OUTPUT_TAB_IDS } from "../support/tables";
-import { chromiumOnly, dialogItems, expectAccepted, expectFlagged, expectNotRun, fillBlank, fillValue, re, restoreField } from "./helpers";
+import { chromiumOnly, dialogItems, expectAccepted, expectCorrected, expectFlagged, expectNotRun, fillBlank, fillValue, re, restoreField } from "./helpers";
 
 // Data and rule checks read the settled page; motion is covered by the animation smoke tests.
 test.use({ reducedMotion: "reduce" });
 
 const TODAY = "2026-10-28";
 const filled = blankFillInputs();
+/** What a typed value becomes on the filled page, from lib/validation/corrections: the mock close is the fill's spot. */
+const corrected = (field: string, v: number) => correctNumber(filled, field, v, { today: TODAY, spot: filled.spot });
 /** Choices rather than typed numbers: three selects and the per-strike segmented controls of the first and last strike. */
 const SELECTS = new Set(["underlying", "expiryCount", "spreadCount", "strikeOptionTypes.0", "strikeSides.5"]);
 const isSegmented = (field: string) => /^strike(OptionTypes|Sides)\./.test(field);
@@ -118,6 +121,7 @@ test.describe("B2 One required field missing", () => {
   }
 });
 
+// A value that breaks a rule is corrected, with a note; only text that is no number still reverts with a popup.
 test.describe("B3 Invalid values in every number field", () => {
   const rules = numberFieldRules(filled);
   const idOf = (r: NumberFieldRule) => fieldTestId(r.field);
@@ -153,27 +157,38 @@ test.describe("B3 Invalid values in every number field", () => {
     });
   });
 
-  test("B3.3 negative values are flagged", async ({ page, inputs }) => {
-    await each(page, inputs, () => true, (r, id) => expectFlagged(page, id, `-${typed(r, Math.max(r.min, 0.05 * r.max, 1))}`));
-  });
+  /** A value the rules correct: the field takes what lib/validation/corrections makes of it, with its note. */
+  const expectFixed = async (page: Parameters<typeof expectCorrected>[0], r: NumberFieldRule, id: string, v: number) => {
+    const fix = corrected(r.field, v);
+    if (!fix) await expectAccepted(page, id, typed(r, v));
+    else await expectCorrected(page, id, typed(r, v), fix);
+  };
 
-  test("B3.4 zero is flagged where zero is invalid, and accepted where it is allowed", async ({ page, inputs }) => {
-    await each(page, inputs, () => true, (r, id) => (r.minInclusive && r.min === 0 ? expectAccepted(page, id, "0") : expectFlagged(page, id, "0")));
-  });
-
-  test("B3.5 values above the maximum and below the minimum are flagged", async ({ page, inputs }) => {
+  test("B3.3 a negative value is made positive where only positive makes sense, and raised to 0 where 0 is allowed", async ({ page, inputs }) => {
     await each(page, inputs, () => true, async (r, id) => {
-      await expectFlagged(page, id, typed(r, r.max + (r.integer || !r.percent ? 1 : 0.01)));
-      await restoreField(page, inputs, id);
-      await expectFlagged(page, id, typed(r, r.min - (r.integer || !r.percent ? 1 : 0.01)));
+      const v = -Math.max(r.min, 0.05 * r.max, 1);
+      expect(corrected(r.field, v), r.field).not.toBeNull();
+      await expectFixed(page, r, id, v);
     });
   });
 
-  test("B3.6 decimals are accepted at the allowed precision; whole-number fields reject them", async ({ page, inputs }) => {
+  test("B3.4 zero takes the default where zero is not allowed, and is accepted where it is", async ({ page, inputs }) => {
+    await each(page, inputs, () => true, (r, id) => (r.minInclusive && r.min === 0 ? expectAccepted(page, id, "0") : expectFixed(page, r, id, 0)));
+  });
+
+  test("B3.5 a value above the maximum is lowered to it, and one below the minimum is raised or made positive", async ({ page, inputs }) => {
+    await each(page, inputs, () => true, async (r, id) => {
+      await expectFixed(page, r, id, r.max + (r.integer || !r.percent ? 1 : 0.01));
+      await restoreField(page, inputs, id);
+      await expectFixed(page, r, id, r.min - (r.integer || !r.percent ? 1 : 0.01));
+    });
+  });
+
+  test("B3.6 decimals are accepted at the allowed precision; whole-number fields round them", async ({ page, inputs }) => {
     await each(page, inputs, () => true, async (r, id) => {
       const base = fillValue(id) ?? "76800";
       const decimal = base.includes(".") ? `${base}5` : `${base}.25`;
-      if (r.integer || r.step) await expectFlagged(page, id, decimal);
+      if (r.integer || r.step) await expectFixed(page, r, id, Number(decimal) / (r.percent ? 100 : 1));
       else {
         await expectAccepted(page, id, decimal);
         const expected = Number(decimal) / (r.percent ? 100 : 1);
@@ -193,17 +208,18 @@ test.describe("B3 Invalid values in every number field", () => {
     expect(await page.getByTestId("input-spot").getAttribute("data-value")).toBe("123456.78");
   });
 
-  test("B3.8 a future valuation date is rejected; text that is no real date reverts with a popup", async ({ page, inputs }) => {
+  test("B3.8 a future valuation date moves to today with a note; text that is no real date reverts with a popup", async ({ page, inputs }) => {
+    const fix = correctValuationDate(filled, "2026-10-29", { today: TODAY })!;
+    expect(fix).toEqual({ value: TODAY, note: "Moved To Today, 28-Oct-2026" });
     await inputs.fill("valuationDate", "2026-10-29");
-    await expect(inputs.field("valuationDate")).toHaveAttribute("aria-invalid", "true");
-    await inputs.runButton.click();
-    expect((await dialogItems(page)).join("\n")).toContain("Valuation Date: Valuation Date cannot be in the future.");
-    await inputs.dialog.close();
-    await expect(inputs.field("valuationDate")).toBeFocused();
+    await expect(inputs.field("valuationDate")).toHaveValue("28-Oct-2026");
+    await expect(page.getByTestId("note-valuationDate")).toHaveText(fix.note);
+    await expect(inputs.field("valuationDate")).not.toHaveAttribute("aria-invalid", "true");
+    await expect(inputs.dialog.root).toHaveCount(0);
     // The field reads 31-Oct-2026 and only ever commits a real date: 30 February goes back to the last value with a popup.
     await inputs.fill("valuationDate", "30-Feb-2026");
     await inputs.dialog.expectTitle("Valuation Date Reverted");
     await inputs.dialog.close();
-    await expect(inputs.field("valuationDate")).toHaveValue("29-Oct-2026");
+    await expect(inputs.field("valuationDate")).toHaveValue("28-Oct-2026");
   });
 });

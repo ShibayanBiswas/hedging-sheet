@@ -127,7 +127,7 @@ test.describe("Calendar inside SP Workstation's cross-origin frame", () => {
     await frame.getByTestId("group-2").getByRole("heading").click();
     await expect(frame.getByRole("dialog")).toHaveCount(0);
 
-    // Expiry 2 by the keyboard: a March pick falls before Expiry 1, so it reverts with the popup.
+    // Expiry 2 by the keyboard: a March pick falls before Expiry 1, 25-Apr-2030, so it moves to the first expiry after it.
     const open2 = frame.getByRole("button", { name: "Open Calendar For Expiry 2" });
     await openByKeyboard(page, open2);
     await calendar2.getByRole("combobox", { name: "Year" }).selectOption("2030");
@@ -136,11 +136,9 @@ test.describe("Calendar inside SP Workstation's cross-origin frame", () => {
     await page.keyboard.press("ArrowLeft");
     await expect(calendar2.getByRole("gridcell", { name: "Wednesday 27-Mar-2030" })).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(frame.getByTestId("desk-dialog").locator("#desk-dialog-title")).toHaveText("Expiry 2 Reverted");
-    await expect(frame.getByTestId("desk-dialog")).toContainText("Expiry 2 must fall after Expiry 1.");
-    await frame.getByTestId("desk-dialog-ok").click();
+    await expect(frame.getByTestId("input-expiryDates-1")).toHaveValue("30-May-2030");
+    await expect(frame.getByTestId("expiry-note-1")).toHaveText("Moved After Expiry 1, 30-May-2030");
     await expect(frame.getByTestId("desk-dialog")).toHaveCount(0);
-    await expect(frame.getByTestId("input-expiryDates-1")).toHaveValue("");
 
     // Then July: four Page Downs from 28-Mar-2030, Arrow Up a week, End to that Saturday, and Enter picks it; it moves to 25-Jul-2030.
     await openByKeyboard(page, open2);

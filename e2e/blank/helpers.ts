@@ -77,6 +77,20 @@ export async function expectFlagged(page: Page, testId: string, text: string) {
   await expect(field).not.toHaveAttribute("aria-invalid", "true");
 }
 
+/**
+ * A value that breaks a rule is corrected on leaving the field: the field takes the corrected value, the note under it says
+ * what it became, and no popup opens. `expected` is what lib/validation/corrections makes of the value.
+ */
+export async function expectCorrected(page: Page, testId: string, text: string, expected: { value: number | null; note: string }) {
+  const field = page.getByTestId(testId);
+  await field.fill(text);
+  await field.blur();
+  await expect(page.getByTestId(`note-${testId.replace(/^input-/, "")}`), `${testId} = ${text}`).toHaveText(expected.note);
+  if (expected.value != null && Number.isFinite(expected.value)) expect(Number(await field.getAttribute("data-value")), `${testId} = ${text}`).toBeCloseTo(expected.value, 9);
+  await expect(field).not.toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByTestId("desk-dialog")).toHaveCount(0);
+}
+
 export async function expectAccepted(page: Page, testId: string, text: string) {
   const field = page.getByTestId(testId);
   await field.fill(text);

@@ -4,6 +4,21 @@ import path from "node:path";
 import ExcelJS from "exceljs";
 
 import invalidCases from "../../tests/fixtures/invalid-cases.json";
+import { defaultInputs } from "../../lib/engine/defaults";
+import { MOCK_SPOTS } from "../../lib/test/mocks/yahoo";
+import { correctExpiryDate, correctNumber, correctValuationDate } from "../../lib/validation/corrections";
+
+/** What lib/validation/corrections makes of a value typed into Default Values at the mock close. */
+function expectedFix(id: string, typed: string): { value: number | string | null; note: string } {
+  const inputs = defaultInputs({ valuationDate: "2026-10-28", spot: MOCK_SPOTS["^BSESN"] });
+  const ctx = { today: "2026-10-28", spot: MOCK_SPOTS["^BSESN"] };
+  if (id === "input-valuationDate") return correctValuationDate(inputs, typed, ctx)!;
+  const expiry = /^input-expiryDates-(\d+)$/.exec(id);
+  if (expiry) return correctExpiryDate(inputs, Number(expiry[1]), typed);
+  const percent = id === "input-protection" || id === "input-coupon";
+  const field = id.replace(/^input-/, "").replace("-", ".");
+  return correctNumber(inputs, field, Number(typed) / (percent ? 100 : 1), ctx)!;
+}
 import { expect, test } from "../fixtures";
 import { restoreMarketFixtures } from "../support/market";
 
@@ -84,41 +99,39 @@ test.describe("Default Values mode", () => {
     }
   });
 
-  for (const c of invalidCases.cases.filter((c) => c.fill.length && "reverts" in c)) {
-    test(`invalid input reverts with a popup: ${c.name}`, async ({ inputs, page }) => {
+  // A value that breaks a rule is corrected on leaving the field, with a note under it: no popup, and Run stays on.
+  for (const c of invalidCases.cases.filter((c) => c.fill.length)) {
+    test(`invalid input is corrected with a note and never blocks the run: ${c.name}`, async ({ inputs, page }) => {
       await inputs.goto();
-      const [id, value] = c.fill[0]!;
-      const field = page.getByTestId(id!);
-      const before = (await field.getAttribute("data-value")) ?? (await field.inputValue());
-      await inputs.fill(id!, value!);
-      await inputs.dialog.expectTitle(/ Reverted$/);
-      await inputs.dialog.close();
-      expect((await field.getAttribute("data-value")) ?? (await field.inputValue())).toBe(before);
+      const [id, typed] = c.fill[0]!;
+      const expected = expectedFix(id!, typed!);
+      await inputs.fill(id!, typed!);
+      const expiry = /^input-expiryDates-(\d+)$/.exec(id!);
+      await expect(page.getByTestId(expiry ? `expiry-note-${expiry[1]}` : `note-${id!.replace(/^input-/, "")}`)).toHaveText(expected.note);
+      if (typeof expected.value === "number") expect(Number(await page.getByTestId(id!).getAttribute("data-value"))).toBeCloseTo(expected.value, 9);
+      if (typeof expected.value === "string") await expect(page.getByTestId(id!)).toHaveAttribute("data-value", expected.value);
+      await expect(page.getByTestId(id!)).not.toHaveAttribute("aria-invalid", "true");
+      await expect(inputs.dialog.root).toHaveCount(0);
+      await expect(inputs.runButton).toBeEnabled();
     });
   }
 
-  for (const c of invalidCases.cases.filter((c) => c.fill.length && !("reverts" in c))) {
-    test(`invalid input blocks the run: ${c.name}`, async ({ inputs, page }) => {
-      await inputs.goto();
-      const target = c.field.startsWith("coupon") ? "input-coupon" : `input-${c.field.replace(".", "-")}`;
-      for (const [id, value] of c.fill) await inputs.fill(id!, value!);
-      await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
-      await inputs.dialog.dismissAll(3_000);
-      await inputs.expectValidationDialog({ contains: [c.label, c.message] });
-      await inputs.dialog.close();
-      await expect(inputs.dialog.root).toHaveCount(0);
-      await expect(page.getByTestId(target)).toHaveAttribute("aria-invalid", "true");
-      await inputs.resetButton.click();
-      await expect(page.getByTestId(target)).not.toHaveAttribute("aria-invalid", "true");
-    });
-  }
+  test("corrected values run straight away", async ({ inputs, outputs }) => {
+    await inputs.goto();
+    await inputs.fill("input-strikePercents-2", "128");
+    await inputs.fill("input-floorUnits", "2");
+    await inputs.fill("input-participations-1", "2");
+    await inputs.run();
+    await outputs.summary.expectResults();
+  });
 
   test("spreads follow the strikes and participation resets to calculated", async ({ inputs, page }) => {
     await inputs.goto();
     await expect(page.getByTestId("max-coupon")).toContainText("102.50%");
     await expect(page.getByTestId("spread-1-participation-status")).toContainText("Calculated");
-    await inputs.fill("participations-1", "12");
-    await inputs.dialog.dismissAll();
+    // Only the rate that reaches the Coupon exactly can be typed into the top spread: it pins it, Edited. The field shows
+    // 10.05 already, so it is typed as 10.050 to be an edit.
+    await inputs.fill("participations-1", "10.050");
     await expect(page.getByTestId("spread-1-participation-status")).toContainText("Edited");
     await page.getByTestId("spread-1-reset").click();
     await expect(page.getByTestId("spread-1-participation-status")).toContainText("Calculated");
