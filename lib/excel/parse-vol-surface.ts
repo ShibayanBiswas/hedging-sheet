@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 
 import { formatDate, istTodayYmd } from "@/lib/engine/dates";
 import type { BidOffer, DividendPoint, PricingParamPoint, PricingParams, RatePoint, VolSurface } from "@/lib/engine/types";
-import { DEEP_STRIKE, DEFAULT_FWD_SELL_RATE, surfaceMonthLabel } from "@/lib/engine/vol-surface";
+import { DEEP_MONEYNESS, DEEP_STRIKE, DEFAULT_FWD_SELL_RATE, surfaceMonthLabel } from "@/lib/engine/vol-surface";
 
 type Grid = (string | number | Date | null)[][];
 
@@ -267,6 +267,11 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
   }
   if (!moneyness.length || firstMoneyCol < 1) throw new Error("No Strike Change % columns were found.");
   const deepCol = firstMoneyCol - 1;
+  // A file with no Deep column has its expiry dates right before the first Strike Change %. Deep then reads the
+  // column normalizeVolSurface copies into it: 55%, or the lowest when there is no 55%.
+  let hasDeep = true;
+  const at55 = moneyness.findIndex((m) => Math.abs(m - DEEP_MONEYNESS) < 1e-9);
+  const deepFrom = at55 >= 0 ? at55 : moneyness.indexOf(Math.min(...moneyness));
 
   let dataRow = headerRow + 1;
   while (dataRow < grid.length) {
@@ -293,6 +298,10 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
     if (text(row[0]) === "date" || text(row[1]) === "date") break;
     if (dateCol < 0) {
       dateCol = row.findIndex((cell, idx) => idx <= 3 && idx < deepCol && cellIsDate(cell));
+      if (dateCol < 0 && cellIsDate(row[deepCol])) {
+        dateCol = deepCol;
+        hasDeep = false;
+      }
       if (dateCol < 0) {
         if (expiries.length) break;
         continue;
@@ -315,6 +324,7 @@ export function parseVolSurfaceFile(buffer: ArrayBuffer, monthKey: string = istT
       }
       vols.push(Number.isFinite(v) ? v : 0);
     }
+    if (!hasDeep) vols[0] = vols[deepFrom + 1]!;
     volsPercent.push(vols);
   }
   if (!expiries.length) throw new Error("No expiry rows were found on the Volatility Surface Sheet.");

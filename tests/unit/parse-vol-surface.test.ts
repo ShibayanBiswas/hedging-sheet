@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_FWD_SELL_RATE } from "@/lib/engine/vol-surface";
+import { deepMismatchCount, DEFAULT_FWD_SELL_RATE, normalizeVolSurface } from "@/lib/engine/vol-surface";
 import { parseVolSurfaceFile } from "@/lib/excel/parse-vol-surface";
 
 type Cell = string | number | Date | null;
@@ -11,6 +11,16 @@ const day = (ymd: string) => new Date(`${ymd}T00:00:00.000Z`);
 function book(sheets: Record<string, Cell[][]>): ArrayBuffer {
   const wb = XLSX.utils.book_new();
   for (const [name, rows] of Object.entries(sheets)) XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows, { cellDates: true }), name);
+  return XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
+}
+
+/** One sheet whose used range starts at B2, as Excel saves a sheet with an empty column A and row 1. */
+function sheetAtB2(rows: Cell[][]): ArrayBuffer {
+  const ws = XLSX.utils.sheet_add_aoa({}, rows, { cellDates: true, origin: "B2" });
+  const range = XLSX.utils.decode_range(ws["!ref"]!);
+  ws["!ref"] = XLSX.utils.encode_range({ s: { r: 1, c: 1 }, e: range.e });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
   return XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
 }
 
@@ -54,6 +64,36 @@ describe("surface sheet layouts", () => {
     const { surface } = parseVolSurfaceFile(book({ Surface: rows }), "2026-10");
     expect(surface.expiries).toEqual(["2026-11-26T00:00:00.000Z"]);
     expect(surface.volsPercent[0]).toEqual([30, 30, 20, 15]);
+  });
+
+  it("reads a surface with no Deep column, its expiry dates right before 55%, and gives Deep the 55% volatility", () => {
+    // The November 2026 file: a title, a Reference level header over 55 to 150, and the dates in the column before 55.
+    const rows: Cell[][] = [
+      ["Nov 2026 Surface"],
+      ["Reference level", 55.00000000000001, 100, 110.00000000000001, 114.99999999999999, 150],
+      [day("2026-11-23"), 53.071, 13.6586, 13.9132, 16.0513, 27.5347],
+      [day("2026-12-29"), 41.2258, 13.4855, 12.5902, 13.8593, 24.4176],
+    ];
+    // At B2, as that file sits, so the dates are the first column read; and with an empty column A in front of them.
+    const layouts = [sheetAtB2(rows), book({ Sheet1: [[], ...rows.map((row) => [null, ...row])] })];
+    for (const file of layouts) {
+      const { surface } = parseVolSurfaceFile(file, "2026-11");
+      expect(surface.moneyness).toEqual([0.55, 1, 1.1, 1.15, 1.5]);
+      expect(surface.expiries).toEqual(["2026-11-23T00:00:00.000Z", "2026-12-29T00:00:00.000Z"]);
+      expect(surface.volsPercent).toEqual([
+        [53.071, 53.071, 13.6586, 13.9132, 16.0513, 27.5347],
+        [41.2258, 41.2258, 13.4855, 12.5902, 13.8593, 24.4176],
+      ]);
+      expect(deepMismatchCount(surface)).toBe(0);
+      expect(surface.pricingParams).toEqual([{ date: "2026-11-30T00:00:00.000Z", volBump: 0, fwdSellRate: DEFAULT_FWD_SELL_RATE }]);
+    }
+  });
+
+  it("gives Deep the lowest column when a surface with no Deep column has no 55% column", () => {
+    const { surface } = parseVolSurfaceFile(book({ Surface: [["Expiry", 100, 60, 120], [day("2026-11-23"), 13.6586, 47.8825, 12.0597]] }), "2026-11");
+    expect(surface.volsPercent).toEqual([[47.8825, 13.6586, 47.8825, 12.0597]]);
+    expect(deepMismatchCount(surface)).toBe(0);
+    expect(normalizeVolSurface(surface).volsPercent).toEqual([[47.8825, 47.8825, 13.6586, 12.0597]]);
   });
 
   it("prefers a Market Data or surface tab over a parameters or summary tab", () => {

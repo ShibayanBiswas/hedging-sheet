@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import * as XLSX from "xlsx";
 
 import { GET as getDataset } from "@/app/api/dataset/route";
 import { GET as getDailyVol } from "@/app/api/market/daily-vol/route";
@@ -106,5 +107,31 @@ describe("data routes on an in-memory Mongo", () => {
     const bad = new FormData();
     bad.append("file", new File(["not a workbook"], "notes.txt"));
     expect((await postUpload(writeReq("/api/uploads/vol-surface", { method: "POST", body: bad }))).status).toBe(400);
+  });
+
+  it("upload: previews a surface with no Deep column, Deep from 55%, on the desk's Pricing Params grid", async () => {
+    const rows = [
+      ["Nov 2026 Surface"],
+      ["Reference level", 55.00000000000001, 100, 150],
+      [new Date("2026-11-23T00:00:00.000Z"), 53.071, 13.6586, 27.5347],
+      [new Date("2026-12-29T00:00:00.000Z"), 41.2258, 13.4855, 24.4176],
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows, { cellDates: true }), "Sheet1");
+    const form = new FormData();
+    form.append("file", new File([XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer], "Final Surface Nov 26.xlsx"));
+    form.append("monthKey", "2026-11");
+    form.append("mode", "preview");
+    const res = await postUpload(writeReq("/api/uploads/vol-surface", { method: "POST", body: form }));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.summary).toEqual({ expiries: 2, strikePercents: 3, deepAdjusted: 0 });
+    expect(body.surface.volsPercent).toEqual([
+      [53.071, 53.071, 13.6586, 27.5347],
+      [41.2258, 41.2258, 13.4855, 24.4176],
+    ]);
+    const desk = (await (await getSurface()).json()).surface;
+    expect(desk.pricingParams.length).toBeGreaterThan(1);
+    expect(body.surface.pricingParams).toHaveLength(desk.pricingParams.length);
   });
 });

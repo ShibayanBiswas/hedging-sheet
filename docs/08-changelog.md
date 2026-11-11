@@ -1,5 +1,14 @@
 # 08 · Changelog
 
+## Surface File: No Deep Column Needed, And A One Point File Keeps The Pricing Params Grid
+
+| Area | Change |
+|---|---|
+| Upload Surface | A surface file with no Deep column, its expiry dates right before the 55% column, now reads: Deep ₹500 takes each row's 55% volatility, or the lowest column's when there is no 55%, and nothing is reported as adjusted. The November 2026 surface, `Final Surface Nov 26.xlsx`, comes this way: 14 expiries from 23-Nov-2026 to 26-Mar-2031 at 55% to 150%. Before, the column before 55% was taken as Deep and the file was refused with "No expiry rows were found on the Volatility Surface Sheet." Files with a Deep column read as before |
+| Bake | `npm run bake:vol-surface` keeps the built in dated Pricing Params grid for a file with one Surface Parameters point or none, setting that point's Volatility Bump and Forward Sell Rate from its month on, as Upload Surface does. Before, the margins went and one row was left. It also prints the number of Pricing Params rows |
+| Unchanged | The built in seed is still the reference workbook's MarketData for the goldens. The test fixtures, the mock clock and the visual baselines are unchanged. Production prices on the shared surface, which this commit does not write |
+| Tests | Two parser tests for the November layout, at B2 and behind an empty column A, and for a surface with no 55% column. An Upload Surface preview of that layout checks Deep from 55% and the desk's Pricing Params grid kept |
+
 ## Inputs: A Bad Entry Is Corrected With A Note, Not Refused
 
 | Area | Change |

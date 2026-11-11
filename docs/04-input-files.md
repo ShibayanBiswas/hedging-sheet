@@ -10,11 +10,11 @@ The hosted app accepts files up to 4.5 MB. `npm run verify:vol-upload` builds th
 
 | Row or column | Content |
 |---|---|
-| Header row | Strike Change, Deep, then one Strike Change % per column, such as 55% to 150% |
+| Header row | Strike Change, Deep, then one Strike Change % per column, such as 55% to 150%. The Deep column may be left out |
 | Strike rows | Nifty Strikes and Sensex Strikes: the reference price times the Strike Change, as formulas |
 | One row per expiry | The expiry date, then a volatility in % points per column, such as 13.39 |
 
-The Deep ₹500 strike takes the Deep column. On Market Data, expiry rows before the valuation date are hidden because no live leg reads them; they stay in the file.
+The Deep ₹500 strike always takes its row's 55% volatility, or the lowest column's when there is no 55%; Upload Surface says how many rows' Deep values it changed. A file with no Deep column, its expiry dates right before the 55% column as in the November 2026 surface, reads the same way, with nothing to report. A file with one Surface Parameters point, or none, keeps the desk's dated Pricing Params grid and sets that point's Volatility Bump and Forward Sell Rate from its month on, on Upload Surface and in `npm run bake:vol-surface` alike. On Market Data, expiry rows before the valuation date are hidden because no live leg reads them; they stay in the file.
 
 ## Surface Parameters sheet
 

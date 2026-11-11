@@ -12,6 +12,7 @@ import path from "node:path";
 
 import { istTodayYmd } from "../lib/engine/dates";
 import { normalizePricingParams, seedPricingParams } from "../lib/engine/defaults";
+import { normalizeVolSurface, SEED_SURFACE, withMonthScalars } from "../lib/engine/vol-surface";
 import { parseVolSurfaceFile } from "../lib/excel/parse-vol-surface";
 
 const [src, monthArg] = process.argv.slice(2);
@@ -27,6 +28,12 @@ if (!fs.existsSync(src)) {
 
 const buf = fs.readFileSync(src);
 const parsed = parseVolSurfaceFile(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), monthKey);
+// A file with one Surface Parameters point, such as a surface with no parameters sheet, keeps the built in dated
+// Pricing Params grid and sets that point's bump and forward sell rate from its month onward, as Upload Surface does.
+if (parsed.surface.pricingParams.length === 1) {
+  const { volBump, fwdSellRate } = parsed.surface.pricingParams[0]!;
+  parsed.surface.pricingParams = withMonthScalars(normalizeVolSurface(SEED_SURFACE).pricingParams, monthKey, { volBump, fwdSellRate });
+}
 const params = normalizePricingParams({ ...seedPricingParams(), ...parsed.params });
 
 const write = (rel: string, data: unknown) => {
@@ -41,6 +48,7 @@ console.log({
   firstExpiry: parsed.surface.expiries[0]?.slice(0, 10),
   lastExpiry: parsed.surface.expiries.at(-1)?.slice(0, 10),
   strikeChangeColumns: parsed.surface.moneyness.length,
+  pricingParamsRows: parsed.surface.pricingParams.length,
   bidOffer: params.bidOffer,
   rateCurvePoints: params.rateCurve.length,
 });
