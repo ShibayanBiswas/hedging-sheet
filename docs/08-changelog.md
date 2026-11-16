@@ -1,5 +1,14 @@
 # 08 · Changelog
 
+## Inbuilt Goal Seek: Checked Against Both Reference Workbooks
+
+| Area | Change |
+|---|---|
+| Finding | The engine's Inbuilt is the workbook's Macro2, Goal Seek P5 = C5 by changing H5, on the same Pricer O5 payout, solved exactly. Both reference workbooks saved a converged Goal Seek: P5 equals the 102.50% coupon to 5e-16. G0, the ₹100 crore Sensex book, matches to ₹0.06. No engine change was needed |
+| G1 | The ₹398 gap on the ₹3 crore Nifty rollover (0.013% of the notional) is all margin: its Summary Q10 is typed, 0.31418229, where G0 has ='MTM & Margin req'!K16/-100. That formula divides by a fixed 100, the notional of a ₹100 crore book only; the engine divides by the notional and gets 0.31399 from the live 0% stress row. Its MTM product column is typed too, from another run |
+| Tests | G1's 0.1% Inbuilt check becomes exact: with the typed Q10, the engine's figures give the saved H5 to the paisa, and the live margin accounts for the whole gap; F5 and H5 hold to 0.02% |
+| Docs | The audit verdict, the calculation logic and the close-out describe the typed margin rather than a stale Goal Seek |
+
 ## Surface File: No Deep Column Needed, And A One Point File Keeps The Pricing Params Grid
 
 | Area | Change |

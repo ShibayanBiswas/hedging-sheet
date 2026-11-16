@@ -195,7 +195,7 @@ Any leg's volatility can be overridden on the Pricer by typing over the Volatili
 
 **Macro2, goal seek.** The sheet's macro sets P5 to the coupon C5 by changing H5. The engine solves the same equation with Brent's method and a bisection fallback to 1e-10, on every Run Simulation.
 
-**Margin loop.** Summary Q10 = MTM K16 ÷ −notional: the 0% row of the stress grid. The engine iterates margin and Inbuilt until the margin moves less than 1e-9, at most 50 passes. The margin does not depend on the Inbuilt in this product, so it settles on the first pass.
+**Margin loop.** Summary Q10 = MTM K16 ÷ −notional: the 0% row of the stress grid. The workbook writes ='MTM & Margin req'!K16/-100, a fixed 100 that is the notional only for a ₹100 crore book; the engine divides by the notional, so a ₹3 crore book gets its own margin. The engine iterates margin and Inbuilt until the margin moves less than 1e-9, at most 50 passes. The margin does not depend on the Inbuilt in this product, so it settles on the first pass.
 
 ## Day 1 Vega Hedge
 

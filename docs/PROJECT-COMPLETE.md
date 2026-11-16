@@ -88,7 +88,7 @@ Read only, against `55e2739`, from the Windows laptop while other sessions kept 
 
 ### Known Workbook Deviations
 
-Workbook values that are typed, not formulas: Summary D3, a second spot (the app has one spot; both give Start Level 24,500); Pricer H5 and Summary Q10, pasted Goal Seek results 0.015% from a fresh solve; Summary P10, a stale spread width; the MTM product requirement column, typed for a 100 Crore book; and the "Sensex" label on the Nifty book's Day 1 sheet.
+Workbook values that are typed, not formulas: Summary D3, a second spot (the app has one spot; both give Start Level 24,500); Summary Q10, a margin typed in place of ='MTM & Margin req'!K16/-100, which fits only a ₹100 crore book (the engine's live margin is 0.06% off it, and the Inbuilt 0.013% of the notional; Pricer H5 is the Goal Seek's own typed answer, exact for that Q10); Summary P10, a stale spread width; the MTM product requirement column, typed for a 100 Crore book; and the "Sensex" label on the Nifty book's Day 1 sheet.
 
 ## Out Of Scope
 

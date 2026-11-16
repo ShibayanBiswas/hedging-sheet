@@ -95,8 +95,30 @@ describe("G1: The Nifty Rollover Workbook Of 17-Jul-2026", () => {
     expectCells("Pricer", cols(["B", "C", "D", "J", "R", "Z"], [17, 19, 20, 27, 28, 29, 30, 31, 32, 35, 47, 49, 52]));
   });
 
-  it("Pricer: The Inbuilt The Workbook Saved From Its Last Goal Seek, Within 0.1%", () => {
-    expectCells("Pricer", ["F5", "H5"], 1e-3);
+  // Macro2 goal seeks P5 = C5 by changing H5, so H5 holds a typed number; the workbook saved it converged, P5 = 1.025 to 5e-16.
+  // Pricer V5 = E5 × Summary Q10, and Q10 here is typed, 0.31418229, not ='MTM & Margin req'!K16/-100: that formula divides
+  // by a fixed 100 and so fits only a ₹100 crore book, while this one is ₹3 crore. The engine divides by the notional.
+  const goalSeek = (marginFraction: number) => {
+    const h = r.pricer.header;
+    const years = h.tenorDays / 365;
+    const margin = h.mobilisation * marginFraction;
+    // Pricer O5 = E5 × (1 + C5), solved for H5.
+    const nbfcGrowth = (1 + h.nbfcRate) ** years;
+    const grown = h.premium * (1 + h.premiumRate) ** years + margin * (1 + rolloverInputs().marginGrowthRate) ** years;
+    return h.mobilisation - h.transactionCostInr - margin + (grown - h.mobilisation * (1 + h.coupon)) / nbfcGrowth;
+  };
+
+  it("Pricer: Macro2's Goal Seek On The Workbook's Typed Margin Gives The Saved Inbuilt To The Paisa", () => {
+    expect(saved("Pricer", "P5")).toBeCloseTo(saved("Pricer", "C5") as number, 12);
+    expect(Math.abs(goalSeek(saved("Summary Sheet", "Q10") as number) - (saved("Pricer", "H5") as number))).toBeLessThan(0.01);
+  });
+
+  it("Pricer: The Live Margin From The 0% Stress Row Is 0.06% From The Typed One, And That Is The Whole Inbuilt Gap", () => {
+    const typed = saved("Summary Sheet", "Q10") as number;
+    const live = r.pricer.header.margin / r.pricer.header.mobilisation;
+    expect(Math.abs(live - typed) / typed).toBeLessThan(1e-3);
+    expect(Math.abs(goalSeek(live) - r.pricer.header.inbuiltInr)).toBeLessThan(0.01);
+    expectCells("Pricer", ["F5", "H5"], 2e-4);
   });
 
   it("Day1 Vega Hedge: The Hedge From The Summary, Its Quantity, Fair, Exchange And Stressed Prices, And The Margins", () => {

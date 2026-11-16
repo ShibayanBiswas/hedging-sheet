@@ -36,9 +36,9 @@ This audit checks the reference workbooks' logic against the TypeScript engine i
 | C5 | Coupon | inputs | 1 | 1 | Pass |
 | D5 | Expiry | `expiryDates` | 1 | 1 | Pass |
 | E5 | Mobilisation | header | 1 | 1 | Pass |
-| F5 | Actual Inbuilt | `brentSolve` | 1 | 1 | Pass on G0. G1 deviation: the workbook keeps a pasted Goal Seek H5, 0.015% from a fresh solve |
+| F5 | Actual Inbuilt | `brentSolve` | 1 | 1 | Pass on G0, ₹0.06 on ₹100 crore. G1: the saved Goal Seek is exact for its typed Summary Q10 (to the paisa); the live margin moves it 0.013% of the notional |
 | G5 | Product cost | header | 1 | 1 | Pass |
-| H5 | Inbuilt in rupees | `brentSolve` | 1 | 1 | Pass on G0. G1 deviation: the same pasted Goal Seek |
+| H5 | Inbuilt in rupees | `brentSolve` | 1 | 1 | Pass on G0. G1: as F5, ₹398 of ₹3 crore, all from the typed Summary Q10 |
 | I5 | Transaction cost in rupees | header | 1 | 1 | Pass |
 | J5 | Net mobilisation | header | 1 | 1 | Pass on G0. G1 deviation: it follows H5 and the typed Summary Q10 |
 | K5 | Premium | sum of row 56 | 1 | 1 | Pass |
@@ -102,7 +102,7 @@ Typed cells in the workbooks, kept out of the app:
 | Cell | Workbook | Why |
 |---|---|---|
 | Summary D3 | G1 | A second spot, 24,334.30. The app has one spot, the derived 24,264.86; both give Start Level 24,500 |
-| Pricer H5, Summary Q10, and F5, J5, V5 from them | G1 | Pasted Goal Seek results, 0.015% from a fresh solve |
+| Summary Q10, and Pricer V5, J5, H5, F5 from it | G1 | Q10 is typed, 0.31418229, where G0 has ='MTM & Margin req'!K16/-100: that formula divides by a fixed 100 and fits only a ₹100 crore book, and G1 is ₹3 crore. The engine divides by the notional; the live G1 margin is 0.31399, 0.06% off, and H5 moves ₹398 (0.013% of the notional) with it. With the typed Q10 the engine's goal seek gives the saved H5 to the paisa |
 | Summary P10 | G1 | A stale spread width |
 | Mark To Market column E, and G, H, I, K, O, P, R from it | G1 | Product requirement typed for a 100 Crore book while Summary C15 is 3 Crore |
 | Product Description D31, and D32 to D34 and D49 from it | G1 | Notional typed as 100 Crore against 3; D49 shows −40.96% where the workbook's own Summary F10 and the engine give 14.196% |
